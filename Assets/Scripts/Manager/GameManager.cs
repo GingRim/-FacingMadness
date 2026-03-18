@@ -1,3 +1,5 @@
+using System;
+using System.Collections;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
@@ -13,7 +15,7 @@ public class GameManager : MonoBehaviour
     public DataManager Data => _data;
 
     SaveManager _save;
-    public SaveManager Sace => _save;
+    public SaveManager Save => _save;
 
     SettingManager _setting;
     public SettingManager Setting => _setting;
@@ -30,7 +32,8 @@ public class GameManager : MonoBehaviour
     InputManager _input;
     public  InputManager Input => _input;
 
-    
+    IEnumerator initializing;
+
     //Awake     : 이 스크립트가 시작할 때(깨어나서)(아침에 눈을 뜸)
     //OnEnabled : 이 스크립트가 시작할 때(정신 차림 => 준비) -> 여러번 실행도 된다.
     //OnDisabled: 기절
@@ -50,23 +53,54 @@ public class GameManager : MonoBehaviour
             Destroy(this);
         }
 
-
+        InitalizeMangers();
     }
 
     
 
-    void InitalizeMangers()
+    IEnumerator InitalizeMangers()
     {
-        CreateManager(ref _ui);
-        CreateManager(ref _data);
-        CreateManager(ref _save);
-        CreateManager(ref _setting);
-        CreateManager(ref _language);
-        CreateManager(ref _audio);
-        CreateManager(ref _camera);
-        CreateManager(ref _input);
+       yield return CreateManager(ref _ui).Connect(this);
+       yield return CreateManager(ref _data).Connect(this);
+       yield return CreateManager(ref _save).Connect(this);
+       yield return CreateManager(ref _setting).Connect(this);
+       yield return CreateManager(ref _language).Connect(this);
+       yield return CreateManager(ref _audio).Connect(this);
+       yield return CreateManager(ref _camera).Connect(this);
+       yield return CreateManager(ref _input).Connect(this);
+
+        initializing = InitalizeMangers();
+
+
+        StartCoroutine(initializing);
     }
 
+    private void OnDestroy()
+    {
+        StopCoroutine(initializing);
+        
+        DeleteManagers();
+    }
+
+    void DeleteManagers()
+    {
+        //유저입력 
+        Input?.Disconnect();
+        //오디오
+        Audio?.Disconnect();
+        //언어
+        Language?.Disconnect();
+        //세팅
+        Setting?.Disconnect();
+        //세이브
+        Save?.Disconnect();
+        //카메라
+        Camera?.Disconnect();
+        //UI
+        UI?.Disconnect();
+        //데이터파일
+        Data?.Disconnect();
+    }
     //달라지는 것이 "자료형"뿐이라면 자료형에 따라 변수로 작용하는 함수를 만들 수 있지 않을까?
     //"Generic Method" => 범용 함수
     //반환값 이름<자료형>(매개변수) where 자료형 : 부모(상속자)
@@ -78,8 +112,7 @@ public class GameManager : MonoBehaviour
     {
         if (targetVariable == null)
         {
-            targetVariable = gameObject.AddComponent<ManagerType>();
-            targetVariable.Connect(this);
+            targetVariable = this.TryAddComponent<ManagerType>();
         }
         return targetVariable;
     }
