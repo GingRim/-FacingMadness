@@ -4,7 +4,7 @@ using UnityEngine;
 
 public enum UIType
 {
-    None, LOading, Title, 
+    None, Loading, Title, 
     _Length
 }
 
@@ -21,7 +21,7 @@ public class UIManager : ManagerBase
     {
         _mainCanvas = GetComponentInChildren<Canvas>();
         //GameObject.FindGameObjecWithTag("MainCanvas")
-        Debug.Log(MainCanvas);
+        SetUI(UIType.Loading, GetComponentInChildren<UI_LoadingSceen>());
         yield return null;
     }
 
@@ -30,7 +30,7 @@ public class UIManager : ManagerBase
 
     }
 
-    public UIBase SetUI(UIType WantType, UIBase WantUI)
+    protected UIBase SetUI(UIType WantType, UIBase WantUI)
     {
         if(WantUI == null) return null;
 
@@ -39,30 +39,37 @@ public class UIManager : ManagerBase
         uiDictuionary.Add(WantType, WantUI);
         return WantUI;
     }
-
-    public UIBase GetUI(UIType wantType)
+    public static UIBase SetUIM2(UIType WantType, UIBase WantUI) => GameManager.Instance?.UI?.SetUI(WantType, WantUI);
+    
+    protected UIBase GetUI(UIType wantType)
     {
         if(uiDictuionary.TryGetValue(wantType, out UIBase result))return result;
         else return null;
     }
+    public static UIBase GetUIM2(UIType wantType) => GameManager.Instance?.UI?.GetUI(wantType);
 
-    public UIBase OpenUI(UIType WantType)
+    protected UIBase OpenUI(UIType WantType)
     {
         UIBase result = GetUI(WantType);
+        if (result is IOpenable opener) opener.Open();
+
         return result;
     }
+    public static UIBase OpenUIM2(UIType wantType) => GameManager.Instance?.UI?.OpenUI(wantType);
 
-    public UIBase CloseUI(UIType WantType)
+    protected UIBase CloseUI(UIType WantType)
     {
         UIBase result = GetUI(WantType);
         if(result is IOpenable opener) opener.Close();
         return result;
     }
+    public static UIBase CloseUIM2(UIType wantType) => GameManager.Instance?.UI?.CloseUI(wantType);
 
-    public UIBase ToggleUI(UIType WantType)
+    protected UIBase ToggleUI(UIType WantType)
     {
         UIBase result = GetUI(WantType);
         if(result is IOpenable opener) opener.Toggle();
         return result;
     }
+    public static UIBase ToggleUIM2(UIType wantType) => GameManager.Instance?.UI?.ToggleUI(wantType);
 }

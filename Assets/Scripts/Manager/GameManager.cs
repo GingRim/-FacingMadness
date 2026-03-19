@@ -52,34 +52,45 @@ public class GameManager : MonoBehaviour
         {
             Destroy(this);
         }
+        // 저장했을 때 무었을 할 수 있을까?
+        initializing = InitalizeMangers();
 
-        InitalizeMangers();
+        //저장했기 때문에, 이 친구를 "시작"시키거나 "중단"시킬 수 있어요
+        //시작을 시키는 것은
+        StartCoroutine(initializing);
     }
 
     
 
     IEnumerator InitalizeMangers()
     {
+        int totalLoadCount = 0;
+      totalLoadCount += CreateManager(ref _data).LoadCount;
+      totalLoadCount += CreateManager(ref _save).LoadCount ;
+      totalLoadCount += CreateManager(ref _setting).LoadCount ;
+      totalLoadCount += CreateManager(ref _language).LoadCount ;
+      totalLoadCount += CreateManager(ref _audio).LoadCount ;
+      totalLoadCount += CreateManager(ref _camera).LoadCount ;
+      totalLoadCount += CreateManager(ref _input).LoadCount ;
+      
+
        yield return CreateManager(ref _ui).Connect(this);
-       yield return CreateManager(ref _data).Connect(this);
-       yield return CreateManager(ref _save).Connect(this);
-       yield return CreateManager(ref _setting).Connect(this);
-       yield return CreateManager(ref _language).Connect(this);
-       yield return CreateManager(ref _audio).Connect(this);
-       yield return CreateManager(ref _camera).Connect(this);
-       yield return CreateManager(ref _input).Connect(this);
-
-        initializing = InitalizeMangers();
-
-
-        StartCoroutine(initializing);
+       UIManager.OpenUIM2(UIType.Loading);
+       if (UIManager.GetUIM2(UIType.Loading) is IProgress<int> loadingProgress) loadingProgress.Set(0, totalLoadCount);
+       
+       yield return _data.Connect(this);
+       yield return _save.Connect(this);
+       yield return _setting.Connect(this);
+       yield return _language.Connect(this);
+       yield return _audio.Connect(this);
+       yield return _camera.Connect(this);
+       yield return _input.Connect(this);
+       UIManager.CloseUIM2(UIType.Loading);
     }
 
-    private void OnDestroy()
+    void OnDestroy()
     {
-        StopCoroutine(initializing);
-        
-        DeleteManagers();
+        if(initializing != null) StopCoroutine(initializing);        DeleteManagers();
     }
 
     void DeleteManagers()
