@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: Default Local Group
+  m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
+  m_GroupName: Default Local Group
+  m_GUID: 1dd05e8adb7780042ac44e517872aa45
+  m_SerializeEntries:
+  - m_GUID: 27125ce9bf8096d48baa500bf67d80b6
+    m_Address: Origin
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - zelo
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: d0a3ea3295eacab4485034519b033353
+    m_Address: Origin/Prefabs/Globals
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - OGlobals
+    - zelo
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 938dcf203bec3f3488cd6cbf4f69eea5, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 28741a26f8f9bbb41a512a7ee309a524, type: 2}
+    - {fileID: 11400000, guid: 30bb8d82c00c3874f866daaa7682f27b, type: 2}

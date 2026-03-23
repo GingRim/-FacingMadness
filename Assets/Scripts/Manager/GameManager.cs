@@ -75,16 +75,26 @@ public class GameManager : MonoBehaviour
       
 
        yield return CreateManager(ref _ui).Connect(this);
-       UIManager.OpenUIM2(UIType.Loading);
-       if (UIManager.GetUIM2(UIType.Loading) is IProgress<int> loadingProgress) loadingProgress.Set(0, totalLoadCount);
+       UIBase loadingUI = UIManager.OpenUIM2(UIType.Loading);
+       IProgress<int> loadingProgress = loadingUI as IProgress<int>;
+        
+       loadingProgress?.Set(0, totalLoadCount);
        
        yield return _data.Connect(this);
+        loadingProgress?.AddCurrent(1);
        yield return _save.Connect(this);
+        loadingProgress?.AddCurrent(1);
        yield return _setting.Connect(this);
+        loadingProgress?.AddCurrent(1);
        yield return _language.Connect(this);
+        loadingProgress?.AddCurrent(1);
        yield return _audio.Connect(this);
+        loadingProgress?.AddCurrent(1);
        yield return _camera.Connect(this);
+        loadingProgress?.AddCurrent(1);
        yield return _input.Connect(this);
+        loadingProgress?.AddCurrent(1);
+        yield return new WaitForSeconds(1.0f);
        UIManager.CloseUIM2(UIType.Loading);
     }
 
