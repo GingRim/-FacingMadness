@@ -65,6 +65,7 @@ public class GameManager : MonoBehaviour
     IEnumerator InitalizeMangers()
     {
         int totalLoadCount = 0;
+      totalLoadCount += CreateManager(ref _ui).LoadCount;
       totalLoadCount += CreateManager(ref _data).LoadCount;
       totalLoadCount += CreateManager(ref _save).LoadCount ;
       totalLoadCount += CreateManager(ref _setting).LoadCount ;

@@ -1,13 +1,16 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 
 public class DataManager : ManagerBase
 {
-
+    // 전체 데이터를 저장하는 딕셔너리(사전)
+    static Dictionary<System.Type, Dictionary<string, Object>> dataDictionary = new();
+    
     //프로퍼티는 변수모양이지만 함수
     // int GetLoadCount();
-
+    
     public override int LoadCount
     {
         get 
@@ -17,7 +20,7 @@ public class DataManager : ManagerBase
             int count = result.Count; //개수를 찾아오기
             
 
-            task.Release();
+            task.Release();// 대이터 잠그기
             return count; // 그래서 그 개수를 돌려줌!
         }
     }
@@ -41,6 +44,10 @@ public class DataManager : ManagerBase
         
         LoadAllFromAssetBundle<GameObject>("OGlobals", PrgressOnLoad);
 
+
+
+        //GameObject prefab = LoadDataFile<GameObject>("Square");
+        //Instantiate(prefab, Random.insideUnitCircle * 5.0f, Random.rotation);
        //LoadFileFromAssetBundle<GameObject>("Origin/Prefabs/Square.prefab");
        // 로딩 진행율 => 최대 몇 개인지, 현재 몇 개까지 했는지
         //               현재 / 최대    1 / 100 = 0.01
@@ -65,11 +72,32 @@ public class DataManager : ManagerBase
     //DLC => 특정 카테고리에 있는 요소를 다운로드 하게 할 것인가 말 것인가?
     //Addressable(어드렛써블)
     // async함수는 비동기 함수 => 다른 함수와 같이 돌아갈 수 있는 함수!
-
-    public void SaveDataFile<T>(T target) where T : Object
+    // 저장한다는 것은 언재든 불러올 수 있다. 그리고 저장할때 재일 중요한 것은 : 어떻게 꺼낼 것인가
+    public static void SaveDataFile<T>(T target) where T : Object
     {
         if (target == null) return;
-        Debug.Log(target);
+        Dictionary<string, Object> innerDictionary;
+        // 지금까지 이런 타입의 Object가 없었다 즉 처음 보는 것이기에 innerDictionary가 존재하지 않을 것이기 떄문에!
+        if (!dataDictionary.TryGetValue(typeof(T), out innerDictionary))
+        {
+            innerDictionary = new();
+            dataDictionary.Add(typeof(T), innerDictionary);
+        }
+
+        innerDictionary.TryAdd(target.name, target);
+
+    }
+
+    public static T LoadDataFile<T>(string fileName) where T : Object
+    {
+        if (dataDictionary.TryGetValue(typeof(T), out Dictionary<string, Object> innerDictionary))
+        {
+            if(innerDictionary.TryGetValue(fileName, out Object result))
+            {
+                return result as T;
+            }
+        }
+        return null;
     }
 
     public async void LoadAllFromAssetBundle<T>(string label, System.Action actionForEachLoad) where T : Object
@@ -80,6 +108,7 @@ public class DataManager : ManagerBase
             actionForEachLoad(); // 할일 있다고 하니 해둬야 겠다.
         });
         await finder.Task;
+        finder.Release();
     }
 
     public async void LoadFileFromAssetBundle<T>(string address) where T : Object
