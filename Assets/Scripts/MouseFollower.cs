@@ -4,13 +4,22 @@ public class MouseFollower : MonoBehaviour
 {
     void Start()
     {
-        InputManager.OnMouseMove += MoveToMouse;
+        InputManager.OnMouseRightUp += DestroyOnmouse;
+        InputManager.OnMouseLeftDown += CeateToMouse;
     }
 
-    void MoveToMouse(Vector2 screenPosition, Vector3 Worldposition)
+    void CeateToMouse(Vector2 screenPosution, Vector3 worldposition)
     {
-        transform.position = Worldposition;
+        Instantiate(DataManager.LoadDataFile<GameObject>("Square 4"), worldposition, Quaternion.identity);
     }
 
+    void MoveToMouse(Vector2 screenPosition, Vector3 worldposition)
+    {
+        transform.position = worldposition;
+    }
 
+    void DestroyOnmouse(Vector2 screenPosition, Vector3 worldposition)
+    {
+        Debug.Log(GameManager.Instance.Input.GetGameObjectUnderCursor());
+    }
 }

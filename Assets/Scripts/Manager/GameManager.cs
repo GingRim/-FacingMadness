@@ -2,6 +2,10 @@ using System;
 using System.Collections;
 using UnityEngine;
 
+public delegate void InitializeEvent();
+public delegate void UpdateEvent(float deltaTime);
+public delegate void DestroyEvent();
+
 public class GameManager : MonoBehaviour
 {
     static GameManager _instance;
@@ -33,6 +37,24 @@ public class GameManager : MonoBehaviour
     public  InputManager Input => _input;
 
     IEnumerator initializing;
+
+    public static event  InitializeEvent OnInitializeManager     ;
+    public static event  InitializeEvent OnInitializeController  ;
+    public static event  InitializeEvent OnInitializeCharacter   ;
+    public static event  InitializeEvent OnInitializeObject      ;
+      
+    public static event  UpdateEvent     OnUpdateEventManager    ;
+    public static event  UpdateEvent     OnUpdateEventController ;
+    public static event  UpdateEvent     OnUpdateEventCharacter  ;
+    public static event  UpdateEvent     OnUpdateEventObject     ;
+    
+    public static event  DestroyEvent    OnDestroyEventManager   ;
+    public static event  DestroyEvent    OnDestroyEventController;
+    public static event  DestroyEvent    OnDestroyEventCharacter ;
+    public static event  DestroyEvent    OnDestroyEventObject    ;
+
+    bool isLoading = true;
+    bool isPlaying =  true;
 
     //Awake     : 이 스크립트가 시작할 때(깨어나서)(아침에 눈을 뜸)
     //OnEnabled : 이 스크립트가 시작할 때(정신 차림 => 준비) -> 여러번 실행도 된다.
@@ -97,6 +119,7 @@ public class GameManager : MonoBehaviour
         loadingProgress?.AddCurrent(1);
         yield return new WaitForSeconds(1.0f);
        UIManager.CloseUIM2(UIType.Loading);
+        isLoading = false;
     }
 
     void OnDestroy()
@@ -139,8 +162,84 @@ public class GameManager : MonoBehaviour
         return targetVariable;
     }
 
-    void Update()
+    public static void Pause()
     {
-        
+        Instance.isPlaying = false;
     }
+
+    public static void Unpause()
+    {
+        Instance.isPlaying =true;
+    }
+
+    public void InvokeInitializeEvent(ref InitializeEvent OriginEvent)
+    {
+        if (OriginEvent != null)
+        {
+            InitializeEvent CurrentEvent = OriginEvent;
+            OriginEvent = null;
+            CurrentEvent.Invoke();
+        }
+    }
+
+    public void InvokeDestroyEvent(ref DestroyEvent OriginEvent)
+    {
+        if (OriginEvent != null)
+        {
+            DestroyEvent CurrentEvent = OriginEvent;
+            OriginEvent = null;
+            CurrentEvent.Invoke();
+        }
+    }
+
+
+    // 모두가 업데이트 하겠다고 한다면 누가 먼저 업데이트 하는 지 모르며 마우스가 갱싱되지 않은 상태에서
+    // 총을 쏜다면 프레임 전에 지정한 위치에 쏜다
+    // 하스스톤에서 여러번 반복해서 때리는 카드를 보면 이미 죽은 카드들을 또 때리는 것도 볼 수 있다.
+    void Update()
+    {   // 게임 진행을 할 수 있는지 여부를 조정할 수도 있다.
+        // Pause상태다! => 업데이트를 하지 않는다!
+        // 매니저 -> 캐릭터 -> 컨트롤러 -> 오브젝트 초기화
+        // 매니저 -> 컨트롤러 -> 캐릭터가 -> 오브젝트 업데이트 추가 가능! 
+        // 오브젝트 -> 컨트롤러 -> 캐릭터 -> 매니저 제거
+
+        if(isLoading) return;
+
+        //매니저 초기화
+        InvokeInitializeEvent(ref OnInitializeManager);
+
+        //캐릭터 초기화
+        InvokeInitializeEvent(ref OnInitializeCharacter);
+
+        //컨트롤러 초기화
+        InvokeInitializeEvent(ref OnInitializeController);
+
+        //오브젝트 초기화
+        InvokeInitializeEvent(ref OnInitializeObject);
+
+        if (isPlaying)
+        {
+            float deltaTime = Time.deltaTime;
+            //매니저 업데이트
+            OnUpdateEventManager?.Invoke(deltaTime);
+            //컨트롤러 업데이트        먼저 컨트롤러가 판단하고
+            OnUpdateEventController?.Invoke(deltaTime);
+            //캐릭터 업데이트          캐릭터가 이를 실행 후
+            OnUpdateEventCharacter?.Invoke(deltaTime);
+            //오브젝트 업데이트        오브젝트가 진행한다
+            OnUpdateEventObject?.Invoke(deltaTime);
+        }
+
+
+        //오브젝트 제거
+        InvokeDestroyEvent(ref OnDestroyEventObject);
+        //컨트롤러 제거
+        InvokeDestroyEvent(ref OnDestroyEventController);
+        //캐릭터 제거
+        InvokeDestroyEvent(ref OnDestroyEventCharacter);
+        //매니저 제거
+        InvokeDestroyEvent(ref OnDestroyEventManager);
+    }
+
+
 }

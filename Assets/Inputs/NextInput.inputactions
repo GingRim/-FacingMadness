@@ -43,7 +43,7 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "MouseRifhtButtonDown",
+                    "name": "MouseRightButtonDown",
                     "type": "Button",
                     "id": "05d8edd6-b15a-4267-b6f8-580f260f89c9",
                     "expectedControlType": "",
@@ -52,7 +52,7 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "MouseRifhtButtonUP",
+                    "name": "MouseRightButtonUP",
                     "type": "Button",
                     "id": "1a6b2bb8-5f19-4770-b87c-111b19557f74",
                     "expectedControlType": "",
@@ -113,7 +113,7 @@
                     "interactions": "Press",
                     "processors": "",
                     "groups": "",
-                    "action": "MouseRifhtButtonDown",
+                    "action": "MouseRightButtonDown",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -124,7 +124,7 @@
                     "interactions": "Press(behavior=1)",
                     "processors": "",
                     "groups": "",
-                    "action": "MouseRifhtButtonUP",
+                    "action": "MouseRightButtonUP",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
