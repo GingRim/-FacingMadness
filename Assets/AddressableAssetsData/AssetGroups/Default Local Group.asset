@@ -21,6 +21,13 @@ MonoBehaviour:
     m_SerializedLabels:
     - zelo
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 49959be4182b1cb4fbd14da7234b4f68
+    m_Address: Origin/ScriptableObjects/Globals
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - OGlobals
+    - zelo
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: d0a3ea3295eacab4485034519b033353
     m_Address: Origin/Prefabs/Globals
     m_ReadOnly: 0

@@ -13,6 +13,7 @@ public class CameraManager : ManagerBase
 
     protected override IEnumerator OnConnected(GameManager newManager)
     {
+        SetMainCamera(Camera.main);
         yield return null;
     }
 

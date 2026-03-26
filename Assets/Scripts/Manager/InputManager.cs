@@ -60,9 +60,23 @@ public class InputManager : ManagerBase
         GameManager.OnUpdateEventManager -= UpdateEvent;
     }
 
-    public void UpdateEvent(float deltaTime)
+    public void UpdateEvent(float deltaTime)// 마우스가 올라가면 계속 업데이트 된다.
     {
-        GameManager.Instance.Camera.GetRaycastResult2D(cursorScreenPosition, cursorHitList);
+        RefreshGameObjectUnderCursor();
+    }
+
+    void RefreshGameObjectUnderCursor()
+    {
+        cursorHitList.Clear();
+        if (is2D)
+        {
+            GameManager.Instance.Camera.GetRaycastResult2D(cursorScreenPosition, cursorHitList);
+        }
+        else
+        {
+            GameManager.Instance.Camera.GetRaycastResult3D(cursorScreenPosition, cursorHitList);
+        }
+
     }
 
     public GameObject GetGameObjectUnderCursor()

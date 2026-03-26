@@ -1,16 +1,34 @@
 using UnityEngine;
 
-public class MouseFollower : MonoBehaviour
+public class MouseFollower : MonoBehaviour, IFunctionable
 {
     void Start()
     {
-        InputManager.OnMouseRightUp += DestroyOnmouse;
+        RegistrationFunctions();
+    }
+
+    void OnDestroy()
+    {
+        UnRegistrationFunctions();
+    }
+
+
+    public void RegistrationFunctions()
+    {
+        InputManager.OnMouseRightUp += DestroyOnmouse; //마출 물체는 콜라이더가 있어야 한다.
         InputManager.OnMouseLeftDown += CeateToMouse;
+    }
+
+    public void UnRegistrationFunctions()
+    {
+        InputManager.OnMouseRightUp -= DestroyOnmouse;
+        InputManager.OnMouseLeftDown -= CeateToMouse;
     }
 
     void CeateToMouse(Vector2 screenPosution, Vector3 worldposition)
     {
-        Instantiate(DataManager.LoadDataFile<GameObject>("Square 4"), worldposition, Quaternion.identity);
+        GameObject inst = ObjectManager.CreateObject(DataManager.LoadDataFile<GameObject>("Square"));
+        inst.transform.position = worldposition;
     }
 
     void MoveToMouse(Vector2 screenPosition, Vector3 worldposition)
@@ -20,6 +38,6 @@ public class MouseFollower : MonoBehaviour
 
     void DestroyOnmouse(Vector2 screenPosition, Vector3 worldposition)
     {
-        Debug.Log(GameManager.Instance.Input.GetGameObjectUnderCursor());
+        ObjectManager.DestroyObject(GameManager.Instance.Input.GetGameObjectUnderCursor());
     }
 }
