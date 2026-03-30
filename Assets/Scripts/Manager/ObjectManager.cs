@@ -1,6 +1,7 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UIElements;
+
 [System.Serializable] // 시리얼 / 연속적인 / 
 public struct PoolSetting
 {
@@ -12,10 +13,25 @@ public struct PoolSetting
 
 public class ObjectManager : ManagerBase
 {
-    [SerializeField] PoolSetting[] testSettings;
+    //[SerializeField] PoolSetting[] testSettings; 테스트 셋팅
+
+    // 리스트 : 배열과 비스한데 추가 제거가 쉬움,  용량  큼  처리속도가 느리다
+    // 배열 : 리스트와 비슷한데 추가 제거가 어려움,용량 적음 처리속도 빠름
+
+    List<PoolRequest> loadedPoolRequests = new();
+
+    Dictionary<string, ObjectPoolModule> PoolDictionary;// 프리펩 디셔너리 디셔너리 생성(선언) 
 
     protected override IEnumerator OnConnected(GameManager NewManager)
     {
+        RegistrationPool("GlobalCharacterPool");
+        RegistrationPool("GlobalControllerPool");
+        RegistrationPool("GlobalEffectPool");
+        RegistrationPool("GlobalObjectPool");
+        RegistrationPool("GlobalUIPool");
+        
+        InitializePool();
+
         yield return null;
     }
 
@@ -178,4 +194,32 @@ public class ObjectManager : ManagerBase
 
     }
 
+    public void RegistrationPool(string poolName)
+    {
+        PoolRequest currentRequest = DataManager.LoadDataFile<PoolRequest>(poolName);
+        loadedPoolRequests.Add(currentRequest);
+
+        if (currentRequest == null) return;
+        //         학생           다음 학생 in   3학년 4반
+        foreach (PoolSetting currentSetting in currentRequest.settings)
+        {
+            string curretName = currentSetting.poolName;
+            
+            GameObject currentPrefab = currentSetting.target;
+           
+            if (currentPrefab == null) continue;
+
+            if (PoolDictionary.ContainsKey(curretName)) continue;
+
+            PoolDictionary.Add(curretName, new(currentSetting)); // 등록
+        }
+    }
+
+    public void     InitializePool()
+    {
+        foreach(ObjectPoolModule currentPool in PoolDictionary.Values)
+        {
+            currentPool?.Initialize();
+        }
+    }
 }

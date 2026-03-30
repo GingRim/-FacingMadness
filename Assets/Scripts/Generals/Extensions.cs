@@ -1,6 +1,6 @@
+using System.Collections;
+using System.Threading.Tasks;
 using UnityEngine;
-using static UnityEngine.GraphicsBuffer;
-using static UnityEngine.Rendering.DebugUI;
 
 public static class Extensions
 {
@@ -29,5 +29,11 @@ public static class Extensions
         result = target.GetComponent<T>() ?? target.gameObject.TryAddComponent<T>();
 
         return result;
+    }
+
+    public static IEnumerator WaitForTask(this Task targetTask)
+    {
+        yield return new WaitUntil(() => targetTask.IsCompleted);
+        targetTask.Dispose();
     }
 }

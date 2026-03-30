@@ -40,4 +40,6 @@ public class MouseFollower : MonoBehaviour, IFunctionable
     {
         ObjectManager.DestroyObject(GameManager.Instance.Input.GetGameObjectUnderCursor());
     }
+
+
 }
