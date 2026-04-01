@@ -1,18 +1,21 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 
-[System.Serializable] // 시리얼 / 연속적인 / 
-public struct PoolSetting
-{
-    public string poolName;
-    public GameObject target;
-    public int counInitial;
-    public int coutAdditional; // 한번에 추가할 개수
-}
+
 
 public class ObjectManager : ManagerBase
 {
+
+    readonly string[] globalPoolSettings =
+    {
+        "GlobalCharacterPool",
+        "GlobalControllerPool",
+        "GlobalEffectPool",
+        "GlobalObjectPool",
+        "GlobalUIPool"
+    };
     //[SerializeField] PoolSetting[] testSettings; 테스트 셋팅
 
     // 리스트 : 배열과 비스한데 추가 제거가 쉬움,  용량  큼  처리속도가 느리다
@@ -20,16 +23,11 @@ public class ObjectManager : ManagerBase
 
     List<PoolRequest> loadedPoolRequests = new();
 
-    Dictionary<string, ObjectPoolModule> PoolDictionary;// 프리펩 디셔너리 디셔너리 생성(선언) 
+    static  Dictionary<string, ObjectPoolModule> PoolDictionary = new();// 프리펩 디셔너리 디셔너리 생성(선언) 
 
     protected override IEnumerator OnConnected(GameManager NewManager)
     {
-        RegistrationPool("GlobalCharacterPool");
-        RegistrationPool("GlobalControllerPool");
-        RegistrationPool("GlobalEffectPool");
-        RegistrationPool("GlobalObjectPool");
-        RegistrationPool("GlobalUIPool");
-        
+        RegistrationPool(globalPoolSettings);
         InitializePool();
 
         yield return null;
@@ -42,6 +40,42 @@ public class ObjectManager : ManagerBase
 
     // 오브젝트 풀링(화면에서 on off)
 
+    public static GameObject CreateObject(string WantName)
+    {
+        if (PoolDictionary.TryGetValue(WantName, out ObjectPoolModule pool))
+        {
+            return pool.CreateObject();
+        }
+        GameObject prefab = DataManager.LoadDataFile<GameObject>(WantName);
+        if(prefab)
+        {
+            return Instantiate(prefab);
+        }
+        return null;
+    }
+ 
+    public static GameObject CreateObject(string WantName, Transform parent = null)
+    {
+        GameObject result = null;
+
+        WantName = WantName.ToLower();
+
+        if (PoolDictionary.TryGetValue(WantName, out ObjectPoolModule pool))
+        {
+            result = pool.CreateObject(parent);
+        }
+        else
+        {
+            GameObject prefab = DataManager.LoadDataFile<GameObject>(WantName);
+            if (prefab)
+            {
+                result = Instantiate(prefab, parent);
+            }
+        }
+        RegistrationObject(result);
+
+            return result;
+    }
     public static GameObject CreateObject(GameObject prefab, Transform parent = null)
     {
         if (prefab == null) return null;
@@ -57,6 +91,12 @@ public class ObjectManager : ManagerBase
     }
 
     // 부모 자식간의 크기 차이로 결정되기에 이상한 행동이 많이 나온다.
+    public static GameObject CreateObject(string WantName, Vector3 position)
+    {
+        GameObject result = CreateObject(WantName);
+        if (result) result.transform.position = position;
+        return result;
+    }
     public static GameObject CreateObject(GameObject prefab, Vector3 position)
     {
         GameObject result = CreateObject(prefab);
@@ -64,6 +104,16 @@ public class ObjectManager : ManagerBase
         return result;
     }
 
+    public static GameObject CreateObject(string WantName, Vector3 position, Quaternion rotatoon)
+    {
+        GameObject result = CreateObject(WantName);
+        if (result)
+        {
+            result.transform.position = position;
+            result.transform.rotation = rotatoon;
+        }
+        return result;
+    }
     public static GameObject CreateObject(GameObject prefab, Vector3 position, Quaternion rotatoon)
     {
         GameObject result = CreateObject(prefab);
@@ -74,7 +124,26 @@ public class ObjectManager : ManagerBase
         }
         return result;
     }
-   
+
+    public static GameObject CreateObject(string WantName, Transform parent, Vector3 position, Space space = Space.Self)
+    {
+        GameObject result = CreateObject(WantName, parent);
+        if (result)
+        {
+            switch (space)
+            {
+                case Space.World:
+                    result.transform.position = position;// 절대값을 기준으로
+                    break;
+
+                case Space.Self:
+                    result.transform.localPosition = position; // 부모를 기준으로
+                    break;
+            }
+            result.transform.position = position;
+        }
+        return result;
+    }
     public static GameObject CreateObject(GameObject prefab, Transform parent, Vector3 position, Space space = Space.Self)
     {
         GameObject result = CreateObject(prefab, parent);
@@ -95,6 +164,26 @@ public class ObjectManager : ManagerBase
         return result;
     }
 
+    public static GameObject CreateObject(string WantName, Transform parent, Vector3 position, Quaternion rotatoon, Space space = Space.Self)
+    {
+        GameObject result = CreateObject(WantName, parent);
+        if (result)
+        {
+            switch (space)
+            {
+                case Space.World:
+                    result.transform.position = position; // 절대값 기준
+                    result.transform.rotation = rotatoon;
+                    break;
+                case Space.Self:
+                    result.transform.localPosition = position;
+                    result.transform.localRotation = rotatoon;
+                    break;
+            }
+
+        }
+        return result;
+    }
     public static GameObject CreateObject(GameObject prefab, Transform parent, Vector3 position, Quaternion rotatoon, Space space = Space.Self)
     {
         GameObject result = CreateObject(prefab, parent);
@@ -116,6 +205,17 @@ public class ObjectManager : ManagerBase
         return result;
     }
 
+    public static GameObject CreateObject(string WantName, Vector3 position, Quaternion rotatoon, Vector3 scale)
+    {
+        GameObject result = CreateObject(WantName);
+        if (result)
+        {
+            result.transform.position = position;
+            result.transform.rotation = rotatoon;
+            result.transform.localScale = scale;
+        }
+        return result;
+    }
     public static GameObject CreateObject(GameObject prefab, Vector3 position, Quaternion rotatoon, Vector3 scale)
     {
         GameObject result = CreateObject(prefab);
@@ -128,6 +228,41 @@ public class ObjectManager : ManagerBase
         return result;
     }
 
+    public static GameObject CreateObject(string WantName, Transform parent, Vector3 position, Quaternion rotatoon, Vector3 scale, Space space = Space.Self)
+    {
+        GameObject result = CreateObject(WantName, parent);
+        if (result)
+        {
+            switch (space)
+            {
+                case Space.World:
+                    result.transform.position = position; // 절대값 기준
+                    result.transform.rotation = rotatoon;
+                    result.transform.localScale = scale;
+                    //                    // 진짜 크기 1 부모의 크기 2 일때 나의 크기는 0.5
+                    //                    // 나의 크기를 3으로 하고 자 할때 부모의 크기 2 이라면 진짜(로컬)의 크기는 1.5이여야 한다.
+                    //                    // 진짜 크기 나누기 부모 크기를 비교하야 값을 자져주면 좋겠다.
+                    //                    // 단 부모의 부모가 있다면 어떻게 해야 하나.
+                    //                    // 로컬(1.2) * (월드(0.9) / 로컬(1.2)) = 월드(0.9)
+                    //                    // 월드(0.9) * (로컬(1.2) / 월드(0.9)) = 로컬(1.2)
+                    //                    //                  3 * (4/3) = 4
+                    //                    Vector3 originLocalScal = result.transform.localScale;
+                    //                    Vector3 originLossyScal = result.transform.lossyScale;
+                    //                    float scaledScaleX = scale.x * (originLocalScal.x / originLossyScal.x);
+                    //                    float scaldeScaleY = scale.y * (originLocalScal.y / originLossyScal.y);
+                    //                    float scaldeScaleZ = scale.z * (originLocalScal.z / originLossyScal.z);
+                    //                    result.transform.localScale = new Vector3(scaledScaleX, scaldeScaleY, scaldeScaleZ);
+                    break;
+                case Space.Self:
+                    result.transform.localPosition = position;
+                    result.transform.localRotation = rotatoon;
+                    result.transform.localScale = scale;
+                    break;
+            }
+
+        }
+        return result;
+    }
     public static GameObject CreateObject(GameObject prefab, Transform parent, Vector3 position, Quaternion rotatoon,Vector3 scale, Space space = Space.Self)
    {
        GameObject result = CreateObject(prefab, parent);
@@ -180,7 +315,14 @@ public class ObjectManager : ManagerBase
     {
         if (!target) return;
         UnRegistrationObject(target);
-        Destroy(target);
+        if (target.TryGetComponent(out PooledObject pool))
+        {
+            pool.OnEnqueue();
+        }
+        else
+        {
+            Destroy(target);
+        }
     }
 
     public static void UnRegistrationObject(GameObject target)
@@ -196,14 +338,17 @@ public class ObjectManager : ManagerBase
 
     public void RegistrationPool(string poolName)
     {
+        poolName = poolName.ToLower();
+
         PoolRequest currentRequest = DataManager.LoadDataFile<PoolRequest>(poolName);
         loadedPoolRequests.Add(currentRequest);
 
         if (currentRequest == null) return;
+        if (currentRequest.settings ==  null) return;
         //         학생           다음 학생 in   3학년 4반
         foreach (PoolSetting currentSetting in currentRequest.settings)
         {
-            string curretName = currentSetting.poolName;
+            string curretName = currentSetting.poolName.ToLower();
             
             GameObject currentPrefab = currentSetting.target;
            
@@ -214,8 +359,15 @@ public class ObjectManager : ManagerBase
             PoolDictionary.Add(curretName, new(currentSetting)); // 등록
         }
     }
+    public void RegistrationPool(params string[] poolNames)
+    {
+        foreach (string poolName in poolNames)
+        {
+            RegistrationPool(poolName);
+        }
+    }
 
-    public void     InitializePool()
+    public void InitializePool()
     {
         foreach(ObjectPoolModule currentPool in PoolDictionary.Values)
         {
@@ -223,3 +375,4 @@ public class ObjectManager : ManagerBase
         }
     }
 }
+            

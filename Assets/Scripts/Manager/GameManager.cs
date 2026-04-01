@@ -102,15 +102,17 @@ public class GameManager : MonoBehaviour
       totalLoadCount += CreateManager(ref _input).LoadCount ;
       
 
-       yield return CreateManager(ref _ui).Connect(this);
+       yield return UI.Initialize(this);
        UIBase loadingUI = UIManager.OpenUIM2(UIType.Loading);
        IProgress<int> loadingProgress = loadingUI as IProgress<int>;
         
        loadingProgress?.Set(0, totalLoadCount);
        
-       yield return _data.Connect(this);
+       yield return Data.Connect(this);
         loadingProgress?.AddCurrent(1);
-       yield return _objectM.Connect(this);
+       yield return ObjectM.Connect(this);
+        loadingProgress?.AddCurrent(1);
+        yield return UI.Connect(this);
         loadingProgress?.AddCurrent(1);
        yield return _save.Connect(this);
         loadingProgress?.AddCurrent(1);

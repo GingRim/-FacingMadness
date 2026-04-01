@@ -12,3 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 65124e9fdbba73e49ae0e50a2621da1a, type: 3}
   m_Name: GlobalUIPool
   m_EditorClassIdentifier: Assembly-CSharp::PoolRequest
+  settings:
+  - poolName: PooUP
+    target: {fileID: 5277009837037218838, guid: 41e441109538ef14e99f9fd67f445bce, type: 3}
+    countInitial: 5
+    coutAdditional: 3

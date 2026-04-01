@@ -27,7 +27,7 @@ public class MouseFollower : MonoBehaviour, IFunctionable
 
     void CeateToMouse(Vector2 screenPosution, Vector3 worldposition)
     {
-        GameObject inst = ObjectManager.CreateObject(DataManager.LoadDataFile<GameObject>("Square"));
+        GameObject inst = ObjectManager .CreateObject(DataManager.LoadDataFile<GameObject>("Square"));
         inst.transform.position = worldposition;
     }
 
@@ -42,4 +42,5 @@ public class MouseFollower : MonoBehaviour, IFunctionable
     }
 
 
+    
 }
