@@ -86,7 +86,8 @@ GameObject:
   - component: {fileID: 5661680880203620764}
   - component: {fileID: 1487522347986701295}
   - component: {fileID: 7483755554238369248}
-  - component: {fileID: 576315014606337082}
+  - component: {fileID: 2089692125637049425}
+  - component: {fileID: 1879539774572301691}
   m_Layer: 5
   m_Name: PooUP
   m_TagString: Untagged
@@ -152,7 +153,7 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &576315014606337082
+--- !u!114 &2089692125637049425
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -161,6 +162,18 @@ MonoBehaviour:
   m_GameObject: {fileID: 5277009837037218838}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6ace237d64f8b5448aa087e823ccece6, type: 3}
+  m_Script: {fileID: 11500000, guid: 62a9142e1a3e2ad42959be84bb8b33ee, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UIManager
+  m_EditorClassIdentifier: Assembly-CSharp::PooledObject
+--- !u!114 &1879539774572301691
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5277009837037218838}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b6790443bea52c4692eeeb5a0dcf178, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UI_PopUp

@@ -1014,7 +1014,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 5277009837037218838, guid: 41e441109538ef14e99f9fd67f445bce, type: 3}
       propertyPath: m_Name
-      value: PooUP
+      value: PopUp
       objectReference: {fileID: 0}
     - target: {fileID: 5661680880203620764, guid: 41e441109538ef14e99f9fd67f445bce, type: 3}
       propertyPath: m_Pivot.x

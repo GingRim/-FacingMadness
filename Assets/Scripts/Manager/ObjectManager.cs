@@ -66,12 +66,15 @@ public class ObjectManager : ManagerBase
         }
         else
         {
-            GameObject prefab = DataManager.LoadDataFile<GameObject>(WantName);
-            if (prefab)
+            if (DataManager.TryLoadDataFile(WantName, out GameObject prefab))
             {
-                result = Instantiate(prefab, parent);
+                if (prefab) result = Instantiate(prefab, parent);
+                
             }
         }
+
+        if (!result) UIManager.ClaimErrorMessage(SystemMessage.ObjectNameNotFound(WantName));
+
         RegistrationObject(result);
 
             return result;

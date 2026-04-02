@@ -4,120 +4,137 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 
-    public class DataManager : ManagerBase
+public class DataManager : ManagerBase
+{
+    // 전체 데이터를 저장하는 딕셔너리(사전)
+    static Dictionary<System.Type, Dictionary<string, Object>> dataDictionary = new();
+
+    //프로퍼티는 변수모양이지만 함수
+    // int GetLoadCount();
+
+    public override int LoadCount
     {
-        // 전체 데이터를 저장하는 딕셔너리(사전)
-        static Dictionary<System.Type, Dictionary<string, Object>> dataDictionary = new();
-
-        //프로퍼티는 변수모양이지만 함수
-        // int GetLoadCount();
-
-        public override int LoadCount
+        get
         {
-            get
+            var task = Addressables.LoadResourceLocationsAsync("OGlobals");
+            var result = task.WaitForCompletion();
+            int count = result.Count; //개수를 찾아오기
+
+
+            task.Release();// 대이터 잠그기
+            return count; // 그래서 그 개수를 돌려줌!
+        }
+    }
+
+    protected override IEnumerator OnConnected(GameManager newManager)
+    {
+
+        UIBase loading = UIManager.GetUIM2(UIType.Loading);
+        IProgress<int> progressUI = loading as IProgress<int>;
+        IStatus<string> statusUI = loading as IStatus<string>;
+
+        int loaded = 0;
+        int total = LoadCount;
+        string loadString = "Load Data";
+
+
+        System.Action PrgressOnLoad = () =>
+        {
+            loaded++;
+            progressUI.AddCurrent(1);
+            statusUI.SetCurrentStatus($"{loadString}({loaded}/{total})");
+        };
+
+        // 새로운 타입의 무언가를 추가할때 여기다 넣기
+        loadString = "Load Game Objects";
+        yield return LoadAllFromAssetBundle<GameObject>("OGlobals", PrgressOnLoad).WaitForTask();
+        loadString = "Load Pool Requests";
+        yield return LoadAllFromAssetBundle<PoolRequest>("OGlobals", PrgressOnLoad).WaitForTask();
+
+
+
+        //GameObject prefab = LoadDataFile<GameObject>("Square");
+        //Instantiate(prefab, Random.insideUnitCircle * 5.0f, Random.rotation);
+        //LoadFileFromAssetBundle<GameObject>("Origin/Prefabs/Square.prefab");
+        // 로딩 진행율 => 최대 몇 개인지, 현재 몇 개까지 했는지
+        //               현재 / 최대    1 / 100 = 0.01
+
+
+
+        yield return null;
+    }
+
+    protected override void OnDisconnected()
+    {
+
+    }
+
+    bool TryGetFileFromResources<T>(string path, out T result) where T : Object
+    {
+        result = Resources.Load<T>(path);
+        return result != null;
+    }
+
+    //Asset Bundle (에셋 번들) (임의로 지정한 카테고리)
+    //DLC => 특정 카테고리에 있는 요소를 다운로드 하게 할 것인가 말 것인가?
+    //Addressable(어드렛써블)
+    // async함수는 비동기 함수 => 다른 함수와 같이 돌아갈 수 있는 함수!
+    // 저장한다는 것은 언재든 불러올 수 있다. 그리고 저장할때 재일 중요한 것은 : 어떻게 꺼낼 것인가
+    public static void SaveDataFile<T>(T target) where T : Object
+    {
+        if (target == null) return;
+        Dictionary<string, Object> innerDictionary;
+        // 지금까지 이런 타입의 Object가 없었다 즉 처음 보는 것이기에 innerDictionary가 존재하지 않을 것이기 떄문에!
+        if (!dataDictionary.TryGetValue(typeof(T), out innerDictionary))
+        {
+            innerDictionary = new();
+            dataDictionary.Add(typeof(T), innerDictionary);
+        }
+
+        innerDictionary.TryAdd(target.name.ToLower(), target);
+
+    }
+
+    protected static T GetDataFromDictnay<T>(string fileName) where T : Object
+    {
+        if (string.IsNullOrEmpty(fileName)) return null;
+
+        fileName = fileName.ToLower();
+
+        if (dataDictionary.TryGetValue(typeof(T), out Dictionary<string, Object> innerDictionary))
+        {
+            if (innerDictionary.TryGetValue(fileName, out Object result))
             {
-                var task = Addressables.LoadResourceLocationsAsync("OGlobals");
-                var result = task.WaitForCompletion();
-                int count = result.Count; //개수를 찾아오기
-
-
-                task.Release();// 대이터 잠그기
-                return count; // 그래서 그 개수를 돌려줌!
+                return result as T;
             }
         }
+        return null;
+    }
 
-        protected override IEnumerator OnConnected(GameManager newManager)
-        {
+    public static T LoadDataFile<T>(string fileName) where T : Object
+    {
+        //1. 글자가 없을 때 fileName is null  nullString    
+        //2. 글자가 없을 때 fileName.lecgth == 0 emptyString
 
-            UIBase loading = UIManager.GetUIM2(UIType.Loading);
-            IProgress<int> progressUI = loading as IProgress<int>;
-            IStatus<string> statusUI = loading as IStatus<string>;
+        T result = GetDataFromDictnay<T>(fileName);
+        if(!result)UIManager.ClaimErrorMessage(SystemMessage.FileNameNotFound(fileName));
+        return result;
+        
+    }
+     public static bool TryLoadDataFile<T>(string fileName, out T result) where T : Object
+     {
+        result = GetDataFromDictnay<T>(fileName);
+        return result;
+    }
 
-            int loaded = 0;
-            int total = LoadCount;
-            string loadString = "Load Data";
-
-
-            System.Action PrgressOnLoad = () =>
-            {
-                loaded++;
-                progressUI.AddCurrent(1);
-                statusUI.SetCurrentStatus($"{loadString}({loaded}/{total})");
-            };
-
-            // 새로운 타입의 무언가를 추가할때 여기다 넣기
-            loadString = "Load Game Objects";
-            yield return LoadAllFromAssetBundle<GameObject>("OGlobals", PrgressOnLoad).WaitForTask();
-            loadString = "Load Pool Requests";
-            yield return LoadAllFromAssetBundle<PoolRequest>("OGlobals", PrgressOnLoad).WaitForTask();
-
+    // public static IEnumerator WaitForTask(this Task targetTask)
+    //{
+    //    yield return new WaitUntil(() => targetTask.IsCompleted);
+    //     targetTask.Dispose();
+    // }
 
 
-            //GameObject prefab = LoadDataFile<GameObject>("Square");
-            //Instantiate(prefab, Random.insideUnitCircle * 5.0f, Random.rotation);
-            //LoadFileFromAssetBundle<GameObject>("Origin/Prefabs/Square.prefab");
-            // 로딩 진행율 => 최대 몇 개인지, 현재 몇 개까지 했는지
-            //               현재 / 최대    1 / 100 = 0.01
-
-
-
-            yield return null;
-        }
-
-        protected override void OnDisconnected()
-        {
-
-        }
-
-        bool TryGetFileFromResources<T>(string path, out T result) where T : Object
-        {
-            result = Resources.Load<T>(path);
-            return result != null;
-        }
-
-        //Asset Bundle (에셋 번들) (임의로 지정한 카테고리)
-        //DLC => 특정 카테고리에 있는 요소를 다운로드 하게 할 것인가 말 것인가?
-        //Addressable(어드렛써블)
-        // async함수는 비동기 함수 => 다른 함수와 같이 돌아갈 수 있는 함수!
-        // 저장한다는 것은 언재든 불러올 수 있다. 그리고 저장할때 재일 중요한 것은 : 어떻게 꺼낼 것인가
-        public static void SaveDataFile<T>(T target) where T : Object
-        {
-            if (target == null) return;
-            Dictionary<string, Object> innerDictionary;
-            // 지금까지 이런 타입의 Object가 없었다 즉 처음 보는 것이기에 innerDictionary가 존재하지 않을 것이기 떄문에!
-            if (!dataDictionary.TryGetValue(typeof(T), out innerDictionary))
-            {
-                innerDictionary = new();
-                dataDictionary.Add(typeof(T), innerDictionary);
-            }
-
-            innerDictionary.TryAdd(target.name.ToLower(), target);
-
-        }
-
-        public static T LoadDataFile<T>(string fileName) where T : Object
-        {
-                
-            fileName = fileName.ToLower();        
-            
-            if (dataDictionary.TryGetValue(typeof(T), out Dictionary<string, Object> innerDictionary))
-            {
-                if (innerDictionary.TryGetValue(fileName, out Object result))
-                {
-                    return result as T;
-                }
-            }
-            return null;
-        }
-
-       // public static IEnumerator WaitForTask(this Task targetTask)
-        //{
-        //    yield return new WaitUntil(() => targetTask.IsCompleted);
-       //     targetTask.Dispose();
-       // }
-
-
-        public async Task LoadAllFromAssetBundle<T>(string label, System.Action actionForEachLoad) where T : Object
+    public async Task LoadAllFromAssetBundle<T>(string label, System.Action actionForEachLoad) where T : Object
         {
             var finder = Addressables.LoadAssetsAsync(label, (T loaded) =>
             {

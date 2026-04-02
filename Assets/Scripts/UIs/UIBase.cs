@@ -4,6 +4,17 @@ using UnityEngine;
 
 public class UIBase : MonoBehaviour
 {
+    public virtual void Registration(UIManager manager)
+    {
+
+    }
+
+    public virtual void Unregistration(UIManager manager)
+    {
+
+    }
+
+
     public GameObject SetChild(GameObject newchild)
     {
         if(!newchild) return null;
@@ -21,16 +32,17 @@ public class UIBase : MonoBehaviour
     public void UnsetChild(GameObject oldVhild)
     {
         if (!oldVhild) return;
+        
+        if (oldVhild.transform.parent == transform)
         {
-            if (oldVhild.transform.parent == transform)
-            {
-                oldVhild.transform.SetParent(null); 
-            }
-            OnUnsetChild(oldVhild);
+            oldVhild.transform.SetParent(null); 
         }
+         
+        OnUnsetChild(oldVhild);
+        
     }
 
-    public virtual void OnUnsetChild(GameObject oldChild)
+    protected virtual void OnUnsetChild(GameObject oldChild)
     {
 
     }
