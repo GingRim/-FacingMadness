@@ -5,11 +5,19 @@ using UnityEditor.Rendering.LookDev;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.LowLevel;
+using UnityEngine.UI;
 // 대리자는 너에게 내 기술을 전수한다.
 // 대리를 뛸 수 있다는 건 => 능력이 아주 좋다. => 가르쳐준 건 모두 한번에 사용한다.
 public delegate void MouseDownEvent(Vector2 screenPosition, Vector3 WorldPosition);
 public delegate void MouseUpEvent(Vector2 screenPosition, Vector3 WorldPosition);
 public delegate void MouseMoveEvent(Vector2 screenPosition, Vector3 WorldPosition);
+public delegate void MouseHold(Vector2 screenPosition, Vector3 WorldPosition);
+public delegate void Esc(bool value);
+public delegate void Sikc(bool value);
+
+
+
 [RequireComponent(typeof(PlayerInput))]
 
 public class InputManager : ManagerBase
@@ -22,6 +30,9 @@ public class InputManager : ManagerBase
     public static event MouseUpEvent OnMouseLeftUp;
     public static event MouseUpEvent OnMouseRightUp;
     public static event MouseMoveEvent OnMouseMove;
+    public static event MouseHold OnHold;
+    public static event Esc OnEsc;
+    public static event Sikc OnSpace;
 
 
     //특정한 클래스는 특정 컨포넌트와 함께 사용해야 한다.
@@ -99,11 +110,14 @@ public class InputManager : ManagerBase
     {
         if(actionDictionary == null || actionDictionary.Count == 0) return;
 
-        InitializeAction("CursorPositionChanged", CursorPositionChanged);
+        InitializeAction("CursorPositionChanged", (context) => CursorPositionChanged(GetVector2Value(context)));
         InitializeAction("MouseLeftButtonDown",  (context) => OnMouseLeftDown?.Invoke(cursorScreenPosition, cursorWorldPosition)); //람다를 이용한 이름 없는 함수
         InitializeAction("MouseLeftButtonUP",    (context) => OnMouseLeftUp?.Invoke(cursorScreenPosition, cursorWorldPosition));
         InitializeAction("MouseRightButtonDown", (context) => OnMouseRightDown?.Invoke(cursorScreenPosition, cursorWorldPosition));
         InitializeAction("MouseRightButtonUP",   (context) => OnMouseRightUp?.Invoke(cursorScreenPosition, cursorWorldPosition));
+        InitializeAction("MouseHold", (context) => OnHold?.Invoke(cursorScreenPosition, cursorWorldPosition));
+        InitializeAction("Esc", (context) => OnEsc?.Invoke(true));
+        InitializeAction("Sikc", (context) => OnSpace?.Invoke(true));
     }
       
     void InitializeAction(string actionName, Action<InputAction.CallbackContext> actionMethod) // 이니셜 라이즈 액션 (각 액션을 만들기 위한 하나의 함수)
@@ -116,14 +130,17 @@ public class InputManager : ManagerBase
         }
     }
 
-
-    void CursorPositionChanged(InputAction.CallbackContext context) // 커서 포지션 채인지드 실시간 마우스 위치를 카메라 기준 감지 
+    Vector2 GetVector2Value(InputAction.CallbackContext context)
+    {
+        if(context.valueType != typeof(Vector2)) return Vector2.zero;
+        return context.ReadValue<Vector2>();
+    }
+    void CursorPositionChanged(Vector2 screenPosition) // 커서 포지션 채인지드 실시간 마우스 위치를 카메라 기준 감지 
     {
 
 
 
         // 마우스의 화면상 실제 픽셀 위치 (좌표값 기본 위치)
-        Vector2 screenPosition = context.ReadValue<Vector2>();
         // 카메라를 기준으로 세상을 본다.
         Vector3 worldPosition;
 

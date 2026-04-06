@@ -59,6 +59,33 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "Esc",
+                    "type": "Button",
+                    "id": "df18c772-5925-43b7-bf55-595f58d3b540",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Sikc",
+                    "type": "Button",
+                    "id": "f4c13c03-9c86-4002-b07c-018d86e3b0c5",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Deck",
+                    "type": "Button",
+                    "id": "1d099061-3f8f-4c9e-886a-1ae226a9eaae",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -97,6 +124,17 @@
                 },
                 {
                     "name": "",
+                    "id": "aac6185f-c830-4638-9c99-92179b8cd33a",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "Hold",
+                    "processors": "",
+                    "groups": "",
+                    "action": "MouseLeftButtonDown",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "03a87ed7-bcc5-431c-8fc8-ac880a8154fc",
                     "path": "<Mouse>/leftButton",
                     "interactions": "Press(behavior=1)",
@@ -125,6 +163,39 @@
                     "processors": "",
                     "groups": "",
                     "action": "MouseRightButtonUP",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "de314127-9ca2-4c06-8af7-83c4d656ae67",
+                    "path": "<Keyboard>/escape",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Esc",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "4d8363cc-4313-44ee-bf27-1d3d065f1e1a",
+                    "path": "<Keyboard>/space",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Sikc",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "988e42b4-7adf-4d2a-a488-57cd52b382a2",
+                    "path": "<Keyboard>/tab",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Deck",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

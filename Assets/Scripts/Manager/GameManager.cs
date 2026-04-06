@@ -173,6 +173,7 @@ public class GameManager : MonoBehaviour
         return targetVariable;
     }
 
+    //========================================= 일시 정지
     public static void Pause()
     {
         Instance.isPlaying = false;
@@ -182,11 +183,11 @@ public class GameManager : MonoBehaviour
     {
         Instance.isPlaying =true;
     }
+    //========================================== 
 
 
 
-
-    public void InvokeInitializeEvent(ref InitializeEvent OriginEvent)
+void InvokeInitializeEvent(ref InitializeEvent OriginEvent)
     {
         if (OriginEvent != null)
         {
@@ -196,7 +197,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void InvokeDestroyEvent(ref DestroyEvent OriginEvent)
+void InvokeDestroyEvent(ref DestroyEvent OriginEvent)
     {
         if (OriginEvent != null)
         {

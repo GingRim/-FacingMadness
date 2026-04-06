@@ -1,0 +1,75 @@
+게임매니저 인스턴스로 들어가서
+GameManager.Instance
+GameManager.Instance.Input
+
+
+
+일시 정지 / 해제
+GameManager.Pause()
+GameManager.Unpause()
+
+
+오브젝트 등록하기
+    GameManager.OnInitializeManager      +- 함수
+    GameManager.OnInitializeController   +- 함수
+    GameManager.OnInitializeCharacter    +- 함수
+    GameManager.OnInitializeObject       +- 함수
+                                                                  
+업데이트 시켜달라고 하기                                            
+    GameManager.OnUpdateEventManager     +- 함수
+    GameManager.OnUpdateEventController  +- 함수
+    GameManager.OnUpdateEventCharacter   +- 함수
+    GameManager.OnUpdateEventObject      +- 함수
+                                                                  
+부숴지는 거 등록하기                                                
+    GameManager.OnDestroyEventManager    +- 함수
+    GameManager.OnDestroyEventObject     +- 함수
+    GameManager.OnDestroyEventController +- 함수
+    GameManager.OnDestroyEventCharacter  +- 함수
+
+파일 가져오고 싶어요!
+    DataManager.LoadDataFile<>(이름)
+    DataManager.TryLoadDataFile<>(이름, out 파일받아갈변수)
+
+게임 중간에 로딩을 추가로 해야 할 떄! => 초반에 로딩이 너무 길다!
+    LoadAllFromassetBundle<T>(태그, 로드되면 할일)
+
+    원하는 타입의 UI를
+    갖고싶다
+    UIManager.GetUIM2(타입)
+    열고싶다
+    UIManager.OpenUIM2(타입)
+    닫고싶다
+    UIManager.CloseUIM2(타입)
+    여닫고싶다
+    UIManager.ToggleUIM2(타입)
+    팝업창 열렸으면 좋겠다
+    UIManager.PopUpM2(제목, 내용, 확인버튼)
+    에러창 열렸으면 좋겠다
+    UIManager.ErrorMessageM2(내용)
+
+
+이름 쓰면 그 이름에 해당하는 오브젝트를 만들어 준다. + 오브젝트 풀이면 풀링도 해줌
+    ObjectManager.CreateObject(이름)
+대상을 파괴하는데 + 풀이면 풀에 넣어줌!
+    ObjectManager.DestroyObject(대상)
+
+
+게임하는 중간에 로딩이 되어서 새로운 풀이 필요하게 된 경우!
+    ObjectManager.RegistrationPool(이름)
+
+
+
+    GameManager.Instance.Camera.SetMainCamera : 이 카메라로 할래!
+    GameManager.Instance.Camera.GetRaycastResult2D : 2D에서 화면이 가리키는 대상 가져오기
+    GameManager.Instance.Camera.GetRaycastResult3D ; 3D에서 화면이 가리키는 대상 가져오기
+
+이런 식으로 생긴! 입력 받고 싶어요
+    InputManager.OnMouseLeftDown     += 임력받으면 할 일
+    InputManager.OnMouseRightDown    += 임력받으면 할 일
+    InputManager.OnMouseLeftUp       += 임력받으면 할 일
+    InputManager.OnMouseRightUp      += 임력받으면 할 일
+    InputManager.OnMouseMove         += 임력받으면 할 일
+
+커서가 올라가 있는 오브젝트 찾기
+    GameManager.Instance.Input.GetGameObjectUnderCusor()
