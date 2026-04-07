@@ -23,12 +23,12 @@ public class UI_MovableScreen : UIBase
 
     private void MouseLeftUp(Vector2 screenPosition, Vector3 WorldPosition)
     {
-        throw new NotImplementedException();
+        currentDragTarget = null;
     }
 
     private void MouseLeftDown(Vector2 screenPosition, Vector3 WorldPosition)
     {
-        throw new NotImplementedException();
+
     }
 
     void SetDragTarget(UI_DraggableWindow dragTarget, Vector2 startPosition)

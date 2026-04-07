@@ -124,17 +124,6 @@
                 },
                 {
                     "name": "",
-                    "id": "aac6185f-c830-4638-9c99-92179b8cd33a",
-                    "path": "<Mouse>/leftButton",
-                    "interactions": "Hold",
-                    "processors": "",
-                    "groups": "",
-                    "action": "MouseLeftButtonDown",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
                     "id": "03a87ed7-bcc5-431c-8fc8-ac880a8154fc",
                     "path": "<Mouse>/leftButton",
                     "interactions": "Press(behavior=1)",
