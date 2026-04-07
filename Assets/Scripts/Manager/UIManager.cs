@@ -25,6 +25,12 @@ public class UIManager : ManagerBase
 
     Dictionary<UIType, UIBase>uiDictuionary = new();
 
+    Rect _uiBoundaru;
+    public static Rect UIBoundary => GameManager.Instance?.UI?._uiBoundaru ?? Rect.zero;
+
+    float _uiScale = 1.0f;
+    public static float UIScale => GameManager.Instance?.UI._uiScale ?? 1.0f;
+
     public IEnumerator Initialize(GameManager newManager)
     {
         //GameObject.FindGameObjecWithTag("MainCanvas")
@@ -49,6 +55,11 @@ public class UIManager : ManagerBase
         if (_mainCanvas)
         {
             _raycaster = _mainCanvas.GetComponentInChildren<GraphicRaycaster>();
+            if(MainCanvas.transform is RectTransform mainRectTransForm)
+            {
+            _uiScale = mainRectTransForm.localScale.x;
+                _uiBoundaru = mainRectTransForm.rect;
+            }
         }
         else
         {

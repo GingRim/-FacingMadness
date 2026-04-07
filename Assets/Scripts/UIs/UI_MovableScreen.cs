@@ -15,8 +15,20 @@ public class UI_MovableScreen : UIBase
         base.Registration(manager);
         InputManager.OnMouseMove -= MouseMove;
         InputManager.OnMouseMove += MouseMove;
+        InputManager.OnMouseLeftDown -= MouseLeftDown;
+        InputManager.OnMouseLeftUp += MouseLeftUp;
         UIManager.OnPopUp -= PopUp;
         UIManager.OnPopUp += PopUp;
+    }
+
+    private void MouseLeftUp(Vector2 screenPosition, Vector3 WorldPosition)
+    {
+        throw new NotImplementedException();
+    }
+
+    private void MouseLeftDown(Vector2 screenPosition, Vector3 WorldPosition)
+    {
+        throw new NotImplementedException();
     }
 
     void SetDragTarget(UI_DraggableWindow dragTarget, Vector2 startPosition)
@@ -32,42 +44,59 @@ public class UI_MovableScreen : UIBase
     {
         if (currentDragTarget) // 지금 움지여야 하는 친구한테
         { // 움직이라고 이야기 하기!
-            currentDragTarget.SetMousePosition(screenPosition);
+            currentDragTarget.SetMouseCurrentPosition(screenPosition);
         }
     }
 
     public override void Unregistration(UIManager manager)
     {
         base.Unregistration(manager);
+        InputManager.OnMouseMove -= MouseMove;
+        InputManager.OnMouseLeftUp -= MouseLetUp;
+
+
         UIManager.OnPopUp -= PopUp;
     }
 
+    private void MouseLetUp(Vector2 screenPosition, Vector3 WorldPosition)
+    {
+        throw new NotImplementedException();
+    }
 
-    protected override void OnSetChild(GameObject oldChild)
+    protected override GameObject OnSetChild(GameObject newChild)
     {
         //새로운 자식한테 UIManager한테 가서 등록 받아오라고 한다.
-        UIManager.SetUIM2(oldChild);
+        UIManager.SetUIM2(newChild);
 
-        if (oldChild)
+        if (newChild)
         {
-            UI_DraggableWindow asDraggable = oldChild.GetComponentInChildren<UI_DraggableWindow>();
+            UI_DraggableWindow asDraggable = newChild.GetComponentInChildren<UI_DraggableWindow>();
 
             if(asDraggable)
             {
                 // 좋아 너 움직일 수 있다는 것 알겠어!
                 // 이 친구가 움직임을 원할 때 내 SetDragTarget함수를 실행시킬 수 있게
                 asDraggable.OnDragStart -= SetDragTarget;
+                asDraggable.OnDragStart += SetDragTarget;
                 
 
             }
         }
 
-        base.OnSetChild(oldChild);
+        return base.OnSetChild(newChild);
     }
 
     protected override void OnUnsetChild(GameObject oldChild)
     {
         UIManager.UnsetUIM2(oldChild);
+        if (oldChild)
+        {
+            UI_DraggableWindow asDraggable = oldChild.GetComponentInChildren<UI_DraggableWindow>();
+            if(asDraggable)
+            {
+                asDraggable.OnDragStart -= SetDragTarget;
+            }
+        }
         base.OnUnsetChild(oldChild);
     }
 
