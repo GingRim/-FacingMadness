@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UI_LoadingSceen : UIBase, IOpenable, IProgress<int>, IStatus<string>
+public class UI_LoadingSceen : UI_ScreenBase, IOpenable, IProgress<int>, IStatus<string>
 {
     public bool IsOpen => gameObject.activeSelf;
 

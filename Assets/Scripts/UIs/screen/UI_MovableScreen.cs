@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class UI_MovableScreen : UIBase
+public class UI_MovableScreen : UI_ScreenBase
 {
     [SerializeField] List<UIBase> popupList = new();
     Vector3 popupPosition = Vector3.zero;
@@ -13,10 +13,11 @@ public class UI_MovableScreen : UIBase
     public override void Registration(UIManager manager)
     {
         base.Registration(manager);
+        InputManager.OnCancel += (value) => UIManager.ToggleUIM2(UIType.Menu);
         InputManager.OnMouseMove -= MouseMove;
         InputManager.OnMouseMove += MouseMove;
-        InputManager.OnMouseLeftDown -= MouseLeftDown;
-        InputManager.OnMouseLeftUp += MouseLeftUp;
+        InputManager.OnMouseLeftButton -= MouseLeft;
+        InputManager.OnMouseLeftButton += MouseLeft;
         UIManager.OnPopUp -= PopUp;
         UIManager.OnPopUp += PopUp;
     }
@@ -52,13 +53,13 @@ public class UI_MovableScreen : UIBase
     {
         base.Unregistration(manager);
         InputManager.OnMouseMove -= MouseMove;
-        InputManager.OnMouseLeftUp -= MouseLetUp;
-
+        InputManager.OnMouseLeftButton -= MouseLeft;
+       
 
         UIManager.OnPopUp -= PopUp;
     }
 
-    private void MouseLetUp(Vector2 screenPosition, Vector3 WorldPosition)
+    private void MouseLeft(bool value, Vector2 screenPosition, Vector3 WorldPosition)
     {
         throw new NotImplementedException();
     }

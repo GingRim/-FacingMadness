@@ -1,4 +1,5 @@
 using UnityEngine;
+using static UnityEngine.Rendering.DebugUI;
 
 public class MouseFollower : MonoBehaviour, IFunctionable
 {
@@ -15,17 +16,17 @@ public class MouseFollower : MonoBehaviour, IFunctionable
 
     public void RegistrationFunctions()
     {
-        InputManager.OnMouseRightUp += DestroyOnmouse; //마출 물체는 콜라이더가 있어야 한다.
-        InputManager.OnMouseLeftDown += CeateToMouse;
+        InputManager.OnMouseRightButton += DestroyOnmouse; //마출 물체는 콜라이더가 있어야 한다.
+        InputManager.OnMouseLeftButton += CeateToMouse;
     }
 
     public void UnRegistrationFunctions()
     {
-        InputManager.OnMouseRightUp -= DestroyOnmouse;
-        InputManager.OnMouseLeftDown -= CeateToMouse;
+        InputManager.OnMouseRightButton -= DestroyOnmouse;
+        InputManager.OnMouseLeftButton -= CeateToMouse;
     }
 
-    void CeateToMouse(Vector2 screenPosution, Vector3 worldposition)
+    void CeateToMouse(bool value, Vector2 screenPosution, Vector3 worldposition)
     {
         GameObject inst = ObjectManager .CreateObject(DataManager.LoadDataFile<GameObject>("Square"));
         inst.transform.position = worldposition;
@@ -36,7 +37,7 @@ public class MouseFollower : MonoBehaviour, IFunctionable
         transform.position = worldposition;
     }
 
-    void DestroyOnmouse(Vector2 screenPosition, Vector3 worldposition)
+    void DestroyOnmouse(bool value, Vector2 screenPosition, Vector3 worldposition)
     {
         ObjectManager.DestroyObject(GameManager.Instance.Input.GetGameObjectUnderCursor());
     }

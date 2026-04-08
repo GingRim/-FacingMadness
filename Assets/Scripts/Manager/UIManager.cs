@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public enum UIType
 {
-    None, Loading, Title, Movable,
+    None, Loading, Title, Movable, Menu, 
     _Length,
    
 }
@@ -57,7 +57,8 @@ public class UIManager : ManagerBase
             _raycaster = _mainCanvas.GetComponentInChildren<GraphicRaycaster>();
             if(MainCanvas.transform is RectTransform mainRectTransForm)
             {
-            _uiScale = mainRectTransForm.localScale.x;
+                LayoutRebuilder.ForceRebuildLayoutImmediate(mainRectTransForm);
+                _uiScale = mainRectTransForm.localScale.x;
                 _uiBoundaru = mainRectTransForm.rect;
             }
         }
@@ -73,7 +74,7 @@ public class UIManager : ManagerBase
         UIBase result = instance?.GetComponent<UIBase>();
         return SetUI(wantType, result);
     }
-
+    public static UIBase ClaimCreateUI(UIType wantType, string wantName) => GameManager.Instance?.UI?.CreateUI(wantType, wantName);
     protected UIBase SetUI(UIBase WantUI)
     {
         WantUI?.Registration(this);
@@ -159,7 +160,7 @@ public class UIManager : ManagerBase
         OnPopUp?.Invoke(title, context, conFirm);
     }
 
-    public static void ClaimErrorMessage(string context)
+    public static void  ClaimErrorMessage(string context)
     {
         OnPopUp?.Invoke("Error", context, "Confirm");
     }

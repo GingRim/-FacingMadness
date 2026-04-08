@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor.Rendering.LookDev;
+using UnityEditor.UI;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
@@ -9,12 +10,12 @@ using UnityEngine.InputSystem.LowLevel;
 using UnityEngine.UI;
 // 대리자는 너에게 내 기술을 전수한다.
 // 대리를 뛸 수 있다는 건 => 능력이 아주 좋다. => 가르쳐준 건 모두 한번에 사용한다.
-public delegate void MouseDownEvent(Vector2 screenPosition, Vector3 WorldPosition);
-public delegate void MouseUpEvent(Vector2 screenPosition, Vector3 WorldPosition);
+public delegate void MouseButtonEvent(bool value, Vector2 screenPosition, Vector3 WorldPosition);
 public delegate void MouseMoveEvent(Vector2 screenPosition, Vector3 WorldPosition);
 public delegate void MouseHold(Vector2 screenPosition, Vector3 WorldPosition);
-public delegate void Esc(bool value);
-public delegate void Sikc(bool value);
+public delegate void ButtonEvent(bool value);
+public delegate void VectorEvent(Vector2 value);
+public delegate void AxisEvent(float value);
 
 
 
@@ -25,15 +26,12 @@ public class InputManager : ManagerBase
     // 나만 명령할 수 있어야 한다.
     // 기존 대리자는 누구나 등록하고 시전할 수 있다.
     // event 대리자는 누구나 등록하고 나만이 시전할 수 있다.
-    public static event MouseDownEvent OnMouseLeftDown;
-    public static event MouseDownEvent OnMouseRightDown;
-    public static event MouseUpEvent OnMouseLeftUp;
-    public static event MouseUpEvent OnMouseRightUp;
-    public static event MouseMoveEvent OnMouseMove;
-    public static event MouseHold OnHold;
-    public static event Esc OnEsc;
-    public static event Sikc OnSpace;
-
+    public static event MouseButtonEvent OnMouseLeftButton;
+    public static event MouseButtonEvent OnMouseRightButton;
+    public static event MouseMoveEvent   OnMouseMove;
+    public static event ButtonEvent      OnCancel;
+    public static event ButtonEvent      OnShowStatus;
+    public static event VectorEvent      OnMove;
 
     //특정한 클래스는 특정 컨포넌트와 함께 사용해야 한다.
     //트정 클래스가 다른 클래스를 Dependence 의존하는 경우
@@ -111,13 +109,16 @@ public class InputManager : ManagerBase
         if(actionDictionary == null || actionDictionary.Count == 0) return;
 
         InitializeAction("CursorPositionChanged", (context) => CursorPositionChanged(GetVector2Value(context)));
-        InitializeAction("MouseLeftButtonDown",  (context) => OnMouseLeftDown?.Invoke(cursorScreenPosition, cursorWorldPosition)); //람다를 이용한 이름 없는 함수
-        InitializeAction("MouseLeftButtonUP",    (context) => OnMouseLeftUp?.Invoke(cursorScreenPosition, cursorWorldPosition));
-        InitializeAction("MouseRightButtonDown", (context) => OnMouseRightDown?.Invoke(cursorScreenPosition, cursorWorldPosition));
-        InitializeAction("MouseRightButtonUP",   (context) => OnMouseRightUp?.Invoke(cursorScreenPosition, cursorWorldPosition));
-        InitializeAction("MouseHold", (context) => OnHold?.Invoke(cursorScreenPosition, cursorWorldPosition));
-        InitializeAction("Esc", (context) => OnEsc?.Invoke(true));
-        InitializeAction("Sikc", (context) => OnSpace?.Invoke(true));
+        InitializeAction("Move", (context) => OnMove?.Invoke(GetVector2Value(context)));
+
+        InitializeAction("MouseLeftButtonDown",  (context) => OnMouseLeftButton?.Invoke( true, cursorScreenPosition, cursorWorldPosition)); //람다를 이용한 이름 없는 함수
+        InitializeAction("MouseLeftButtonUP",    (context) => OnMouseLeftButton?.Invoke( true, cursorScreenPosition, cursorWorldPosition));
+        InitializeAction("MouseRightButtonDown", (context) => OnMouseRightButton?.Invoke(true, cursorScreenPosition, cursorWorldPosition));
+        InitializeAction("MouseRightButtonUP",   (context) => OnMouseRightButton?.Invoke(true, cursorScreenPosition, cursorWorldPosition));
+       
+        InitializeAction("Cancel", (context) => OnCancel?.Invoke(true));
+        InitializeAction("showStatusButtonDown", (context) => OnShowStatus?.Invoke(true));
+        InitializeAction("showStatusButtonUp", (context) => OnShowStatus?.Invoke(true));
     }
       
     void InitializeAction(string actionName, Action<InputAction.CallbackContext> actionMethod) // 이니셜 라이즈 액션 (각 액션을 만들기 위한 하나의 함수)
@@ -135,6 +136,8 @@ public class InputManager : ManagerBase
         if(context.valueType != typeof(Vector2)) return Vector2.zero;
         return context.ReadValue<Vector2>();
     }
+
+
     void CursorPositionChanged(Vector2 screenPosition) // 커서 포지션 채인지드 실시간 마우스 위치를 카메라 기준 감지 
     {
 

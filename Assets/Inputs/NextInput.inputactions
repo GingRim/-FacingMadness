@@ -79,9 +79,27 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Deck",
+                    "name": "Move",
+                    "type": "Value",
+                    "id": "a26a33b4-641f-4dfb-bc33-55c1e8482e99",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "ShowStatusButtonDown",
                     "type": "Button",
-                    "id": "1d099061-3f8f-4c9e-886a-1ae226a9eaae",
+                    "id": "e04a4908-08d6-457e-b68d-aa8073449c0b",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "ShowStatusButtonUp",
+                    "type": "Button",
+                    "id": "110fb4ee-365f-4e46-a692-385b0c09aca5",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -179,12 +197,89 @@
                 },
                 {
                     "name": "",
-                    "id": "988e42b4-7adf-4d2a-a488-57cd52b382a2",
-                    "path": "<Keyboard>/tab",
+                    "id": "a126ea4b-cbe2-4e8a-83c4-95730c84c0e1",
+                    "path": "<Gamepad>/leftStick",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Deck",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "Wasd",
+                    "id": "dc70a5f4-53ac-4376-a8c9-cd652c4755b4",
+                    "path": "2DVector",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Move",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "up",
+                    "id": "95215bd9-9aa3-4bd2-9e8c-50d8ccfeae94",
+                    "path": "<Keyboard>/w",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "down",
+                    "id": "6ec30c3e-7c71-45a0-a951-ff23465f438c",
+                    "path": "<Keyboard>/s",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "left",
+                    "id": "16f54b74-9e65-4959-af8d-880479ff6aad",
+                    "path": "<Keyboard>/a",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "right",
+                    "id": "dbd54ea3-dff6-4703-901f-1021fb744405",
+                    "path": "<Keyboard>/d",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "",
+                    "id": "218c9a4d-f5e9-4de8-888f-518db45b413c",
+                    "path": "<Keyboard>/tab",
+                    "interactions": "Press",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ShowStatusButtonDown",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "327ae27d-2d82-4559-8a7e-4cf50da92042",
+                    "path": "<Keyboard>/tab",
+                    "interactions": "Press(behavior=1)",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ShowStatusButtonUp",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
