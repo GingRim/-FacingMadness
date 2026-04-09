@@ -103,7 +103,7 @@ public class GameManager : MonoBehaviour
       
 
        yield return UI.Initialize(this);
-       UIBase loadingUI = UIManager.OpenUIM2(UIType.Loading);
+       UIBase loadingUI = UIManager.OpenScreenM2(UIType.Loading);
        IProgress<int> loadingProgress = loadingUI as IProgress<int>;
         
        loadingProgress?.Set(0, totalLoadCount);
@@ -127,7 +127,7 @@ public class GameManager : MonoBehaviour
        yield return _input.Connect(this);
         loadingProgress?.AddCurrent(1);
         yield return new WaitForSeconds(1.0f);
-       UIManager.CloseUIM2(UIType.Loading);
+       UIManager.OpenScreenM2(UIType.Title);
         isLoading = false;
     }
 

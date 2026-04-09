@@ -24,13 +24,18 @@ public struct UIClaim
     }
 }
 
-public class UI_ScreenBase : UIBase
+public class UI_ScreenBase : UIBase, IOpenable
 {
     [SerializeField] UIClaim[] requiredUI;
-
+    public bool IsOpen => gameObject.activeSelf;
+    public void Close() => gameObject.SetActive(false);
+    public void Open() => gameObject.SetActive(true);
+    public void Toggle() => gameObject.SetActive(!IsOpen);
     public override void Registration(UIManager manager)
     {
         base.Registration(manager);
+
+        if(requiredUI is null) return;
         foreach (UIClaim currentClaim in requiredUI)
         {
             currentClaim.Execute();

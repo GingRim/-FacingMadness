@@ -61,7 +61,7 @@ public class UI_MovableScreen : UI_ScreenBase
 
     private void MouseLeft(bool value, Vector2 screenPosition, Vector3 WorldPosition)
     {
-        throw new NotImplementedException();
+        
     }
 
     protected override GameObject OnSetChild(GameObject newChild)
