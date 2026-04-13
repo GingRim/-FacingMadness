@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public enum UIType
 {
-    None, Loading, Title, Movable, Menu, Info, Battle, Reward, Pause,
+    None, Loading, Title, Movable, Menu, Info, Battle, Reward, Pause, Creation,
     _Length
    
 }
@@ -64,6 +64,8 @@ public class UIManager : ManagerBase
         CreateUI(UIType.Title, "TitleScreen", switcherTransform);
         CreateUI(UIType.Battle, "BattleScreen", switcherTransform);
         CreateUI(UIType.Menu, "MenuScreen", switcherTransform);
+        CreateUI(UIType.Creation, "CharacterCreationScreen", switcherTransform);
+        CreateUI(UIType.Pause, "PauseWindow", switcherTransform);
 
         foreach(Transform currentTransform in switcherTransform)
         {

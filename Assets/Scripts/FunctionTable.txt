@@ -35,17 +35,23 @@ GameManager.Unpause()
     LoadAllFromassetBundle<T>(태그, 로드되면 할일)
 
     원하는 타입의 UI를
-    갖고싶다
+   
+   갖고싶다
     UIManager.GetUIM2(타입)
-    열고싶다
+   
+   열고싶다
     UIManager.OpenUIM2(타입)
-    닫고싶다
+   
+   닫고싶다
     UIManager.CloseUIM2(타입)
+    
     여닫고싶다
     UIManager.ToggleUIM2(타입)
-    팝업창 열렸으면 좋겠다
+   
+   팝업창 열렸으면 좋겠다
     UIManager.PopUpM2(제목, 내용, 확인버튼)
-    에러창 열렸으면 좋겠다
+   
+   에러창 열렸으면 좋겠다
     UIManager.ErrorMessageM2(내용)
 
 

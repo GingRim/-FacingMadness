@@ -26,13 +26,13 @@ public class InputManager : ManagerBase
     // 나만 명령할 수 있어야 한다.
     // 기존 대리자는 누구나 등록하고 시전할 수 있다.
     // event 대리자는 누구나 등록하고 나만이 시전할 수 있다.
-    public static event MouseButtonEvent OnMouseLeftButton;
-    public static event MouseButtonEvent OnMouseRightButton;
-    public static event MouseMoveEvent   OnMouseMove;
-    public static event ButtonEvent      OnCancel;
-    public static event ButtonEvent      OnShowStatus;
-    public static event VectorEvent      OnMove;
-
+    public static event MouseButtonEvent OnMouseLeftButton; // 왼쪽 클릭
+    public static event MouseButtonEvent OnMouseRightButton;// 오른쪽 클릭
+    public static event MouseMoveEvent   OnMouseMove;       // 마우스 이동
+    public static event ButtonEvent      OnCancel;          // 
+    public static event ButtonEvent      OnShowStatus;      //
+    public static event VectorEvent      OnMove;            //
+    public static event ButtonEvent      OnBack;
     //특정한 클래스는 특정 컨포넌트와 함께 사용해야 한다.
     //트정 클래스가 다른 클래스를 Dependence 의존하는 경우
     //다른 클래스가 필요해요! Require

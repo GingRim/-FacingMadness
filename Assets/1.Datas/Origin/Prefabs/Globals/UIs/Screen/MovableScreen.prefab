@@ -48,5 +48,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7791bb188eeef3d44b5183e10c4b4348, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NewMonoBehaviourScript
-  popupList:
-  - {fileID: -4746278188493412037, guid: 5a1c3321917ca4e438861f6b64580973, type: 3}
+  popupList: []

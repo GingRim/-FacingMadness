@@ -9,6 +9,7 @@ public class UI_MovableScreen : UI_ScreenBase
     Vector3 popupPosition = Vector3.zero;
     Vector3 popupShift = new(20.0f, -20.0f);
     UI_DraggableWindow currentDragTarget = null;
+    
 
     public override void Registration(UIManager manager)
     {
