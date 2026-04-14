@@ -1,3 +1,5 @@
+
+
 게임매니저 인스턴스로 들어가서
 GameManager.Instance
 GameManager.Instance.Input

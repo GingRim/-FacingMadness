@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public enum UIType
 {
-    None, Loading, Title, Movable, Menu, Info, Battle, Reward, Pause, Creation,
+    None, Loading, Title, Movable, Menu, Info, Battle, Reward, Pause, Creation, Quit,
     _Length
    
 }
@@ -17,11 +17,23 @@ public class UIManager : ManagerBase
 {
     public static event PopUpEvent OnPopUp;
 
+    readonly KeyValuePair<UIType, string>[] globalScreenArray =
+    {
+        new (UIType.Title, "TitleScreen"),
+        new (UIType.Battle, "BattleScreen"),
+        new (UIType.Menu, "MenuScreen"),
+        new (UIType.Creation, "CharacterCreationScreen"),
+        new (UIType.Pause, "PauseWindow"),
+        new (UIType.Quit, "QuitConfir"),
+    };
+
+
     Canvas _mainCanvas;
     public Canvas MainCanvas => _mainCanvas;
 
     UIBase _movableScreen;
-
+    RectTransform switcherTransform;
+    RectTransform createdTransform;
     GraphicRaycaster _raycaster;
     public GraphicRaycaster Raycaster => _raycaster;
 
@@ -36,6 +48,25 @@ public class UIManager : ManagerBase
     float _uiScale = 1.0f;
     public static float UIScale => GameManager.Instance?.UI._uiScale ?? 1.0f;
 
+    public RectTransform CreateFullScreen(string wantName)
+    {
+        GameObject instance = new GameObject(wantName);
+        RectTransform result = instance.AddComponent<RectTransform>();
+        //메인 캔버스에 넣고
+        result.SetParent(MainCanvas.transform);
+        //맨 위로 올려주기!
+        result.SetAsFirstSibling();
+        //anchor를 stretch - stretch로 만들고 여백을 0,0,0,0
+        result.anchorMin = Vector3.zero;
+        result.anchorMax = Vector3.one;
+        //여백을 0,0,0,0
+        result.offsetMin = Vector3.zero;
+        result.offsetMax = Vector3.zero;
+        // 크기를 1로
+        result.localScale = Vector3.one;
+
+        return result;
+    }
     public IEnumerator Initialize(GameManager newManager)
     {
         //GameObject.FindGameObjecWithTag("MainCanvas")
@@ -45,33 +76,28 @@ public class UIManager : ManagerBase
     }
     protected override IEnumerator OnConnected(GameManager newManager)
     {
-        _movableScreen = CreateUI(UIType.Movable, "MovableScreen");
-        GameObject screenSwitcher = new GameObject("ScreenSwitcher");
-        RectTransform switcherTransform = screenSwitcher.AddComponent<RectTransform>();
-        //메인 캔버스에 넣고
-        switcherTransform.SetParent(MainCanvas.transform);
-        //맨 위로 올려주기!
-        switcherTransform.SetAsFirstSibling();
-        //anchor를 stretch - stretch로 만들고 여백을 0,0,0,0
-        switcherTransform.anchorMin = Vector3.zero;
-        switcherTransform.anchorMax = Vector3.one;
-        //여백을 0,0,0,0
-        switcherTransform.offsetMin = Vector3.zero;
-        switcherTransform.offsetMax = Vector3.zero;
-        // 크기를 1로
-        switcherTransform.localScale = Vector3.one;
+        createdTransform = CreateFullScreen("CreatedUI");
+        _movableScreen = CreateUI(UIType.Movable, "MovableScreen", MainCanvas?.transform);
 
-        CreateUI(UIType.Title, "TitleScreen", switcherTransform);
-        CreateUI(UIType.Battle, "BattleScreen", switcherTransform);
-        CreateUI(UIType.Menu, "MenuScreen", switcherTransform);
-        CreateUI(UIType.Creation, "CharacterCreationScreen", switcherTransform);
-        CreateUI(UIType.Pause, "PauseWindow", switcherTransform);
+        switcherTransform = CreateFullScreen("ScreenSwitcher");
 
-        foreach(Transform currentTransform in switcherTransform)
+        foreach(var currentPair in globalScreenArray)
         {
-            currentTransform.gameObject.SetActive(false);
-        }
+            UIBase created = CreateUI(currentPair.Key, currentPair.Value, switcherTransform);
+            
+            if(created is IOpenable asOpenable) asOpenable.Close();
 
+        }
+        RectTransform changerTransform = CreateFullScreen("ScreenChangers");
+        changerTransform.SetAsLastSibling();
+
+        GameObject instance = ObjectManager.CreateObject("ScreenChanger", changerTransform);
+        if(instance.TryGetComponent(out UI_ScreenChanger asChanger))
+        {
+            asChanger.ChangeStart();
+            yield return new WaitForSeconds(3);
+            asChanger.ChangeEnd();
+        }
         yield return null;
     }
 
@@ -110,7 +136,7 @@ public class UIManager : ManagerBase
 
     protected UIBase CreateUI(UIType wantType, string wantName)
     {
-        UIBase result = CreateUI(wantType, wantName, MainCanvas?.transform);
+        UIBase result = CreateUI(wantType, wantName, createdTransform ?? MainCanvas?.transform);
 
         if(result?.GetComponent<UI_DraggableWindow>())
         {

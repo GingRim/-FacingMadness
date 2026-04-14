@@ -17,11 +17,7 @@ MonoBehaviour:
     target: {fileID: 6910225683044997837, guid: d2666738cc14c6b4780bf783a6ce89a2, type: 3}
     countInitial: 5
     coutAdditional: 3
-  - poolName: Pause
-    target: {fileID: 3528445791403767993, guid: e440e93768295b849b5dde30e83215dc, type: 3}
-    countInitial: 1
-    coutAdditional: 2
-  - poolName: Save
+  - poolName: SavePopUP
     target: {fileID: 6395780113459116243, guid: b1c3d5f114f797a4f990a076cdbdc391, type: 3}
-    countInitial: 1
-    coutAdditional: 2
+    countInitial: 2
+    coutAdditional: 3

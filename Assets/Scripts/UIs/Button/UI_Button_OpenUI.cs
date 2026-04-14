@@ -17,4 +17,6 @@ public class UI_Button_OpenUI : MonoBehaviour
         if (wantToggle) UIManager.ToggleUIM2(wantType);
         else UIManager.CloseUIM2(wantType);
     }
+
+
 }

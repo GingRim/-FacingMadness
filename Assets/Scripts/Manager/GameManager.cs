@@ -173,6 +173,22 @@ public class GameManager : MonoBehaviour
         return targetVariable;
     }
 
+    //게임 종료 웹을 닫아주는 것이다.
+    //여기서 종료 되면 유니티가 꺼진다.
+    //전처리기 만들기
+    //#으로 시작하는 친구들!
+    //#if, #elif, #else, #endif
+    public static void QuitGame()
+    {
+
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
+        Application.Quit
+#endif
+
+    }
+
     //========================================= 일시 정지
     public static void Pause()
     {
