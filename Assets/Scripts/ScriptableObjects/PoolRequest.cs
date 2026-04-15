@@ -9,6 +9,7 @@ public struct PoolSetting
     public GameObject target;
     public uint countInitial;
     public uint coutAdditional; // 한번에 추가할 개수
+    public UIType uiType; //실험 중
 }
 
 

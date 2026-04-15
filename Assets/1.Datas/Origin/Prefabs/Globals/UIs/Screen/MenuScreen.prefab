@@ -267,7 +267,6 @@ GameObject:
   - component: {fileID: 821198594460559275}
   - component: {fileID: 4178085366714313834}
   - component: {fileID: 925561692674579771}
-  - component: {fileID: 4673017371639164935}
   m_Layer: 5
   m_Name: Button (1)
   m_TagString: Untagged
@@ -377,7 +376,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 4673017371639164935}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: UI_Button_OpenScreen, Assembly-CSharp
         m_MethodName: Open
         m_Mode: 1
@@ -389,19 +388,6 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 1
---- !u!114 &4673017371639164935
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3993132183480192190}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 76cece983e4a84743904983290edbd5b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UI_Button
-  wantType: 2
 --- !u!1 &4599596525232088175
 GameObject:
   m_ObjectHideFlags: 0
@@ -1429,7 +1415,7 @@ GameObject:
   - component: {fileID: 1272721108424805638}
   - component: {fileID: 5386564894613558472}
   - component: {fileID: 2457794964621953863}
-  - component: {fileID: 6369652180768895673}
+  - component: {fileID: 3310335739080260806}
   m_Layer: 5
   m_Name: Button
   m_TagString: Untagged
@@ -1539,9 +1525,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 6369652180768895673}
-        m_TargetAssemblyTypeName: UI_Button_OpenScreen, Assembly-CSharp
-        m_MethodName: Open
+      - m_Target: {fileID: 3310335739080260806}
+        m_TargetAssemblyTypeName: UI_Button_OpenUI, Assembly-CSharp
+        m_MethodName: Close
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1551,7 +1537,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 1
---- !u!114 &6369652180768895673
+--- !u!114 &3310335739080260806
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1560,10 +1546,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 9063117418707739219}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 76cece983e4a84743904983290edbd5b, type: 3}
+  m_Script: {fileID: 11500000, guid: 708d074502f47a1448ec9125edd43fca, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UI_Button
-  wantType: 2
+  m_EditorClassIdentifier: Assembly-CSharp::UI_Button_OpenUI
+  wantType: 4
+  wantToggle: 0
 --- !u!1 &9093249703727913940
 GameObject:
   m_ObjectHideFlags: 0

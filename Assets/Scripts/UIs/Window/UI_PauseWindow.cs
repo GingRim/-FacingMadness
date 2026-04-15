@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class UI_PauseWindow : OpenableUIBase
 {
-    //private 
-    //GameManager.Pause()
+
 
 }
+

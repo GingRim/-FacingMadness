@@ -425,6 +425,7 @@ GameObject:
   - component: {fileID: 9181734418394898332}
   - component: {fileID: 4547620525654608141}
   - component: {fileID: 1556570682918011764}
+  - component: {fileID: 2691879128430571842}
   m_Layer: 5
   m_Name: Button
   m_TagString: Untagged
@@ -534,9 +535,21 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 5238448891762391741}
-        m_TargetAssemblyTypeName: UnityEngine.CanvasRenderer, UnityEngine
-        m_MethodName: 
+      - m_Target: {fileID: 1556570682918011764}
+        m_TargetAssemblyTypeName: UI_Button_OpenUI, Assembly-CSharp
+        m_MethodName: Close
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
+      - m_Target: {fileID: 1556570682918011764}
+        m_TargetAssemblyTypeName: UI_Button_OpenUI, Assembly-CSharp
+        m_MethodName: Close
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -558,7 +571,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 708d074502f47a1448ec9125edd43fca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UI_Button_OpenUI
-  wantType: 0
+  wantType: 11
+  wantToggle: 0
+--- !u!114 &2691879128430571842
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5238448891762391741}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 708d074502f47a1448ec9125edd43fca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UI_Button_OpenUI
+  wantType: 8
   wantToggle: 0
 --- !u!1 &6395780113459116243
 GameObject:
@@ -572,10 +599,9 @@ GameObject:
   - component: {fileID: 3980159570623185502}
   - component: {fileID: 3789281127646039367}
   - component: {fileID: 6050366882547519889}
-  - component: {fileID: -2314444054062810577}
-  - component: {fileID: 4186327215231920142}
+  - component: {fileID: 8906633985798125910}
   m_Layer: 5
-  m_Name: SavePupUp
+  m_Name: SavePopUp
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -653,7 +679,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 888c128999c0eb442a1b8ef8ba62b139, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UI_PullUpWindow
---- !u!114 &-2314444054062810577
+--- !u!114 &8906633985798125910
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -662,25 +688,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 6395780113459116243}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5b6790443bea52c4692eeeb5a0dcf178, type: 3}
+  m_Script: {fileID: 11500000, guid: 2faeff19aac0e3d429c1abac409cc10b, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UI_PopUp
-  titleText: {fileID: 0}
-  contextText: {fileID: 0}
-  confirmText: {fileID: 0}
-  confirmButton: {fileID: 0}
---- !u!114 &4186327215231920142
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6395780113459116243}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 62a9142e1a3e2ad42959be84bb8b33ee, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PooledObject
+  m_EditorClassIdentifier: Assembly-CSharp::UI_SavePopUp
 --- !u!1 &8588177233511675324
 GameObject:
   m_ObjectHideFlags: 0
@@ -694,6 +704,7 @@ GameObject:
   - component: {fileID: 4703935027370051687}
   - component: {fileID: 3896110434563848576}
   - component: {fileID: 4988366728338042412}
+  - component: {fileID: 4857785938233505176}
   m_Layer: 5
   m_Name: Button (1)
   m_TagString: Untagged
@@ -815,6 +826,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 4857785938233505176}
+        m_TargetAssemblyTypeName: UI_Button_OpenUI, Assembly-CSharp
+        m_MethodName: Close
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &4988366728338042412
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -828,3 +851,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UI_Button_OpenScreen
   wantType: 9
+--- !u!114 &4857785938233505176
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8588177233511675324}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 708d074502f47a1448ec9125edd43fca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UI_Button_OpenUI
+  wantType: 11
+  wantToggle: 0

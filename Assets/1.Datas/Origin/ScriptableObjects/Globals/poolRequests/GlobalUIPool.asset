@@ -17,7 +17,4 @@ MonoBehaviour:
     target: {fileID: 6910225683044997837, guid: d2666738cc14c6b4780bf783a6ce89a2, type: 3}
     countInitial: 5
     coutAdditional: 3
-  - poolName: SavePopUP
-    target: {fileID: 6395780113459116243, guid: b1c3d5f114f797a4f990a076cdbdc391, type: 3}
-    countInitial: 2
-    coutAdditional: 3
+    uiType: 0

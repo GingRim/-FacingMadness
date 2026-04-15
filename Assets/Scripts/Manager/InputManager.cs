@@ -32,7 +32,7 @@ public class InputManager : ManagerBase
     public static event ButtonEvent      OnCancel;          // 
     public static event ButtonEvent      OnShowStatus;      //
     public static event VectorEvent      OnMove;            //
-    public static event ButtonEvent      OnBack;
+    public static event ButtonEvent      OnPause;
     //특정한 클래스는 특정 컨포넌트와 함께 사용해야 한다.
     //트정 클래스가 다른 클래스를 Dependence 의존하는 경우
     //다른 클래스가 필요해요! Require
@@ -119,6 +119,8 @@ public class InputManager : ManagerBase
         InitializeAction("Cancel", (context) => OnCancel?.Invoke(true));
         InitializeAction("showStatusButtonDown", (context) => OnShowStatus?.Invoke(true));
         InitializeAction("showStatusButtonUp", (context) => OnShowStatus?.Invoke(true));
+
+     
     }
       
     void InitializeAction(string actionName, Action<InputAction.CallbackContext> actionMethod) // 이니셜 라이즈 액션 (각 액션을 만들기 위한 하나의 함수)
