@@ -4,7 +4,11 @@ using UnityEngine;
 public class UI_ScreenChanger : OpenableUIBase
 {
     [SerializeField] Animator anim;
+    [SerializeField] ScreenChangeType type;
+
     Action AnimEndFunction;
+
+
     public void ChangeStart(Action newFunction = null)
     {
         AnimEndFunction = newFunction;

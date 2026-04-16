@@ -4,6 +4,7 @@ public class UI_Button_OpenUI : MonoBehaviour
 {
     [SerializeField] UIType wantType;
     [SerializeField] bool wantToggle;
+    [SerializeField] ScreenChangeType ScreenChanger;
 
 
     public void Open()

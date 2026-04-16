@@ -120,6 +120,7 @@ public class InputManager : ManagerBase
         InitializeAction("showStatusButtonDown", (context) => OnShowStatus?.Invoke(true));
         InitializeAction("showStatusButtonUp", (context) => OnShowStatus?.Invoke(true));
 
+        InitializeAction("Pause", (context) => OnPause?.Invoke(true));
      
     }
       

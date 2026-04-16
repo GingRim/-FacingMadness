@@ -7,13 +7,13 @@ public class UI_CharacterCreationScreen : UI_ScreenBase
 {
     private void OnEnable()
     {
-        InputManager.OnCancel -= CanelPause;
-        InputManager.OnCancel += CanelPause;
+        InputManager.OnPause -= CanelPause;
+        InputManager.OnPause += CanelPause;
     }
 
     private void OnDisable()
     {
-        InputManager.OnCancel -= CanelPause;
+        InputManager.OnPause -= CanelPause;
     }
 
 

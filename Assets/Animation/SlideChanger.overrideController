@@ -1,0 +1,15 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!221 &22100000
+AnimatorOverrideController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: SlideChanger
+  m_Controller: {fileID: 9100000, guid: 87e519b5667dbe14289092cc04a23b9b, type: 2}
+  m_Clips:
+  - m_OriginalClip: {fileID: 7400000, guid: 3de2b2b135182df42815e31b6c3b1602, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 822631ee95d5e1644a7b9f8ba8ca5aa6, type: 2}
+  - m_OriginalClip: {fileID: 7400000, guid: 44bb78bc1d37965478342f5cd9e20dc8, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: d450ec28f38ad9042a141dd7de1f8794, type: 2}

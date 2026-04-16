@@ -61,15 +61,6 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Esc",
-                    "type": "Button",
-                    "id": "df18c772-5925-43b7-bf55-595f58d3b540",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
                     "name": "Sikc",
                     "type": "Button",
                     "id": "f4c13c03-9c86-4002-b07c-018d86e3b0c5",
@@ -109,6 +100,15 @@
                     "name": "Cancel",
                     "type": "Button",
                     "id": "32cc2e9b-50cd-4b6c-a6ea-fd8e34efa3f1",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Pause",
+                    "type": "Button",
+                    "id": "f65156fa-d57f-458c-ba72-ca1bce096667",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -179,17 +179,6 @@
                     "processors": "",
                     "groups": "",
                     "action": "MouseRightButtonUP",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "de314127-9ca2-4c06-8af7-83c4d656ae67",
-                    "path": "<Keyboard>/escape",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Esc",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -295,11 +284,22 @@
                 {
                     "name": "",
                     "id": "b0a15933-5245-4d2c-9b7c-29795c4c8d6e",
-                    "path": "<Keyboard>/escape",
+                    "path": "<Keyboard>/tab",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
                     "action": "Cancel",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "8dca5bfa-c32b-4d7c-822d-5f22c16e6b23",
+                    "path": "<Keyboard>/escape",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Pause",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
