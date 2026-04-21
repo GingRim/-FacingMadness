@@ -11,9 +11,9 @@ public struct UIClaim
     public UIBase Execute()
     {
         UIBase result = UIManager.GetUIM2(uiType);
-        //Ã£Àº°Ô ¾ø´Ù.                ¸¸µé¾î!
+        //Ã£ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½.                ï¿½ï¿½ï¿½ï¿½ï¿½!
         if (!result) result = UIManager.ClaimCreateUI(uiType, prefabName);
-        //¸¸µç°Ô ¾ø´Ù.       ¾ø¾î!
+        //ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½.       ï¿½ï¿½ï¿½ï¿½!
         if (!result) return result;
 
         if(result is IOpenable openTarget)

@@ -62,17 +62,17 @@ public class UIManager : ManagerBase
     {
         GameObject instance = new GameObject(wantName);
         RectTransform result = instance.AddComponent<RectTransform>();
-        //¸ÞÀÎ Äµ¹ö½º¿¡ ³Ö°í
+        //ï¿½ï¿½ï¿½ï¿½ Äµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö°ï¿½
         result.SetParent(MainCanvas.transform);
-        //¸Ç À§·Î ¿Ã·ÁÁÖ±â!
+        //ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ã·ï¿½ï¿½Ö±ï¿½!
         result.SetAsFirstSibling();
-        //anchor¸¦ stretch - stretch·Î ¸¸µé°í ¿©¹éÀ» 0,0,0,0
+        //anchorï¿½ï¿½ stretch - stretchï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 0,0,0,0
         result.anchorMin = Vector3.zero;
         result.anchorMax = Vector3.one;
-        //¿©¹éÀ» 0,0,0,0
+        //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 0,0,0,0
         result.offsetMin = Vector3.zero;
         result.offsetMax = Vector3.zero;
-        // Å©±â¸¦ 1·Î
+        // Å©ï¿½â¸¦ 1ï¿½ï¿½
         result.localScale = Vector3.one;
 
         return result;
@@ -103,16 +103,16 @@ public class UIManager : ManagerBase
         changerTransform.SetAsLastSibling();
 
         for (ScreenChangeType currentChanger = (ScreenChangeType)1; currentChanger < ScreenChangeType._Length; currentChanger++)
-        {   //enmrÀ¸·Î ¸¸µç
+        {   //enmrï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
             GameObject instance = ObjectManager.CreateObject(currentChanger.ToString(), changerTransform);
-            //¸¸µç ´ë»ó¿¡°Ô¼­ ½ºÅ©¸° Ã¼ÀÎÀú ±â´ÉÀ» °¡Á®¿À±â!
+            //ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ó¿¡°Ô¼ï¿½ ï¿½ï¿½Å©ï¿½ï¿½ Ã¼ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½!
             if (instance?.TryGetComponent(out UI_ScreenChanger asChanger) ?? false)
             {
-                //°¡Àú¿Í›ÛÀ¸¸é µñ¼Å³Ê¸®¿¡ Ãß°¡ÇÏ±â!
+                //ï¿½ï¿½ï¿½ï¿½ï¿½Í›ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Å³Ê¸ï¿½ï¿½ï¿½ ï¿½ß°ï¿½ï¿½Ï±ï¿½!
                 screenChangerDictionary.Add(currentChanger, asChanger);
             }
 
-            //²ô°í °©½Ã´Ù.
+            //ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ã´ï¿½.
             instance?.SetActive(false);
         }
 
@@ -121,7 +121,7 @@ public class UIManager : ManagerBase
 
     protected override void OnDisconnected()
     {
-        UnSetAllUI(); // ½Ï ´Ù ³ª°¡!
+        UnSetAllUI(); // ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½!
     }
 
     protected void SetMainCanvas(Canvas newCanvas)
@@ -185,17 +185,17 @@ public class UIManager : ManagerBase
     public static UIBase SetUIM2(UIBase WantUI) => GameManager.Instance?.UI?.SetUI(WantUI);
     public static void SetUIM2(GameObject wantObject) => SetUIM2(wantObject?.GetComponent<UIBase>());
 
-    protected void UnsetUI(UIType wantType)// ´ã´ç °ø¹«¿øÀÇ ºÎ¼­ÀÇ ÀÌ¸§À» ¾Ë°í ÀÖ´Â °æ¿ì
+    protected void UnsetUI(UIType wantType)// ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Î¼ï¿½ï¿½ï¿½ ï¿½Ì¸ï¿½ï¿½ï¿½ ï¿½Ë°ï¿½ ï¿½Ö´ï¿½ ï¿½ï¿½ï¿½
     {
-        //±× Á÷¿øÀ» Ã£¾Æ¾ß ÇÑ´Ù.
-        //´ã´ç °ø¹«¿øÀÇ ÀÌ¸§À» ¾Ë°í ÀÖ´Â °æ¿ì·Î ÀÌµ¿ÇÏ½Ã¿À.
+        //ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ã£ï¿½Æ¾ï¿½ ï¿½Ñ´ï¿½.
+        //ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ì¸ï¿½ï¿½ï¿½ ï¿½Ë°ï¿½ ï¿½Ö´ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ìµï¿½ï¿½Ï½Ã¿ï¿½.
         if (uiDictuionary.TryGetValue(wantType, out UIBase found))
         {
-            UnsetUI(found);// Ã³¸®
-            uiDictuionary.Remove(wantType); // ÇØ°í
+            UnsetUI(found);// Ã³ï¿½ï¿½
+            uiDictuionary.Remove(wantType); // ï¿½Ø°ï¿½
         }
     }
-    protected void UnsetUI(UIBase wantUI)// ´ã´ç °ø¹«¿øÀÇ ÀÌ¸§À» ¾Ë°í ÀÖ´Â °æ¿ì
+    protected void UnsetUI(UIBase wantUI)// ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ì¸ï¿½ï¿½ï¿½ ï¿½Ë°ï¿½ ï¿½Ö´ï¿½ ï¿½ï¿½ï¿½
     {
         if (!wantUI) return;
 
@@ -208,9 +208,9 @@ public class UIManager : ManagerBase
     {
         foreach (UIBase ui in uiDictuionary.Values)
         {
-            UnsetUI(ui);// ÇÏ³ªÇÏ³ª ³ª°¡¶ó
+            UnsetUI(ui);// ï¿½Ï³ï¿½ï¿½Ï³ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         }
-        //´Ù ³ª°¬À¸´Ï±î Á÷¿ø ¸íºÎ ÆÄ¼è
+        //ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï±ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½Ä¼ï¿½
         uiDictuionary.Clear();
     }
 
@@ -270,9 +270,9 @@ public class UIManager : ManagerBase
                 endFunction?.Invoke();
                 return;
             }
-            //ÄÒ´Ù
+            //ï¿½Ò´ï¿½
             result.gameObject.SetActive(true);
-            //¾Ö´Ï¸ÞÀÌ¼Çµµ ÇØ¶ó~ ±×¸®°í ³¡³ª¸é ÀÌ°É ÇØÁà!
+            //ï¿½Ö´Ï¸ï¿½ï¿½Ì¼Çµï¿½ ï¿½Ø¶ï¿½~ ï¿½×¸ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ì°ï¿½ ï¿½ï¿½ï¿½ï¿½!
             result?.ChangeStart(endFunction);
             currentScreenChnger = result;
         }

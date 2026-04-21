@@ -596,7 +596,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 76cece983e4a84743904983290edbd5b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UI_Button_OpenScreen
-  wantType: 2
+  wantType: 9
+  cgangeType: 0
 --- !u!1 &5975236846935494601
 GameObject:
   m_ObjectHideFlags: 0
@@ -791,6 +792,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ed2b2e1dacd9c8a43805f3469ac4e34b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UI_BatrScreen
+  requiredUI:
+  - prefabName: PauseWindow
+    uiType: 8
+    isOpen: 0
 --- !u!1 &6740300669997054849
 GameObject:
   m_ObjectHideFlags: 0

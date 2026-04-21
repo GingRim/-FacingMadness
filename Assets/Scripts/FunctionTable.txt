@@ -1,83 +1,83 @@
 
 
-°ÔÀÓ¸Å´ÏÀú ÀÎ½ºÅÏ½º·Î µé¾î°¡¼­
+ï¿½ï¿½ï¿½Ó¸Å´ï¿½ï¿½ï¿½ ï¿½Î½ï¿½ï¿½Ï½ï¿½ï¿½ï¿½ ï¿½ï¿½î°¡ï¿½ï¿½
 GameManager.Instance
 GameManager.Instance.Input
 
 
 
-ÀÏ½Ã Á¤Áö / ÇØÁ¦
+ï¿½Ï½ï¿½ ï¿½ï¿½ï¿½ï¿½ / ï¿½ï¿½ï¿½ï¿½
 GameManager.Pause()
 GameManager.Unpause()
 
 
-¿ÀºêÁ§Æ® µî·ÏÇÏ±â
-    GameManager.OnInitializeManager      +- ÇÔ¼ö
-    GameManager.OnInitializeController   +- ÇÔ¼ö
-    GameManager.OnInitializeCharacter    +- ÇÔ¼ö
-    GameManager.OnInitializeObject       +- ÇÔ¼ö
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½Ï±ï¿½
+    GameManager.OnInitializeManager      +- ï¿½Ô¼ï¿½
+    GameManager.OnInitializeController   +- ï¿½Ô¼ï¿½
+    GameManager.OnInitializeCharacter    +- ï¿½Ô¼ï¿½
+    GameManager.OnInitializeObject       +- ï¿½Ô¼ï¿½
                                                                   
-¾÷µ¥ÀÌÆ® ½ÃÄÑ´Þ¶ó°í ÇÏ±â                                            
-    GameManager.OnUpdateEventManager     +- ÇÔ¼ö
-    GameManager.OnUpdateEventController  +- ÇÔ¼ö
-    GameManager.OnUpdateEventCharacter   +- ÇÔ¼ö
-    GameManager.OnUpdateEventObject      +- ÇÔ¼ö
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ï¿½Ñ´Þ¶ï¿½ï¿½ ï¿½Ï±ï¿½                                            
+    GameManager.OnUpdateEventManager     +- ï¿½Ô¼ï¿½
+    GameManager.OnUpdateEventController  +- ï¿½Ô¼ï¿½
+    GameManager.OnUpdateEventCharacter   +- ï¿½Ô¼ï¿½
+    GameManager.OnUpdateEventObject      +- ï¿½Ô¼ï¿½
                                                                   
-ºÎ½¤Áö´Â °Å µî·ÏÇÏ±â                                                
-    GameManager.OnDestroyEventManager    +- ÇÔ¼ö
-    GameManager.OnDestroyEventObject     +- ÇÔ¼ö
-    GameManager.OnDestroyEventController +- ÇÔ¼ö
-    GameManager.OnDestroyEventCharacter  +- ÇÔ¼ö
+ï¿½Î½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ï±ï¿½                                                
+    GameManager.OnDestroyEventManager    +- ï¿½Ô¼ï¿½
+    GameManager.OnDestroyEventObject     +- ï¿½Ô¼ï¿½
+    GameManager.OnDestroyEventController +- ï¿½Ô¼ï¿½
+    GameManager.OnDestroyEventCharacter  +- ï¿½Ô¼ï¿½
 
-ÆÄÀÏ °¡Á®¿À°í ½Í¾î¿ä!
-    DataManager.LoadDataFile<>(ÀÌ¸§)
-    DataManager.TryLoadDataFile<>(ÀÌ¸§, out ÆÄÀÏ¹Þ¾Æ°¥º¯¼ö)
+ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Í¾ï¿½ï¿½!
+    DataManager.LoadDataFile<>(ï¿½Ì¸ï¿½)
+    DataManager.TryLoadDataFile<>(ï¿½Ì¸ï¿½, out ï¿½ï¿½ï¿½Ï¹Þ¾Æ°ï¿½ï¿½ï¿½ï¿½ï¿½)
 
-°ÔÀÓ Áß°£¿¡ ·ÎµùÀ» Ãß°¡·Î ÇØ¾ß ÇÒ ‹š! => ÃÊ¹Ý¿¡ ·ÎµùÀÌ ³Ê¹« ±æ´Ù!
-    LoadAllFromassetBundle<T>(ÅÂ±×, ·ÎµåµÇ¸é ÇÒÀÏ)
+ï¿½ï¿½ï¿½ï¿½ ï¿½ß°ï¿½ï¿½ï¿½ ï¿½Îµï¿½ï¿½ï¿½ ï¿½ß°ï¿½ï¿½ï¿½ ï¿½Ø¾ï¿½ ï¿½ï¿½ ï¿½ï¿½! => ï¿½Ê¹Ý¿ï¿½ ï¿½Îµï¿½ï¿½ï¿½ ï¿½Ê¹ï¿½ ï¿½ï¿½ï¿½!
+    LoadAllFromassetBundle<T>(ï¿½Â±ï¿½, ï¿½Îµï¿½Ç¸ï¿½ ï¿½ï¿½ï¿½ï¿½)
 
-    ¿øÇÏ´Â Å¸ÀÔÀÇ UI¸¦
+    ï¿½ï¿½ï¿½Ï´ï¿½ Å¸ï¿½ï¿½ï¿½ï¿½ UIï¿½ï¿½
    
-   °®°í½Í´Ù
-    UIManager.GetUIM2(Å¸ÀÔ)
+   ï¿½ï¿½ï¿½ï¿½Í´ï¿½
+    UIManager.GetUIM2(Å¸ï¿½ï¿½)
    
-   ¿­°í½Í´Ù
-    UIManager.OpenUIM2(Å¸ÀÔ)
+   ï¿½ï¿½ï¿½ï¿½Í´ï¿½
+    UIManager.OpenUIM2(Å¸ï¿½ï¿½)
    
-   ´Ý°í½Í´Ù
-    UIManager.CloseUIM2(Å¸ÀÔ)
+   ï¿½Ý°ï¿½Í´ï¿½
+    UIManager.CloseUIM2(Å¸ï¿½ï¿½)
     
-    ¿©´Ý°í½Í´Ù
-    UIManager.ToggleUIM2(Å¸ÀÔ)
+    ï¿½ï¿½ï¿½Ý°ï¿½Í´ï¿½
+    UIManager.ToggleUIM2(Å¸ï¿½ï¿½)
    
-   ÆË¾÷Ã¢ ¿­·ÈÀ¸¸é ÁÁ°Ú´Ù
-    UIManager.PopUpM2(Á¦¸ñ, ³»¿ë, È®ÀÎ¹öÆ°)
+   ï¿½Ë¾ï¿½Ã¢ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ú´ï¿½
+    UIManager.PopUpM2(ï¿½ï¿½ï¿½ï¿½, ï¿½ï¿½ï¿½ï¿½, È®ï¿½Î¹ï¿½Æ°)
    
-   ¿¡·¯Ã¢ ¿­·ÈÀ¸¸é ÁÁ°Ú´Ù
-    UIManager.ErrorMessageM2(³»¿ë)
+   ï¿½ï¿½ï¿½ï¿½Ã¢ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ú´ï¿½
+    UIManager.ErrorMessageM2(ï¿½ï¿½ï¿½ï¿½)
 
 
-ÀÌ¸§ ¾²¸é ±× ÀÌ¸§¿¡ ÇØ´çÇÏ´Â ¿ÀºêÁ§Æ®¸¦ ¸¸µé¾î ÁØ´Ù. + ¿ÀºêÁ§Æ® Ç®ÀÌ¸é Ç®¸µµµ ÇØÁÜ
-    ObjectManager.CreateObject(ÀÌ¸§)
-´ë»óÀ» ÆÄ±«ÇÏ´Âµ¥ + Ç®ÀÌ¸é Ç®¿¡ ³Ö¾îÁÜ!
-    ObjectManager.DestroyObject(´ë»ó)
+ï¿½Ì¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ì¸ï¿½ï¿½ï¿½ ï¿½Ø´ï¿½ï¿½Ï´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ø´ï¿½. + ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® Ç®ï¿½Ì¸ï¿½ Ç®ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+    ObjectManager.CreateObject(ï¿½Ì¸ï¿½)
+ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ä±ï¿½ï¿½Ï´Âµï¿½ + Ç®ï¿½Ì¸ï¿½ Ç®ï¿½ï¿½ ï¿½Ö¾ï¿½ï¿½ï¿½!
+    ObjectManager.DestroyObject(ï¿½ï¿½ï¿½)
 
 
-°ÔÀÓÇÏ´Â Áß°£¿¡ ·ÎµùÀÌ µÇ¾î¼­ »õ·Î¿î Ç®ÀÌ ÇÊ¿äÇÏ°Ô µÈ °æ¿ì!
-    ObjectManager.RegistrationPool(ÀÌ¸§)
+ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½ß°ï¿½ï¿½ï¿½ ï¿½Îµï¿½ï¿½ï¿½ ï¿½Ç¾î¼­ ï¿½ï¿½ï¿½Î¿ï¿½ Ç®ï¿½ï¿½ ï¿½Ê¿ï¿½ï¿½Ï°ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½!
+    ObjectManager.RegistrationPool(ï¿½Ì¸ï¿½)
 
 
 
-    GameManager.Instance.Camera.SetMainCamera : ÀÌ Ä«¸Þ¶ó·Î ÇÒ·¡!
-    GameManager.Instance.Camera.GetRaycastResult2D : 2D¿¡¼­ È­¸éÀÌ °¡¸®Å°´Â ´ë»ó °¡Á®¿À±â
-    GameManager.Instance.Camera.GetRaycastResult3D ; 3D¿¡¼­ È­¸éÀÌ °¡¸®Å°´Â ´ë»ó °¡Á®¿À±â
+    GameManager.Instance.Camera.SetMainCamera : ï¿½ï¿½ Ä«ï¿½Þ¶ï¿½ï¿½ ï¿½Ò·ï¿½!
+    GameManager.Instance.Camera.GetRaycastResult2D : 2Dï¿½ï¿½ï¿½ï¿½ È­ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Å°ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    GameManager.Instance.Camera.GetRaycastResult3D ; 3Dï¿½ï¿½ï¿½ï¿½ È­ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Å°ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
-ÀÌ·± ½ÄÀ¸·Î »ý±ä! ÀÔ·Â ¹Þ°í ½Í¾î¿ä
-    InputManager.OnMouseLeftDown     += ÀÓ·Â¹ÞÀ¸¸é ÇÒ ÀÏ
-    InputManager.OnMouseRightDown    += ÀÓ·Â¹ÞÀ¸¸é ÇÒ ÀÏ
-    InputManager.OnMouseLeftUp       += ÀÓ·Â¹ÞÀ¸¸é ÇÒ ÀÏ
-    InputManager.OnMouseRightUp      += ÀÓ·Â¹ÞÀ¸¸é ÇÒ ÀÏ
-    InputManager.OnMouseMove         += ÀÓ·Â¹ÞÀ¸¸é ÇÒ ÀÏ
+ï¿½Ì·ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½! ï¿½Ô·ï¿½ ï¿½Þ°ï¿½ ï¿½Í¾ï¿½ï¿½
+    InputManager.OnMouseLeftDown     += ï¿½Ó·Â¹ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½
+    InputManager.OnMouseRightDown    += ï¿½Ó·Â¹ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½
+    InputManager.OnMouseLeftUp       += ï¿½Ó·Â¹ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½
+    InputManager.OnMouseRightUp      += ï¿½Ó·Â¹ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½
+    InputManager.OnMouseMove         += ï¿½Ó·Â¹ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½
 
-Ä¿¼­°¡ ¿Ã¶ó°¡ ÀÖ´Â ¿ÀºêÁ§Æ® Ã£±â
+Ä¿ï¿½ï¿½ï¿½ï¿½ ï¿½Ã¶ï¿½ ï¿½Ö´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® Ã£ï¿½ï¿½
     GameManager.Instance.Input.GetGameObjectUnderCusor()

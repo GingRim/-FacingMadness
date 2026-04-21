@@ -8,8 +8,8 @@ using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.LowLevel;
 using UnityEngine.UI;
-// ´ë¸®ÀÚ´Â ³Ê¿¡°Ô ³» ±â¼úÀ» Àü¼öÇÑ´Ù.
-// ´ë¸®¸¦ ¶Û ¼ö ÀÖ´Ù´Â °Ç => ´É·ÂÀÌ ¾ÆÁÖ ÁÁ´Ù. => °¡¸£ÃÄÁØ °Ç ¸ðµÎ ÇÑ¹ø¿¡ »ç¿ëÇÑ´Ù.
+// ï¿½ë¸®ï¿½Ú´ï¿½ ï¿½Ê¿ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
+// ï¿½ë¸®ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ ï¿½Ö´Ù´ï¿½ ï¿½ï¿½ => ï¿½É·ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½. => ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½Ñ¹ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 public delegate void MouseButtonEvent(bool value, Vector2 screenPosition, Vector3 WorldPosition);
 public delegate void MouseMoveEvent(Vector2 screenPosition, Vector3 WorldPosition);
 public delegate void MouseHold(Vector2 screenPosition, Vector3 WorldPosition);
@@ -23,20 +23,20 @@ public delegate void AxisEvent(float value);
 
 public class InputManager : ManagerBase
 {
-    // ³ª¸¸ ¸í·ÉÇÒ ¼ö ÀÖ¾î¾ß ÇÑ´Ù.
-    // ±âÁ¸ ´ë¸®ÀÚ´Â ´©±¸³ª µî·ÏÇÏ°í ½ÃÀüÇÒ ¼ö ÀÖ´Ù.
-    // event ´ë¸®ÀÚ´Â ´©±¸³ª µî·ÏÇÏ°í ³ª¸¸ÀÌ ½ÃÀüÇÒ ¼ö ÀÖ´Ù.
-    public static event MouseButtonEvent OnMouseLeftButton; // ¿ÞÂÊ Å¬¸¯
-    public static event MouseButtonEvent OnMouseRightButton;// ¿À¸¥ÂÊ Å¬¸¯
-    public static event MouseMoveEvent   OnMouseMove;       // ¸¶¿ì½º ÀÌµ¿
+    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ö¾ï¿½ï¿½ ï¿½Ñ´ï¿½.
+    // ï¿½ï¿½ï¿½ï¿½ ï¿½ë¸®ï¿½Ú´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ï°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ö´ï¿½.
+    // event ï¿½ë¸®ï¿½Ú´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ï°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ö´ï¿½.
+    public static event MouseButtonEvent OnMouseLeftButton; // ï¿½ï¿½ï¿½ï¿½ Å¬ï¿½ï¿½
+    public static event MouseButtonEvent OnMouseRightButton;// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Å¬ï¿½ï¿½
+    public static event MouseMoveEvent   OnMouseMove;       // ï¿½ï¿½ï¿½ì½º ï¿½Ìµï¿½
     public static event ButtonEvent      OnCancel;          // 
     public static event ButtonEvent      OnShowStatus;      //
     public static event VectorEvent      OnMove;            //
     public static event ButtonEvent      OnPause;
-    //Æ¯Á¤ÇÑ Å¬·¡½º´Â Æ¯Á¤ ÄÁÆ÷³ÍÆ®¿Í ÇÔ²² »ç¿ëÇØ¾ß ÇÑ´Ù.
-    //Æ®Á¤ Å¬·¡½º°¡ ´Ù¸¥ Å¬·¡½º¸¦ Dependence ÀÇÁ¸ÇÏ´Â °æ¿ì
-    //´Ù¸¥ Å¬·¡½º°¡ ÇÊ¿äÇØ¿ä! Require
-    //´ë»ó º¯¼ö³ª Å¬·¡½º À§ÂÊ¿¡´Ù°¡ [ÀÌ·¸°Ô] ³»¿ëÀ» ³Ö´Â °ÍÀ» Attribute : ¼Ó¼º
+    //Æ¯ï¿½ï¿½ï¿½ï¿½ Å¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Æ¯ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½Ô²ï¿½ ï¿½ï¿½ï¿½ï¿½Ø¾ï¿½ ï¿½Ñ´ï¿½.
+    //Æ®ï¿½ï¿½ Å¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ù¸ï¿½ Å¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Dependence ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½ï¿½ï¿½
+    //ï¿½Ù¸ï¿½ Å¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê¿ï¿½ï¿½Ø¿ï¿½! Require
+    //ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Å¬ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ê¿ï¿½ï¿½Ù°ï¿½ [ï¿½Ì·ï¿½ï¿½ï¿½] ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö´ï¿½ ï¿½ï¿½ï¿½ï¿½ Attribute : ï¿½Ó¼ï¿½
     PlayerInput targetInput;
     Dictionary<string, InputAction> actionDictionary = new();
     List<RaycastResult> cursorHitList = new();
@@ -52,10 +52,10 @@ public class InputManager : ManagerBase
         
 
         targetInput = GetComponent<PlayerInput>();
-        // ÀüÀÇ ¹æ½ÄÀº À¯Àú°¡ Å° º¯°æÀÌ ºÒ°¡´É ÇÏ´Ù. (¼Ò¿ï ¿ø´õ·¯)
-        // Forward°¡ ¹ºÁö ¾Ë¾Æ¾ß ÇÑ´Ù. => ForwardÀÇ ¹öÆ°À» ¾Ë ¼ö ÀÖÀ½
-        // On~~À» »ç¿ëÇÏÁö ¾Ê´Â °ÍÀº ÇÏ´Â ÀÌ¸§ÀÇ ÇÔ¼ö¸¦ ½ºÅ©¸³Æ®¿¡¼­ Ã£¾Æ¼­ ½Ç½Ã°£À¸·Î ½ÇÇàÇÒ ¼ö ÀÖ´Â ±â´ÉÀ» ºÒ·¯¿Í¾ß ÇÑ´Ù.
-        // ÀÌ ¹æ½ÄÀº À¯´ÏÆ¼°¡ ¾Æ´Ï¶ó ³»°¡ Á÷Á¢ ²È¾ÆÁÙ °ÍÀÌ´Ù.
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Å° ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ò°ï¿½ï¿½ï¿½ ï¿½Ï´ï¿½. (ï¿½Ò¿ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½)
+        // Forwardï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ë¾Æ¾ï¿½ ï¿½Ñ´ï¿½. => Forwardï¿½ï¿½ ï¿½ï¿½Æ°ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+        // On~~ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê´ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ï´ï¿½ ï¿½Ì¸ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½ï¿½ï¿½ ï¿½ï¿½Å©ï¿½ï¿½Æ®ï¿½ï¿½ï¿½ï¿½ Ã£ï¿½Æ¼ï¿½ ï¿½Ç½Ã°ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ö´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ò·ï¿½ï¿½Í¾ï¿½ ï¿½Ñ´ï¿½.
+        // ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Æ¼ï¿½ï¿½ ï¿½Æ´Ï¶ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½È¾ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ì´ï¿½.
         LoadAllActions();
         InitializeAllActions();
 
@@ -69,7 +69,7 @@ public class InputManager : ManagerBase
         GameManager.OnUpdateEventManager -= UpdateEvent;
     }
 
-    public void UpdateEvent(float deltaTime)// ¸¶¿ì½º°¡ ¿Ã¶ó°¡¸é °è¼Ó ¾÷µ¥ÀÌÆ® µÈ´Ù.
+    public void UpdateEvent(float deltaTime)// ï¿½ï¿½ï¿½ì½ºï¿½ï¿½ ï¿½Ã¶ó°¡¸ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½È´ï¿½.
     {
         RefreshGameObjectUnderCursor();
     }
@@ -104,14 +104,14 @@ public class InputManager : ManagerBase
         }
     }
 
-    void InitializeAllActions() // ÀÌ´Ï¼È ¶óÀÌÁî ¿Ã ¾×¼Ç (¸ðµç ¾×¼ÇÀ» ¸¸µé±â À§ÇÑ ÇÏ³ªÀÇ ÇÔ¼ö)
+    void InitializeAllActions() // ï¿½Ì´Ï¼ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½×¼ï¿½ (ï¿½ï¿½ï¿½ ï¿½×¼ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ï³ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½)
     {
         if(actionDictionary == null || actionDictionary.Count == 0) return;
 
         InitializeAction("CursorPositionChanged", (context) => CursorPositionChanged(GetVector2Value(context)));
         InitializeAction("Move", (context) => OnMove?.Invoke(GetVector2Value(context)));
 
-        InitializeAction("MouseLeftButtonDown",  (context) => OnMouseLeftButton?.Invoke( true, cursorScreenPosition, cursorWorldPosition)); //¶÷´Ù¸¦ ÀÌ¿ëÇÑ ÀÌ¸§ ¾ø´Â ÇÔ¼ö
+        InitializeAction("MouseLeftButtonDown",  (context) => OnMouseLeftButton?.Invoke( true, cursorScreenPosition, cursorWorldPosition)); //ï¿½ï¿½ï¿½Ù¸ï¿½ ï¿½Ì¿ï¿½ï¿½ï¿½ ï¿½Ì¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½
         InitializeAction("MouseLeftButtonUP",    (context) => OnMouseLeftButton?.Invoke( true, cursorScreenPosition, cursorWorldPosition));
         InitializeAction("MouseRightButtonDown", (context) => OnMouseRightButton?.Invoke(true, cursorScreenPosition, cursorWorldPosition));
         InitializeAction("MouseRightButtonUP",   (context) => OnMouseRightButton?.Invoke(true, cursorScreenPosition, cursorWorldPosition));
@@ -124,7 +124,7 @@ public class InputManager : ManagerBase
      
     }
       
-    void InitializeAction(string actionName, Action<InputAction.CallbackContext> actionMethod) // ÀÌ´Ï¼È ¶óÀÌÁî ¾×¼Ç (°¢ ¾×¼ÇÀ» ¸¸µé±â À§ÇÑ ÇÏ³ªÀÇ ÇÔ¼ö)
+    void InitializeAction(string actionName, Action<InputAction.CallbackContext> actionMethod) // ï¿½Ì´Ï¼ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½×¼ï¿½ (ï¿½ï¿½ ï¿½×¼ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ï³ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½)
     {
         if (actionDictionary == null || actionDictionary.Count == 0) return;
 
@@ -141,13 +141,13 @@ public class InputManager : ManagerBase
     }
 
 
-    void CursorPositionChanged(Vector2 screenPosition) // Ä¿¼­ Æ÷Áö¼Ç Ã¤ÀÎÁöµå ½Ç½Ã°£ ¸¶¿ì½º À§Ä¡¸¦ Ä«¸Þ¶ó ±âÁØ °¨Áö 
+    void CursorPositionChanged(Vector2 screenPosition) // Ä¿ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ã¤ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ç½Ã°ï¿½ ï¿½ï¿½ï¿½ì½º ï¿½ï¿½Ä¡ï¿½ï¿½ Ä«ï¿½Þ¶ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ 
     {
 
 
 
-        // ¸¶¿ì½ºÀÇ È­¸é»ó ½ÇÁ¦ ÇÈ¼¿ À§Ä¡ (ÁÂÇ¥°ª ±âº» À§Ä¡)
-        // Ä«¸Þ¶ó¸¦ ±âÁØÀ¸·Î ¼¼»óÀ» º»´Ù.
+        // ï¿½ï¿½ï¿½ì½ºï¿½ï¿½ È­ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½È¼ï¿½ ï¿½ï¿½Ä¡ (ï¿½ï¿½Ç¥ï¿½ï¿½ ï¿½âº» ï¿½ï¿½Ä¡)
+        // Ä«ï¿½Þ¶ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½.
         Vector3 worldPosition;
 
         if (is2D)
