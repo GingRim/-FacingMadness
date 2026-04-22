@@ -1,8 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.Rendering.LookDev;
-using UnityEditor.UI;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
@@ -109,28 +107,32 @@ public class InputManager : ManagerBase
         if(actionDictionary == null || actionDictionary.Count == 0) return;
 
         InitializeAction("CursorPositionChanged", (context) => CursorPositionChanged(GetVector2Value(context)));
-        InitializeAction("Move", (context) => OnMove?.Invoke(GetVector2Value(context)));
+        InitializeAction("Move"                 , (context) => OnMove?.Invoke(GetVector2Value(context))
+                                                , (context) => OnMove?.Invoke(Vector2.zero));
 
-        InitializeAction("MouseLeftButtonDown",  (context) => OnMouseLeftButton?.Invoke( true, cursorScreenPosition, cursorWorldPosition)); //���ٸ� �̿��� �̸� ���� �Լ�
-        InitializeAction("MouseLeftButtonUP",    (context) => OnMouseLeftButton?.Invoke( true, cursorScreenPosition, cursorWorldPosition));
-        InitializeAction("MouseRightButtonDown", (context) => OnMouseRightButton?.Invoke(true, cursorScreenPosition, cursorWorldPosition));
-        InitializeAction("MouseRightButtonUP",   (context) => OnMouseRightButton?.Invoke(true, cursorScreenPosition, cursorWorldPosition));
+        InitializeAction("MouseLeftButton"      ,  (context) => OnMouseLeftButton?.Invoke( true, cursorScreenPosition, cursorWorldPosition) //���ٸ� �̿��� �̸� ���� �Լ�
+                                                , (context) => OnMouseLeftButton?.Invoke( true, cursorScreenPosition, cursorWorldPosition));
        
-        InitializeAction("Cancel", (context) => OnCancel?.Invoke(true));
-        InitializeAction("showStatusButtonDown", (context) => OnShowStatus?.Invoke(true));
-        InitializeAction("showStatusButtonUp", (context) => OnShowStatus?.Invoke(true));
+        InitializeAction("MouseRightButton"     , (context) => OnMouseRightButton?.Invoke(true, cursorScreenPosition, cursorWorldPosition)
+                                                , (context) => OnMouseRightButton?.Invoke(true, cursorScreenPosition, cursorWorldPosition));
+      
+        InitializeAction("showStatusButton"     , (context) => OnShowStatus?.Invoke(true)
+                                                , (context) => OnShowStatus?.Invoke(true));
 
-        InitializeAction("Pause", (context) => OnPause?.Invoke(true));
+        InitializeAction("Cancel"               , (context) => OnCancel?.Invoke(true));
+        InitializeAction("Pause"                , (context) => OnPause?.Invoke(true));
      
     }
-      
-    void InitializeAction(string actionName, Action<InputAction.CallbackContext> actionMethod) // �̴ϼ� ������ �׼� (�� �׼��� ����� ���� �ϳ��� �Լ�)
+    void InitializeAction(string actionName, Action<InputAction.CallbackContext> actionMethod, Action<InputAction.CallbackContext> cancelMethod = null) // �̴ϼ� ������ �׼� (�� �׼��� ����� ���� �ϳ��� �Լ�)
     {
         if (actionDictionary == null || actionDictionary.Count == 0) return;
 
-        if (actionDictionary.TryGetValue(actionName, out InputAction cursorPositionChanged))
-        {
-            cursorPositionChanged.performed += actionMethod;
+        if (actionDictionary.TryGetValue(actionName, out InputAction currentInput))
+        {   //발동할때 할 일
+            if(actionMethod is not null) currentInput.performed += actionMethod;
+            //취소될 때 할 일
+            if (actionMethod is not null) currentInput.canceled += cancelMethod;
+            //currentInput.started 키가 눌렀을 때 발동 된다. 무지성 발동
         }
     }
 

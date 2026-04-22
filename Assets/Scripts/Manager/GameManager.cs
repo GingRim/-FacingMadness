@@ -60,6 +60,8 @@ public class GameManager : MonoBehaviour
     public static event  DestroyEvent    OnDestroyEventCharacter ;
     public static event  DestroyEvent    OnDestroyEventObject    ;
 
+    [SerializeField] UIType startScreen;
+
     bool isLoading = true;
     bool isPlaying =  true;
 
@@ -132,7 +134,7 @@ public class GameManager : MonoBehaviour
         yield return new WaitForSeconds(1.0f);
 
 
-       UIManager.OpenScreenM2(UIType.Title, ScreenChangeType.ScreenChanger);
+       UIManager.OpenScreenM2(startScreen, ScreenChangeType.ScreenChanger);
         isLoading = false;
     }
 
@@ -189,7 +191,7 @@ public class GameManager : MonoBehaviour
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
 #else
-        Application.Quit
+        Application.Quit();
 #endif
 
     }

@@ -1,4 +1,4 @@
-using UnityEditor.VersionControl;
+
 using UnityEngine;
 
 public class BroadcastOnAnimationEnd : StateMachineBehaviour
@@ -20,7 +20,7 @@ public class BroadcastOnAnimationEnd : StateMachineBehaviour
     // OnStateExit is called when a transition ends and the state machine finishes evaluating this state
     override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        //animator : ½ÇÁ¦ ÀÌ ¾Ö´Ï¸ÞÀÌ¼ÇÀ» ÇÏ°í ÀÖ´Â Ä£±¸!
+        //animator : ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ö´Ï¸ï¿½ï¿½Ì¼ï¿½ï¿½ï¿½ ï¿½Ï°ï¿½ ï¿½Ö´ï¿½ Ä£ï¿½ï¿½!
         animator.BroadcastMessage(message);
     }
 

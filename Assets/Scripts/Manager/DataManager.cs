@@ -6,11 +6,12 @@ using UnityEngine.AddressableAssets;
 
 public class DataManager : ManagerBase
 {
-    // ÀüÃ¼ µ¥ÀÌÅÍ¸¦ ÀúÀåÇÏ´Â µñ¼Å³Ê¸®(»çÀü)
+    // ï¿½ï¿½Ã¼ ï¿½ï¿½ï¿½ï¿½ï¿½Í¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½ï¿½Å³Ê¸ï¿½(ï¿½ï¿½ï¿½ï¿½)
     static Dictionary<System.Type, Dictionary<string, Object>> dataDictionary = new();
 
-    //ÇÁ·ÎÆÛÆ¼´Â º¯¼ö¸ð¾çÀÌÁö¸¸ ÇÔ¼ö
+    //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½
     // int GetLoadCount();
+    event System.Action DisconnectedEvent;
 
     public override int LoadCount
     {
@@ -18,11 +19,11 @@ public class DataManager : ManagerBase
         {
             var task = Addressables.LoadResourceLocationsAsync("OGlobals");
             var result = task.WaitForCompletion();
-            int count = result.Count; //°³¼ö¸¦ Ã£¾Æ¿À±â
+            int count = result.Count; //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ã£ï¿½Æ¿ï¿½ï¿½ï¿½
 
 
-            task.Release();// ´ëÀÌÅÍ Àá±×±â
-            return count; // ±×·¡¼­ ±× °³¼ö¸¦ µ¹·ÁÁÜ!
+            task.Release();// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½×±ï¿½
+            return count; // ï¿½×·ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½!
         }
     }
 
@@ -45,7 +46,7 @@ public class DataManager : ManagerBase
             statusUI.SetCurrentStatus($"{loadString}({loaded}/{total})");
         };
 
-        // »õ·Î¿î Å¸ÀÔÀÇ ¹«¾ð°¡¸¦ Ãß°¡ÇÒ¶§ ¿©±â´Ù ³Ö±â
+        // ï¿½ï¿½ï¿½Î¿ï¿½ Å¸ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ð°¡¸ï¿½ ï¿½ß°ï¿½ï¿½Ò¶ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö±ï¿½
         loadString = "Load Game Objects";
         yield return LoadAllFromAssetBundle<GameObject>("OGlobals", PrgressOnLoad).WaitForTask();
         loadString = "Load Pool Requests";
@@ -56,8 +57,8 @@ public class DataManager : ManagerBase
         //GameObject prefab = LoadDataFile<GameObject>("Square");
         //Instantiate(prefab, Random.insideUnitCircle * 5.0f, Random.rotation);
         //LoadFileFromAssetBundle<GameObject>("Origin/Prefabs/Square.prefab");
-        // ·Îµù ÁøÇàÀ² => ÃÖ´ë ¸î °³ÀÎÁö, ÇöÀç ¸î °³±îÁö Çß´ÂÁö
-        //               ÇöÀç / ÃÖ´ë    1 / 100 = 0.01
+        // ï¿½Îµï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ => ï¿½Ö´ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½, ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ß´ï¿½ï¿½ï¿½
+        //               ï¿½ï¿½ï¿½ï¿½ / ï¿½Ö´ï¿½    1 / 100 = 0.01
 
 
 
@@ -66,7 +67,7 @@ public class DataManager : ManagerBase
 
     protected override void OnDisconnected()
     {
-
+        DisconnectedEvent?.Invoke();
     }
 
     bool TryGetFileFromResources<T>(string path, out T result) where T : Object
@@ -75,16 +76,16 @@ public class DataManager : ManagerBase
         return result != null;
     }
 
-    //Asset Bundle (¿¡¼Â ¹øµé) (ÀÓÀÇ·Î ÁöÁ¤ÇÑ Ä«Å×°í¸®)
-    //DLC => Æ¯Á¤ Ä«Å×°í¸®¿¡ ÀÖ´Â ¿ä¼Ò¸¦ ´Ù¿î·Îµå ÇÏ°Ô ÇÒ °ÍÀÎ°¡ ¸» °ÍÀÎ°¡?
-    //Addressable(¾îµå·¿½áºí)
-    // asyncÇÔ¼ö´Â ºñµ¿±â ÇÔ¼ö => ´Ù¸¥ ÇÔ¼ö¿Í °°ÀÌ µ¹¾Æ°¥ ¼ö ÀÖ´Â ÇÔ¼ö!
-    // ÀúÀåÇÑ´Ù´Â °ÍÀº ¾ðÀçµç ºÒ·¯¿Ã ¼ö ÀÖ´Ù. ±×¸®°í ÀúÀåÇÒ¶§ ÀçÀÏ Áß¿äÇÑ °ÍÀº : ¾î¶»°Ô ²¨³¾ °ÍÀÎ°¡
+    //Asset Bundle (ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½) (ï¿½ï¿½ï¿½Ç·ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ä«ï¿½×°ï¿½ï¿½)
+    //DLC => Æ¯ï¿½ï¿½ Ä«ï¿½×°ï¿½ï¿½ï¿½ï¿½ ï¿½Ö´ï¿½ ï¿½ï¿½Ò¸ï¿½ ï¿½Ù¿ï¿½Îµï¿½ ï¿½Ï°ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½Î°ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½Î°ï¿½?
+    //Addressable(ï¿½ï¿½å·¿ï¿½ï¿½ï¿½)
+    // asyncï¿½Ô¼ï¿½ï¿½ï¿½ ï¿½ñµ¿±ï¿½ ï¿½Ô¼ï¿½ => ï¿½Ù¸ï¿½ ï¿½Ô¼ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Æ°ï¿½ ï¿½ï¿½ ï¿½Ö´ï¿½ ï¿½Ô¼ï¿½!
+    // ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´Ù´ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ò·ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ö´ï¿½. ï¿½×¸ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ò¶ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ß¿ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ : ï¿½î¶»ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Î°ï¿½
     public static void SaveDataFile<T>(T target) where T : Object
     {
         if (target == null) return;
         Dictionary<string, Object> innerDictionary;
-        // Áö±Ý±îÁö ÀÌ·± Å¸ÀÔÀÇ Object°¡ ¾ø¾ú´Ù Áï Ã³À½ º¸´Â °ÍÀÌ±â¿¡ innerDictionary°¡ Á¸ÀçÇÏÁö ¾ÊÀ» °ÍÀÌ±â ‹š¹®¿¡!
+        // ï¿½ï¿½ï¿½Ý±ï¿½ï¿½ï¿½ ï¿½Ì·ï¿½ Å¸ï¿½ï¿½ï¿½ï¿½ Objectï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ Ã³ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ì±â¿¡ innerDictionaryï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ì±ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½!
         if (!dataDictionary.TryGetValue(typeof(T), out innerDictionary))
         {
             innerDictionary = new();
@@ -113,8 +114,8 @@ public class DataManager : ManagerBase
 
     public static T LoadDataFile<T>(string fileName) where T : Object
     {
-        //1. ±ÛÀÚ°¡ ¾øÀ» ¶§ fileName is null  nullString    
-        //2. ±ÛÀÚ°¡ ¾øÀ» ¶§ fileName.lecgth == 0 emptyString
+        //1. ï¿½ï¿½ï¿½Ú°ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ fileName is null  nullString    
+        //2. ï¿½ï¿½ï¿½Ú°ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ fileName.lecgth == 0 emptyString
 
         T result = GetDataFromDictnay<T>(fileName);
         if(!result)UIManager.ClaimErrorMessage(SystemMessage.FileNameNotFound(fileName));
@@ -138,12 +139,12 @@ public class DataManager : ManagerBase
         {
             var finder = Addressables.LoadAssetsAsync(label, (T loaded) =>
             {
-                SaveDataFile(loaded); // ·Îµå µÇ¾úÀ¸´Ï±î ÀúÀå
-                actionForEachLoad(); // ÇÒÀÏ ÀÖ´Ù°í ÇÏ´Ï ÇØµÖ¾ß °Ú´Ù.
+                SaveDataFile(loaded); // ï¿½Îµï¿½ ï¿½Ç¾ï¿½ï¿½ï¿½ï¿½Ï±ï¿½ ï¿½ï¿½ï¿½ï¿½
+                actionForEachLoad(); // ï¿½ï¿½ï¿½ï¿½ ï¿½Ö´Ù°ï¿½ ï¿½Ï´ï¿½ ï¿½ØµÖ¾ï¿½ ï¿½Ú´ï¿½.
             });
             Task result = finder.Task;
             await result;
-            finder.Release();
+            DisconnectedEvent += () => finder.Release();
         }
 
         public async void LoadFileFromAssetBundle<T>(string address) where T : Object
@@ -152,15 +153,15 @@ public class DataManager : ManagerBase
             await finder.Task;
             SaveDataFile(finder.Result);
 
-            // A ¶Ç´Â An- À¸·Î ½ÃÀÛµÇ´Â ´Ü¾î´Â ~ÀÌ ¾Æ´Ñ, ¹Ý´ëµÇ´Â Á¢µÎ»ç¸¦ ÀÇ¹ÌÇÑ´Ù.
-            // ÇÁ·Î±×·½¿¡¼­ ºñµ¿±âÈ­´Â ÇÏ³ªÀÇ ÇÁ·Î¼¼½º·Î µ¹¸®´Â °ÍÀÌ ¾Æ´Ï´Ù. Áï ¸ÖÆ¼ ½º·¹µå
-            // ¸ÖÆ¼ ½º·¹µå <-> ½Ì±Û ½º·¹µå
-            // ÇÑ¹ø¿¡ ½ÇÇàÇÏ´Â ±â´ÉÀÇ °³¼ö Áï ºü¸£°Ô ¿Ï·áµÉ ¼ö ÀÖ´Ù.
-            // »ý¸í·Â °¨¼Ò Çß´Âµ¥.. »ý¸í·ÉÀ» ´©°¡ ¾²°í ÀÖ¾î¼­ ¸ø¹Ù²Û´Ù.!
-            // »ý¸í·Â °¨¼Ò ¾ÈÇÏ°í Á×¾ú´ÂÁö Ã¼Å©ÇÒ °ÍÀÎ°¡?
-            // ¿ø·¡ ¹ä¸¸ ¸Ô¾úÀ» ¶§º¸´Ù ¹ä ¸Ô´Â ½Ã°£Àº ´À·ÁÁø´Ù.
-            // ÇÑ¹ø¿¡ µ¹¾Æ°¡´Â ¹«¾ð°¡ Å« º¯¼ö¸¦ ÁÙ¼ö ÀÖ±â¿¡ ´Ù¸¥ ¾ÆÀÌµéÀÌ ±â´Ù¸°´Ù.
-            // ÀÌ¸¦ => "µ¥µå¶ô"ÀÌ¶ó°í ÇÑ´Ù.
+            // A ï¿½Ç´ï¿½ An- ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ÛµÇ´ï¿½ ï¿½Ü¾ï¿½ï¿½ ~ï¿½ï¿½ ï¿½Æ´ï¿½, ï¿½Ý´ï¿½Ç´ï¿½ ï¿½ï¿½ï¿½Î»ç¸¦ ï¿½Ç¹ï¿½ï¿½Ñ´ï¿½.
+            // ï¿½ï¿½ï¿½Î±×·ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ñµ¿±ï¿½È­ï¿½ï¿½ ï¿½Ï³ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Î¼ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Æ´Ï´ï¿½. ï¿½ï¿½ ï¿½ï¿½Æ¼ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+            // ï¿½ï¿½Æ¼ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ <-> ï¿½Ì±ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+            // ï¿½Ñ¹ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ï·ï¿½ï¿½ ï¿½ï¿½ ï¿½Ö´ï¿½.
+            // ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ß´Âµï¿½.. ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ö¾î¼­ ï¿½ï¿½ï¿½Ù²Û´ï¿½.!
+            // ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ï°ï¿½ ï¿½×¾ï¿½ï¿½ï¿½ï¿½ï¿½ Ã¼Å©ï¿½ï¿½ ï¿½ï¿½ï¿½Î°ï¿½?
+            // ï¿½ï¿½ï¿½ï¿½ ï¿½ä¸¸ ï¿½Ô¾ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ô´ï¿½ ï¿½Ã°ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½.
+            // ï¿½Ñ¹ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Æ°ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Å« ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ù¼ï¿½ ï¿½Ö±â¿¡ ï¿½Ù¸ï¿½ ï¿½ï¿½ï¿½Ìµï¿½ï¿½ï¿½ ï¿½ï¿½Ù¸ï¿½ï¿½ï¿½.
+            // ï¿½Ì¸ï¿½ => "ï¿½ï¿½ï¿½ï¿½ï¿½"ï¿½Ì¶ï¿½ï¿½ ï¿½Ñ´ï¿½.
         }
 
 

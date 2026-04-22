@@ -4,10 +4,7 @@ public class ControllerBase : MonoBehaviour, IFunctionable
 {
     CharacterBase _character;
     public CharacterBase Character => _character;
-    private void Start()
-    {
-        RegistrationFunctions();
-    }
+
     //ChracterBase
     public void Possess(CharacterBase target)
     {

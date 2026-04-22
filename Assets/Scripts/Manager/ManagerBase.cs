@@ -6,8 +6,8 @@ public abstract class ManagerBase : MonoBehaviour
     GameManager _connectedManager;
 
     public virtual int LoadCount => 1;
-    //Cunnect¸¦ ÀÚÀ¯·Ó°Ô ÇÏ±â À§ÇØ¼­ VirtualÀ» ½áÁÙ °Çµ¥!
-    //OCP => Open Closed Principle : °³¹æÆó¼â¿øÄ¢ (È®Àå¿¡´Â ¿­·ÁÀÖÀ¸³ª ¼öÁ¤¿¡´Â ´ÝÇô ÀÖÀ½
+    //Cunnectï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ó°ï¿½ ï¿½Ï±ï¿½ ï¿½ï¿½ï¿½Ø¼ï¿½ Virtualï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Çµï¿½!
+    //OCP => Open Closed Principle : ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¢ (È®ï¿½å¿¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 
     public IEnumerator Connect(GameManager newManager)
     {

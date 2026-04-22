@@ -10,9 +10,9 @@ public class UI_DraggableWindow : UIBase, IPointerDownHandler
     public event DragStartEvent OnDragStart;
 
     [SerializeField] RectTransform rootTransform;
-    //¸¶Áö¸·À¸·Î ¼ö½Å¹ÞÀº ¸¶¿ì½º À§Ä¡
+    //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Å¹ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ì½º ï¿½ï¿½Ä¡
     Vector2 currentScreenPosition;
-    // ÀÌµ¿ÇÏ·Á°í Çß´Âµ¥ ¸·Çô¹ö¸° À§Ä¡!
+    // ï¿½Ìµï¿½ï¿½Ï·ï¿½ï¿½ï¿½ ï¿½ß´Âµï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡!
     Vector2 shiftedPosition;
 
     internal void SetMouseStartPosition(Vector2 screenPosition)
@@ -26,21 +26,21 @@ public class UI_DraggableWindow : UIBase, IPointerDownHandler
         Vector2 screenDelta = screenPosition - currentScreenPosition;
         currentScreenPosition = screenPosition;
 
-      //º»ÀÎÀÇ "Pivot"À§Ä¡¸¦ ±âÁØÀ¸·Î!
+      //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ "Pivot"ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½!
         Rect rootRect = rootTransform.rect;
 
-      //                                   ¿ø·¡ À§Ä¡                    ÀÌµ¿·®
+      //                                   ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡                    ï¿½Ìµï¿½ï¿½ï¿½
         rootRect.position += (Vector2)(rootTransform.localPosition / UIManager.UIScale)+ screenDelta;
 
-        //º¸Á¤ÇØÁÖ´Â ¸¸Å­ À§Ä¡ ÀÌµ¿À» ÀÚÁ¦ÇÑ´Ù.
+        //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö´ï¿½ ï¿½ï¿½Å­ ï¿½ï¿½Ä¡ ï¿½Ìµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
         Vector2 overScreen = rootRect.InversedAABB(UIManager.UIBoundary);
        
-      //       º¸Á¤°ª            ½ÇÁ¦ ¿òÁ÷ÀÓ
+      //       ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½            ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         if(shiftedPosition.x * screenDelta.x > 0.0f)
         {
 
             float counter = Mathf.Min(Mathf.Abs(screenDelta.x), Mathf.Abs(shiftedPosition.x));
-            //¿ø·¡ °ªÀÇ ºÎÈ£¸¦ ³Ö¾îÁÖ±â!
+            //ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È£ï¿½ï¿½ ï¿½Ö¾ï¿½ï¿½Ö±ï¿½!
             counter *= Mathf.Sign(shiftedPosition.x);
             shiftedPosition.x -= counter;
             screenDelta.x -= counter;
@@ -54,12 +54,12 @@ public class UI_DraggableWindow : UIBase, IPointerDownHandler
             shiftedPosition.y -= counter;
             screenDelta.y -= counter;
         }
-        //magnitude´Â ±Ô¸ð
-        //spr´Â Á¦°ö 
-        //¿Ö ±»ÀÌ ±Ô¸ð¸¦ Á¦°öÇØ¼­ º¸´Â °É±î?
+        //magnitudeï¿½ï¿½ ï¿½Ô¸ï¿½
+        //sprï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ 
+        //ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ô¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ø¼ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½É±ï¿½?
         if(screenDelta.sqrMagnitude == 0.0f) return;
 
-        //ÀÌµ¿ÇÑ ÃÑ·®À» ÀúÀåÇØ ³õ±â!
+        //ï¿½Ìµï¿½ï¿½ï¿½ ï¿½Ñ·ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½!
         shiftedPosition += overScreen;
         screenDelta += overScreen;
 

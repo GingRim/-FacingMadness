@@ -5,13 +5,10 @@ using UnityEngine;
 //Character : 조종하고 이동 기능이 있는 캐릭터
 public class MovableCharacert : CharacterBase, IRunnable, IFunctionable
 {
-    protected Vector3 targetDestination;
+    protected Vector3? targetDestination = null;
+    protected Vector3? targetDirection = null;
     protected float targetTolerance;
 
-    private void Start()
-    {
-        RegistrationFunctions();
-    }
 
     public void RegistrationFunctions()
     {
@@ -28,12 +25,35 @@ public class MovableCharacert : CharacterBase, IRunnable, IFunctionable
     {
         GameManager.OnPhysicsCharacter -= PhysicsUpdate;
         
+        
     }
 
     public void PhysicsUpdate(float deltaTime)
     {
+
+        UpdateToDestination(deltaTime);
+        UpdateToDirection(deltaTime);
+
+    }
+
+    public void UpdateToDirection(float deltatime)
+    {
+        if (targetDirection is null) return;
+        // 1.0 / 0.1 / -1.0 / 0.-1
+
+        float currentMoveSpeed = deltatime * 5.0f;
+ 
+        transform.position += currentMoveSpeed * targetDirection.Value; 
+        
+        
+    }
+
+    public void UpdateToDestination(float deltaTime)
+    {
+        if(targetDestination is null) return;
+
         // 해당 위치로 조금씩 가는 법!
-        Vector3 currentMoveDirection = (targetDestination - transform.position);
+        Vector3 currentMoveDirection = (targetDestination.Value - transform.position);
         //일단 얼마나 더 가야 해요?
         float distance = currentMoveDirection.magnitude;
         //거리가 인정범위 밖
@@ -41,10 +61,17 @@ public class MovableCharacert : CharacterBase, IRunnable, IFunctionable
         {
             //방향을 잡고
             currentMoveDirection.Normalize();
+            //한번 이동할때 거리 정하기
+            float currentMoveSpeed = deltaTime * 5.0f;
+            // 거리를 구해야 하는데, 언제 작은 거리를 움지여야 하는가?
+            // 주채가 지금 이동하는 거리가 남은 거리보다 클 때
+            float resultMoveSpeed = Mathf.Min(currentMoveSpeed, distance);
             // 지금 이 프레임에 난느 몇m를 갈 수 있을까?
             //         2     30km/h = 60km
             // 거리 = 시간 * 속력
-            transform.position += deltaTime * 5.0f *  currentMoveDirection;
+            transform.position += resultMoveSpeed *  currentMoveDirection; //원본
+
+            
         }
     }
 
@@ -56,12 +83,14 @@ public class MovableCharacert : CharacterBase, IRunnable, IFunctionable
 
     public void MoveToDirection(Vector3 direction)
     {
-        
+        targetDirection = null; // 목적지 제거한다.
+        targetDirection = direction.normalized;
     }
 
     public void StopMovement()
     {
-        
+        targetDestination = null;
+        targetDirection = null;
     }
 
 }
