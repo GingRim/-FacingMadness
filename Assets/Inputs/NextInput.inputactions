@@ -126,7 +126,7 @@
                     "name": "",
                     "id": "a2c693d2-478d-420f-bdf9-9837d2a72731",
                     "path": "<Mouse>/rightButton",
-                    "interactions": "Press",
+                    "interactions": "",
                     "processors": "",
                     "groups": "",
                     "action": "MouseRightButton",

@@ -111,13 +111,13 @@ public class InputManager : ManagerBase
                                                 , (context) => OnMove?.Invoke(Vector2.zero));
 
         InitializeAction("MouseLeftButton"      ,  (context) => OnMouseLeftButton?.Invoke( true, cursorScreenPosition, cursorWorldPosition) //���ٸ� �̿��� �̸� ���� �Լ�
-                                                , (context) => OnMouseLeftButton?.Invoke( true, cursorScreenPosition, cursorWorldPosition));
+                                                , (context) => OnMouseLeftButton?.Invoke( false, cursorScreenPosition, cursorWorldPosition));
        
         InitializeAction("MouseRightButton"     , (context) => OnMouseRightButton?.Invoke(true, cursorScreenPosition, cursorWorldPosition)
-                                                , (context) => OnMouseRightButton?.Invoke(true, cursorScreenPosition, cursorWorldPosition));
+                                                , (context) => OnMouseRightButton?.Invoke(false, cursorScreenPosition, cursorWorldPosition));
       
         InitializeAction("showStatusButton"     , (context) => OnShowStatus?.Invoke(true)
-                                                , (context) => OnShowStatus?.Invoke(true));
+                                                , (context) => OnShowStatus?.Invoke(false));
 
         InitializeAction("Cancel"               , (context) => OnCancel?.Invoke(true));
         InitializeAction("Pause"                , (context) => OnPause?.Invoke(true));

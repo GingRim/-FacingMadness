@@ -2,14 +2,14 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-[System.Serializable] // ½Ã¸®¾ó / ¿¬¼ÓÀûÀÎ / 
+[System.Serializable] // ï¿½Ã¸ï¿½ï¿½ï¿½ / ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ / 
 public struct PoolSetting
 {
     public string poolName;
     public GameObject target;
     public uint countInitial;
-    public uint coutAdditional; // ÇÑ¹ø¿¡ Ãß°¡ÇÒ °³¼ö
-    public UIType uiType; //½ÇÇè Áß
+    public uint coutAdditional; // ï¿½Ñ¹ï¿½ï¿½ï¿½ ï¿½ß°ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+    public UIType uiType; //ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½
 }
 
 

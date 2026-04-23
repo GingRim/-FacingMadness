@@ -8,6 +8,9 @@ public class CharacterBase : MonoBehaviour
     ControllerBase _controller;
     public ControllerBase Controller => _controller;
 
+    protected Vector3 _lookRotation;
+    public Vector3 LookRotation => _lookRotation;
+
     public virtual string DisplayName => "Character";
 
     public ControllerBase Possessed(ControllerBase from) //Possessed = 빙의되다.
