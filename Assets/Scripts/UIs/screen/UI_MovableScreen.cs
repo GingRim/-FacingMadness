@@ -44,8 +44,8 @@ public class UI_MovableScreen : UI_ScreenBase
 
     private void MouseMove(Vector2 screenPosition, Vector3 WorldPosition)
     {
-        if (currentDragTarget) // Áö±Ý ¿òÁö¿©¾ß ÇÏ´Â Ä£±¸ÇÑÅ×
-        { // ¿òÁ÷ÀÌ¶ó°í ÀÌ¾ß±â ÇÏ±â!
+        if (currentDragTarget) // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ï´ï¿½ Ä£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+        { // ï¿½ï¿½ï¿½ï¿½ï¿½Ì¶ï¿½ï¿½ ï¿½Ì¾ß±ï¿½ ï¿½Ï±ï¿½!
             currentDragTarget.SetMouseCurrentPosition(screenPosition);
         }
     }
@@ -67,7 +67,7 @@ public class UI_MovableScreen : UI_ScreenBase
 
     protected override GameObject OnSetChild(GameObject newChild)
     {
-        //»õ·Î¿î ÀÚ½ÄÇÑÅ× UIManagerÇÑÅ× °¡¼­ µî·Ï ¹Þ¾Æ¿À¶ó°í ÇÑ´Ù.
+        //ï¿½ï¿½ï¿½Î¿ï¿½ ï¿½Ú½ï¿½ï¿½ï¿½ï¿½ï¿½ UIManagerï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½Þ¾Æ¿ï¿½ï¿½ï¿½ï¿½ ï¿½Ñ´ï¿½.
         UIManager.SetUIM2(newChild);
 
         if (newChild)
@@ -76,8 +76,8 @@ public class UI_MovableScreen : UI_ScreenBase
 
             if(asDraggable)
             {
-                // ÁÁ¾Æ ³Ê ¿òÁ÷ÀÏ ¼ö ÀÖ´Ù´Â °Í ¾Ë°Ú¾î!
-                // ÀÌ Ä£±¸°¡ ¿òÁ÷ÀÓÀ» ¿øÇÒ ¶§ ³» SetDragTargetÇÔ¼ö¸¦ ½ÇÇà½ÃÅ³ ¼ö ÀÖ°Ô
+                // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ö´Ù´ï¿½ ï¿½ï¿½ ï¿½Ë°Ú¾ï¿½!
+                // ï¿½ï¿½ Ä£ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ SetDragTargetï¿½Ô¼ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Å³ ï¿½ï¿½ ï¿½Ö°ï¿½
                 asDraggable.OnDragStart -= SetDragTarget;
                 asDraggable.OnDragStart += SetDragTarget;
                 
@@ -114,9 +114,9 @@ public class UI_MovableScreen : UI_ScreenBase
                 if(!popupList.Contains(newUI)) popupList.Add(newUI);
             }
 
-            //ÀÌ Ä£±¸°¡ ½Ã½ºÅÛ ¸Þ½ÃÁö¸¦ ¹ÞÀ» ¼ö ÀÖ´Â °¡?
-            //IS½Ã½ºÅÛ ¸Þ½ÃÁö ÀÎÁö Ã¼Å©¸¦ ÇÏ°í
-            //¸Þ½ÃÁö¸¦ º¸³»ÁÖ±â¸¸ ÇÏ¸é ³¡!
+            //ï¿½ï¿½ Ä£ï¿½ï¿½ï¿½ï¿½ ï¿½Ã½ï¿½ï¿½ï¿½ ï¿½Þ½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ö´ï¿½ ï¿½ï¿½?
+            //ISï¿½Ã½ï¿½ï¿½ï¿½ ï¿½Þ½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Ã¼Å©ï¿½ï¿½ ï¿½Ï°ï¿½
+            //ï¿½Þ½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ö±â¸¸ ï¿½Ï¸ï¿½ ï¿½ï¿½!
 
             if (newChild.TryGetComponent(out ISystemMessagePossible target))
             {
@@ -124,11 +124,11 @@ public class UI_MovableScreen : UI_ScreenBase
             }
             if(newChild.TryGetComponent(out IConfirmable confirmTarget))
             {
-                confirmTarget.SetConfirmAction(() => // ÆË¾÷Ã¢À» ´©¸¥´Ù.
+                confirmTarget.SetConfirmAction(() => // ï¿½Ë¾ï¿½Ã¢ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½.
                 {
-                    if(newUI) popupList.Remove(newUI);// ³Ê´Â ÆË¾÷µµ ¾Æ´Ï°í
-                    UnsetChild(newChild);// ÀÚ½Ä¿¡¼­ Á¦¿Ü
-                    ObjectManager.DestroyObject(newChild);// ÆÄ±«ÇÑ´Ù.
+                    if(newUI) popupList.Remove(newUI);// ï¿½Ê´ï¿½ ï¿½Ë¾ï¿½ï¿½ï¿½ ï¿½Æ´Ï°ï¿½
+                    UnsetChild(newChild);// ï¿½Ú½Ä¿ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+                    ObjectManager.DestroyObject(newChild);// ï¿½Ä±ï¿½ï¿½Ñ´ï¿½.
                 });
             }
 
@@ -137,9 +137,9 @@ public class UI_MovableScreen : UI_ScreenBase
 
     public Vector3 GetNextPopipPosition()
     {
-        //±×·¯¸é ÆË¾÷ Æ÷Áö¼ÇÀº ¾î¶»°Ô °è»êÇÒ±î?
-        //Áö±Ý °¡Áö°í ÀÖ´Â ÆË¾÷ ¸®½ºÆ® Áß¿¡¼­ °¡Àå ¿À¸¥ÂÊ ¾Æ·¡¿¡ ÀÖ´Â ³à¼®À» ±¸ÇÏ±â!
-        //¾Æ¹«µµ ¾øÀ¸¸é? Vector3.zero
+        //ï¿½×·ï¿½ï¿½ï¿½ ï¿½Ë¾ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½î¶»ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ò±ï¿½?
+        //ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö´ï¿½ ï¿½Ë¾ï¿½ ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ß¿ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Æ·ï¿½ï¿½ï¿½ ï¿½Ö´ï¿½ ï¿½à¼®ï¿½ï¿½ ï¿½ï¿½ï¿½Ï±ï¿½!
+        //ï¿½Æ¹ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½? Vector3.zero
         Vector3 bestScore = Vector3.zero;
        
         if(popupList.Count == 0) return bestScore;
@@ -147,9 +147,9 @@ public class UI_MovableScreen : UI_ScreenBase
         foreach (UIBase currentPopup in popupList)
         {
             Vector3 currentScore = currentPopup.transform.localPosition;
-            //1.    XÃà ÀÏµîÀÎÁö
+            //1.    Xï¿½ï¿½ ï¿½Ïµï¿½ï¿½ï¿½ï¿½ï¿½
             if (bestScore.x < currentScore.x) bestScore.x = currentScore.x;
-            //2.    YÃà ÀÏµîÀÎÁö 
+            //2.    Yï¿½ï¿½ ï¿½Ïµï¿½ï¿½ï¿½ï¿½ï¿½ 
             if (bestScore.y > currentScore.y) bestScore.y = currentScore.y;
         }
 
