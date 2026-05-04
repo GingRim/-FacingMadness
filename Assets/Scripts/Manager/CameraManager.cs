@@ -26,7 +26,7 @@ public class CameraManager : ManagerBase
     {
 
         MainCamera = wantCamera;
-        if (MainCamera) // != nullÆ÷ÇÔ
+        if (MainCamera) // != nullï¿½ï¿½ï¿½ï¿½
         {
             Raycaster2D = wantCamera.GetComponent<Physics2DRaycaster>();
             Raycaster3D = wantCamera.GetComponent<PhysicsRaycaster>();
