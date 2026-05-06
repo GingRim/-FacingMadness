@@ -7,7 +7,7 @@ public delegate void MovementEvent(Vector3 move);
 public delegate void LookAtEvent(Vector3 direction);
 //                               실제 데미지를 제공한 사물    데미지를 주라고 시킨 놈
 public delegate void DamageEvent(in DamageStruct info);
-public delegate void RestoreEvent(in RestoreStryct info);
+public delegate void RestoreEvent(in RestoreStruct info);
 
 public class CharacterBase : MonoBehaviour
 {

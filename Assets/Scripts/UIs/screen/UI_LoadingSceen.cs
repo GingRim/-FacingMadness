@@ -18,10 +18,10 @@ public class UI_LoadingSceen : UI_ScreenBase, IOpenable, IProgress<int>, IStatus
     public void Open() => gameObject.SetActive(true);
 
 
-    // ÇÔ¼ö´Â ÇÔ¼ö³¢¸®\
-    // ÇÁ·ÎÆÛÆ¼´Â ÇÁ·ÎÆÛÆ¼³¢¸®
-    // º¯¼ö´Â º¯¼ö³¢¸®
-    // º¯¼ö´Â Å©±â°¡ Å« ¼ø¼­¿¡¼­ ÀÛÀº ¼ø¼­·Î ¹èÄ¡
+    // ï¿½Ô¼ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½ï¿½ï¿½ï¿½ï¿½\
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ¼ï¿½ï¿½ï¿½ï¿½
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Å©ï¿½â°¡ Å« ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡
 
 
     public UnityEngine.UI.Slider progressBar;
@@ -38,7 +38,7 @@ public class UI_LoadingSceen : UI_ScreenBase, IOpenable, IProgress<int>, IStatus
     {
         Current = Mathf.Min(newCurrent, Max);
         progressBar.value = Progress;
-        //Format String(Æú¸ä ½ºÆ®¸µ) => ¼­½Ä
+        //Format String(ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Æ®ï¿½ï¿½) => ï¿½ï¿½ï¿½ï¿½
         progressText.SetText($"{Progress * 100.0f : 0.00}%");
         return Current;
     }

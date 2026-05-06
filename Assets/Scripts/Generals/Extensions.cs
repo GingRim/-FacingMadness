@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Unity.Mathematics.Geometry;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public static class Extensions
 {
@@ -23,6 +24,35 @@ public static class Extensions
        
         return result;
     }
+
+    //왼쪽 오른쪽 친구를 가지고 비교를 해서 그 결과가 bool로 나오는 형태의 함수를 Comparison(비교)
+    public static T GetExtreme<T>(this IEnumerable targetList, float defaultScore, System.Func<T, float> ScoreFunction, System.Func<float, float, bool> Comparison)
+    {
+        T result = default; //공
+        float firstScore = defaultScore;  // 차
+
+
+        foreach (T currentTarget in targetList) // 공
+        {
+            float currntDistance = ScoreFunction(currentTarget);//공
+            //Priority 거리
+            if (Comparison(currntDistance, firstScore )) //차
+            {
+                result = currentTarget; //공
+                firstScore = currntDistance; // 공
+            }
+            
+        }
+        return result; //공
+    }
+
+
+    public static T GetMaximum<T>(this IEnumerable targetList, System.Func<T, float> ScoreFunction)
+    => targetList.GetExtreme(float.MinValue, ScoreFunction, (a, b) => a > b);
+
+    public static T GetMinimum<T>(this IEnumerable targetList, System.Func<T, float> ScoreFunction)
+    => targetList.GetExtreme(float.MaxValue, ScoreFunction, (a,b) => a < b);
+
 
     public static T TryAddComponent<T>(this Component target) where T : Component
     {
