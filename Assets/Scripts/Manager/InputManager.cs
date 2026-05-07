@@ -11,6 +11,7 @@ using UnityEngine.UI;
 public delegate void MouseButtonEvent(bool value, Vector2 screenPosition, Vector3 WorldPosition);
 public delegate void MouseMoveEvent(Vector2 screenPosition, Vector3 WorldPosition);
 public delegate void MouseHold(Vector2 screenPosition, Vector3 WorldPosition);
+public delegate void MouseHoverEvent(GameObject newTarget, GameObject oldTarget);
 public delegate void ButtonEvent(bool value);
 public delegate void VectorEvent(Vector2 value);
 public delegate void AxisEvent(float value);
@@ -27,6 +28,7 @@ public class InputManager : ManagerBase
     public static event MouseButtonEvent OnMouseLeftButton; // ���� Ŭ��
     public static event MouseButtonEvent OnMouseRightButton;// ������ Ŭ��
     public static event MouseMoveEvent   OnMouseMove;       // ���콺 �̵�
+    public static event MouseHoverEvent  OnMouseHover;
     public static event ButtonEvent      OnCancel;          // 
     public static event ButtonEvent      OnShowStatus;      //
     public static event VectorEvent      OnMove;            //
@@ -77,13 +79,11 @@ public class InputManager : ManagerBase
         cursorHitList.Clear();
          GameManager.Instance.Camera.GetRaycastResult(screenPosition, cursorHitList);
 
-
-
-
         // ���콺�� ȭ��� ���� �ȼ� ��ġ (��ǥ�� �⺻ ��ġ)
         // ī�޶� �������� ������ ����.
         Vector3 worldPosition = Camera.main.ScreenToWorldPoint(screenPosition);
         GameObject firstObject = null; //1등 선언
+        
         if (cursorHitList.Count > 0 && cursorHitList[0].element != null)
         {
             firstObject = cursorHitList[0].gameObject;
@@ -112,23 +112,18 @@ public class InputManager : ManagerBase
             firstObject = nearest.gameObject; // 오브젝트 꺼내오기 
             worldPosition = nearest.worldPosition; // 위치에 꺼내오고
         }
-        
-        float firstDistance = float.MaxValue;// 가장 가까운 대상의 거리를 지정해 놓기
-        Vector3 firstPosition = worldPosition;
-        foreach (RaycastResult currentResult in cursorHitList)
-        {
-            float currntDistance = currentResult.distance;
-            //Priority 거리
-            if (currntDistance < firstDistance)
-            {
-                firstObject = currentResult.gameObject;
-                firstDistance = currntDistance;
-                firstPosition = currentResult.worldPosition;
-            }
-        }
+
+        GameObject lastHoverObject = cursorHoverObhect;
+
         cursorScreenPosition = screenPosition;
         cursorWorldPosition = worldPosition;
+        cursorHoverObhect = firstObject;
         
+        if (lastHoverObject != firstObject)
+        {
+            OnMouseHover?.Invoke(firstObject, lastHoverObject);
+        }
+
     }
 
     public GameObject GetGameObjectUnderCursor()
