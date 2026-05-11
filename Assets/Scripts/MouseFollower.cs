@@ -16,7 +16,7 @@ public class MouseFollower : MonoBehaviour, IFunctionable
 
     public void RegistrationFunctions()
     {
-        InputManager.OnMouseRightButton += DestroyOnmouse; //¸¶Ãâ ¹°Ã¼´Â ÄÝ¶óÀÌ´õ°¡ ÀÖ¾î¾ß ÇÑ´Ù.
+        InputManager.OnMouseRightButton += DestroyOnmouse; //ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½Ý¶ï¿½ï¿½Ì´ï¿½ï¿½ï¿½ ï¿½Ö¾ï¿½ï¿½ ï¿½Ñ´ï¿½.
         InputManager.OnMouseLeftButton += CeateToMouse;
     }
 

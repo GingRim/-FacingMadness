@@ -33,7 +33,7 @@ public class CharacterBase : MonoBehaviour
 
     public virtual string DisplayName => "Character";
 
-    // 모튤을 저장해놓기!
+    // 모듈을 저장해놓기!
     // List :  추가/제거가 쉽다. <-> 메모리 효율이 낮고, 전체 순환이 느리다.
 
     Dictionary<System.Type, CharacterModule> moduleDictipnary = new();

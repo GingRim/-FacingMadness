@@ -140,7 +140,7 @@ public class DataManager : ManagerBase
             var finder = Addressables.LoadAssetsAsync(label, (T loaded) =>
             {
                 SaveDataFile(loaded); // �ε� �Ǿ����ϱ� ����
-                actionForEachLoad(); // ���� �ִٰ� �ϴ� �ص־� �ڴ�.
+                actionForEachLoad(); 
             });
             Task result = finder.Task;
             await result;

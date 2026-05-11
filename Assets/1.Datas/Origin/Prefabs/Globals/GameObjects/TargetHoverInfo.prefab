@@ -91,6 +91,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UI_TargetHoverInfo
   shiftedPosition: {x: 0, y: 0}
+  nameText: {fileID: 1280596994071798876}
+  Icon: {fileID: 0}
+  bar: {fileID: 0}
 --- !u!1 &716963300391556020
 GameObject:
   m_ObjectHideFlags: 0

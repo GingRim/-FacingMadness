@@ -36,7 +36,7 @@ public class InputManager : ManagerBase
     //Ư���� Ŭ������ Ư�� ������Ʈ�� �Բ� ����ؾ� �Ѵ�.
     //Ʈ�� Ŭ������ �ٸ� Ŭ������ Dependence �����ϴ� ���
     //�ٸ� Ŭ������ �ʿ��ؿ�! Require
-    //��� ������ Ŭ���� ���ʿ��ٰ� [�̷���] ������ �ִ� ���� Attribute : �Ӽ�
+   
     PlayerInput targetInput;
     Dictionary<string, InputAction> actionDictionary = new();
     List<RaycastResult> cursorHitList = new();

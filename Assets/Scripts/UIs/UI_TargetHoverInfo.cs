@@ -43,6 +43,7 @@ public class UI_TargetHoverInfo : OpenableUIBase
         else Close();
 
         target = asCharacter;
+
     }
 
 

@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class ControllerBase : MonoBehaviour, IFunctionable
@@ -59,5 +60,10 @@ public class ControllerBase : MonoBehaviour, IFunctionable
     {
         if(Character && Character.GetModule<MovementModule>() is IRunnable target) target.StopMovement();
 
+    }
+
+    internal T GetModule<T>()
+    {
+        throw new NotImplementedException();
     }
 }
