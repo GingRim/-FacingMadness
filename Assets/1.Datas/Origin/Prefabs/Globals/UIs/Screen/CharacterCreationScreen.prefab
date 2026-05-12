@@ -638,7 +638,17 @@ MonoBehaviour:
   IText: {fileID: 8139027261523400373}
   EText: {fileID: 385892996879238739}
   image: {fileID: 1507270364297956030}
-  ChangeSprite: {fileID: -366412305, guid: 7e124c089f6740c49a209a0a57a60d8e, type: 3}
+  hunterImage: {fileID: 4415977808877666022}
+  privateDetectiveImage: {fileID: 3441016795607406174}
+  athleteImage: {fileID: 3875012496557762608}
+  researcherImage: {fileID: 1507270364297956030}
+  religiousFanaticImage: {fileID: 1305049789890701121}
+  hunterdefaultSprite: {fileID: 381060796258283201, guid: 8b1d23acaf2676b4b90504e6d12271d4, type: 3}
+  privateDetectivedefaultSprite: {fileID: -74817810, guid: 8b1d23acaf2676b4b90504e6d12271d4, type: 3}
+  athletedefaultSprite: {fileID: 1475591713, guid: 8b1d23acaf2676b4b90504e6d12271d4, type: 3}
+  researcherdefaultSprite: {fileID: 1283685627, guid: 8b1d23acaf2676b4b90504e6d12271d4, type: 3}
+  religiousFanaticdefaultSprite: {fileID: 1887279000, guid: 8b1d23acaf2676b4b90504e6d12271d4, type: 3}
+  selectedSprite: {fileID: -366412305, guid: 7e124c089f6740c49a209a0a57a60d8e, type: 3}
 --- !u!1 &1804861962616925640
 GameObject:
   m_ObjectHideFlags: 0
@@ -1990,7 +2000,17 @@ MonoBehaviour:
   IText: {fileID: 8139027261523400373}
   EText: {fileID: 385892996879238739}
   image: {fileID: 3875012496557762608}
-  ChangeSprite: {fileID: 1291668607, guid: 7e124c089f6740c49a209a0a57a60d8e, type: 3}
+  hunterImage: {fileID: 4415977808877666022}
+  privateDetectiveImage: {fileID: 3441016795607406174}
+  athleteImage: {fileID: 3875012496557762608}
+  researcherImage: {fileID: 1507270364297956030}
+  religiousFanaticImage: {fileID: 1305049789890701121}
+  hunterdefaultSprite: {fileID: 381060796258283201, guid: 8b1d23acaf2676b4b90504e6d12271d4, type: 3}
+  privateDetectivedefaultSprite: {fileID: -74817810, guid: 8b1d23acaf2676b4b90504e6d12271d4, type: 3}
+  athletedefaultSprite: {fileID: 1475591713, guid: 8b1d23acaf2676b4b90504e6d12271d4, type: 3}
+  researcherdefaultSprite: {fileID: 1283685627, guid: 8b1d23acaf2676b4b90504e6d12271d4, type: 3}
+  religiousFanaticdefaultSprite: {fileID: 1887279000, guid: 8b1d23acaf2676b4b90504e6d12271d4, type: 3}
+  selectedSprite: {fileID: 1291668607, guid: 7e124c089f6740c49a209a0a57a60d8e, type: 3}
 --- !u!1 &4135617004849872514
 GameObject:
   m_ObjectHideFlags: 0
@@ -2248,7 +2268,7 @@ RectTransform:
   m_AnchorMin: {x: 0.07483153, y: 0.61569566}
   m_AnchorMax: {x: 0.21176088, y: 0.7602684}
   m_AnchoredPosition: {x: -0.25, y: 3.5202026}
-  m_SizeDelta: {x: -4, y: -2.6162987}
+  m_SizeDelta: {x: -4.0000076, y: -2.6163025}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5730971804032112108
 CanvasRenderer:
@@ -2653,7 +2673,17 @@ MonoBehaviour:
   IText: {fileID: 8139027261523400373}
   EText: {fileID: 385892996879238739}
   image: {fileID: 4415977808877666022}
-  ChangeSprite: {fileID: -7114508056241829067, guid: 7e124c089f6740c49a209a0a57a60d8e, type: 3}
+  hunterImage: {fileID: 4415977808877666022}
+  privateDetectiveImage: {fileID: 3441016795607406174}
+  athleteImage: {fileID: 3875012496557762608}
+  researcherImage: {fileID: 1507270364297956030}
+  religiousFanaticImage: {fileID: 1305049789890701121}
+  hunterdefaultSprite: {fileID: 381060796258283201, guid: 8b1d23acaf2676b4b90504e6d12271d4, type: 3}
+  privateDetectivedefaultSprite: {fileID: -74817810, guid: 8b1d23acaf2676b4b90504e6d12271d4, type: 3}
+  athletedefaultSprite: {fileID: 1475591713, guid: 8b1d23acaf2676b4b90504e6d12271d4, type: 3}
+  researcherdefaultSprite: {fileID: 1283685627, guid: 8b1d23acaf2676b4b90504e6d12271d4, type: 3}
+  religiousFanaticdefaultSprite: {fileID: 1887279000, guid: 8b1d23acaf2676b4b90504e6d12271d4, type: 3}
+  selectedSprite: {fileID: -7114508056241829067, guid: 7e124c089f6740c49a209a0a57a60d8e, type: 3}
 --- !u!1 &6004985237034640306
 GameObject:
   m_ObjectHideFlags: 0
@@ -3093,7 +3123,17 @@ MonoBehaviour:
   IText: {fileID: 8139027261523400373}
   EText: {fileID: 385892996879238739}
   image: {fileID: 3441016795607406174}
-  ChangeSprite: {fileID: -238173548, guid: 7e124c089f6740c49a209a0a57a60d8e, type: 3}
+  hunterImage: {fileID: 4415977808877666022}
+  privateDetectiveImage: {fileID: 3441016795607406174}
+  athleteImage: {fileID: 3875012496557762608}
+  researcherImage: {fileID: 1507270364297956030}
+  religiousFanaticImage: {fileID: 1305049789890701121}
+  hunterdefaultSprite: {fileID: 381060796258283201, guid: 8b1d23acaf2676b4b90504e6d12271d4, type: 3}
+  privateDetectivedefaultSprite: {fileID: -74817810, guid: 8b1d23acaf2676b4b90504e6d12271d4, type: 3}
+  athletedefaultSprite: {fileID: 1475591713, guid: 8b1d23acaf2676b4b90504e6d12271d4, type: 3}
+  researcherdefaultSprite: {fileID: 1283685627, guid: 8b1d23acaf2676b4b90504e6d12271d4, type: 3}
+  religiousFanaticdefaultSprite: {fileID: 1887279000, guid: 8b1d23acaf2676b4b90504e6d12271d4, type: 3}
+  selectedSprite: {fileID: -238173548, guid: 7e124c089f6740c49a209a0a57a60d8e, type: 3}
 --- !u!1 &7299677933815072231
 GameObject:
   m_ObjectHideFlags: 0
@@ -4259,4 +4299,14 @@ MonoBehaviour:
   IText: {fileID: 8139027261523400373}
   EText: {fileID: 385892996879238739}
   image: {fileID: 1305049789890701121}
-  ChangeSprite: {fileID: 315445069, guid: 7e124c089f6740c49a209a0a57a60d8e, type: 3}
+  hunterImage: {fileID: 4415977808877666022}
+  privateDetectiveImage: {fileID: 3441016795607406174}
+  athleteImage: {fileID: 3875012496557762608}
+  researcherImage: {fileID: 1507270364297956030}
+  religiousFanaticImage: {fileID: 1305049789890701121}
+  hunterdefaultSprite: {fileID: 381060796258283201, guid: 8b1d23acaf2676b4b90504e6d12271d4, type: 3}
+  privateDetectivedefaultSprite: {fileID: -74817810, guid: 8b1d23acaf2676b4b90504e6d12271d4, type: 3}
+  athletedefaultSprite: {fileID: 1475591713, guid: 8b1d23acaf2676b4b90504e6d12271d4, type: 3}
+  researcherdefaultSprite: {fileID: 1283685627, guid: 8b1d23acaf2676b4b90504e6d12271d4, type: 3}
+  religiousFanaticdefaultSprite: {fileID: 1887279000, guid: 8b1d23acaf2676b4b90504e6d12271d4, type: 3}
+  selectedSprite: {fileID: 315445069, guid: 7e124c089f6740c49a209a0a57a60d8e, type: 3}

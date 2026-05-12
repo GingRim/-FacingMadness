@@ -42,8 +42,8 @@ public class DataManager : ManagerBase
         System.Action PrgressOnLoad = () =>
         {
             loaded++;
-            progressUI.AddCurrent(1);
-            statusUI.SetCurrentStatus($"{loadString}({loaded}/{total})");
+            progressUI?.AddCurrent(1);
+            statusUI?.SetCurrentStatus($"{loadString}({loaded}/{total})");
         };
 
         // ���ο� Ÿ���� ���𰡸� �߰��Ҷ� ����� �ֱ�

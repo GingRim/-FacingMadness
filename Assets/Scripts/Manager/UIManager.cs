@@ -5,8 +5,8 @@ using UnityEngine.UI;
 
 public enum UIType
 {
-    None, Loading, Title, Movable, Menu, Info, Battle, Reward, Pause, Creation, Quit, SavePopUp, InComplete, MonsturHoverInfo,
-    CommentaryHoverInfp, _Length
+    None, Loading, Title, Movable, Menu, Info, Battle, Reward, Pause, Creation, Quit, SavePopUp, InComplete, CostHoverInfo,
+    TargeHoverInfpEX, experimentHoverInfp, _Length
 
 }
 

@@ -99,7 +99,6 @@ public class InputManager : ManagerBase
             }
             RaycastResult nearest = cursorHitList.GetMaximum<RaycastResult>(GetValue);
             firstObject = nearest.gameObject;
-            worldPosition = nearest.worldPosition;
         }
         else
         {

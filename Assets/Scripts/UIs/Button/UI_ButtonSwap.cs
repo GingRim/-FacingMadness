@@ -3,6 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+// 용어 정리 한번해야 함 직업이 아니라 스텟으로 간소화 및 평균화 필요
 public class UI_ButtonSwap : MonoBehaviour
 {
     [SerializeField] TextMeshProUGUI SText;
@@ -12,8 +13,18 @@ public class UI_ButtonSwap : MonoBehaviour
     [SerializeField] TextMeshProUGUI EText;
     
     [SerializeField] Image image;
+    [SerializeField] Image hunterImage;
+    [SerializeField] Image privateDetectiveImage;
+    [SerializeField] Image athleteImage;
+    [SerializeField] Image researcherImage;
+    [SerializeField] Image religiousFanaticImage;
 
-    [SerializeField] Sprite ChangeSprite;
+    [SerializeField] Sprite hunterdefaultSprite;
+    [SerializeField] Sprite privateDetectivedefaultSprite;
+    [SerializeField] Sprite athletedefaultSprite;
+    [SerializeField] Sprite researcherdefaultSprite;
+    [SerializeField] Sprite religiousFanaticdefaultSprite;
+    [SerializeField] Sprite selectedSprite;
 
 
 
@@ -21,28 +32,36 @@ public class UI_ButtonSwap : MonoBehaviour
     public void Hunter()
     {
         SetIngameMessage(": 6", ": 2", ": 5", ": 4", ": 4");
-        SetIngameImage(ChangeSprite);
-    
+        ResetAllImages();
+        SetImage(image, selectedSprite);
     }
     public void Privatedetective()
     {
         SetIngameMessage(": 4", ": 6", ": 4", ": 5", ": 2");
-        SetIngameImage(ChangeSprite);
+        ResetAllImages();
+        SetImage(image, selectedSprite);
+
     }
     public void Athlete()
     {
         SetIngameMessage(": 5", ": 4", ": 6", ": 2", ": 4");
-        SetIngameImage(ChangeSprite);
+        ResetAllImages();
+        SetImage(image, selectedSprite);
+
     }
     public void Researcher()
     {
         SetIngameMessage(": 2", ": 4", ": 4", ": 6", ": 5");
-        SetIngameImage(ChangeSprite);
+        ResetAllImages();
+        SetImage(image, selectedSprite);
+
     }
     public void Religiousfanatic()
     {
         SetIngameMessage(": 5", ": 4", ": 2", ": 4", ": 6");
-        SetIngameImage(ChangeSprite);
+        ResetAllImages();
+        SetImage(image, selectedSprite);
+
     }
 
     public void SetIngameMessage(string stitle, string dtitle, string htitle, string ititle, string etitle)
@@ -54,10 +73,19 @@ public class UI_ButtonSwap : MonoBehaviour
         EText?.SetText(etitle);
     }
 
-    public void SetIngameImage(Sprite wantSprite)
+
+    void ResetAllImages()
     {
-        if (image != null)
-            image.sprite = wantSprite;
+        SetImage(hunterImage, hunterdefaultSprite);
+        SetImage(privateDetectiveImage, privateDetectivedefaultSprite);
+        SetImage(athleteImage, athletedefaultSprite);
+        SetImage(researcherImage, researcherdefaultSprite);
+        SetImage(religiousFanaticImage, religiousFanaticdefaultSprite);
+    }
+    public void SetImage(Image targetImage, Sprite wantSprite)
+    {
+        if (targetImage != null)
+            targetImage.sprite = wantSprite;
     }
 
 }

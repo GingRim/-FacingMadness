@@ -17,8 +17,8 @@ public class CharacterBase : MonoBehaviour
     public event LookAtEvent OnLookAt;
     public void DamageNitify(in DamageStruct info) => OnDamage?.Invoke(info);
     public event DamageEvent OnDamage;
-    public void RestoreNitify(in DamageStruct info) => OnDamage?.Invoke(info);
-    public event DamageEvent OnRestore;
+    public void RestoreNitify(in RestoreStruct info) => OnRestore?.Invoke(info);
+    public event RestoreEvent OnRestore;
 
 
 
@@ -55,13 +55,30 @@ public class CharacterBase : MonoBehaviour
             AddModule(currentModule.RegistrationType, currentModule);
         }
     }
+// 실험
+    private void Awake()
+    {
+        AddAllModuleFromObject(gameObject);
+        InitializeCharacterStats();
+    }
 
+    private void InitializeCharacterStats()
+    {
+        HitpointModules hp = GetModule<HitpointModules>();
+        DerivedStatModule derived = GetModule<DerivedStatModule>();
+
+        if (hp != null && derived != null)
+        {
+            hp.InitializeHP(derived.GetMaxHP());
+        }
+    }
+    // 시험 끝
     public void RemoveModule(System.Type wantType)
     {
         if (moduleDictipnary.ContainsKey(wantType))
         {
         
-            moduleDictipnary[wantType].OnRegistration(this);// 넌 해제 된거야
+            moduleDictipnary[wantType].OnUnregistration(this);// 넌 해제 된거야
             moduleDictipnary.Remove(wantType);// 그 다음에 제거
         
         }    

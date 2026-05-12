@@ -13,6 +13,5 @@ public interface IOpenable
     public void Close();
 
     public void Toggle();
-    void Caddrging(UIManager manager);
-    void Caddrging(UIManager manager);
+    
 }

@@ -25,8 +25,10 @@ public abstract class HitpointModules : CharacterModule
 
     public int Max =>   fill.Max;
     public int Min => fill.Min;
+    public int Current => fill.Current;
     public bool IsFullHealth => fill.IsMax;
     public bool IsEmpty => fill.IsEmpty;
+    
 
     public int TakeDamage(in DamageStruct damageInfo)
     {
@@ -37,5 +39,11 @@ public abstract class HitpointModules : CharacterModule
     {
         fill.IncreaseCurrent(restoreInfo.restoreAmount);
         return restoreInfo.restoreAmount;
+    }
+
+    public void InitializeHP(int maxHp)
+    {
+        fill.SetMax(maxHp);
+        fill.SetCurrent(maxHp);
     }
 }

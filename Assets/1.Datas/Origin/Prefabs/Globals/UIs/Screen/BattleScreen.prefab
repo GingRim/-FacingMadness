@@ -723,6 +723,7 @@ GameObject:
   - component: {fileID: 4622402450282001951}
   - component: {fileID: 8479626866220383061}
   - component: {fileID: 3019511959840178702}
+  - component: {fileID: 5119793677908786083}
   m_Layer: 5
   m_Name: React
   m_TagString: Untagged
@@ -772,7 +773,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 0.9638133, b: 0, a: 1}
-  m_RaycastTarget: 0
+  m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -803,6 +804,33 @@ MonoBehaviour:
   currentName: {fileID: 5255430167447865171}
   costName: 3
   costModule: {fileID: 0}
+--- !u!50 &5119793677908786083
+Rigidbody2D:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4567121129673043861}
+  m_BodyType: 0
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_GravityScale: 0
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 0
 --- !u!1 &4957499101584966860
 GameObject:
   m_ObjectHideFlags: 0
@@ -890,6 +918,7 @@ GameObject:
   - component: {fileID: 6325653299265999690}
   - component: {fileID: 2566707894114441666}
   - component: {fileID: 911946215303095380}
+  - component: {fileID: 1610691524471776719}
   m_Layer: 5
   m_Name: Auxiliary
   m_TagString: Untagged
@@ -939,7 +968,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 0, g: 0.6821339, b: 1, a: 1}
-  m_RaycastTarget: 0
+  m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -970,6 +999,33 @@ MonoBehaviour:
   currentName: {fileID: 8532125501107193006}
   costName: 2
   costModule: {fileID: 0}
+--- !u!50 &1610691524471776719
+Rigidbody2D:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5567215404370241301}
+  m_BodyType: 0
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_GravityScale: 0
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 0
 --- !u!1 &5840952682721459773
 GameObject:
   m_ObjectHideFlags: 0
@@ -1367,10 +1423,10 @@ MonoBehaviour:
   - prefabName: PauseWindow
     uiType: 8
     isOpen: 0
-  - prefabName: TargetHoverInfo
+  - prefabName: CostHoverInfo
     uiType: 13
     isOpen: 0
-  - prefabName: Commentary
+  - prefabName: CharacterHoverInfo
     uiType: 14
     isOpen: 0
 --- !u!1 &6740300669997054849
@@ -1460,6 +1516,7 @@ GameObject:
   - component: {fileID: 9172642564139216755}
   - component: {fileID: 4287737981384466670}
   - component: {fileID: 2037933728369220699}
+  - component: {fileID: 2528178230564415877}
   m_Layer: 5
   m_Name: ' Action'
   m_TagString: Untagged
@@ -1509,7 +1566,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 0.0047715902, g: 1, b: 0, a: 1}
-  m_RaycastTarget: 0
+  m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -1540,6 +1597,33 @@ MonoBehaviour:
   currentName: {fileID: 1718929915934849663}
   costName: 1
   costModule: {fileID: 0}
+--- !u!50 &2528178230564415877
+Rigidbody2D:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7080254193826323289}
+  m_BodyType: 0
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_GravityScale: 0
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 0
 --- !u!1 &8221687073981327169
 GameObject:
   m_ObjectHideFlags: 0
