@@ -35,6 +35,13 @@ MonoBehaviour:
     - OGlobals
     - zelo
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: d3802456e6c17364b9a65c8cf01ba878
+    m_Address: Assets/Scripts/Objects/Card
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - OGlobals
+    - zelo
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 938dcf203bec3f3488cd6cbf4f69eea5, type: 2}
   m_SchemaSet:

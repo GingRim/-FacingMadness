@@ -64,3 +64,12 @@ public enum DerivedStatType
     CounterattackBonus, 
     _Length
 }
+
+/// <summary>
+/// 키워드
+/// </summary>
+/// 1. 다이스 2. 판정, 3.보정 4. 축복 5. 저주 6.대 성공 7. 펌블
+public enum KeywordType
+{
+    D, Adjudgment, Bonus, Blessing, Cursed, GreatSuccess, Fumble, _Length
+}

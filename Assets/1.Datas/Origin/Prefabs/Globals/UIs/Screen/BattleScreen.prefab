@@ -1429,6 +1429,12 @@ MonoBehaviour:
   - prefabName: CharacterHoverInfo
     uiType: 14
     isOpen: 0
+  - prefabName: KeywordHoverInfo
+    uiType: 15
+    isOpen: 0
+  - prefabName: Cards
+    uiType: 16
+    isOpen: 0
 --- !u!1 &6740300669997054849
 GameObject:
   m_ObjectHideFlags: 0

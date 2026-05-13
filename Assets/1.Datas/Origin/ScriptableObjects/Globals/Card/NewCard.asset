@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9858d2e9e5cc0c049aa504bf5f5b25f7, type: 3}
+  m_Name: NewCard
+  m_EditorClassIdentifier: Assembly-CSharp::CardData
+  cardName: "\uAC15\uD0C0"
+  illustration: {fileID: 8745284039982918138, guid: 42dc89be92628384db68959a72a7d662, type: 3}
+  color: 1
+  tags: 00000000
+  costs:
+  - costType: 1
+    amount: 1
+  damage: 3
+  restoreAmount: 0
+  description: "\uAC15\uD55C \uD798\uC73C\uB85C \uC801\uC744 \uACF5\uACA9\uD569\uB2C8\uB2E4."

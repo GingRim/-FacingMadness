@@ -706,11 +706,12 @@ GameObject:
   m_Component:
   - component: {fileID: 813198134}
   - component: {fileID: 813198133}
-  - component: {fileID: 813198135}
-  - component: {fileID: 813198136}
-  - component: {fileID: 813198138}
   - component: {fileID: 813198137}
-  m_Layer: 0
+  - component: {fileID: 813198138}
+  - component: {fileID: 813198139}
+  - component: {fileID: 813198141}
+  - component: {fileID: 813198140}
+  m_Layer: 5
   m_Name: RCard
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -791,7 +792,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &813198135
+--- !u!114 &813198137
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -800,10 +801,85 @@ MonoBehaviour:
   m_GameObject: {fileID: 813198132}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 20065f413e8be4f488ef9bd78b5f9b3c, type: 3}
+  m_Script: {fileID: 11500000, guid: 7f1c30a5dc9f90c40bb9bc370c98be95, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CardModule
---- !u!114 &813198136
+  m_EditorClassIdentifier: Assembly-CSharp::UI_Keyword
+  currentName: {fileID: 0}
+  keywordName: 1
+--- !u!50 &813198138
+Rigidbody2D:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 813198132}
+  m_BodyType: 0
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_GravityScale: 0
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 0
+--- !u!61 &813198139
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 813198132}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 1, y: 1}
+    newSize: {x: 1, y: 1}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 1, y: 1}
+  m_EdgeRadius: 0
+--- !u!114 &813198140
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -815,11 +891,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 94aa1ef84cc051d45a2c4d35a5d0a82a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UI_Card
-  cardColor: 1
-  cardTag: 0
-  costType: 1
-  costImage: {fileID: 0}
---- !u!114 &813198137
+  cardDataName: "\uAC15\uD0C0"
+  cardNameText: {fileID: 0}
+  descriptionText: {fileID: 0}
+  costText: {fileID: 0}
+  illustrationImage: {fileID: 0}
+--- !u!114 &813198141
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -828,25 +905,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 813198132}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fdd07c289cfb33c4d99bf0effd60d80c, type: 3}
+  m_Script: {fileID: 11500000, guid: 350d71b673a45f649a8efffd3de7074e, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::experimentcharacter
---- !u!114 &813198138
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 813198132}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: eeba02d9409f32b408de55f08363c4f0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::experiment
-  shiftedPosition: {x: 0, y: 0}
+  m_EditorClassIdentifier: Assembly-CSharp::CretbCardEX
+  cardData: {fileID: 0}
   nameText: {fileID: 0}
-  icon: {fileID: 0}
-  bar: {fileID: 0}
+  costText: {fileID: 0}
+  descriptionText: {fileID: 0}
+  illustrationImage: {fileID: 0}
 --- !u!1 &887850657
 GameObject:
   m_ObjectHideFlags: 0
