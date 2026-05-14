@@ -12,4 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 65124e9fdbba73e49ae0e50a2621da1a, type: 3}
   m_Name: GlobalObjectPool
   m_EditorClassIdentifier: Assembly-CSharp::PoolRequest
-  settings: []
+  settings:
+  - poolName: swipeCard
+    target: {fileID: 3228426731191932607, guid: bdf34ef8774f3f1478ab5d1f49b88680, type: 3}
+    countInitial: 10
+    coutAdditional: 10
+    uiType: 16

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.TextCore.Text;
 using UnityEngine.UI;
 
 public class UI_KeywordHoverInfo : OpenableUIBase
@@ -105,6 +106,8 @@ public class UI_KeywordHoverInfo : OpenableUIBase
                 nameText.SetText("펌블");
                 commentText.SetText("판정에서 주사위 값과 보정치의 합이 1이하일 경우를 의미하며 이때 판정치가 아무리 낮아도 1이하라도 실패 하며 상당한 패널티를 얻는다.");
                 break;
+           
+
 
             default:
                 nameText.SetText("???");

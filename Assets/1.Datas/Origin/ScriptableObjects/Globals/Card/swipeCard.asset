@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9858d2e9e5cc0c049aa504bf5f5b25f7, type: 3}
-  m_Name: NewCard
+  m_Name: swipeCard
   m_EditorClassIdentifier: Assembly-CSharp::CardData
   cardName: "\uAC15\uD0C0"
   illustration: {fileID: 8745284039982918138, guid: 42dc89be92628384db68959a72a7d662, type: 3}

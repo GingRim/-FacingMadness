@@ -200,10 +200,10 @@ RectTransform:
   - {fileID: 3254672178586125703}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0.000019073}
-  m_SizeDelta: {x: 1920, y: 1080}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2539355491967282355
 CanvasRenderer:
@@ -291,7 +291,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.629, y: 0.021333333}
   m_AnchorMax: {x: 0.74200004, y: 0.101}
-  m_AnchoredPosition: {x: 1.1781006, y: 0.99993896}
+  m_AnchoredPosition: {x: 1.1781006, y: 0.9998779}
   m_SizeDelta: {x: -0.6459961, y: 6.2650146}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!222 &821198594460559275
@@ -447,7 +447,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -950,7 +950,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -1551,6 +1551,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::UI_Button_OpenUI
   wantType: 4
   wantToggle: 0
+  ScreenChanger: 0
 --- !u!1 &9093249703727913940
 GameObject:
   m_ObjectHideFlags: 0

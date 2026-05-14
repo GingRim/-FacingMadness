@@ -1,63 +1,46 @@
-using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using static UnityEngine.GraphicsBuffer;
 
-public class UI_Card : OpenableUIBase
+public class UI_Card : PooledObject
 {
-    [Header("불러올 카드 데이터 이름")]
-    [SerializeField] private string cardDataName;
+    [SerializeField] TextMeshProUGUI nameText;
+    [SerializeField] TextMeshProUGUI descriptionText;
+    [SerializeField] TextMeshProUGUI costText;
 
-    [Header("UI")]
-    [SerializeField] private TextMeshProUGUI cardNameText;
-    [SerializeField] private TextMeshProUGUI descriptionText;
-    [SerializeField] private TextMeshProUGUI costText;
+    [SerializeField] Image illustrationImage;
+    [SerializeField] Image frameImage;
 
-    [SerializeField] private Image illustrationImage;
-
-    private CardData cardData;
+    CardData cardData;
 
     public CardData CardData => cardData;
 
-    public override void Registration(UIManager manager)
-    {
-        base.Registration(manager);
-
-        LoadCard(cardDataName);
-    }
-
-    public void LoadCard(string dataName)
-    {
-        cardData = DataManager.LoadDataFile<CardData>(dataName);
-
-        if (cardData == null)
-            return;
-
-        Refresh();
-    }
-
+    /// <summary>
+    /// 카드 데이터를 받아 UI에 표시
+    /// </summary>
     public void SetCard(CardData newCard)
     {
         cardData = newCard;
         Refresh();
     }
 
-    public void Refresh()
+    void Refresh()
     {
         if (cardData == null)
             return;
 
-        cardNameText.SetText(cardData.cardName);
+        nameText.SetText(cardData.cardName);
         descriptionText.SetText(cardData.description);
+        costText.SetText(GetCostText());
 
         if (illustrationImage != null)
             illustrationImage.sprite = cardData.illustration;
 
-        costText.SetText(GetCostText());
+        if (frameImage != null)
+            frameImage.color = GetCardColor(cardData.color);
     }
 
-    private string GetCostText()
+    string GetCostText()
     {
         if (cardData.costs == null || cardData.costs.Length == 0)
             return "0";
@@ -66,9 +49,40 @@ public class UI_Card : OpenableUIBase
 
         foreach (CardCostData cost in cardData.costs)
         {
-            result += $"{cost.costType}:{cost.amount} ";
+            result += $"{cost.amount} ";
         }
 
-        return result;
+        return result.TrimEnd();
     }
+
+    Color GetCardColor(CardColorType type)
+    {
+        switch (type)
+        {
+            case CardColorType.Red:
+                return Color.red;
+
+            case CardColorType.Yellow:
+                return Color.yellow;
+
+            case CardColorType.Green:
+                return Color.green;
+
+            case CardColorType.Blue:
+                return Color.blue;
+
+            case CardColorType.Purple:
+                return new Color(0.6f, 0.2f, 1f);
+
+            case CardColorType.Colorless:
+                return Color.gray;
+
+            default:
+                return Color.white;
+        }
+    }
+
+
+
 }
+

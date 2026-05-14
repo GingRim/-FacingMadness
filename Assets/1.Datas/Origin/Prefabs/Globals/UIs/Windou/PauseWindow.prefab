@@ -161,6 +161,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::UI_Button_OpenUI
   wantType: 8
   wantToggle: 1
+  ScreenChanger: 0
 --- !u!114 &8595971085384577516
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -175,6 +176,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::UI_Button_OpenUI
   wantType: 4
   wantToggle: 0
+  ScreenChanger: 0
 --- !u!1 &1409737349060922568
 GameObject:
   m_ObjectHideFlags: 0
@@ -399,6 +401,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::UI_Button_OpenUI
   wantType: 10
   wantToggle: 0
+  ScreenChanger: 0
 --- !u!1 &3446389458970079087
 GameObject:
   m_ObjectHideFlags: 0
@@ -458,7 +461,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -816,6 +819,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::UI_Button_OpenUI
   wantType: 8
   wantToggle: 0
+  ScreenChanger: 0
 --- !u!114 &4545568324581855367
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -829,6 +833,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UI_Button_OpenScreen
   wantType: 2
+  cgangeType: 0
 --- !u!1 &6063483201653596436
 GameObject:
   m_ObjectHideFlags: 0
@@ -1025,7 +1030,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -1162,7 +1167,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -1379,7 +1384,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -1412,7 +1417,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 41.15
+  m_fontSize: 51.55
   m_fontSizeBase: 53
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -1605,3 +1610,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::UI_Button_OpenUI
   wantType: 8
   wantToggle: 1
+  ScreenChanger: 0

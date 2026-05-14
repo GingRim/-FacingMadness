@@ -510,7 +510,6 @@ GameObject:
   - component: {fileID: 8421667670612515078}
   - component: {fileID: 3965122343640003867}
   - component: {fileID: 7297045295944170894}
-  - component: {fileID: 443495099247311107}
   - component: {fileID: 8188708558601912797}
   m_Layer: 5
   m_Name: Button (4)
@@ -633,20 +632,6 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
---- !u!114 &443495099247311107
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3408160760520730996}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 76cece983e4a84743904983290edbd5b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UI_Button_OpenScreen
-  wantType: 4
-  cgangeType: 0
 --- !u!114 &8188708558601912797
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -982,7 +967,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.028625008, y: 0.7841111}
   m_AnchorMax: {x: 0.45412505, y: 0.92300004}
-  m_AnchoredPosition: {x: -1.1294556, y: 0.83935547}
+  m_AnchoredPosition: {x: -1.1295166, y: 0.83935547}
   m_SizeDelta: {x: -14.950989, y: -14.616821}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7997459854457851382
