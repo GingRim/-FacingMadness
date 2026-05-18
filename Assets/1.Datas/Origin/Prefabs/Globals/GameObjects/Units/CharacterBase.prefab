@@ -18,31 +18,31 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3586452985972802285, guid: 14491716c8dffe14abc134d0d016a970, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 1.69
+      value: -7.41
       objectReference: {fileID: 0}
     - target: {fileID: 3586452985972802285, guid: 14491716c8dffe14abc134d0d016a970, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.29
+      value: -2.92
       objectReference: {fileID: 0}
     - target: {fileID: 3586452985972802285, guid: 14491716c8dffe14abc134d0d016a970, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: 0.000000018066203
       objectReference: {fileID: 0}
     - target: {fileID: 3586452985972802285, guid: 14491716c8dffe14abc134d0d016a970, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3586452985972802285, guid: 14491716c8dffe14abc134d0d016a970, type: 3}
       propertyPath: m_LocalRotation.x
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3586452985972802285, guid: 14491716c8dffe14abc134d0d016a970, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0
+      value: -1
       objectReference: {fileID: 0}
     - target: {fileID: 3586452985972802285, guid: 14491716c8dffe14abc134d0d016a970, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3586452985972802285, guid: 14491716c8dffe14abc134d0d016a970, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -50,7 +50,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3586452985972802285, guid: 14491716c8dffe14abc134d0d016a970, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
+      value: -180
       objectReference: {fileID: 0}
     - target: {fileID: 3586452985972802285, guid: 14491716c8dffe14abc134d0d016a970, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
@@ -114,6 +114,12 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 3023755181494899158, guid: 14491716c8dffe14abc134d0d016a970, type: 3}
       insertIndex: -1
       addedObject: {fileID: 3192638732483373132}
+    - targetCorrespondingSourceObject: {fileID: 3023755181494899158, guid: 14491716c8dffe14abc134d0d016a970, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3515403611961760251}
+    - targetCorrespondingSourceObject: {fileID: 3023755181494899158, guid: 14491716c8dffe14abc134d0d016a970, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3230026914690567910}
   m_SourcePrefab: {fileID: 100100000, guid: 14491716c8dffe14abc134d0d016a970, type: 3}
 --- !u!1 &3344105270311682383 stripped
 GameObject:
@@ -214,3 +220,38 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DerivedStatModule
   _owner: {fileID: 4131708435152655448}
+--- !u!114 &3515403611961760251
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3344105270311682383}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 80794e998587a98449fdc1a95f830388, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DeckModule
+  _owner: {fileID: 4131708435152655448}
+  deck:
+  - {fileID: 11400000, guid: 62e37bf17570bab47a8281e2507ecf23, type: 2}
+  - {fileID: 11400000, guid: 62e37bf17570bab47a8281e2507ecf23, type: 2}
+  - {fileID: 11400000, guid: 62e37bf17570bab47a8281e2507ecf23, type: 2}
+  - {fileID: 11400000, guid: 62e37bf17570bab47a8281e2507ecf23, type: 2}
+  hand: []
+  graveyard: []
+  exhaust: []
+  remove: []
+--- !u!114 &3230026914690567910
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3344105270311682383}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e094ec7ae505c246a27088dc2ae78f7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TEX
+  character: {fileID: 4131708435152655448}

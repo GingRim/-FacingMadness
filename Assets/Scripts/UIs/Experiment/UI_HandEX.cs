@@ -15,8 +15,17 @@ public class UI_Hand : MonoBehaviour
         if (cardData == null)
             return;
 
+        Debug.Log($"Hand UI 오브젝트: {gameObject.name}");
+        Debug.Log($"Card Parent: {cardParent.name}");
+        Debug.Log($"Card Parent 경로: {cardParent.name}");
+
         GameObject cardObject =
             ObjectManager.CreateObject("UI_Card", cardParent);
+
+        if (cardObject == null)
+            return;
+
+        cardObject.transform.SetParent(cardParent, false);
 
         UI_Card uiCard = cardObject.GetComponent<UI_Card>();
 
@@ -26,7 +35,6 @@ public class UI_Hand : MonoBehaviour
         uiCard.SetCard(cardData);
         cardUIs.Add(uiCard);
     }
-
     /// <summary>
     /// 손패 UI 전체 초기화
     /// </summary>

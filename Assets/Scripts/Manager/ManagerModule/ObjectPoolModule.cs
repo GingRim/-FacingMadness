@@ -74,12 +74,22 @@ public class ObjectPoolModule
 
         if(result)
         {
-            if(result.TryGetComponent(out PooledObject pool))
+            result.transform.SetParent(parent, false);
+            result.SetActive(true);
+            //실험
+            if (result.TryGetComponent(out RectTransform rect))
+            {
+                rect.localScale = Vector3.one;
+                rect.anchoredPosition = Vector2.zero;
+                rect.localRotation = Quaternion.identity;
+            }
+            //----------
+
+            if (result.TryGetComponent(out PooledObject pool))
             {
                 pool.OnDequeue();
             }
-            result.transform.SetParent(parent);
-            result.SetActive(true);
+
         }
         return result;
     }

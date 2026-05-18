@@ -42,7 +42,12 @@ public class CharacterBase : MonoBehaviour
     {
         if(moduleDictipnary.TryAdd(wantType, wantModule))
         {
+            Debug.Log($"모듈 등록 성공: {wantType.Name}");
             wantModule.OnRegistration(this);
+        }
+        else
+        {
+            Debug.LogWarning($"모듈 등록 실패/중복: {wantType.Name}");
         }
     }
 

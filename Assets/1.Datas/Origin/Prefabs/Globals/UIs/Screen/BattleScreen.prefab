@@ -1113,6 +1113,7 @@ GameObject:
   - component: {fileID: 5880348028349297771}
   - component: {fileID: 8618189711807468078}
   - component: {fileID: 3687854468190687483}
+  - component: {fileID: 4837227293439188442}
   m_Layer: 5
   m_Name: battle
   m_TagString: Untagged
@@ -1221,7 +1222,33 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 8618189711807468078}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 4837227293439188442}
+        m_TargetAssemblyTypeName: EX_CardDrawButtonTest, Assembly-CSharp
+        m_MethodName: DrawCardToHand
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!114 &4837227293439188442
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5994906865055574489}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 18ff9783f474b0d4f99aa90bc117b0f0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EX_CardDrawButtonTest
+  character: {fileID: 4131708435152655448, guid: 2ecdb7a6e64f01a4c8b2e4898cbdd700, type: 3}
+  handUI: {fileID: 3437038977938789864}
 --- !u!1 &6220273986548412717
 GameObject:
   m_ObjectHideFlags: 0

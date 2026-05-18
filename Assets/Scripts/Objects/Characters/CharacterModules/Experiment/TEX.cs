@@ -22,7 +22,9 @@ public class TEX : MonoBehaviour
         if (card == null)
             Debug.Log("드로우 실패");
         else
+        {
             Debug.Log($"드로우 성공: {card.cardName}");
-    
+            ObjectManager.CreateObject("UI_Card");
+        }
     }
 }

@@ -1,5 +1,12 @@
 using UnityEngine;
 
+public enum UIType
+{
+    None, Loading, Title, Movable, Menu, Info, Battle, Reward, Pause, Creation, Quit, SavePopUp, InComplete, CostHoverInfo,
+    TargeHoverInfp, experimentHoverInfp, Cards, _Length
+
+}
+
 /// <summary>
 /// 대미지 타입
 /// </summary>
@@ -97,4 +104,12 @@ public enum KeywordType
 public enum CardZoneType
 {
     None, Deck, Hand, Graveyard, Exhaust, Remove, _Length
+}
+
+/// <summary>
+/// 1.라운드 시작 처리 2.캐릭터 행동 턴 3.카드/대상 선언 4.대응 처리 5.대미지 계산 및 적용 6.캐릭터 턴 종료
+/// </summary>
+public enum BattlePhaseType
+{
+    None, StandbyPhase, MainPhase, DeclarePhase, ChainPhase, DamageStep, EndPhase, _Length
 }
