@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 
 // 공격, 대응, 지원, 이동, 광기, 행동(이벤트)?
+
 public struct DamageStruct // 이벤트 데이터 팻킷
 {
     public GameObject from; // 양식

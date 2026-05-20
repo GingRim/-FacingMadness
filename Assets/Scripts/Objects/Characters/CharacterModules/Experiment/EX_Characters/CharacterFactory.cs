@@ -2,15 +2,157 @@ using UnityEngine;
 
 public class CharacterFactory : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+
+    [Header("프리팹")]
+    [SerializeField] private GameObject characterPrefab;
+
+    /// <summary>
+    /// 플레이어 캐릭터 생성
+    /// </summary>
+    public CharacterBase CreatePlayerCharacter(CharacterBuildData data, Vector3 position)
     {
-        
+
+        if (data == null)
+        {
+            Debug.LogError("CharacterBuildData가 없습니다.");
+            return null;
+        }
+
+        if (characterPrefab == null)
+        {
+            Debug.LogError("Character Prefab이 없습니다.");
+            return null;
+        }
+
+        Debug.Log("CreatePlayerCharacter 호출됨");
+
+        GameObject characterObject =
+            ObjectManager.CreateObject(characterPrefab, position);
+
+        Debug.Log($"생성된 캐릭터 오브젝트: {characterObject.name}");
+
+        if (characterObject == null)
+        {
+            Debug.LogError("캐릭터 오브젝트 생성 실패");
+            return null;
+        }
+
+        CharacterBase character =
+            characterObject.GetComponent<CharacterBase>();
+
+        if (character == null)
+        {
+            Debug.LogError("생성된 오브젝트에 CharacterBase가 없습니다.");
+            return null;
+        }
+
+        ApplyBuildData(character, data);
+
+        AttachPlayerController(character);
+
+        return character;
     }
 
-    // Update is called once per frame
-    void Update()
+    /// <summary>
+    /// 캐릭터에 생성 데이터를 적용한다.
+    /// </summary>
+    private void ApplyBuildData(CharacterBase character, CharacterBuildData data)
     {
-        
+        ApplyStats(character, data);
+        //ApplyDeck(character, data);
+        RefreshHP(character);
     }
+
+    /// <summary>
+    /// 능력치 적용
+    /// </summary>
+    private void ApplyStats(CharacterBase character, CharacterBuildData data)
+    {
+        StatModules stat = character.GetModule<StatModules>();
+
+        if (stat == null)
+        {
+            Debug.LogWarning("StatModules가 없습니다.");
+            return;
+        }
+
+        stat.SetStat(StatType.Strength, data.strength);
+        stat.SetStat(StatType.Agility, data.agility);
+        stat.SetStat(StatType.Health, data.health);
+        stat.SetStat(StatType.Intelligence, data.intelligence);
+        stat.SetStat(StatType.Will, data.will);
+
+        Debug.Log(
+    $"능력치 확인 / " +
+    $"근력:{stat.GetStat(StatType.Strength)}, " +
+    $"민첩:{stat.GetStat(StatType.Agility)}, " +
+    $"건강:{stat.GetStat(StatType.Health)}, " +
+    $"지능:{stat.GetStat(StatType.Intelligence)}, " +
+    $"의지:{stat.GetStat(StatType.Will)}"
+);
+    }
+
+    /// <summary>
+    /// 기본 덱 적용
+    /// </summary>
+    private void ApplyDeck(CharacterBase character, CharacterBuildData data)
+    {
+        if (data.startDeck == null)
+            return;
+
+        DeckModule deck = character.GetModule<DeckModule>();
+
+        if (deck == null)
+        {
+            Debug.LogWarning("DeckModule이 없습니다.");
+            return;
+        }
+
+        deck.RegisterDeck(data.startDeck);
+    }
+
+    /// <summary>
+    /// 능력치 기반 최대 체력 재설정
+    /// </summary>
+    private void RefreshHP(CharacterBase character)
+    {
+        HitpointModules hp = character.GetModule<HitpointModules>();
+        DerivedStatModule derived = character.GetModule<DerivedStatModule>();
+
+        if (hp == null)
+        {
+            Debug.LogError("HitpointModules 없음");
+            return;
+        }
+
+        if (derived == null)
+        {
+            Debug.LogError("DerivedStatModule 없음");
+            return;
+        }
+
+        int maxHP = derived.GetMaxHP();
+
+        Debug.Log($"계산된 최대 HP: {maxHP}");
+
+        hp.InitializeHP(maxHP);
+
+        Debug.Log($"HP 초기화 후: {hp.Current} / {hp.Max}");
+    }
+
+    /// <summary>
+    /// 플레이어 컨트롤러 연결
+    /// </summary>
+    private void AttachPlayerController(CharacterBase character)
+    {
+
+        PlauerController controller =
+        character.GetComponent<PlauerController>();
+
+        if (controller != null)
+        {
+            controller.Possess(character);
+        }
+    }
+
 }

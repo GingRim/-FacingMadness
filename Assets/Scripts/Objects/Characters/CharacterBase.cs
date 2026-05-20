@@ -64,7 +64,6 @@ public class CharacterBase : MonoBehaviour
     private void Awake()
     {
         AddAllModuleFromObject(gameObject);
-        InitializeCharacterStats();
     }
 
     private void InitializeCharacterStats()

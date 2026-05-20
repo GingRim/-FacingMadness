@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0c38ee5547c6c5941b1124fc31a4293f, type: 3}
+  m_Name: Ex
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterPresetData
+  characterName: EX
+  strength: 10
+  agility: 5
+  health: 5
+  intelligence: 5
+  will: 5
+  startDeck: {fileID: 11400000, guid: ea6aa9d6ec25147449b7e0f81a1a7fe9, type: 2}

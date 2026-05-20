@@ -11,18 +11,43 @@ public class DerivedStatModule : CharacterModule
     {
         base.OnRegistration(owner);
         stat = owner.GetModule<StatModules>();
+        LV = owner.GetModule<LVModules>();
     }
 
-    // 최대 체력 = 기본값 + 건강 * 5
+    // 최대 체력 = 기본값 + (건강 * 5 + 레벨 * 15)
     public int GetMaxHP()
     {
-        return 20 + (stat.GetStat(StatType.Health) * 5) + (LV.Level * 15);
+        if (stat == null)
+        {
+            Debug.LogError("DerivedStatModule: StatModules 없음");
+            return 0;
+        }
+
+        int health = stat.GetStat(StatType.Health);
+
+        int level = 1;
+
+        if (LV != null)
+            level = LV.Level;
+
+        return 20 + (health * 5) + (level * 15);
     }
 
-    // 최대 정신력 = 기본값 + 의지 * 5
+    // 최대 정신력 = 기본값 + (의지 * 5 + 레벨 * 15)
     public int GetMaxSanity()
     {
-        return 20 + stat.GetStat(StatType.Will) * 5 + (LV.Level * 15);
+        if (stat == null)
+        {
+            Debug.LogError("DerivedStatModule : StatModules 없음");
+                return 0;
+        }
+        
+        int will = stat.GetStat(StatType.Will);
+
+        int level = 1;
+
+        if (LV != null) level = LV.Level;
+        return 20 + (will * 5) + (level * 15);
     }
 
     // 가드 피해 감소 = 1D10 + 근력 보정 + 근력 3당 추가 보정

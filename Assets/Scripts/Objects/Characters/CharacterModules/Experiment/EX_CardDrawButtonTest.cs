@@ -5,6 +5,10 @@ public class EX_CardDrawButtonTest : MonoBehaviour
 {
     private CharacterBase character;
     [SerializeField] private UI_Hand handUI;
+    private void Start()
+    {
+        character = FindFirstObjectByType<CharacterBase>();
+    }
 
     public void SetCharacter(CharacterBase newCharacter)
     {

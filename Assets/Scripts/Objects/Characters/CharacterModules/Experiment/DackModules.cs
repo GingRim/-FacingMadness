@@ -269,4 +269,30 @@ public class DeckModule : CharacterModule
     {
         return deck.Count == 0 && hand.Count == 0 && graveyard.Count == 0;
     }
+
+    /// <summary>
+    /// 시작 덱 등록
+    /// 기존 카드 영역을 초기화하고 덱 데이터를 복사한다.
+    /// </summary>
+    public void RegisterDeck(DeckData deckData)
+    {
+        if (deckData == null)
+            return;
+
+        deck.Clear();
+        hand.Clear();
+        graveyard.Clear();
+        exhaust.Clear();
+        remove.Clear();
+
+        foreach (CardData card in deckData.cards)
+        {
+            if (card == null)
+                continue;
+
+            deck.Add(card);
+        }
+
+        Shuffle(deck);
+    }
 }
