@@ -1522,7 +1522,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1088402983451169158, guid: 8a0f2ea13adaac64290c6db71ae07eb0, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1751299608364197755, guid: 8a0f2ea13adaac64290c6db71ae07eb0, type: 3}
       propertyPath: m_text
@@ -1654,7 +1654,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5639917156687796734, guid: 8a0f2ea13adaac64290c6db71ae07eb0, type: 3}
       propertyPath: startScreen
-      value: 6
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 6199984731961094744, guid: 8a0f2ea13adaac64290c6db71ae07eb0, type: 3}
       propertyPath: m_AnchorMax.x
@@ -1730,7 +1730,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8399861270423431539, guid: 8a0f2ea13adaac64290c6db71ae07eb0, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8847463291207247986, guid: 8a0f2ea13adaac64290c6db71ae07eb0, type: 3}
       propertyPath: m_IsActive
