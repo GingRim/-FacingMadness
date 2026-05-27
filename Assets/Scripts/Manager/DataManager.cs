@@ -51,6 +51,8 @@ public class DataManager : ManagerBase
         yield return LoadAllFromAssetBundle<GameObject>("OGlobals", PrgressOnLoad).WaitForTask();
         loadString = "Load Pool Requests";
         yield return LoadAllFromAssetBundle<PoolRequest>("OGlobals", PrgressOnLoad).WaitForTask();
+        loadString = "Load Items";
+        yield return LoadAllFromAssetBundle<ItemContainer>("OGlobals", PrgressOnLoad).WaitForTask();
 
 
 
