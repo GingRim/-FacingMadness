@@ -77,9 +77,9 @@ public class Inventory : MonoBehaviour
 
     }
 
-    public ItemSlot[] GetAllSlot()
+    public IEnumerable<ItemSlot> GetAllSlot()
     {
-        ItemSlot[] result = new ItemSlot[slots.Length];
+       // ItemSlot[] result = new ItemSlot[slots.Length];
         // X = Width * R + C
         int height = slots.GetLength(0);
         int width = slots.GetLength(1);
@@ -87,12 +87,26 @@ public class Inventory : MonoBehaviour
         {
             for(int c = 0; c < width; c++)
             {
-                result[width * r + c] = slots[r, c];
+                yield return slots[r,c];
             }
         }
 
-        return result;
+        
     }
+
+    public IEnumerable<ItemSlot> GetAllSlotReveres()
+    {
+        int height = slots.GetLength(0);
+        int width = slots.GetLength(1);
+        for (int r = height -1; r >= height; r--)
+        {
+            for(int c = width -1; c >= width; c--)
+            {
+                yield return slots[r,c];
+            }
+        }
+    }
+
     public ItemSlot FindItem(ItemContainer target)
     {
         return default;
@@ -110,6 +124,17 @@ public class Inventory : MonoBehaviour
     }      
     public ItemSlot FindFirstEmptySlot()
     {
+        int height = slots.GetLength(0);
+        int width = slots.GetLength(1);
+        for(int r = 0; r < height; r++)
+        {
+            for (int c = 0; c < width; c++)
+            {
+                ItemSlot correntSlot = slots[r, c];
+                if (correntSlot is null) continue;
+                if (correntSlot.GetIsEmpty()) return correntSlot;
+            }
+        }
         return default;
     }
     public ItemSlot FindLastEmptySlot()
@@ -160,7 +185,7 @@ public class Inventory : MonoBehaviour
 
     public int RemoveItem(System.Predicate<ItemContainer> predicate)
     {
-        return default; 
+        
     }
     /// <summary>
     /// 아이템 버리기
@@ -215,6 +240,7 @@ public class Inventory : MonoBehaviour
         returnSlots = default;
         return default;
     }
+
 
     public void EX()
     {

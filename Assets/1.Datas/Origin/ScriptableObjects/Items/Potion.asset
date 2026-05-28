@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e891477f9616fbf499e54a0307c86a3f, type: 3}
   m_Name: Potion
   m_EditorClassIdentifier: Assembly-CSharp::ItemContainer
-  icon: {fileID: 0}
+  icon: {fileID: -1524626766480059185, guid: 0a8641311c254804699fba18f61f8b77, type: 3}
   displayName: potion
   explain: 
-  type: 0
+  type: 1
   maxStack: 10
   weight: 0.01

@@ -34,8 +34,8 @@ public class UI_InvetoryWindow : OpenableUIBase
             asGridLayout.constraintCount = targetInvetory.columns;
         }
 
-        ItemSlot[] inventorySlots = newInvetory.GetAllSlot();
-        foreach (ItemSlot currentSlot in inventorySlots) 
+        
+        foreach (ItemSlot currentSlot in newInvetory.GetAllSlot()) 
         { 
             if(currentSlot is null) continue; //슬롯이 없는데? 넘어가
             //만들어서 Instance에 저장
