@@ -4,11 +4,9 @@ using UnityEngine.UI;
 
 public class UI_Card : PooledObject
 {
-    [SerializeField] TextMeshProUGUI nameText;
+    
     [SerializeField] TextMeshProUGUI descriptionText;
-    [SerializeField] TextMeshProUGUI costText;
-
-    [SerializeField] Image illustrationImage;
+    
     [SerializeField] Image frameImage;
 
     CardData cardData;
@@ -26,34 +24,14 @@ public class UI_Card : PooledObject
 
     void Refresh()
     {
-        if (cardData == null)
-            return;
+        if (cardData == null) return;
 
-        nameText.SetText(cardData.cardName);
         descriptionText.SetText(cardData.description);
-        costText.SetText(GetCostText());
-
-        if (illustrationImage != null)
-            illustrationImage.sprite = cardData.illustration;
-
+       
         if (frameImage != null)
             frameImage.color = GetCardColor(cardData.color);
     }
 
-    string GetCostText()
-    {
-        if (cardData.costs == null || cardData.costs.Length == 0)
-            return "0";
-
-        string result = "";
-
-        foreach (CardCostData cost in cardData.costs)
-        {
-            result += $"{cost.amount} ";
-        }
-
-        return result.TrimEnd();
-    }
 
     Color GetCardColor(CardColorType type)
     {

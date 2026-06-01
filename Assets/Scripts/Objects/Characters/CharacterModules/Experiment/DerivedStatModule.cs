@@ -1,3 +1,4 @@
+using UnityEditor.Experimental.Rendering;
 using UnityEngine;
 
 public class DerivedStatModule : CharacterModule
@@ -92,6 +93,30 @@ public class DerivedStatModule : CharacterModule
     public int GetActionCostBonus()
     {
         return stat.GetStat(StatType.Health) / 3;
+    }
+
+    public int GetDefaultCost()
+    {
+        int result = 1;
+
+        if (LV.Level >= 10)
+            result += 2;
+        else if (LV.Level >= 5)
+            result += 1;
+
+        return result;
+    }
+
+    /// <summary>
+    /// 최대 행동 코스트
+    /// </summary>
+    public int GetMaxActionCost()
+    {
+        int result = GetDefaultCost();
+
+        result += stat.GetStat(StatType.Health) / 3;
+
+        return result;
     }
 
     // 보조 행동 코스트 증가 = 지능 3당 +1

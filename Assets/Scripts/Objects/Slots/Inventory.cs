@@ -1,5 +1,6 @@
-using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine;
+using static UnityEngine.GraphicsBuffer;
 
 public class Inventory : MonoBehaviour
 {
@@ -87,6 +88,7 @@ public class Inventory : MonoBehaviour
         {
             for(int c = 0; c < width; c++)
             {
+                if (slots[r, c] is null) continue;
                 yield return slots[r,c];
             }
         }
@@ -102,14 +104,18 @@ public class Inventory : MonoBehaviour
         {
             for(int c = width -1; c >= width; c--)
             {
+                if (slots[r, c] is null) continue;
                 yield return slots[r,c];
             }
         }
     }
 
-    public ItemSlot FindItem(ItemContainer target)
+    public IEnumerable<ItemSlot> FindItem(ItemContainer target)
     {
-        return default;
+        foreach (ItemSlot currentSlot in GetAllSlot())
+        {
+            if(currentSlot.GetItem() == target) yield return currentSlot;
+        }
     }     
     public ItemSlot FindItem(ItemType wantType)
     {
@@ -122,53 +128,70 @@ public class Inventory : MonoBehaviour
         if (wantClumn >= slots.GetLength(1)) return null;
         return slots[wantRow, wantClumn];
     }      
-    public ItemSlot FindFirstEmptySlot()
+
+    public IEnumerable<ItemSlot> FindFirstEmptySlot()
     {
-        int height = slots.GetLength(0);
-        int width = slots.GetLength(1);
-        for(int r = 0; r < height; r++)
+        foreach(ItemSlot currentSlot in GetAllSlot())
         {
-            for (int c = 0; c < width; c++)
-            {
-                ItemSlot correntSlot = slots[r, c];
-                if (correntSlot is null) continue;
-                if (correntSlot.GetIsEmpty()) return correntSlot;
-            }
+            if(currentSlot.GetIsEmpty()) yield return currentSlot;
         }
-        return default;
     }
-    public ItemSlot FindLastEmptySlot()
+    public IEnumerable<ItemSlot> FindLastEmptySlot()
     {
-        return default;
+        foreach (ItemSlot currentSlot in GetAllSlotReveres())
+        {
+            if (currentSlot.GetIsEmpty()) yield return currentSlot;
+        }
     }
 
-    public ItemSlot FindFirstItem(string containWord)
+    public IEnumerable<ItemSlot> FindFirstItem(ItemContainer tatget)
     {
-        return default;
+        foreach (ItemSlot currentSlot in GetAllSlot())
+        {
+            if (currentSlot.GetItem() == tatget) yield return currentSlot;
+        }
     }
            
-    public ItemSlot FindLastItem()
+    public IEnumerable<ItemSlot> FindLastItem(ItemContainer target)
     {
-        return default;
+        foreach (ItemSlot currentSlot in GetAllSlotReveres())
+        {
+            if (currentSlot.GetItem() == target) yield return currentSlot;
+        }
     }
 
     /// <summary>
     /// 아이템 추가
     /// </summary>
     public int AddItem(ItemContainer wantItem, int amount = 1)
-    {
-        slots[0,0].AddItem(wantItem, amount);
-        return default;
+    { 
+        amount = AddItemOnEmptySlots(wantItem, amount);
+
+        if(amount <= 0) return 0;
+
+        return AddItemOnEmptySlots(wantItem, amount);
     }
 
     public int AddItemOnExistSlots(ItemContainer wantItem, int amount)
     {
-        return default;
+        foreach (ItemSlot currentSlot in FindFirstItem(wantItem))
+        {
+            if (amount <= 0) return 0;
+            amount = currentSlot.AddItem(wantItem, amount);
+            currentSlot.NoticeChanged();
+        }
+        return amount;
     }
 
     public int AddItemOnEmptySlots(ItemContainer wantItem, int amount)
     {
-        return default;
+        foreach (ItemSlot currentSlot in FindFirstEmptySlot())
+        {
+            if (amount <= 0) return 0;
+            amount = currentSlot.AddItem(wantItem, amount);
+            currentSlot.NoticeChanged();
+        }
+        return amount;
     }
 
     public int AddItemToLocation(ItemContainer wantItem, int amount, int row, int column)
@@ -183,23 +206,30 @@ public class Inventory : MonoBehaviour
         return origin;
     }
 
-    public int RemoveItem(System.Predicate<ItemContainer> predicate)
+    public int RemoveItem(ItemContainer wantItam, int amount)
     {
-        
+        foreach (ItemSlot currentSlot in FindFirstItem(wantItam)) 
+        {
+            if (amount <= 0) return 0;
+            amount = currentSlot.AddItem(wantItam, amount);
+            currentSlot.NoticeChanged();
+        }
+        return amount;
     }
     /// <summary>
     /// 아이템 버리기
     /// </summary>
     /// 
-    public int RemoveItem(ItemContainer wantItem)
-    {
-        return default;
-    }
-
-    public int RemoveItem(ItemContainer wantItem, int amount = 1)
-    {
-        return default;
-    }
+   
+   // public int RemoveItem(ItemContainer wantItem)
+   // {
+   //     return default;
+   // }
+   //
+   // public int RemoveItem(ItemContainer wantItem, int amount = 1)
+   // {
+   //     return default;
+   // }   
 
     public int RemoveItemOnExistSlots(ItemContainer wantItem, int amount)
     {
@@ -242,9 +272,9 @@ public class Inventory : MonoBehaviour
     }
 
 
-    public void EX()
+    public void EX(int amount)
     {
         ItemContainer potion = DataManager.LoadDataFile<ItemContainer>("Potion");
-        AddItem(potion, 1);
+        AddItem(potion, amount);
     }
 }

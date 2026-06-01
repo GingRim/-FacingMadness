@@ -35,7 +35,7 @@ public class CardCrkClick : MonoBehaviour
 
         CardResolver resolver = new CardResolver();
 
-        resolver.Use(card.CardData, user.Controller, target.Controller);
+        
     }
 }
 

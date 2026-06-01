@@ -49,8 +49,10 @@ public class DataManager : ManagerBase
         // ���ο� Ÿ���� ���𰡸� �߰��Ҷ� ����� �ֱ�
         loadString = "Load Game Objects";
         yield return LoadAllFromAssetBundle<GameObject>("OGlobals", PrgressOnLoad).WaitForTask();
+
         loadString = "Load Pool Requests";
         yield return LoadAllFromAssetBundle<PoolRequest>("OGlobals", PrgressOnLoad).WaitForTask();
+        
         loadString = "Load Items";
         yield return LoadAllFromAssetBundle<ItemContainer>("OGlobals", PrgressOnLoad).WaitForTask();
 
@@ -141,7 +143,7 @@ public class DataManager : ManagerBase
         {
             var finder = Addressables.LoadAssetsAsync(label, (T loaded) =>
             {
-                SaveDataFile(loaded); // �ε� �Ǿ����ϱ� ����
+                SaveDataFile(loaded); 
                 actionForEachLoad(); 
             });
             Task result = finder.Task;

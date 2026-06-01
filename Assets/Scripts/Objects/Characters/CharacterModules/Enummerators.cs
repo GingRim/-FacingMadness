@@ -34,6 +34,13 @@ public enum DamageType
  {
     None, Action, Auxiliary, Reaction, _Length  
  }
+/// <summary>
+/// 카드가 진짜로 사용하는 카드 코스트
+/// </summary>
+public enum CardUseCost
+{
+    None, Action, Auxiliary, ActionAndAuxiliary, HP, San, _Length
+}
 
 
 /// <summary>
@@ -48,21 +55,11 @@ public enum DamageType
 
 /// <summary>
 /// 카드 컬러 타입
-/// 1.적색 2.황색 3.녹색 4.청색 5.자색 6.무색(중립)
+/// 1.적색 2.황색 3.녹색 4.청색 5.자색 6.무색(중립)7.흑(디버프)
 /// </summary>
 public enum CardColorType
 {
-    None, Red, Yellow, Green, Blue, Purple, Colorless, _Length
-}
-
-
-/// <summary>
-/// 카드 태그
-/// 1.공격 2.회복 3.버프 4.디버프 5.마법
-/// </summary>
-public enum CardTagType
-{
-    None, Attack, Restore, Buff, Debuff, Magic, _Length   
+    None, Red, Yellow, Green, Blue, Purple, Colorless, Black, _Length
 }
 
 

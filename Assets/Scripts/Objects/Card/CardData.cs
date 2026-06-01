@@ -6,19 +6,13 @@ public class CardData : ScriptableObject
     [Header("기본 정보")]
     public string cardName;
 
-    public Sprite illustration;
+    //public Sprite illustration;
 
-    [Header("분류")]
+    [Header("카드 색상")]
     public CardColorType color;
 
-    public CardTagType[] tags;
-
-    [Header("코스트")]
-    public CardCostData[] costs;
-
-    [Header("수치")]
-    public int damage;
-    public int restoreAmount;
+    [Header("특수 카드 유무")]
+    public bool isOneUse;
 
     [Header("설명")]
     [TextArea]

@@ -59,7 +59,7 @@ public class CharacterFactory : MonoBehaviour
     private void ApplyBuildData(CharacterBase character, CharacterBuildData data)
     {
         ApplyStats(character, data);
-        //ApplyDeck(character, data);
+        ApplyDeck(character, data);
         RefreshHP(character);
     }
 
