@@ -50,6 +50,18 @@ public class DeckModule : CharacterModule
     [SerializeField]
     private List<CardData> remove = new();
 
+   // 캐릭터 정보 가저 오기
+    private CharacterBase owner;
+    /// <summary>
+    /// 캐릭터 정보 받아오기
+    /// </summary>
+    /// <param name="owner"></param>
+    public override void OnRegistration(CharacterBase owner)
+    {
+        base.OnRegistration(owner);
+        this.owner = owner;
+    }
+
     // =========================
     // Getter
     // =========================
@@ -127,7 +139,24 @@ public class DeckModule : CharacterModule
 
         hand.Add(drawCard);
 
+        CheckHandLimit();
+
         return drawCard;
+    }
+
+    private void CheckHandLimit()
+    {
+        int maxHand = GetMaxHand();
+
+        while (hand.Count > maxHand)
+        {
+            CardData overflowCard = hand[hand.Count - 1];
+
+            hand.RemoveAt(hand.Count - 1);
+            graveyard.Add(overflowCard);
+
+            Debug.Log($"핸드 초과로 묘지 이동: {overflowCard.cardName}");
+        }
     }
 
     // =========================
@@ -215,6 +244,21 @@ public class DeckModule : CharacterModule
         return deck.Remove(card);
     }
 
+    /// <summary>
+    /// 핸드 최대치
+    /// </summary>
+    /// <returns></returns>
+    public int GetMaxHand()
+    {
+        DerivedStatModule derived =
+            Owner.GetModule<DerivedStatModule>();
+
+        if (derived == null)
+            return 5;
+
+        return derived.GetMaxHand();
+    }
+
     // =========================
     // 전투 종료 처리
     // =========================
@@ -293,6 +337,52 @@ public class DeckModule : CharacterModule
             deck.Add(card);
         }
 
+        ApplyDeckColorLimit();
+
         Shuffle(deck);
+    }
+
+    /// <summary>
+    /// 능력치에 따른 색상별 덱 제한 적용.
+    /// 초과한 카드는 덱에서 제거하고 소멸 영역으로 보낸다.
+    /// </summary>
+    private void ApplyDeckColorLimit()
+    {
+        StatModules stat = owner.GetModule<StatModules>();
+
+        if (stat == null)
+            return;
+
+        ApplyColorLimit(CardColorType.Red, stat.GetStat(StatType.Strength));
+        ApplyColorLimit(CardColorType.Yellow, stat.GetStat(StatType.Agility));
+        ApplyColorLimit(CardColorType.Green, stat.GetStat(StatType.Health));
+        ApplyColorLimit(CardColorType.Blue, stat.GetStat(StatType.Intelligence));
+        ApplyColorLimit(CardColorType.Purple, stat.GetStat(StatType.Will));
+    }
+
+    private void ApplyColorLimit(CardColorType color, int maxCount)
+    {
+        int count = 0;
+
+        for (int i = deck.Count - 1; i >= 0; i--)
+        {
+            CardData card = deck[i];
+
+            if (card == null)
+                continue;
+
+            if (card.color != color)
+                continue;
+
+            count++;
+
+            if (count <= maxCount)
+                continue;
+
+            deck.RemoveAt(i);
+            exhaust.Add(card);
+
+            Debug.Log($"덱 제한 초과: {card.cardName} → 소멸");
+        }
     }
 }

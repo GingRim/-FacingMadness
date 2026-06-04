@@ -101,25 +101,10 @@ PrefabInstance:
       addedObject: {fileID: 6934632206325241911}
     - targetCorrespondingSourceObject: {fileID: 3023755181494899158, guid: 14491716c8dffe14abc134d0d016a970, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 7551087968311537371}
-    - targetCorrespondingSourceObject: {fileID: 3023755181494899158, guid: 14491716c8dffe14abc134d0d016a970, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 8381081282743289307}
-    - targetCorrespondingSourceObject: {fileID: 3023755181494899158, guid: 14491716c8dffe14abc134d0d016a970, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 3292673335915304495}
-    - targetCorrespondingSourceObject: {fileID: 3023755181494899158, guid: 14491716c8dffe14abc134d0d016a970, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 3192638732483373132}
-    - targetCorrespondingSourceObject: {fileID: 3023755181494899158, guid: 14491716c8dffe14abc134d0d016a970, type: 3}
-      insertIndex: -1
       addedObject: {fileID: 3515403611961760251}
     - targetCorrespondingSourceObject: {fileID: 3023755181494899158, guid: 14491716c8dffe14abc134d0d016a970, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 7692203070326660245}
-    - targetCorrespondingSourceObject: {fileID: 3023755181494899158, guid: 14491716c8dffe14abc134d0d016a970, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 3248555684157272089}
+      addedObject: {fileID: -2955705121888890390}
   m_SourcePrefab: {fileID: 100100000, guid: 14491716c8dffe14abc134d0d016a970, type: 3}
 --- !u!1 &3344105270311682383 stripped
 GameObject:
@@ -138,7 +123,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c46f16d23baa0ff4e988ebf9a4716572, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MovementModule
-  _owner: {fileID: 7551087968311537371}
+  _owner: {fileID: 0}
 --- !u!114 &6934632206325241911
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -151,61 +136,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 60000061436d87a42bf714b09450b4e1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlauerController
---- !u!114 &7551087968311537371
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3344105270311682383}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe0275f85281e76489ef78866be13fc6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CharacterBase
---- !u!114 &8381081282743289307
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3344105270311682383}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9856a0c392412d141a3fee935692f9bc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::StatModules
-  _owner: {fileID: 7551087968311537371}
-  stats: 
---- !u!114 &3292673335915304495
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3344105270311682383}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 168e0819fe9767943af2c8969f975e2e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::LVModules
-  _owner: {fileID: 7551087968311537371}
-  level: 1
-  exp: 0
-  maxLevel: 10
---- !u!114 &3192638732483373132
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3344105270311682383}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d060364f812be4f40a10cbabb6431d3b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::DerivedStatModule
-  _owner: {fileID: 7551087968311537371}
 --- !u!114 &3515403611961760251
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -218,13 +148,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80794e998587a98449fdc1a95f830388, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DeckModule
-  _owner: {fileID: 7551087968311537371}
+  _owner: {fileID: 0}
   deck: []
   hand: []
   graveyard: []
   exhaust: []
   remove: []
---- !u!114 &7692203070326660245
+--- !u!114 &-2955705121888890390
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -233,20 +163,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3344105270311682383}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 22930dcd8735577468aae1dc6b900e23, type: 3}
+  m_Script: {fileID: 11500000, guid: a00461d2fd148ed4da9464635e54ee1e, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::HealthModule
-  _owner: {fileID: 7551087968311537371}
---- !u!114 &3248555684157272089
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3344105270311682383}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a50abcd75ea62854082f1d2a8a2f97e6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CombatModule
-  _owner: {fileID: 7551087968311537371}
+  m_EditorClassIdentifier: Assembly-CSharp::CostModule
+  _owner: {fileID: 0}

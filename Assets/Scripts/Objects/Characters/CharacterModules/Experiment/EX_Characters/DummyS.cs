@@ -1,13 +1,13 @@
 using UnityEngine;
 
-public class CharacterFactory : MonoBehaviour
+public class DummyS : MonoBehaviour
 {
 
     [Header("프리팹")]
     [SerializeField] private GameObject characterPrefab;
 
     /// <summary>
-    /// 플레이어 캐릭터 생성
+    /// 더미 캐릭터 생성
     /// </summary>
     public CharacterBase CreatePlayerCharacter(CharacterBuildData data, Vector3 position)
     {
@@ -46,13 +46,12 @@ public class CharacterFactory : MonoBehaviour
             return null;
         }
 
+        character.AddAllModuleFromObject(character.gameObject);
         ApplyBuildData(character, data);
 
-        AttachPlayerController(character);
 
         return character;
     }
-
     /// <summary>
     /// 캐릭터에 생성 데이터를 적용한다.
     /// </summary>
@@ -60,11 +59,7 @@ public class CharacterFactory : MonoBehaviour
     {
         ApplyLevel(character, data);
         ApplyStats(character, data);
-        ApplyDeck(character, data);
-        
-        ApplyCost(character);
         RefreshHP(character);
-
     }
 
     /// <summary>
@@ -108,11 +103,11 @@ public class CharacterFactory : MonoBehaviour
          $"민첩:{stat.GetStat(StatType.Agility)}, " +
          $"건강:{stat.GetStat(StatType.Health)}, " +
          $"지능:{stat.GetStat(StatType.Intelligence)}, " +
-         $"의지:{stat.GetStat(StatType.Will)}" + 
+         $"의지:{stat.GetStat(StatType.Will)}" +
          $"행동:{derived.GetMaxActionCost()} " +
          $"보조:{derived.GetMaxAuxiliaryCost()} " +
          $"대응:{derived.GetMaxReactionCost()}"
-        
+
         );
     }
 
@@ -184,19 +179,5 @@ public class CharacterFactory : MonoBehaviour
         Debug.Log($"HP 초기화 후: {hp.Current} / {hp.Max}");
     }
 
-    /// <summary>
-    /// 플레이어 컨트롤러 연결
-    /// </summary>
-    private void AttachPlayerController(CharacterBase character)
-    {
-
-        PlauerController controller =
-        character.GetComponent<PlauerController>();
-
-        if (controller != null)
-        {
-            controller.Possess(character);
-        }
-    }
 
 }

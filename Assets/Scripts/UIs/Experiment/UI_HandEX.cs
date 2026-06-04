@@ -7,6 +7,8 @@ public class UI_Hand : MonoBehaviour
 
     readonly List<UI_Card> cardUIs = new();
 
+
+
     /// <summary>
     /// 손패 UI에 카드 1장 추가
     /// </summary>
@@ -15,9 +17,8 @@ public class UI_Hand : MonoBehaviour
         if (cardData == null)
             return;
 
-        Debug.Log($"Hand UI 오브젝트: {gameObject.name}");
-        Debug.Log($"Card Parent: {cardParent.name}");
-        Debug.Log($"Card Parent 경로: {cardParent.name}");
+        if (cardParent == null)
+            return;
 
         GameObject cardObject =
             ObjectManager.CreateObject("UI_Card", cardParent);
@@ -35,6 +36,8 @@ public class UI_Hand : MonoBehaviour
         uiCard.SetCard(cardData);
         cardUIs.Add(uiCard);
     }
+
+
     /// <summary>
     /// 손패 UI 전체 초기화
     /// </summary>
@@ -55,4 +58,5 @@ public class UI_Hand : MonoBehaviour
 
         cardUIs.Clear();
     }
+
 }

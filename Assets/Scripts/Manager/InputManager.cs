@@ -15,6 +15,7 @@ public delegate void MouseHoverEvent(GameObject newTarget, GameObject oldTarget)
 public delegate void ButtonEvent(bool value);
 public delegate void VectorEvent(Vector2 value);
 public delegate void AxisEvent(float value);
+public delegate void CardEvent(bool value, Vector2 screenPosition, Vector3 WorldPosition);
 
 
 

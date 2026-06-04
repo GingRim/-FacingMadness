@@ -21,4 +21,6 @@ public static class Dice
     {
         return Random.Range(1, 5);
     }
+
+    //salfjlskjfsadolfjwlnfl
 }

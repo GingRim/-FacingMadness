@@ -97,14 +97,12 @@ public class DerivedStatModule : CharacterModule
 
     public int GetDefaultCost()
     {
-        int result = 1;
-
         if (LV.Level >= 10)
-            result += 2;
+            return 2;
         else if (LV.Level >= 5)
-            result += 1;
+            return  1;
 
-        return result;
+        return 0;
     }
 
     /// <summary>
@@ -112,11 +110,25 @@ public class DerivedStatModule : CharacterModule
     /// </summary>
     public int GetMaxActionCost()
     {
-        int result = GetDefaultCost();
+        return 1 + GetDefaultCost() + GetActionCostBonus();
+    }
 
-        result += stat.GetStat(StatType.Health) / 3;
+    /// <summary>
+    /// 최대 보조행동 코스트
+    /// </summary>
+    /// <returns></returns>
+    public int GetMaxAuxiliaryCost()
+    {
+        return 1 + GetDefaultCost() + GetAuxiliaryCostBonus();
+    }
 
-        return result;
+    /// <summary>
+    /// 최대 대응 코스트
+    /// </summary>
+    /// <returns></returns>
+    public int GetMaxReactionCost()
+    {
+        return 1 + GetDefaultCost() + GetReactionCostBonus();
     }
 
     // 보조 행동 코스트 증가 = 지능 3당 +1

@@ -6,9 +6,10 @@ using UnityEngine;
 public struct DamageStruct // 이벤트 데이터 팻킷
 {
     public GameObject from; // 양식
-    public CharacterBase instigator; // 선동가(명령자)
+    public ControllerBase instigator; // 선동가(명령자)
     public int damageAmount; // 대미지 양
     public bool critical;// 크리티컬
+    public bool highCritical; // 상위 크리티컬
     public DamageType damageType; // 대미지 유형
 }
     

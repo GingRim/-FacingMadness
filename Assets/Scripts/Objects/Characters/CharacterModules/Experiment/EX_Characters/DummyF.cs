@@ -1,29 +1,25 @@
 using UnityEngine;
 
-
-/// <summary>
-/// 데모 캐릭터 생성 테스트
-/// 프리셋 캐릭터를 실제 캐릭터로 생성한다.
-/// </summary>
-public class DemoCharacterSpawner : MonoBehaviour
+public class DummyF : MonoBehaviour
 {
-    [SerializeField] private CharacterFactory factory;
+    [SerializeField] private DummyS Dummy;
 
     [Header("데모 캐릭터")]
     [SerializeField] private CharacterPresetData[] presets;
-    
+
     [Header("생성 위치")]
     [SerializeField] private Transform[] spawnPoints;
 
     private void Start()
     {
-        SpawnDemoCharacters();
+        SpawnDemoDummy();
     }
 
-    private void SpawnDemoCharacters()
+
+    private void SpawnDemoDummy()
     {
 
-        if (factory == null)
+        if (Dummy == null)
         {
             return;
         }
@@ -34,13 +30,13 @@ public class DemoCharacterSpawner : MonoBehaviour
 
             if (presets[i] == null)
                 continue;
-            
+
             Vector3 position = Vector3.zero;
 
             if (spawnPoints != null && i < spawnPoints.Length && spawnPoints[i] != null)
                 position = spawnPoints[i].position;
 
-            factory.CreatePlayerCharacter(
+            Dummy.CreatePlayerCharacter(
                 presets[i].ToBuildData(),
                 position
             );

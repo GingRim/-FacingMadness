@@ -3,7 +3,7 @@ using UnityEngine;
 public enum UIType
 {
     None, Loading, Title, Movable, Menu, Info, Battle, Reward, Pause, Creation, Quit, SavePopUp, InComplete, CostHoverInfo,
-    TargeHoverInfp, experimentHoverInfp, Cards, _Length
+    TargeHoverInfp, experimentHoverInfp, Cards, ResolverPopUp, _Length
 
 }
 

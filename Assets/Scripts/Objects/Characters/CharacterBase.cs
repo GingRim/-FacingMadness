@@ -60,23 +60,7 @@ public class CharacterBase : MonoBehaviour
             AddModule(currentModule.RegistrationType, currentModule);
         }
     }
-// 실험
-    private void Awake()
-    {
-        AddAllModuleFromObject(gameObject);
-    }
 
-    private void InitializeCharacterStats()
-    {
-        HitpointModules hp = GetModule<HitpointModules>();
-        DerivedStatModule derived = GetModule<DerivedStatModule>();
-
-        if (hp != null && derived != null)
-        {
-            hp.InitializeHP(derived.GetMaxHP());
-        }
-    }
-    // 시험 끝
     public void RemoveModule(System.Type wantType)
     {
         if (moduleDictipnary.ContainsKey(wantType))

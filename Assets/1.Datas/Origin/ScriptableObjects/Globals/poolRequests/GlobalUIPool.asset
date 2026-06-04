@@ -20,6 +20,6 @@ MonoBehaviour:
     uiType: 0
   - poolName: UI_Card
     target: {fileID: 2891088092043084667, guid: 1cc874f95834c03478a99bcfe1fe29fa, type: 3}
-    countInitial: 5
-    coutAdditional: 3
+    countInitial: 11
+    coutAdditional: 5
     uiType: 16

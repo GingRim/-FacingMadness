@@ -12,6 +12,8 @@ GameObject:
   - component: {fileID: 7222971837623676333}
   - component: {fileID: 4586402159960031642}
   - component: {fileID: 8684136772629545498}
+  - component: {fileID: -2693089001284100986}
+  - component: {fileID: 5725116783906335091}
   m_Layer: 5
   m_Name: Hand
   m_TagString: Untagged
@@ -89,3 +91,41 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UI_Hand
   cardParent: {fileID: 677590523079993038}
+--- !u!114 &-2693089001284100986
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5937203584606040003}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8a8695521f0d02e499659fee002a26c2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.GridLayoutGroup
+  m_Padding:
+    m_Left: 0
+    m_Right: 0
+    m_Top: 0
+    m_Bottom: 0
+  m_ChildAlignment: 7
+  m_StartCorner: 0
+  m_StartAxis: 0
+  m_CellSize: {x: 200, y: 300}
+  m_Spacing: {x: 0, y: 0}
+  m_Constraint: 0
+  m_ConstraintCount: 2
+--- !u!114 &5725116783906335091
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5937203584606040003}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b82c559bd7cb2a646bcb333df7219b45, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CardCrkClick
+  useSelectUI: {fileID: 4364133400101424215, guid: 4cce998780d0bc945a414d9d97f4348f, type: 3}
+  fixedTarget: {fileID: 166239877226498500, guid: 14491716c8dffe14abc134d0d016a970, type: 3}

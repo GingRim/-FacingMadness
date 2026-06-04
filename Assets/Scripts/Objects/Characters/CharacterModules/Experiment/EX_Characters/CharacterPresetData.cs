@@ -12,6 +12,9 @@ public class CharacterPresetData : ScriptableObject
     [Header("기본 정보")]
     public string characterName;
 
+    [Header("LV")]
+    public int level;
+
     [Header("능력치")]
     public int strength;
     public int agility;
@@ -30,6 +33,8 @@ public class CharacterPresetData : ScriptableObject
         return new CharacterBuildData
         {
             characterName = characterName,
+
+            level = level,
 
             strength = strength,
             agility = agility,

@@ -1,31 +1,32 @@
 using UnityEngine;
 
 public class EX_CardDrawButtonTest : MonoBehaviour
-
 {
     private CharacterBase character;
-    [SerializeField] private UI_Hand handUI;
-    private void Start()
-    {
-        character = FindFirstObjectByType<CharacterBase>();
-    }
 
-    public void SetCharacter(CharacterBase newCharacter)
+    [SerializeField] private UI_Hand handUI;
+
+    private CharacterBase FindControlledCharacter()
     {
-        character = newCharacter;
+        CharacterBase[] characters =
+            FindObjectsByType<CharacterBase>(FindObjectsSortMode.None);
+
+        foreach (CharacterBase current in characters)
+        {
+            if (current.Controller != null)
+                return current;
+        }
+
+        return null;
     }
 
     public void DrawCardToHand()
     {
+        character = FindControlledCharacter();
+
         if (character == null)
         {
-            Debug.LogError("CharacterBase가 연결되지 않았습니다.");
-            return;
-        }
-
-        if (handUI == null)
-        {
-            Debug.LogError("UI_Hand가 연결되지 않았습니다.");
+            Debug.LogError("컨트롤러가 연결된 캐릭터가 없습니다.");
             return;
         }
 
@@ -37,6 +38,7 @@ public class EX_CardDrawButtonTest : MonoBehaviour
             return;
         }
 
+       
         CardData card = deck.Draw();
 
         if (card == null)
@@ -45,7 +47,13 @@ public class EX_CardDrawButtonTest : MonoBehaviour
             return;
         }
 
-        handUI.AddCard(card);
+        handUI.ClearHand();
+
+        foreach (CardData handCard in deck.Hand)
+        {
+            handUI.AddCard(handCard);
+        }
     }
+
 }
 

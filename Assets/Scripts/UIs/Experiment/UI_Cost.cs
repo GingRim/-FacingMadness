@@ -1,19 +1,59 @@
+using System;
 using TMPro;
 using UnityEngine;
+using static Unity.VisualScripting.Dependencies.Sqlite.SQLite3;
 
 
 public class UI_Cost : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI currentName;
     [SerializeField] private CostType costName;
-    [SerializeField] private CostModule costModule;
+    
+    private CostModule costModule;
 
     public CostType CostType => costName;
-    public void Refresh()
-    {
-        int current = costModule.GetCurrent(costName);
 
-        currentName.text = current.ToString();
+    private void Start()
+    {
+        SetCharacter(FindControlledCharacter());
     }
 
+    private CharacterBase FindControlledCharacter()
+    {
+        CharacterBase[] characters =
+            FindObjectsByType<CharacterBase>(FindObjectsSortMode.None);
+
+        foreach (CharacterBase character in characters)
+        {
+            if (character.Controller != null)
+                return character;
+        }
+        return null;
+    }
+
+    public void SetCharacter(CharacterBase character)
+    {
+        if (character == null)
+            return;
+
+        costModule = character.GetModule<CostModule>();
+
+        Refresh();
+    }
+
+    public void Refresh()
+    {
+        if (costModule == null || currentName == null)
+            return;
+
+        int current = costModule.GetCurrent(CostType);
+        int max = costModule.GetMax(CostType);
+
+        currentName.SetText(current.ToString());
+    }
+
+    private void Update()
+    {
+        Refresh();
+    }
 }

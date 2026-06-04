@@ -11,6 +11,18 @@ public struct CostData
 
 public class CostModule : CharacterModule
 {
+    //테스트 용
+    private CostModule costModule;
+    private void Start()
+    {
+        CharacterBase character =
+            FindFirstObjectByType<CharacterBase>();
+
+        if (character == null)
+            return;
+
+        costModule = character.GetModule<CostModule>();
+    }
     // 각 코스트의 현재 값 / 최대 값을 저장
     // 배열 인덱스는 CostType enum과 연결됨
     private CostData[] costs = new CostData[(int)CostType._Length];
@@ -27,6 +39,18 @@ public class CostModule : CharacterModule
         return costs[(int)type].currntCost >= amount;
     }
 
+    /// <summary>
+    /// 코스트 초기화
+    /// </summary>
+    /// <param name="action"></param>
+    /// <param name="auxiliary"></param>
+    /// <param name="reaction"></param>
+    public void InitializeCost(int action, int auxiliary, int reaction)
+    {
+        SetMax(CostType.Action, action);
+        SetMax(CostType.Auxiliary, auxiliary);
+        SetMax(CostType.Reaction, reaction);
+    }
     /// <summary>
     /// 코스트를 실제로 소모
     /// 부족할 경우 false 반환
