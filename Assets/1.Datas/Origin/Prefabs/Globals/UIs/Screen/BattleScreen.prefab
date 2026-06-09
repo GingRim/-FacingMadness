@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 5316169677030667738}
   - component: {fileID: 7587992345465273361}
   - component: {fileID: 3084874901530373766}
-  - component: {fileID: 977964356419453186}
+  - component: {fileID: 6608066892723015499}
   m_Layer: 5
   m_Name: battle (1)
   m_TagString: Untagged
@@ -122,9 +122,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 977964356419453186}
-        m_TargetAssemblyTypeName: UI_Button_OpenUI, Assembly-CSharp
-        m_MethodName: Open
+      - m_Target: {fileID: 6608066892723015499}
+        m_TargetAssemblyTypeName: EX_CostResetButton, Assembly-CSharp
+        m_MethodName: ResetCost
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -134,7 +134,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
---- !u!114 &977964356419453186
+--- !u!114 &6608066892723015499
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -143,12 +143,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 757023702767617938}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 708d074502f47a1448ec9125edd43fca, type: 3}
+  m_Script: {fileID: 11500000, guid: 9b3e2571403d8b0489a506129f5163a8, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UI_Button_OpenUI
-  wantType: 5
-  wantToggle: 0
-  ScreenChanger: 0
+  m_EditorClassIdentifier: Assembly-CSharp::EX_CostResetButton
 --- !u!1 &1531340929205634622
 GameObject:
   m_ObjectHideFlags: 0

@@ -380,9 +380,9 @@ public class DeckModule : CharacterModule
                 continue;
 
             deck.RemoveAt(i);
-            exhaust.Add(card);
+            remove.Add(card);
 
-            Debug.Log($"덱 제한 초과: {card.cardName} → 소멸");
+            Debug.Log($"덱 제한 초과: {card.cardName} → 제거");
         }
     }
 }

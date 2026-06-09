@@ -5,6 +5,9 @@ public class DerivedStatModule : CharacterModule
 {
     private StatModules stat;
     private LVModules LV;
+    DerivedStatModule derivedStat;
+
+    public DerivedStatModule DerivedStat => derivedStat;
 
     public sealed override System.Type RegistrationType => typeof(DerivedStatModule);
 
@@ -184,5 +187,50 @@ public class DerivedStatModule : CharacterModule
             default:
                 return 0;
         }
+    }
+
+    /// <summary>
+    /// 힘 스텟 불러오기
+    /// </summary>
+    /// <returns></returns>
+    public int GetStrengthModifier()
+    {
+        return stat.GetModifier(StatType.Strength);
+    }
+
+    /// <summary>
+    /// 민첩 스텟 불러오기
+    /// </summary>
+    /// <returns></returns>
+    public int GetAgilityModifier()
+    {
+        return stat.GetModifier(StatType.Agility);
+    }
+
+    /// <summary>
+    /// 건강 스텟 불러오기
+    /// </summary>
+    /// <returns></returns>
+    public int GetHealthModifier()
+    {
+        return stat.GetModifier(StatType.Health);
+    }
+
+    /// <summary>
+    /// 지능 스텟 불러오기
+    /// </summary>
+    /// <returns></returns>
+    public int GetIntelligenceModifier()
+    {
+        return stat.GetModifier(StatType.Intelligence);
+    }
+
+    /// <summary>
+    /// 의지 스텟 불러오기
+    /// </summary>
+    /// <returns></returns>
+    public int GetWillModifier()
+    {
+        return stat.GetModifier(StatType.Will);
     }
 }

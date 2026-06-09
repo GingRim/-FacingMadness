@@ -10,7 +10,18 @@ public class UI_CardUseSelect : MonoBehaviour
     private CardData selectedCard;
     private CharacterBase user;
     private CharacterBase target;
+    private UI_Hand handUI;
 
+
+    private void Awake()
+    {
+        gameObject.SetActive(false);
+    }
+
+    public void SetHandUI(UI_Hand ui)
+    {
+        handUI = ui;
+    }
 
 
     /// <summary>
@@ -83,6 +94,7 @@ public class UI_CardUseSelect : MonoBehaviour
         {
             // 손패 → 묘지
             deck.UseCard(selectedCard);
+            handUI?.RefreshFromDeck(deck);
         }
 
         Close();

@@ -23,6 +23,7 @@ public class CostModule : CharacterModule
 
         costModule = character.GetModule<CostModule>();
     }
+
     // 각 코스트의 현재 값 / 최대 값을 저장
     // 배열 인덱스는 CostType enum과 연결됨
     private CostData[] costs = new CostData[(int)CostType._Length];
@@ -107,6 +108,13 @@ public class CostModule : CharacterModule
     {
         return costs[(int)type].Max;
     }
-
-
+    /// <summary>
+    /// 시스템 상 코스트 초기화
+    /// </summary>
+    public void RefillAll()
+    {
+        SetMax(CostType.Action, GetMax(CostType.Action));
+        SetMax(CostType.Auxiliary, GetMax(CostType.Auxiliary));
+        SetMax(CostType.Reaction, GetMax(CostType.Reaction));
+    }
 }

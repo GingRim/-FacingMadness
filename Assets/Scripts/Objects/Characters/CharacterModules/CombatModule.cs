@@ -29,6 +29,9 @@ public class CombatModule : CharacterModule
 
     public void OnRestore(in RestoreStruct restoreInfo)
     {
-        hitpointModule.TakeRestore(restoreInfo);
+        if (hp == null)
+            return;
+
+        hp.TakeRestore(restoreInfo);
     }
 }

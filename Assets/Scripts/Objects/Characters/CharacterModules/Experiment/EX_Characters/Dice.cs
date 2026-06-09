@@ -22,5 +22,35 @@ public static class Dice
         return Random.Range(1, 5);
     }
 
-    //salfjlskjfsadolfjwlnfl
+    public struct DiceResult
+    {
+        public int diceValue;
+        public int bonus;
+        public int total;
+        public CriticalType criticalType;
+    }
+
+    public static DiceResult RollD10WithCritical(int bonus, int level)
+    {
+        int dice = RollD10();
+        int total = dice + bonus;
+
+        bool conditionDice10 = dice == 10;
+        bool conditionTotal = total >= 18 - level;
+
+        CriticalType critical = CriticalType.None;
+
+        if (conditionDice10 && conditionTotal)
+            critical = CriticalType.GreatCritical;
+        else if (conditionDice10 || conditionTotal)
+            critical = CriticalType.Critical;
+
+        return new DiceResult
+        {
+            diceValue = dice,
+            bonus = bonus,
+            total = total,
+            criticalType = critical
+        };
+    }
 }

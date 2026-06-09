@@ -6,6 +6,8 @@ public class CharacterModule : MonoBehaviour
     public virtual System.Type RegistrationType => typeof(CharacterModule);
 
     public CharacterBase _owner;
+
+    DerivedStatModule DerivedStat;
     public CharacterBase Owner => _owner;
 
     public virtual void OnRegistration  (CharacterBase newOwner) { _owner = newOwner; }

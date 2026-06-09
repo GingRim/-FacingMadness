@@ -2,6 +2,34 @@ using UnityEngine;
 
 public class UI_BattleScreen : UI_ScreenBase
 {
+    private UI_CardUseSelect cardUseSelect;
+    private CardCrkClick cardClick;
+    private UI_Hand handUI;
+
+
+    private void Awake()
+    {
+        cardClick = GetComponentInChildren<CardCrkClick>(true);
+        handUI = GetComponentInChildren<UI_Hand>(true);
+
+        GameObject popupObj =
+            ObjectManager.CreateObject("Resolver", transform);
+
+        cardUseSelect =
+            popupObj.GetComponent<UI_CardUseSelect>();
+
+        if (cardUseSelect != null)
+        {
+            cardUseSelect.SetHandUI(handUI);
+            cardUseSelect.Close();
+        }
+
+        if (cardClick != null)
+        {
+            cardClick.SetUseSelectUI(cardUseSelect);
+        }
+    }
+
     private void OnEnable()
     {
         InputManager.OnPause -= CanelPause;

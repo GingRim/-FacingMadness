@@ -61,6 +61,6 @@ public class StatModules : CharacterModule
     {
         int stat = GetStat(type);
 
-        return Mathf.FloorToInt(stat / 2f);
+        return Mathf.FloorToInt(stat / 2.0f);
     }
 }

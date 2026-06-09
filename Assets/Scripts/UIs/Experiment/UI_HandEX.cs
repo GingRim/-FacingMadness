@@ -7,7 +7,21 @@ public class UI_Hand : MonoBehaviour
 
     readonly List<UI_Card> cardUIs = new();
 
+    /// <summary>
+    /// DeckModule의 현재 Hand 데이터를 기준으로 손패 UI를 다시 그림.
+    /// </summary>
+    public void RefreshFromDeck(DeckModule deck)
+    {
+        if (deck == null)
+            return;
 
+        ClearHand();
+
+        foreach (CardData card in deck.Hand)
+        {
+            AddCard(card);
+        }
+    }
 
     /// <summary>
     /// 손패 UI에 카드 1장 추가

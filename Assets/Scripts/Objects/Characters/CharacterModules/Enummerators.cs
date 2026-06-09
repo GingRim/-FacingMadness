@@ -12,7 +12,7 @@ public enum UIType
 /// </summary>
 public enum DamageType
 {
-    None, nomur , Physical, _Length
+    None, Hand_to_hand_combat, Long_range_combat, Magic, _Length
 }
 
 
@@ -109,4 +109,12 @@ public enum CardZoneType
 public enum BattlePhaseType
 {
     None, StandbyPhase, MainPhase, DeclarePhase, ChainPhase, DamageStep, EndPhase, _Length
+}
+
+/// <summary>
+/// 크리티컬 타입 1.크리티컬 2. 상위 크리티컬
+/// </summary>
+public enum CriticalType
+{
+    None, Critical, GreatCritical, _Length
 }
