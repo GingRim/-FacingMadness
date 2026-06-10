@@ -10,64 +10,20 @@ using static Dice;
 public class CardResolver
 {
     /// <summary>
-    /// 전투 카드 사용
+    /// 기존 통합 사용 함수
     /// </summary>
-    /// <param name="card">사용할 카드</param>
-    /// <param name="user">카드를 사용하는 캐릭터</param>
-    /// <param name="target">카드 효과를 받을 대상</param>
-    /// <param name="useCost">선택한 사용 코스트</param>
-    /// <returns>사용 성공 여부</returns>
     public bool Use(CardData card, CharacterBase user, CharacterBase target, CardUseCost useCost)
     {
-        // 카드 또는 사용자가 없으면 실패
+        
         if (card == null || user == null)
             return false;
 
-        // 코스트 지불 시도
-        if (!TryPayCost(user, useCost))
+        // 코스트 사용 가능 여부 확인
+        if (!CanUse(card, user, useCost))
             return false;
 
-        // 카드 색상에 따라 효과 실행
-        switch (card.color)
-        {
-            // 적색 카드
-            case CardColorType.Red:
-                ResolveRed(card, user, target, useCost);
-                break;
-
-            // 황색 카드
-            case CardColorType.Yellow:
-                ResolveYellow(card, user, target, useCost);
-
-                break;
-
-            // 녹색 카드
-            case CardColorType.Green:
-                ResolveGreen(card, user, target, useCost);
-                break;
-
-            // 청색 카드
-            case CardColorType.Blue:
-                ResolveBlue(card, user, target, useCost);
-                break;
-
-            // 자색 카드
-            case CardColorType.Purple:
-                ResolvePurple(card, user, target, useCost);
-                break;
-
-            // 무색 카드
-            case CardColorType.Colorless:
-                ResolveColorless(card, user, target, useCost);
-                break;
-
-            // 검은색 카드
-            case CardColorType.Black:
-                //ResolveBlack(card, user, target, useCost);
-                break;
-        }
-
-        return true;
+        // 실제 사용
+        return UseWithoutCostCheck(card, user, target, useCost);
     }
 
     /// <summary>
@@ -204,33 +160,38 @@ public class CardResolver
     private void ResolveYellow(CardData card, CharacterBase user, CharacterBase target, CardUseCost useCost)
     {
         DerivedStatModule derived = user.GetModule<DerivedStatModule>();
+        LVModules lv = user.GetModule<LVModules>();
+
+        if (derived == null || lv == null)
+            return;
+
+        int damage = 0;
+        CriticalType criticalType = CriticalType.None;
 
         switch (useCost)
         {
             case CardUseCost.Action:
-                if (target == null)
-                    return;
+            {
+                DiceResult result = Dice.RollD10WithCritical(0, lv.Level);
 
-                int damage = Dice.RollD10();
+                damage = result.diceValue;
+                criticalType = result.criticalType;
 
-                DamageStruct damageInfo = new DamageStruct
+                if (criticalType == CriticalType.Critical)
                 {
-                    from = user.gameObject,
-                    instigator = user.Controller,
-                    damageAmount = damage,
-                    critical = false,
-                    damageType = DamageType.Hand_to_hand_combat
-                };
+                        damage += Dice.RollD10() + Dice.RollD6();
+                }
+                else if (criticalType == CriticalType.GreatCritical)
+                {
+                    damage += Dice.RollD10() + Dice.RollD10() + Dice.RollD6() + Dice.RollD6();
+                }
 
-                CombatModule combat = target.GetModule<CombatModule>();
-
-                if (combat == null)
-                    return;
-
-                combat.OnHit(damageInfo);
                 break;
+            }
+
 
             case CardUseCost.Auxiliary:
+            {
                 int hasteStack = Dice.RollD4();
 
                 Debug.Log($"가속 {hasteStack} 스택 획득");
@@ -240,7 +201,28 @@ public class CardResolver
                 // effect.AddStack(EffectType.Haste, hasteStack);
 
                 break;
+            }
         }
+        
+        DamageStruct damageInfo = new DamageStruct
+        {
+            from = user.gameObject,
+            instigator = user.Controller,
+            damageAmount = damage,
+            critical = criticalType != CriticalType.None,
+            damageType = DamageType.Hand_to_hand_combat
+        };
+
+        CombatModule combat = target.GetModule<CombatModule>();
+
+        if (combat == null)
+            return;
+
+        combat.OnHit(damageInfo);
+
+        Debug.Log($"황색 카드 피해: {damage} / 크리티컬: {criticalType}");
+
+
     }
 
     /// <summary>
@@ -251,40 +233,74 @@ public class CardResolver
     private void ResolveGreen(CardData card, CharacterBase user, CharacterBase target, CardUseCost useCost)
     {
         DerivedStatModule derived = user.GetModule<DerivedStatModule>();
+        LVModules lv = user.GetModule<LVModules>();
+        
+        if(derived == null || lv == null)
+            return;
+
         switch (useCost)
         {
             case CardUseCost.Action:
-                CharacterBase restoreTarget = target != null ? target : user;
+            {
+                CharacterBase restreTarget = target != null ? target : user;
 
-                int restore = Dice.RollD10() + derived.GetHealthModifier();
+                DiceResult result = Dice.RollD10WithCritical(derived.GetHealthModifier(), lv.Level);
 
-                RestoreStruct restoreInfo = new RestoreStruct
+                int restore = result.total;
+
+                if (result.criticalType == CriticalType.Critical)
                 {
+                    restore += 5;
+                }
+                else if (result.criticalType == CriticalType.GreatCritical)
+                {
+                    restore += 15;
+                }
+
+                RestoreStruct restoreInfo = new RestoreStruct{
                     from = user.gameObject,
                     instigator = user.Controller,
-                    restoreAmount = restore
-                };
+                    restoreAmount = restore};
 
-                CombatModule combat =
-                    restoreTarget.GetModule<CombatModule>();
+                CombatModule combat = restreTarget.GetModule<CombatModule>();
 
-                if (combat == null)
+                if(combat == null)
                     return;
 
                 combat.OnRestore(restoreInfo);
 
+                Debug.Log($"녹색 회복: {restore} / 크리티컬:{result.criticalType}");
+
                 break;
+            }
+
+
+                
 
             case CardUseCost.Auxiliary:
+            {
+                DiceResult result = Dice.RollD10WithCritical(derived.GetHealthModifier(), lv.Level);
+
                 int armor = Dice.RollD4();
 
-                Debug.Log($"임시 장갑 {armor} 획득");
+                if (result.criticalType == CriticalType.Critical)
+                {
+                    armor += Dice.RollD4();
+                }
+                else if (result.criticalType == CriticalType.GreatCritical)
+                {
+                    armor = Dice.RollD8() + Dice.RollD8();
+                }
+
+                Debug.Log($"임시 장갑 획득: {armor} / 크리티컬:{result.criticalType}");
 
                 // 나중에 ArmorModule / EffectModule 생기면 여기서 적용
                 // ArmorModule armorModule = user.GetModule<ArmorModule>();
                 // armorModule.AddTemporaryArmor(armor);
+                // 1 ~ 2~9 ~10
 
                 break;
+            }
         }
     }
 
@@ -458,6 +474,89 @@ public class CardResolver
             return Dice.RollD6();
 
         return Dice.RollD4();
+    }
+
+    /// <summary>
+    /// 코스트 사용 가능 여부만 확인
+    /// </summary>
+    public bool CanUse(CardData selectedCard, CharacterBase user, CardUseCost useCost)
+    {
+        CostModule cost = user.GetModule<CostModule>();
+
+        if (cost == null)
+            return false;
+
+        switch (useCost)
+        {
+            case CardUseCost.Action:
+                return cost.CanUse(CostType.Action, 1);
+
+            case CardUseCost.Auxiliary:
+                return cost.CanUse(CostType.Auxiliary, 1);
+
+            case CardUseCost.ActionAndAuxiliary:
+
+                return cost.CanUse(CostType.Action, 1)
+                    && cost.CanUse(CostType.Auxiliary, 1);
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// 코스트 검사는 하지 않고
+    /// 실제 차감 + 효과만 실행
+    /// </summary>
+    public bool UseWithoutCostCheck(CardData card, CharacterBase user, CharacterBase target, CardUseCost useCost)
+    {
+        // 카드 또는 사용자가 없으면 실패
+        if (card == null || user == null)
+            return false;
+        // 코스트 지불 시도
+        if (!TryPayCost(user, useCost))
+            return false;
+        
+        // 카드 색상에 따라 효과 실행
+        switch (card.color)
+        {
+            // 적색 카드
+            case CardColorType.Red:
+                ResolveRed(card, user, target, useCost);
+                break;
+
+            // 황색 카드
+            case CardColorType.Yellow:
+                ResolveYellow(card, user, target, useCost);
+
+                break;
+
+            // 녹색 카드
+            case CardColorType.Green:
+                ResolveGreen(card, user, target, useCost);
+                break;
+
+            // 청색 카드
+            case CardColorType.Blue:
+                ResolveBlue(card, user, target, useCost);
+                break;
+
+            // 자색 카드
+            case CardColorType.Purple:
+                ResolvePurple(card, user, target, useCost);
+                break;
+
+            // 무색 카드
+            case CardColorType.Colorless:
+                ResolveColorless(card, user, target, useCost);
+                break;
+
+            // 검은색 카드
+            case CardColorType.Black:
+                //ResolveBlack(card, user, target, useCost);
+                break;
+        }
+
+        return true;
     }
 
 }

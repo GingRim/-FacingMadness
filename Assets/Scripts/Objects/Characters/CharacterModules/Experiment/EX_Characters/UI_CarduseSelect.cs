@@ -1,6 +1,7 @@
 using UnityEngine;
 
 
+
 /// <summary>
 /// 카드 사용 선택 팝업.
 /// 행동 / 보조 행동 중 어떤 코스트로 사용할지 선택한다.
@@ -12,6 +13,7 @@ public class UI_CardUseSelect : MonoBehaviour
     private CharacterBase target;
     private UI_Hand handUI;
 
+    public bool IsOpened => gameObject.activeSelf;
 
     private void Awake()
     {
@@ -78,25 +80,36 @@ public class UI_CardUseSelect : MonoBehaviour
 
         CardResolver resolver = new CardResolver();
 
-        bool success =
-            resolver.Use(selectedCard, user, target, useCost);
+        if (!resolver.CanUse(selectedCard, user, useCost))
+        {
+            Debug.Log("카드 사용 실패: 코스트 부족");
+            Close();
+            return;
+        }
+
+        DeckModule deck = user.GetModule<DeckModule>();
+
+        if (deck == null)
+            return;
+
+        deck.UseCard(selectedCard);
+
+        bool success = resolver.UseWithoutCostCheck(
+            selectedCard,
+            user,
+            target,
+            useCost
+        );
 
         if (!success)
         {
             Debug.Log("카드 사용 실패");
+            handUI?.RefreshFromDeck(deck);
+            Close();
             return;
         }
 
-        DeckModule deck =
-            user.GetModule<DeckModule>();
-
-        if (deck != null)
-        {
-            // 손패 → 묘지
-            deck.UseCard(selectedCard);
-            handUI?.RefreshFromDeck(deck);
-        }
-
+        handUI?.RefreshFromDeck(deck);
         Close();
     }
 }

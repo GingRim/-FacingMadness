@@ -33,6 +33,9 @@ public class CardCrkClick : MonoBehaviour
         if (!value)
             return;
 
+        if (useSelectUI != null && useSelectUI.IsOpened)
+            return;
+
         GameObject clickedObject = GameManager.Instance.Input.GetGameObjectUnderCursor();
         
 
@@ -63,6 +66,10 @@ public class CardCrkClick : MonoBehaviour
             if (deck != null)
             {
                 deck.UseCard(card.CardData, isExhaust: true);
+
+                UI_Hand handUI = GetComponentInParent<UI_Hand>();
+
+                handUI?.RefreshFromDeck(deck);
             }
 
             return;
