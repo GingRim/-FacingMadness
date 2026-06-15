@@ -84,6 +84,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.y
       value: 180
       objectReference: {fileID: 0}
+    - target: {fileID: 6431412654786922983, guid: 14491716c8dffe14abc134d0d016a970, type: 3}
+      propertyPath: _owner
+      value: 
+      objectReference: {fileID: 419033906825107805}
     - target: {fileID: 8084384703228284361, guid: 14491716c8dffe14abc134d0d016a970, type: 3}
       propertyPath: m_Name
       value: 2DSkinnedModel
@@ -105,7 +109,21 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 3023755181494899158, guid: 14491716c8dffe14abc134d0d016a970, type: 3}
       insertIndex: -1
       addedObject: {fileID: -2955705121888890390}
+    - targetCorrespondingSourceObject: {fileID: 3023755181494899158, guid: 14491716c8dffe14abc134d0d016a970, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: -4651970122714746316}
   m_SourcePrefab: {fileID: 100100000, guid: 14491716c8dffe14abc134d0d016a970, type: 3}
+--- !u!114 &419033906825107805 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 166239877226498500, guid: 14491716c8dffe14abc134d0d016a970, type: 3}
+  m_PrefabInstance: {fileID: 548928257990365337}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3344105270311682383}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe0275f85281e76489ef78866be13fc6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterBase
 --- !u!1 &3344105270311682383 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3023755181494899158, guid: 14491716c8dffe14abc134d0d016a970, type: 3}
@@ -166,4 +184,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a00461d2fd148ed4da9464635e54ee1e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CostModule
-  _owner: {fileID: 0}
+  _owner: {fileID: 419033906825107805}
+--- !u!114 &-4651970122714746316
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3344105270311682383}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 49b6f46e0fbdb584da225a61a2d1d7b2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MotivationModule
+  _owner: {fileID: 419033906825107805}
+  stack: 0

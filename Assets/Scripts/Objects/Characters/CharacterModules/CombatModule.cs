@@ -15,14 +15,23 @@ public class CombatModule : CharacterModule
         hp = owner.GetModule<HitpointModules>();
     }
 
-    public void OnHit(in DamageStruct damageInfo)
+    public void OnHit(DamageStruct damageInfo)
     {
-        if (hp == null)
-            return;
+        ArmorModule armor = GetComponent<ArmorModule>();
 
+        int finalDamage = damageInfo.damageAmount;
+
+        if (armor != null)
+        {
+         finalDamage = armor.GetReducedDamage(damageInfo.damageAmount, damageInfo.damageType);
+        }
+
+        damageInfo.damageAmount = finalDamage;
+
+        // 기존 생명력 감소 처리
         hp.TakeDamage(damageInfo);
 
-        Debug.Log($"피해 적용: {damageInfo.damageAmount}");
+        Debug.Log($"최종 피해: {damageInfo.damageAmount}");
     }
 
 

@@ -190,6 +190,23 @@ public class DeckModule : CharacterModule
         }
     }
 
+    /// <summary>
+    /// 게임 중 카드를 덱에 추가한 뒤 셔플
+    /// </summary>
+    public void AddCardToDeckAndShuffle(CardData card)
+    {
+        if (card == null)
+        {
+            Debug.LogWarning("AddCardToDeckAndShuffle 실패: card가 null");
+            return;
+        }
+        Debug.Log($"추가 전 덱 수: {deck.Count}");
+
+        AddCardToDeck(card);
+        Shuffle(deck);
+
+        Debug.Log($"덱에 추가됨: {card.cardName} / 추가 후 덱 수: {deck.Count}");
+    }
 
     /// <summary>
     /// 카드 사용 후 이동 처리
@@ -218,6 +235,7 @@ public class DeckModule : CharacterModule
         // 일반 사용
         graveyard.Add(card);
     }
+    
     /// <summary>
     /// 게임 중 카드 추가
     /// </summary>
@@ -225,9 +243,13 @@ public class DeckModule : CharacterModule
     public void AddCardToDeck(CardData card)
     {
         if (card == null)
+        {
+            Debug.LogWarning("AddCardToDeck 실패: card가 null");
             return;
+        }
 
         deck.Add(card);
+        Debug.Log($"AddCardToDeck 실행: {card.cardName}");
     }
 
 

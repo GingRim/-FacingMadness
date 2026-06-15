@@ -12,7 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9858d2e9e5cc0c049aa504bf5f5b25f7, type: 3}
   m_Name: YCard
   m_EditorClassIdentifier: Assembly-CSharp::CardData
-  cardName: YCard
+  cardName: "\uD669\uC0C9 \uCE74\uB4DC"
   color: 2
   isOneUse: 0
+  magicCardType: 0
+  forbiddenMagicCard: {fileID: 0}
+  attackMagicCard: {fileID: 0}
+  defenseMagicCard: {fileID: 0}
+  buffMagicCard: {fileID: 0}
   description: 

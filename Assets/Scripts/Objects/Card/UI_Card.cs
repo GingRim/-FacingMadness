@@ -4,7 +4,9 @@ using UnityEngine.UI;
 
 public class UI_Card : PooledObject
 {
-    
+
+    [SerializeField] TextMeshProUGUI NameText;
+
     [SerializeField] TextMeshProUGUI descriptionText;
     
     [SerializeField] Image frameImage;
@@ -25,6 +27,8 @@ public class UI_Card : PooledObject
     void Refresh()
     {
         if (cardData == null) return;
+
+        NameText.SetText(CardData.cardName);
 
         descriptionText.SetText(cardData.description);
        

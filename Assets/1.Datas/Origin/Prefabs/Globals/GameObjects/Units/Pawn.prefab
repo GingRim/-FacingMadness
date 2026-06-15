@@ -18,6 +18,8 @@ GameObject:
   - component: {fileID: 865478137923993098}
   - component: {fileID: -6330325450748760534}
   - component: {fileID: 2182570076450900385}
+  - component: {fileID: 6431412654786922983}
+  - component: {fileID: 3300121004978637577}
   m_Layer: 0
   m_Name: Pawn
   m_TagString: Untagged
@@ -198,6 +200,35 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CharacterModule
   _owner: {fileID: 166239877226498500}
+--- !u!114 &6431412654786922983
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3023755181494899158}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6246a1dafa6baf5438f3ca05e62b1a58, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ArmorModule
+  _owner: {fileID: 166239877226498500}
+  baseArmor: 0
+  temporaryArmor: 0
+--- !u!114 &3300121004978637577
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3023755181494899158}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 49b6f46e0fbdb584da225a61a2d1d7b2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MotivationModule
+  _owner: {fileID: 166239877226498500}
+  stack: 0
 --- !u!1 &8084384703228284361
 GameObject:
   m_ObjectHideFlags: 0

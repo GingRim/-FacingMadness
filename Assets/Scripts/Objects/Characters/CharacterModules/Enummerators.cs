@@ -118,3 +118,10 @@ public enum CriticalType
 {
     None, Critical, GreatCritical, _Length
 }
+/// <summary>
+/// 마법 카드 타입 1.금지 2.공격 3.방어 4.버프
+/// </summary>
+public enum MagicCardType
+{
+    None, Forbidden, Attack, Defense, Buff, _Length
+}

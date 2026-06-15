@@ -10,14 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9858d2e9e5cc0c049aa504bf5f5b25f7, type: 3}
-  m_Name: BCard
+  m_Name: ForbiddenMagicCard
   m_EditorClassIdentifier: Assembly-CSharp::CardData
-  cardName: "\uCCAD\uC0C9 \uCE74\uB4DC"
-  color: 4
-  isOneUse: 0
-  magicCardType: 0
+  cardName: "\uAE08\uC9C0\uB41C \uC8FC\uC220"
+  color: 5
+  isOneUse: 1
+  magicCardType: 1
   forbiddenMagicCard: {fileID: 0}
   attackMagicCard: {fileID: 0}
   defenseMagicCard: {fileID: 0}
   buffMagicCard: {fileID: 0}
-  description: 
+  description: "1D10 \uB9CC\uD07C \uC885\uC5B8 \uBD80\uC5EC"

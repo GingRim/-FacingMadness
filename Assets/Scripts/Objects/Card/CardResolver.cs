@@ -295,11 +295,19 @@ public class CardResolver
                 Debug.Log($"임시 장갑 획득: {armor} / 크리티컬:{result.criticalType}");
 
                 // 나중에 ArmorModule / EffectModule 생기면 여기서 적용
-                // ArmorModule armorModule = user.GetModule<ArmorModule>();
-                // armorModule.AddTemporaryArmor(armor);
-                // 1 ~ 2~9 ~10
+                 ArmorModule armorModule = user.GetModule<ArmorModule>();
 
-                break;
+                    if (armorModule == null)
+                    {
+                        Debug.Log("임시 장갑 실패: ArmorModule 없음");
+                        return;
+                    }
+
+                    armorModule.AddTemporaryArmor(armor);
+
+                    Debug.Log($"임시 장갑 {armor} 획득");
+
+                    break;
             }
         }
     }
@@ -311,61 +319,98 @@ public class CardResolver
     /// </summary>
     private void ResolveBlue(CardData card, CharacterBase user, CharacterBase target, CardUseCost useCost)
     {
-        DerivedStatModule derived = user.GetModule<DerivedStatModule>();
+        DerivedStatModule derived =
+            user.GetModule<DerivedStatModule>();
+
+        LVModules lv =
+            user.GetModule<LVModules>();
+
+        if (derived == null || lv == null)
+            return;
+
         switch (useCost)
         {
             case CardUseCost.Action:
-
-                if (target == null)
-                    return;
-
-                int damage = Dice.RollD10();
-
-                DamageStruct damageInfo = new DamageStruct
                 {
-                    from = user.gameObject,
-                    instigator = user.Controller,
-                    damageAmount = damage,
-                    critical = false,
-                    damageType = DamageType.Long_range_combat
-                };
+                    if (target == null)
+                        return;
 
-                CombatModule combat =
-                    target.GetModule<CombatModule>();
+                    DiceResult result =
+                        Dice.RollD10WithCritical(
+                            derived.GetIntelligenceModifier(),
+                            lv.Level
+                        );
 
-                if (combat == null)
-                    return;
+                    int damage = result.diceValue;
 
-                combat.OnHit(damageInfo);
+                    if (result.criticalType == CriticalType.Critical)
+                    {
+                        damage += derived.GetIntelligenceModifier();
+                    }
+                    else if (result.criticalType == CriticalType.GreatCritical)
+                    {
+                        damage += derived.GetIntelligenceModifier();
+                        damage += Dice.RollD10();
+                    }
 
-                break;
+                    DamageStruct damageInfo =
+                        new DamageStruct
+                        {
+                            from = user.gameObject,
+                            instigator = user.Controller,
+                            damageAmount = damage,
+                            critical = result.criticalType != CriticalType.None,
+                            damageType = DamageType.Long_range_combat
+                        };
+
+                    CombatModule combat =
+                        target.GetModule<CombatModule>();
+
+                    if (combat == null)
+                        return;
+
+                    combat.OnHit(damageInfo);
+
+                    Debug.Log(
+                        $"청색 피해: {damage} / 크리티컬:{result.criticalType}");
+
+                    break;
+                }
 
             case CardUseCost.Auxiliary:
-
-                int result = Dice.RollD10();
-
-                if (result % 2 == 0)
                 {
-                    Debug.Log("청색 효과 : 2 드로우");
+                    int roll = Dice.RollD10();
 
-                    DeckModule deck =
-                        user.GetModule<DeckModule>();
-
-                    if (deck != null)
+                    if (roll % 2 == 0)
                     {
-                        deck.Draw();
-                        deck.Draw();
+                        DeckModule deck =
+                            user.GetModule<DeckModule>();
+
+                        if (deck != null)
+                        {
+                            deck.Draw();
+                            deck.Draw();
+                        }
+
+                        Debug.Log("청색 보조: 2 드로우");
                     }
-                }
-                else
-                {
-                    Debug.Log("청색 효과 : 집중 획득");
+                    else
+                    {
+                        Debug.Log("청색 보조: 집중 획득");
 
-                    // 나중에 집중 시스템 추가 예정
-                    // EffectModule.Add(Concentration)
-                }
+                        MotivationModule motivation = user.GetModule<MotivationModule>();
 
-                break;
+                        if (motivation == null)
+                        {
+                            Debug.Log("의욕 부여 실패: MotivationModule 없음");
+                            return;
+                        }
+
+                        motivation.AddMotivation(1);
+                    }
+
+                    break;
+                }
         }
     }
 
@@ -374,44 +419,63 @@ public class CardResolver
     /// 행동 + 보조 행동 코스트를 사용하는 마법 카드 계열.
     /// 현재는 1D6으로 마법군만 결정한다.
     /// </summary>
+    /// <summary>
+    /// 자색 카드 효과.
+    /// 행동 + 보조 행동 코스트를 사용한다.
+    /// 크리티컬 없음.
+    /// 1D10 결과에 따라 마법 카드를 생성해 핸드에 추가한다.
+    /// </summary>
     private void ResolvePurple(CardData card, CharacterBase user, CharacterBase target, CardUseCost useCost)
     {
+
         if (useCost != CardUseCost.ActionAndAuxiliary)
         {
-            Debug.Log("자색 카드는 행동 + 보조 행동 코스트가 필요합니다.");
             return;
         }
 
-        int magicType = Dice.RollD6();
 
-        switch (magicType)
+        DeckModule deck = GetDeckModule(user);
+
+        if (deck == null)
         {
-            case 1:
-                Debug.Log("자색 카드: 룬 마법 생성");
-                break;
-
-            case 2:
-                Debug.Log("자색 카드: 원소 마법 생성");
-                break;
-
-            case 3:
-                Debug.Log("자색 카드: 소환술 생성");
-                break;
-
-            case 4:
-                Debug.Log("자색 카드: 연금술 생성");
-                break;
-
-            case 5:
-                Debug.Log("자색 카드: 주문 생성");
-                break;
-
-            case 6:
-                Debug.Log("자색 카드: 금지된 주술 생성");
-                break;
+            return;
         }
+
+        int result = Dice.RollD10();
+
+        CardData generatedCard = null;
+
+        if (result == 1)
+        {
+            generatedCard = card.forbiddenMagicCard;
+        }
+        else if (result >= 2 && result <= 4)
+        {
+            generatedCard = card.attackMagicCard;
+        }
+        else if (result >= 5 && result <= 7)
+        {
+            generatedCard = card.defenseMagicCard;
+        }
+        else if (result >= 8 && result <= 10)
+        {
+            generatedCard = card.buffMagicCard;
+        }
+
+        if (generatedCard == null)
+        {
+            Debug.Log(
+                $"자색 카드 생성 실패: 결과 {result}에 해당하는 마법 카드가 {card.cardName}에 연결되지 않았습니다.");
+            return;
+        }
+
+        deck.AddCardToDeckAndShuffle(generatedCard);
+
+        Debug.Log(
+            $"자색 카드 결과: {result} / {generatedCard.cardName} 덱에 생성 후 셔플");
+    
     }
-   
+
     /// <summary>
     /// 무색 카드 효과.
     /// 행동 전용 다이스 만큼 대미지
@@ -423,40 +487,93 @@ public class CardResolver
     /// <param name="useCost"></param>
     private void ResolveColorless(CardData card, CharacterBase user, CharacterBase target, CardUseCost useCost)
     {
-        int value = RollColorlessDice(user);
-        DerivedStatModule derived = user.GetModule<DerivedStatModule>();
+        LVModules lv =
+            user.GetModule<LVModules>();
+
+        if (lv == null)
+            return;
+
+        // 무색은 보정치 없이 크리티컬 판정
+        DiceResult criticalResult =
+            Dice.RollD10WithCritical(0, lv.Level);
+
         switch (useCost)
         {
             case CardUseCost.Action:
-
-                if (target == null)
-                    return;
-
-                DamageStruct damageInfo = new DamageStruct
                 {
-                    from = user.gameObject,
-                    instigator = user.Controller,
-                    damageAmount = value,
-                    critical = false,
-                    damageType = DamageType.Hand_to_hand_combat
-                };
+                    if (target == null)
+                        return;
 
-                target.GetModule<CombatModule>()?.OnHit(damageInfo);
+                    int damage = RollColorlessDice(user);
 
-                break;
+                    if (criticalResult.criticalType == CriticalType.Critical)
+                    {
+                        damage = RollColorlessDice(user) + RollColorlessDice(user);
+                    }
+                    else if (criticalResult.criticalType == CriticalType.GreatCritical)
+                    {
+                        damage = Dice.RollD10() + Dice.RollD10();
+
+                    }
+
+                    DamageStruct damageInfo =
+                        new DamageStruct
+                        {
+                            from = user.gameObject,
+                            instigator = user.Controller,
+                            damageAmount = damage,
+                            critical = criticalResult.criticalType != CriticalType.None,
+                            damageType = DamageType.Hand_to_hand_combat
+                        };
+
+                    CombatModule combat =
+                        target.GetModule<CombatModule>();
+
+                    if (combat == null)
+                        return;
+
+                    combat.OnHit(damageInfo);
+
+                    Debug.Log(
+                        $"무색 카드 피해: {damage} / 크리티컬: {criticalResult.criticalType}");
+
+                    break;
+                }
 
             case CardUseCost.Auxiliary:
-
-                RestoreStruct restoreInfo = new RestoreStruct
                 {
-                    from = user.gameObject,
-                    instigator = user.Controller,
-                    restoreAmount = value
-                };
+                    int restore = RollColorlessDice(user);
 
-                user.GetModule<CombatModule>()?.OnRestore(restoreInfo);
+                    if (criticalResult.criticalType == CriticalType.Critical)
+                    {
+                        restore = RollColorlessDice(user) + RollColorlessDice(user);
+                    }
+                    else if (criticalResult.criticalType == CriticalType.GreatCritical)
+                    {
+                        restore = Dice.RollD10() + Dice.RollD10() + 5;
+                    }
 
-                break;
+                    RestoreStruct restoreInfo =
+                        new RestoreStruct
+                        {
+                            from = user.gameObject,
+                            instigator = user.Controller,
+                            restoreAmount = restore
+                        };
+
+                    CombatModule combat =
+                        user.GetModule<CombatModule>();
+
+                    if (combat == null)
+                        return;
+
+                    combat.OnRestore(restoreInfo);
+
+                    Debug.Log(
+                        $"무색 카드 회복: {restore} / 크리티컬: {criticalResult.criticalType}");
+
+                    break;
+                }
         }
     }
 
@@ -515,7 +632,13 @@ public class CardResolver
         // 코스트 지불 시도
         if (!TryPayCost(user, useCost))
             return false;
-        
+
+        if (card.magicCardType != MagicCardType.None)
+        {
+            ResolveMagicCard(card, user, target, useCost);
+            return true;
+        }
+
         // 카드 색상에 따라 효과 실행
         switch (card.color)
         {
@@ -558,6 +681,280 @@ public class CardResolver
 
         return true;
     }
+   
+    /// <summary>
+    /// 마법 카드 처리 함수
+    /// </summary>
+    /// <param name="card"></param>
+    /// <param name="user"></param>
+    /// <param name="target"></param>
+    /// <param name="useCost"></param>
+    private void ResolveMagicCard(CardData card, CharacterBase user, CharacterBase target, CardUseCost useCost)
+    {
+        if (!TryPayMagicCost(user, card.magicCardType))
+        {
+            Debug.Log("마법 카드 사용 실패: 생명력 코스트 지불 불가");
+            return;
+        }
 
+        switch (card.magicCardType)
+        {
+            case MagicCardType.Forbidden:
+                ResolveForbiddenMagic(card, user, target, useCost);
+                break;
+
+            case MagicCardType.Attack:
+                ResolveAttackMagic(card, user, target, useCost);
+                break;
+
+            case MagicCardType.Defense:
+                ResolveDefenseMagic(card, user, target, useCost);
+                break;
+
+            case MagicCardType.Buff:
+                ResolveBuffMagic(card, user, target, useCost);
+                break;
+        }
+    }
+
+    /// <summary>
+    /// 금지된 마법 카드.
+    /// 크리티컬 없음.
+    /// 현재는 종언 주사위 결과만 처리.
+    /// </summary>
+    private void ResolveForbiddenMagic(CardData card, CharacterBase user, CharacterBase target, CardUseCost useCost)
+    {
+        if (target == null)
+        {
+            Debug.Log("금지된 마법 실패: 대상 없음");
+            return;
+        }
+
+        int result = RollD10();
+
+        if (result == 0)
+        {
+            Debug.Log("금지된 마법: 즉사 결과");
+
+            DamageStruct damageInfo = new DamageStruct
+            {
+                from = user.gameObject,
+                instigator = user.Controller,
+                damageAmount = 999999,
+                critical = false,
+                damageType = DamageType.Magic
+            };
+
+            CombatModule combat = target.GetModule<CombatModule>();
+
+            if (combat == null)
+                return;
+
+            combat.OnHit(damageInfo);
+
+            return;
+        }
+
+        Debug.Log($"금지된 마법: 종언 {result} 부여");
+
+        // 나중에 EffectModule 생기면 여기서 처리
+        // EffectModule effect = target.GetModule<EffectModule>();
+        // effect.AddStack(EffectType.Doom, result);
+    }
+
+    /// <summary>
+    /// 공격 마법 카드.
+    /// 행동 코스트로 사용.
+    /// 마법 코스트는 ResolveMagicCard에서 먼저 처리한다.
+    /// 대상에게 마법 피해를 준다.
+    /// </summary>
+    private void ResolveAttackMagic(CardData card, CharacterBase user, CharacterBase target, CardUseCost useCost)
+    {
+        if (useCost != CardUseCost.ActionAndAuxiliary)
+        {
+            Debug.Log("공격 마법은 행동 코스트로만 사용할 수 있습니다.");
+            return;
+        }
+
+        if (target == null)
+        {
+            Debug.Log("공격 마법 실패: 대상 없음");
+            return;
+        }
+
+        int damage = 10 + Dice.RollD10();
+
+        DamageStruct damageInfo = new DamageStruct
+        {
+            from = user.gameObject,
+            instigator = user.Controller,
+            damageAmount = damage,
+            critical = false,
+            damageType = DamageType.Magic
+        };
+
+        CombatModule combat = target.GetModule<CombatModule>();
+
+        if (combat == null)
+        {
+            Debug.Log("공격 마법 실패: 대상에게 CombatModule이 없습니다.");
+            return;
+        }
+
+        combat.OnHit(damageInfo);
+
+        Debug.Log($"공격 마법 피해: {damage}");
+    }
+
+    /// <summary>
+    /// 방어 마법 카드.
+    /// 행동 코스트로 사용.
+    /// 마법 코스트는 ResolveMagicCard에서 먼저 처리한다.
+    /// 사용자에게 보호막을 부여한다.
+    /// </summary>
+    private void ResolveDefenseMagic(CardData card, CharacterBase user, CharacterBase target, CardUseCost useCost)
+    {
+        if (useCost != CardUseCost.ActionAndAuxiliary)
+        {
+            Debug.Log("방어 마법은 행동 코스트로만 사용할 수 있습니다.");
+            return;
+        }
+
+        int shieldAmount = 10 + Dice.RollD10();
+
+        // 보호막/임시 장갑 시스템이 아직 없다면 일단 로그만 처리
+        Debug.Log($"방어 마법: 보호막 {shieldAmount} 획득");
+
+        // 나중에 보호막 모듈이 생기면 이런 식으로 연결
+        // StatusEffectModule status = user.GetModule<StatusEffectModule>();
+        // if (status == null)
+        // {
+        //     Debug.Log("방어 마법 실패: StatusEffectModule 없음");
+        //     return;
+        // }
+        // status.AddShield(shieldAmount);
+    }
+
+    /// <summary>
+    /// 버프 마법 카드.
+    /// 행동 코스트로 사용.
+    /// 마법 코스트는 ResolveMagicCard에서 먼저 처리한다.
+    /// 아군 전체에게 축복/의지를 부여한다.
+    /// </summary>
+    private void ResolveBuffMagic(CardData card, CharacterBase user, CharacterBase target, CardUseCost useCost)
+    {
+        if (useCost != CardUseCost.ActionAndAuxiliary)
+        {
+            Debug.Log("버프 마법은 행동 코스트로만 사용할 수 있습니다.");
+            return;
+        }
+
+        Debug.Log("버프 마법 사용: 아군 전체에게 축복/의지 부여");
+
+        // 아직 상태이상 모듈이나 아군 목록 관리가 없으면 여기까지만 처리.
+        // 나중에 팀/상태이상 구조가 생기면 아래처럼 연결.
+
+        /*
+        List<CharacterBase> allies =
+            BattleManager.Instance.GetAllies(user.Controller.Team);
+
+        foreach (CharacterBase ally in allies)
+        {
+            if (ally == null)
+                continue;
+
+            StatusEffectModule status =
+                ally.GetModule<StatusEffectModule>();
+
+            if (status == null)
+                continue;
+
+            status.AddStatus(StatusEffectType.Blessing, 1);
+            status.AddStatus(StatusEffectType.Will, 1);
+        }
+        */
+    }
+
+    /// <summary>
+    /// 마법 카드 공통 코스트.
+    /// 일반 마법: 정신력 1D10 감소
+    /// 금지된 마법: 정신력 10 + 1D10 감소
+    /// </summary>
+    private bool TryPayMagicCost(CharacterBase user, MagicCardType magicCardType)
+    {
+        if (user == null)
+            return false;
+
+        CombatModule combat = user.GetModule<CombatModule>();
+
+        if (combat == null)
+            return false;
+
+        int hpCost = Dice.RollD10();
+
+        if (magicCardType == MagicCardType.Forbidden)
+        {
+            hpCost += 10;
+        }
+
+        DamageStruct costDamage = new DamageStruct
+        {
+            from = user.gameObject,
+            instigator = user.Controller,
+            damageAmount = hpCost,
+            critical = false,
+            damageType = DamageType.Magic
+        };
+
+        combat.OnHit(costDamage);
+
+        Debug.Log($"마법 코스트: 생명력 {hpCost} 감소");
+
+        return true;
+
+    }
+
+
+    /// <summary>
+    /// 플레이어 덱 찾기
+    /// </summary>
+    /// <param name="user"></param>
+    /// <returns></returns>
+    private DeckModule GetDeckModule(CharacterBase user)
+    {
+        if (user == null)
+            return null;
+
+        DeckModule deck = user.GetModule<DeckModule>();
+
+        if (deck != null)
+            return deck;
+
+        ControllerBase controller = user.Controller;
+
+        if (controller == null)
+        {
+            Debug.LogWarning($"{user.name}에 Controller가 없습니다.");
+            return null;
+        }
+
+        CharacterBase owner = controller.GetComponent<CharacterBase>();
+
+        if (owner == null)
+        {
+            Debug.LogWarning($"{controller.name}에 CharacterBase가 없습니다.");
+            return null;
+        }
+
+        deck = owner.GetModule<DeckModule>();
+
+        if (deck == null)
+        {
+            Debug.LogWarning($"{owner.name}에 DeckModule이 없습니다.");
+            return null;
+        }
+
+        return deck;
+    }
 }
 

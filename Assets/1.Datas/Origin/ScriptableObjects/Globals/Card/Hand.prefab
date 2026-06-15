@@ -113,8 +113,8 @@ MonoBehaviour:
   m_StartAxis: 0
   m_CellSize: {x: 200, y: 300}
   m_Spacing: {x: 0, y: 0}
-  m_Constraint: 0
-  m_ConstraintCount: 2
+  m_Constraint: 1
+  m_ConstraintCount: 9
 --- !u!114 &5725116783906335091
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -127,5 +127,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b82c559bd7cb2a646bcb333df7219b45, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CardCrkClick
-  useSelectUI: {fileID: 4364133400101424215, guid: 4cce998780d0bc945a414d9d97f4348f, type: 3}
-  fixedTarget: {fileID: 166239877226498500, guid: 14491716c8dffe14abc134d0d016a970, type: 3}
