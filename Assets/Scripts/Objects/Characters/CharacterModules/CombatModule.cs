@@ -17,18 +17,24 @@ public class CombatModule : CharacterModule
 
     public void OnHit(DamageStruct damageInfo)
     {
-        ArmorModule armor = GetComponent<ArmorModule>();
-
         int finalDamage = damageInfo.damageAmount;
+
+        ArmorModule armor = GetComponent<ArmorModule>();
 
         if (armor != null)
         {
-         finalDamage = armor.GetReducedDamage(damageInfo.damageAmount, damageInfo.damageType);
+            finalDamage = armor.GetReducedDamage(finalDamage, damageInfo.damageType);
+        }
+
+        StatusEffectModule status = GetComponent<StatusEffectModule>();
+
+        if (status != null)
+        {
+            finalDamage = status.ReduceDamageByStatus(finalDamage, damageInfo.damageType);
         }
 
         damageInfo.damageAmount = finalDamage;
 
-        // 기존 생명력 감소 처리
         hp.TakeDamage(damageInfo);
 
         Debug.Log($"최종 피해: {damageInfo.damageAmount}");

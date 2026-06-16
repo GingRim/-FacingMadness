@@ -185,42 +185,44 @@ public class CardResolver
                 {
                     damage += Dice.RollD10() + Dice.RollD10() + Dice.RollD6() + Dice.RollD6();
                 }
-
+                DamageStruct damageInfo = new DamageStruct
+                {
+                    from = user.gameObject,
+                    instigator = user.Controller,
+                    damageAmount = damage,
+                    critical = criticalType != CriticalType.None,
+                    damageType = DamageType.Hand_to_hand_combat
+                };
+        
+                CombatModule combat = target.GetModule<CombatModule>();
+        
+                if (combat == null)
+                    return;
+        
+                combat.OnHit(damageInfo);
+        
+                Debug.Log($"황색 카드 피해: {damage} / 크리티컬: {criticalType}");
                 break;
             }
 
 
             case CardUseCost.Auxiliary:
             {
-                int hasteStack = Dice.RollD4();
+                    StatusEffectModule status = user.GetModule<StatusEffectModule>();
 
-                Debug.Log($"가속 {hasteStack} 스택 획득");
+                    if (status == null)
+                    {
+                        Debug.Log("상태 이상 모듈 없음");
+                        return;
+                    }
 
-                // 나중에 EffectModule 생기면 여기서 적용
-                // EffectModule effect = user.GetModule<EffectModule>();
-                // effect.AddStack(EffectType.Haste, hasteStack);
+                    status.AddStatus(StatusEffectType.Haste, Dice.RollD4());
 
-                break;
+                    break;
             }
         }
         
-        DamageStruct damageInfo = new DamageStruct
-        {
-            from = user.gameObject,
-            instigator = user.Controller,
-            damageAmount = damage,
-            critical = criticalType != CriticalType.None,
-            damageType = DamageType.Hand_to_hand_combat
-        };
-
-        CombatModule combat = target.GetModule<CombatModule>();
-
-        if (combat == null)
-            return;
-
-        combat.OnHit(damageInfo);
-
-        Debug.Log($"황색 카드 피해: {damage} / 크리티컬: {criticalType}");
+        
 
 
     }
@@ -396,17 +398,15 @@ public class CardResolver
                     }
                     else
                     {
-                        Debug.Log("청색 보조: 집중 획득");
+                        StatusEffectModule status = user.GetModule<StatusEffectModule>();
 
-                        MotivationModule motivation = user.GetModule<MotivationModule>();
-
-                        if (motivation == null)
+                        if (status == null)
                         {
-                            Debug.Log("의욕 부여 실패: MotivationModule 없음");
+                            Debug.Log("의욕 부여 실패: StatusEffectModule 없음");
                             return;
                         }
 
-                        motivation.AddMotivation(1);
+                        status.AddStatus(StatusEffectType.Motivation, 1);
                     }
 
                     break;
@@ -851,28 +851,20 @@ public class CardResolver
 
         Debug.Log("버프 마법 사용: 아군 전체에게 축복/의지 부여");
 
-        // 아직 상태이상 모듈이나 아군 목록 관리가 없으면 여기까지만 처리.
-        // 나중에 팀/상태이상 구조가 생기면 아래처럼 연결.
 
-        /*
-        List<CharacterBase> allies =
-            BattleManager.Instance.GetAllies(user.Controller.Team);
 
-        foreach (CharacterBase ally in allies)
+        StatusEffectModule status = user.GetModule<StatusEffectModule>();
+        
+
+        if (status == null)
         {
-            if (ally == null)
-                continue;
-
-            StatusEffectModule status =
-                ally.GetModule<StatusEffectModule>();
-
-            if (status == null)
-                continue;
-
-            status.AddStatus(StatusEffectType.Blessing, 1);
-            status.AddStatus(StatusEffectType.Will, 1);
+            Debug.Log("축복 및 의지 부여 실패: StatusEffectModule 없음");
+            return;
         }
-        */
+
+        status.AddStatus(StatusEffectType.Blessing, 1);
+        status.AddStatus(StatusEffectType.Motivation, 1);
+
     }
 
     /// <summary>

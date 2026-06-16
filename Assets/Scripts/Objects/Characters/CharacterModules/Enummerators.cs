@@ -1,3 +1,4 @@
+using NUnit.Framework.Constraints;
 using UnityEngine;
 
 public enum UIType
@@ -125,3 +126,10 @@ public enum MagicCardType
 {
     None, Forbidden, Attack, Defense, Buff, _Length
 }
+
+public enum StatusEffectType
+{
+    None, Haste, Bind, Motivation, Lethargy, Blessing, Curse, Vulnerable, Stun, _Length
+}
+
+

@@ -18,7 +18,10 @@ public class DerivedStatModule : CharacterModule
         LV = owner.GetModule<LVModules>();
     }
 
-    // 최대 체력 = 기본값 + (건강 * 5 + 레벨 * 15)
+    /// <summary>
+    /// 최대 체력 = 기본값 + (건강 * 5 + 레벨 * 15)
+    /// </summary>
+    /// <returns></returns>
     public int GetMaxHP()
     {
         if (stat == null)
@@ -37,7 +40,10 @@ public class DerivedStatModule : CharacterModule
         return 20 + (health * 5) + (level * 15);
     }
 
-    // 최대 정신력 = 기본값 + (의지 * 5 + 레벨 * 15)
+    /// <summary>
+    /// 최대 정신력 = 기본값 + (의지 * 5 + 레벨 * 15)
+    /// </summary>
+    /// <returns></returns>
     public int GetMaxSanity()
     {
         if (stat == null)
@@ -54,50 +60,89 @@ public class DerivedStatModule : CharacterModule
         return 20 + (will * 5) + (level * 15);
     }
 
-    // 가드 피해 감소 = 1D10 + 근력 보정 + 근력 3당 추가 보정
+    /// <summary>
+    /// 가드 피해 감소 = 1D10 + 근력 보정 + 근력 3당 추가 보정
+    /// </summary>
+    /// <returns></returns>
     public int GetGuardBonus()
     {
         return stat.GetModifier(StatType.Strength)
              + stat.GetStat(StatType.Strength) / 3;
     }
 
-    // 회피 판정 보정
+    /// <summary>
+    /// 회피 판정 보정
+    /// </summary>
+    /// <returns></returns>
     public int GetEvadeBonus()
     {
         return stat.GetStat(StatType.Agility);
     }
 
-    // 반격 보정 = 건강 보정
+    /// <summary>
+    /// 반격 보정 = 건강 보정
+    /// </summary>
+    /// <returns></returns>
     public int GetCounterBonus()
     {
         return stat.GetModifier(StatType.Health);
     }
 
-    // 우선권
+    /// <summary>
+    /// 우선권
+    /// </summary>
+    /// <param name="level"></param>
+    /// <param name="handSize"></param>
+    /// <returns></returns>
     public int GetInitiative(int level, int handSize)
     {
         int agility = stat.GetStat(StatType.Agility);
-        return ((level * 5) + (agility * 5 + 5)) - handSize;
+
+        int initiative = ((level * 5) + (agility * 5 + 5)) - handSize;
+
+        StatusEffectModule status = Owner.GetModule<StatusEffectModule>();
+
+        if (status != null)
+        {
+            initiative += status.GetInitiativeBonus();
+        }
+
+
+        return initiative;
     }
 
-    // 이동 거리 증가 = 민첩 3당 +1
+    /// <summary>
+    /// 이동 거리 증가 = 민첩 3당 +1
+    /// </summary>
+    /// <returns></returns>
     public int GetMoveBonus()
     {
         return stat.GetStat(StatType.Agility) / 3;
     }
 
-    // 대응 코스트 증가 = 민첩 3당 +1
+    /// <summary>
+    /// 대응 코스트 증가 = 민첩 3당 +1
+    /// </summary>
+    /// <returns></returns>
     public int GetReactionCostBonus()
     {
         return stat.GetStat(StatType.Agility) / 3;
     }
 
-    // 행동 코스트 증가 = 건강 3당 +1
+    /// <summary>
+    /// 행동 코스트 증가 = 건강 3당 +1
+    /// </summary>
+    /// <returns></returns>
     public int GetActionCostBonus()
     {
         return stat.GetStat(StatType.Health) / 3;
     }
-
+    
+    
+    /// <summary>
+    /// LV별 최대 코스트 증가
+    /// </summary>
+    /// <returns></returns>
     public int GetDefaultCost()
     {
         if (LV.Level >= 10)
@@ -134,37 +179,65 @@ public class DerivedStatModule : CharacterModule
         return 1 + GetDefaultCost() + GetReactionCostBonus();
     }
 
-    // 보조 행동 코스트 증가 = 지능 3당 +1
+    /// <summary>
+    /// 보조 행동 코스트 증가 = 지능 3당 +1
+    /// </summary>
+    /// <returns></returns>
     public int GetAuxiliaryCostBonus()
     {
         return stat.GetStat(StatType.Intelligence) / 3;
     }
 
-    // 최대 핸드 = 지능
+    /// <summary>
+    /// 최대 핸드 = 지능
+    /// </summary>
+    /// <returns></returns>
     public int GetMaxHand()
     {
         return stat.GetStat(StatType.Intelligence);
     }
 
-    // 드로우 증가 = 지능 3당 +1
+    /// <summary>
+    /// 드로우 증가 = 지능 3당 +1
+    /// </summary>
+    /// <returns></returns>
     public int GetDrawBonus()
     {
         return stat.GetStat(StatType.Intelligence) / 3;
     }
 
-    // 광기 지속 턴 = 1 + (10 - 의지)
+    /// <summary>
+    /// 광기 지속 턴 = 1 + (10 - 의지)
+    /// </summary>
+    /// <returns></returns>
     public int GetMadnessDuration()
     {
         return 1 + (10 - stat.GetStat(StatType.Will));
     }
 
-    // 최대 유물 수 = 의지
+    /// <summary>
+    ///최대 아이템 보유 수 = 근력 
+    /// </summary>
+    /// <returns></returns>
+    public int GetMaxItem()
+    {
+        return stat.GetStat(StatType.Strength);
+    }
+
+    /// <summary>
+    /// 최대 유물 수 = 의지
+    /// </summary>
+    /// <returns></returns>
     public int GetMaxRelicCount()
     {
         return stat.GetStat(StatType.Will);
     }
 
-    // 카드 색상별 최대 수
+    /// <summary>
+    /// 카드 색상별 최대 수
+    /// </summary>
+    /// <param name="color"></param>
+    /// <returns></returns>
     public int GetMaxCardCount(CardColorType color)
     {
         switch (color)

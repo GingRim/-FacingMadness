@@ -19,7 +19,7 @@ GameObject:
   - component: {fileID: -6330325450748760534}
   - component: {fileID: 2182570076450900385}
   - component: {fileID: 6431412654786922983}
-  - component: {fileID: 3300121004978637577}
+  - component: {fileID: 2565061661021932827}
   m_Layer: 0
   m_Name: Pawn
   m_TagString: Untagged
@@ -215,7 +215,7 @@ MonoBehaviour:
   _owner: {fileID: 166239877226498500}
   baseArmor: 0
   temporaryArmor: 0
---- !u!114 &3300121004978637577
+--- !u!114 &2565061661021932827
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -224,11 +224,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 3023755181494899158}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 49b6f46e0fbdb584da225a61a2d1d7b2, type: 3}
+  m_Script: {fileID: 11500000, guid: 57a59c9b68835484087d59c01c74f366, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MotivationModule
+  m_EditorClassIdentifier: Assembly-CSharp::StatusEffectModule
   _owner: {fileID: 166239877226498500}
-  stack: 0
+  stacks: 000000000000000000000000000000000000000000000000000000000000000000000000
 --- !u!1 &8084384703228284361
 GameObject:
   m_ObjectHideFlags: 0

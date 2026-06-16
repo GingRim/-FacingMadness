@@ -1,13 +1,12 @@
 using UnityEngine;
 
-public class MotivationModule : CharacterModule
+public class Motivation : StatusEffectHandler
 {
-    public sealed override System.Type RegistrationType
-        => typeof(MotivationModule);
+    public override StatusEffectType Type => StatusEffectType.Motivation;
+    public override int MaxStack => 5;
 
     [SerializeField] private int stack;
 
-    private const int MaxStack = 5;
     private const int BonusPerStack = 2;
 
     public int Stack => stack;
