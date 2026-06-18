@@ -2,11 +2,14 @@ using UnityEngine;
 
 public class StatModules : CharacterModule
 {
-    [SerializeField]
-    private int[] stats;
+    [SerializeField] private StatType designatedStatType;
 
-    public sealed override System.Type RegistrationType
-        => typeof(StatModules);
+    public StatType DesignatedStatType => designatedStatType;
+
+
+    [SerializeField] private int[] stats;
+
+    public sealed override System.Type RegistrationType => typeof(StatModules);
 
     private void Awake()
     {
@@ -63,4 +66,12 @@ public class StatModules : CharacterModule
 
         return Mathf.FloorToInt(stat / 2.0f);
     }
+
+
+    public StatType GetDesignatedStatType()
+    {
+        return designatedStatType;
+    }
+
+
 }

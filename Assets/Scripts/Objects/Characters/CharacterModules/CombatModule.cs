@@ -19,6 +19,20 @@ public class CombatModule : CharacterModule
     {
         int finalDamage = damageInfo.damageAmount;
 
+        // 1. 공격자 상태 효과: 의욕 / 무기력 등
+        if (damageInfo.from != null)
+        {
+            CharacterBase attacker = damageInfo.from.GetComponent<CharacterBase>();
+
+            StatusEffectModule attackerStatus = attacker != null ? attacker.GetModule<StatusEffectModule>() : null;
+
+            if (attackerStatus != null)
+            {
+                finalDamage = attackerStatus.ModifyOutgoingDamage(finalDamage);
+            }
+        }
+
+        // 2. 방어자 장갑
         ArmorModule armor = GetComponent<ArmorModule>();
 
         if (armor != null)
@@ -26,12 +40,15 @@ public class CombatModule : CharacterModule
             finalDamage = armor.GetReducedDamage(finalDamage, damageInfo.damageType);
         }
 
-        StatusEffectModule status = GetComponent<StatusEffectModule>();
+        // 3. 방어자 상태 효과: 가속 피해 감소, 취약 피해 증가 등
+        StatusEffectModule defenderStatus = GetComponent<StatusEffectModule>();
 
-        if (status != null)
+        if (defenderStatus != null)
         {
-            finalDamage = status.ReduceDamageByStatus(finalDamage, damageInfo.damageType);
+            finalDamage = defenderStatus.ModifyIncomingDamage(finalDamage, damageInfo.damageType);
         }
+
+        finalDamage = Mathf.Max(0, finalDamage);
 
         damageInfo.damageAmount = finalDamage;
 

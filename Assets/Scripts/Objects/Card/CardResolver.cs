@@ -216,7 +216,7 @@ public class CardResolver
                         return;
                     }
 
-                    status.AddStatus(StatusEffectType.Haste, Dice.RollD4());
+                    status.AddStatus(StatusEffectType.Haste, RollD4());
 
                     break;
             }
@@ -675,7 +675,7 @@ public class CardResolver
 
             // 검은색 카드
             case CardColorType.Black:
-                //ResolveBlack(card, user, target, useCost);
+                ResolveBlack(card, user, target, useCost);
                 break;
         }
 
@@ -730,36 +730,20 @@ public class CardResolver
             return;
         }
 
-        int result = RollD10();
+        StatusEffectModule status =
+            target.GetModule<StatusEffectModule>();
 
-        if (result == 0)
+        if (status == null)
         {
-            Debug.Log("금지된 마법: 즉사 결과");
-
-            DamageStruct damageInfo = new DamageStruct
-            {
-                from = user.gameObject,
-                instigator = user.Controller,
-                damageAmount = 999999,
-                critical = false,
-                damageType = DamageType.Magic
-            };
-
-            CombatModule combat = target.GetModule<CombatModule>();
-
-            if (combat == null)
-                return;
-
-            combat.OnHit(damageInfo);
-
+            Debug.Log("금지된 마법 실패: 대상에게 StatusEffectModule 없음");
             return;
         }
 
-        Debug.Log($"금지된 마법: 종언 {result} 부여");
+        int doomValue = RollD10();
 
-        // 나중에 EffectModule 생기면 여기서 처리
-        // EffectModule effect = target.GetModule<EffectModule>();
-        // effect.AddStack(EffectType.Doom, result);
+        status.AddDoom(doomValue);
+
+        Debug.Log($"금지된 마법: 종언 {doomValue} 부여");
     }
 
     /// <summary>
@@ -948,5 +932,81 @@ public class CardResolver
 
         return deck;
     }
-}
 
+    /// <summary>
+    /// 검은 카드 효과
+    /// </summary>
+    /// <param name="card"></param>
+    /// <param name="user"></param>
+    /// <param name="target"></param>
+    /// <param name="useCost"></param>
+    private void ResolveBlack(CardData card, CharacterBase user, CharacterBase target, CardUseCost useCost)
+    {
+        if (useCost != CardUseCost.ActionAndAuxiliary)
+        {
+            Debug.Log("검은색 카드는 행동 + 보조 행동 코스트가 필요합니다.");
+            return;
+        }
+
+        StatModules stat =
+            user.GetModule<StatModules>();
+
+        if (stat == null)
+        {
+            Debug.Log("검은색 카드 실패: StatModules 없음");
+            return;
+        }
+
+        StatType designatedStatType = stat.GetDesignatedStatType();
+
+        switch (designatedStatType)
+        {
+            case StatType.Strength:
+                ResolveBlackStrength(card, user, target);
+                break;
+
+            case StatType.Agility:
+                ResolveBlackAgility(card, user, target);
+                break;
+
+            case StatType.Health:
+                ResolveBlackHealth(card, user, target);
+                break;
+
+            case StatType.Intelligence:
+                ResolveBlackIntelligence(card, user, target);
+                break;
+
+            case StatType.Will:
+                ResolveBlackWill(card, user, target);
+                break;
+        }
+    }
+
+
+    private void ResolveBlackStrength(CardData card, CharacterBase user, CharacterBase target)
+    {
+        throw new NotImplementedException();
+    }
+
+    private void ResolveBlackAgility(CardData card, CharacterBase user, CharacterBase target)
+    {
+        throw new NotImplementedException();
+    }
+
+    private void ResolveBlackHealth(CardData card, CharacterBase user, CharacterBase target)
+    {
+        throw new NotImplementedException();
+    }
+
+    private void ResolveBlackIntelligence(CardData card, CharacterBase user, CharacterBase target)
+    {
+        throw new NotImplementedException();
+    }
+
+    private void ResolveBlackWill(CardData card, CharacterBase user, CharacterBase target)
+    {
+        throw new NotImplementedException();
+    }
+
+}

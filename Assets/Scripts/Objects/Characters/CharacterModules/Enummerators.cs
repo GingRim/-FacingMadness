@@ -13,7 +13,7 @@ public enum UIType
 /// </summary>
 public enum DamageType
 {
-    None, Hand_to_hand_combat, Long_range_combat, Magic, _Length
+    None, Hand_to_hand_combat, Long_range_combat, Magic, Physical, _Length
 }
 
 
@@ -126,10 +126,12 @@ public enum MagicCardType
 {
     None, Forbidden, Attack, Defense, Buff, _Length
 }
-
+/// <summary>
+/// 상태 이상
+/// </summary>
 public enum StatusEffectType
 {
-    None, Haste, Bind, Motivation, Lethargy, Blessing, Curse, Vulnerable, Stun, _Length
+    None, Haste, Bind, Motivation, Lethargy, Blessing, Curse, Vulnerable, Stun, Doom, DrawBlock, _Length
 }
 
 

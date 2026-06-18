@@ -116,6 +116,13 @@ public class DeckModule : CharacterModule
     /// </summary>
     public CardData Draw()
     {
+        CharacterBase owner = GetComponent<CharacterBase>();
+
+        StatusEffectModule status = owner != null ? owner.GetModule<StatusEffectModule>() : null;
+
+        if (status != null && status.ConsumeDrawBlock())
+            return;
+
         // 덱이 비었다면 묘지를 섞음
         if (deck.Count == 0)
         {
@@ -407,4 +414,11 @@ public class DeckModule : CharacterModule
             Debug.Log($"덱 제한 초과: {card.cardName} → 제거");
         }
     }
+
+
+    public bool CanDraw()
+    {
+        return !HasStatus(StatusEffectType.DrawBlock);
+    }
+
 }

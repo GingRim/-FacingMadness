@@ -14,7 +14,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2565061661021932827, guid: 14491716c8dffe14abc134d0d016a970, type: 3}
       propertyPath: stacks.Array.size
-      value: 9
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 3023755181494899158, guid: 14491716c8dffe14abc134d0d016a970, type: 3}
       propertyPath: m_Name
@@ -114,9 +114,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 3023755181494899158, guid: 14491716c8dffe14abc134d0d016a970, type: 3}
       insertIndex: -1
       addedObject: {fileID: -2955705121888890390}
-    - targetCorrespondingSourceObject: {fileID: 3023755181494899158, guid: 14491716c8dffe14abc134d0d016a970, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 6290955300897737301}
   m_SourcePrefab: {fileID: 100100000, guid: 14491716c8dffe14abc134d0d016a970, type: 3}
 --- !u!114 &419033906825107805 stripped
 MonoBehaviour:
@@ -190,17 +187,3 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CostModule
   _owner: {fileID: 419033906825107805}
---- !u!114 &6290955300897737301
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3344105270311682383}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 57a59c9b68835484087d59c01c74f366, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::StatusEffectModule
-  _owner: {fileID: 419033906825107805}
-  stacks: 000000000000000000000000000000000000000000000000000000000000000000000000

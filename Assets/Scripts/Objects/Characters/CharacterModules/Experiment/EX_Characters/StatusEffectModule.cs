@@ -26,29 +26,32 @@ public class StatusEffectModule : CharacterModule
         // RegisterHandler(new BindStatus());
     }
 
+    
     private void RegisterHandler(StatusEffectHandler handler)
     {
         handler.Initialize(this);
         handlers[(int)handler.Type] = handler;
     }
 
+    
     public void AddStatus(StatusEffectType type, int value)
     {
         if (!IsValidType(type) || value <= 0)
             return;
+        
+        value = OffsetStatus(type, value);
 
-        if (TryOffset(type, ref value))
-        {
-            if(value <= 0)
+        if (value <= 0)
             return;
-        }
 
         int index = (int)type;
+        int maxStack = GetMaxStack(type);
 
-        stacks[index] = Mathf.Clamp(stacks[index] + value, 0, GetMaxStack(type));
+        stacks[index] = Mathf.Min(maxStack, stacks[index] + value);
 
-        Debug.Log($"{type} {value} 획득 / 현재 {type}: {stacks[index]}");
+        Debug.Log($"{type} {value}중첩 부여 / 현재 {stacks[index]}중첩");
     }
+
 
     public void ReduceStatus(StatusEffectType type, int value)
     {
@@ -73,6 +76,7 @@ public class StatusEffectModule : CharacterModule
         }
     }
 
+
     public void ClearStatus(StatusEffectType type)
     {
         if (!IsValidType(type))
@@ -80,6 +84,7 @@ public class StatusEffectModule : CharacterModule
 
         stacks[(int)type] = 0;
     }
+
 
     public int GetStack(StatusEffectType type)
     {
@@ -89,22 +94,19 @@ public class StatusEffectModule : CharacterModule
         return stacks[(int)type];
     }
 
+
     public int GetJudgeBonus()
     {
-        int bonus = 0;
-
         if (HasStatus(StatusEffectType.Motivation))
-        {
-            bonus += 2;
-        }
+        return 2;
+        
 
         if (HasStatus(StatusEffectType.Lethargy))
-        {
-            bonus -= 2;
-        }
+        return -2;
 
-        return bonus;
+        return 0;
     }
+
 
     public void ConsumeJudgeStatus()
     {
@@ -119,12 +121,24 @@ public class StatusEffectModule : CharacterModule
         }
     }
 
+    
     public int GetInitiativeBonus()
     {
-        int hasteStack = GetStack(StatusEffectType.Haste);
+        int bonus = 0;
 
-        return hasteStack * 5;
+        if (HasStatus(StatusEffectType.Haste))
+        {
+            bonus += GetStack(StatusEffectType.Haste) * 5;
+        }
+
+        if (HasStatus(StatusEffectType.Bind))
+        {
+            bonus -= GetStack(StatusEffectType.Bind) * 5;
+        }
+
+        return bonus;
     }
+
 
     public int ReduceDamageByStatus(int damage, DamageType damageType)
     {
@@ -145,6 +159,7 @@ public class StatusEffectModule : CharacterModule
         return finalDamage;
     }
 
+    
     private int GetMaxStack(StatusEffectType type)
     {
         switch (type)
@@ -158,11 +173,13 @@ public class StatusEffectModule : CharacterModule
                 return 5;
 
             case StatusEffectType.Vulnerable:
+            case StatusEffectType.Doom:
                 return 10;
 
             case StatusEffectType.Blessing:
             case StatusEffectType.Curse:
             case StatusEffectType.Stun:
+            case StatusEffectType.DrawBlock:
                 return 1;
 
             default:
@@ -170,37 +187,43 @@ public class StatusEffectModule : CharacterModule
         }
     }
 
+    
     private bool IsValidType(StatusEffectType type)
     {
-        return type > StatusEffectType.None &&
-               type < StatusEffectType._Length;
+        return type > StatusEffectType.None && type < StatusEffectType._Length;
     }
+    
+    
     public bool HasStatus(StatusEffectType type)
     {
-        return GetStack(type) > 0;
+        if (!IsValidType(type))
+            return false;
+
+        return stacks[(int)type] > 0;
     }
-    private bool TryOffset(StatusEffectType type, ref int value)
+
+
+    private int OffsetStatus(StatusEffectType type, int value)
     {
         StatusEffectType oppositeType = GetOppositeType(type);
 
         if (oppositeType == StatusEffectType.None)
-            return false;
+            return value;
 
         int oppositeStack = GetStack(oppositeType);
 
         if (oppositeStack <= 0)
-            return false;
+            return value;
 
         int offsetAmount = Mathf.Min(value, oppositeStack);
 
         ReduceStatus(oppositeType, offsetAmount);
 
-        value -= offsetAmount;
+        int remainValue = value - offsetAmount;
 
-        Debug.Log(
-            $"{type}이 {oppositeType}과 {offsetAmount} 상쇄됨 / 남은 {type}: {value}");
+        Debug.Log($"{type}이 {oppositeType}과 {offsetAmount} 상쇄됨 / 남은 {type}: {remainValue}");
 
-        return true;
+        return remainValue;
     }
 
     private StatusEffectType GetOppositeType(StatusEffectType type)
@@ -230,6 +253,7 @@ public class StatusEffectModule : CharacterModule
         }
     }
 
+
     public int RollJudgeDice()
     {
         bool hasBlessing = HasStatus(StatusEffectType.Blessing);
@@ -258,6 +282,129 @@ public class StatusEffectModule : CharacterModule
         }
 
         return Dice.RollD10();
+    }
+   
+    
+    /// <summary>
+    /// 의욕 및 무기력
+    /// </summary>
+    /// <param name="damage"></param>
+    /// <returns></returns>
+    public int ModifyOutgoingDamage(int damage)
+    {
+        if (HasStatus(StatusEffectType.Motivation))
+        {
+            damage += 2;
+        }
+
+        if (HasStatus(StatusEffectType.Lethargy))
+        {
+            damage -= 2;
+        }
+
+        return Mathf.Max(0, damage);
+    }
+
+    
+    public int ModifyIncomingDamage(int damage, DamageType damageType)
+    {
+        // 취약: 받는 피해 +2 / 중첩
+        if (HasStatus(StatusEffectType.Vulnerable))
+        {
+            damage += GetStack(StatusEffectType.Vulnerable) * 2;
+        }
+
+        // 가속: 2중첩당 받는 물리 피해 -2
+        if (damageType == DamageType.Physical && HasStatus(StatusEffectType.Haste))
+        {
+            int hasteStack = GetStack(StatusEffectType.Haste);
+            damage -= (hasteStack / 2) * 2;
+        }
+
+        return Mathf.Max(0, damage);
+    }
+
+
+    /// <summary>
+    /// 종언 부여
+    /// </summary>
+    /// <param name="value"></param>
+    public void AddDoom(int value)
+    {
+        if (value <= 0)
+            return;
+
+        int index = (int)StatusEffectType.Doom;
+
+        stacks[index] = Mathf.Clamp(value, 1, GetMaxStack(StatusEffectType.Doom));
+
+        Debug.Log($"종언 {stacks[index]} 부여");
+    }
+
+    
+    /// <summary>
+    /// 종언 전용 인 카운트
+    /// </summary>
+    public void TickDoom()
+    {
+        if (!HasStatus(StatusEffectType.Doom))
+            return;
+
+        int index = (int)StatusEffectType.Doom;
+
+        stacks[index]--;
+
+        Debug.Log($"종언 감소 / 현재 {stacks[index]}");
+
+        if (stacks[index] <= 0)
+        {
+            stacks[index] = 0;
+            ApplyDoomDeath();
+        }
+    }
+
+    
+    /// <summary>
+    /// 종언 즉사 효과
+    /// </summary>
+    private void ApplyDoomDeath()
+    {
+        CharacterBase character = GetComponent<CharacterBase>();
+
+        if (character == null)
+            return;
+
+        CombatModule combat = character.GetModule<CombatModule>();
+
+        if (combat == null)
+            return;
+
+        int damage = 999999;
+
+        DamageStruct damageInfo = new DamageStruct
+        {
+            from = gameObject,
+            instigator = character.Controller,
+            damageAmount = damage,
+            critical = false,
+            damageType = DamageType.Magic
+        };
+
+        combat.OnHit(damageInfo);
+
+        Debug.Log("종언 발동: 즉사");
+    }
+
+    public bool ConsumeDrawBlock()
+    {
+        if (!HasStatus(StatusEffectType.DrawBlock))
+            return false;
+
+        ClearStatus(StatusEffectType.DrawBlock);
+
+        Debug.Log("드로우 제한으로 인해 드로우가 취소됨");
+
+        return true;
     }
 
 }

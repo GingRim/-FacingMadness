@@ -14,6 +14,7 @@ public class CardData : ScriptableObject
     [Header("특수 카드 유무")]
     public bool isOneUse;
 
+
     [Header("마법 카드")]
     public MagicCardType magicCardType = MagicCardType.None;
 
