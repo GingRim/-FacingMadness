@@ -48,4 +48,6 @@ public abstract class HitpointModules : CharacterModule
         fill.SetMax(maxHp);
         fill.SetCurrent(maxHp);
     }
+
+
 }

@@ -116,39 +116,42 @@ public class DeckModule : CharacterModule
     /// </summary>
     public CardData Draw()
     {
-        CharacterBase owner = GetComponent<CharacterBase>();
-
-        StatusEffectModule status = owner != null ? owner.GetModule<StatusEffectModule>() : null;
-
-        if (status != null && status.ConsumeDrawBlock())
-            return;
-
-        // 덱이 비었다면 묘지를 섞음
-        if (deck.Count == 0)
+        // 1. 덱이 비었으면 묘지 회수
+        if (deck.Count <= 0)
         {
-            ShuffleGraveyardIntoDeck();
+            if (graveyard.Count > 0)
+            {
+                ShuffleGraveyardIntoDeck();
+            }
         }
 
-        if (deck.Count == 0)
+        // 2. 회수 후에도 덱이 없으면 진짜 드로우 불가
+        if (deck.Count <= 0)
         {
-            if (IsCardEmpty())
-            {
-                // 추후 BattleManager / GameManager로 연결
-                Debug.Log("카드가 모두 없어 게임 오버 조건 발생");
-            }
-
+            Debug.Log("덱과 묘지가 모두 비어 있습니다. 게임오버 조건 확인 필요");
             return null;
         }
 
-        CardData drawCard = deck[0];
+        // 3. 드로우
+        CardData card = deck[0];
 
         deck.RemoveAt(0);
+        hand.Add(card);
 
-        hand.Add(drawCard);
+        Debug.Log($"드로우: {card.cardName}");
 
-        CheckHandLimit();
+        return card;
+    }
 
-        return drawCard;
+    /// <summary>
+    /// 현재 손패 수
+    /// </summary>
+    public int HandCount
+    {
+        get
+        {
+            return hand.Count;
+        }
     }
 
     private void CheckHandLimit()
@@ -279,8 +282,7 @@ public class DeckModule : CharacterModule
     /// <returns></returns>
     public int GetMaxHand()
     {
-        DerivedStatModule derived =
-            Owner.GetModule<DerivedStatModule>();
+        DerivedStatModule derived = Owner.GetModule<DerivedStatModule>();
 
         if (derived == null)
             return 5;
@@ -416,9 +418,6 @@ public class DeckModule : CharacterModule
     }
 
 
-    public bool CanDraw()
-    {
-        return !HasStatus(StatusEffectType.DrawBlock);
-    }
+
 
 }

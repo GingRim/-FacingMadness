@@ -114,6 +114,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 3023755181494899158, guid: 14491716c8dffe14abc134d0d016a970, type: 3}
       insertIndex: -1
       addedObject: {fileID: -2955705121888890390}
+    - targetCorrespondingSourceObject: {fileID: 3023755181494899158, guid: 14491716c8dffe14abc134d0d016a970, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2453539696846182408}
   m_SourcePrefab: {fileID: 100100000, guid: 14491716c8dffe14abc134d0d016a970, type: 3}
 --- !u!114 &419033906825107805 stripped
 MonoBehaviour:
@@ -187,3 +190,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CostModule
   _owner: {fileID: 419033906825107805}
+--- !u!114 &2453539696846182408
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3344105270311682383}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 03379065d6259164a8e3423ace8f5d76, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ControllerBase

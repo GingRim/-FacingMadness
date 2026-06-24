@@ -134,4 +134,10 @@ public enum StatusEffectType
     None, Haste, Bind, Motivation, Lethargy, Blessing, Curse, Vulnerable, Stun, Doom, DrawBlock, _Length
 }
 
+public enum BattleTurnState
+{
+    None, BattleStart, RoundStart, TurnStart, WaitingAction, TurnEnd, RoundEnd, BattleEnd, _Length
+}
 
+
+//UI_CardUseSelect 오류 패치 해야함

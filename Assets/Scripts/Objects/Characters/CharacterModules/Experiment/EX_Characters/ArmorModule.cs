@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class ArmorModule : CharacterModule
@@ -67,5 +68,15 @@ public class ArmorModule : CharacterModule
         }
 
         return Mathf.Max(0, damage - reduceAmount);
+    }
+
+    public void ClearTemporaryArmor()
+    {
+        if (temporaryArmor <= 0)
+            return;
+
+        Debug.Log($"임시 장갑 제거: {temporaryArmor}");
+
+        temporaryArmor = 0;
     }
 }

@@ -38,6 +38,8 @@ public class GameManager : MonoBehaviour
 
     InputManager _input;
     public  InputManager Input => _input;
+    BattleManager _battle;
+    public BattleManager Battle => _battle;
 
 
     IEnumerator initializing;
@@ -106,9 +108,10 @@ public class GameManager : MonoBehaviour
       totalLoadCount += CreateManager(ref _audio).LoadCount ;
       totalLoadCount += CreateManager(ref _camera).LoadCount ;
       totalLoadCount += CreateManager(ref _input).LoadCount ;
-      
+      totalLoadCount += CreateManager(ref _battle).LoadCount;
 
-       yield return UI.Initialize(this);
+
+        yield return UI.Initialize(this);
        UIBase loadingUI = UIManager.OpenScreenM2(UIType.Loading);
        IProgress<int> loadingProgress = loadingUI as IProgress<int>;
         
@@ -132,6 +135,8 @@ public class GameManager : MonoBehaviour
         loadingProgress?.AddCurrent(1);
        yield return _input.Connect(this);
         loadingProgress?.AddCurrent(1);
+        yield return _battle.Connect(this);
+        loadingProgress?.AddCurrent(1);
         yield return new WaitForSeconds(1.0f);
 
 
@@ -146,6 +151,7 @@ public class GameManager : MonoBehaviour
 
     void DeleteManagers()
     {
+        Battle?.Disconnect();
         //�����Է� 
         Input?.Disconnect();
         //������Ʈ

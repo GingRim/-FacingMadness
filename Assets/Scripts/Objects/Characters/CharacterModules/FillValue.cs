@@ -54,6 +54,6 @@ public struct FillValue
     public int SetEmpty(int value) => Current = Min;
     public int SetPercent(float value) => Current = Mathf.CeilToInt(Mathf.Lerp(Min, Max, Mathf.Clamp(value, 0.0f, 1.0f)));
 
-    public void SetMax(int value) { _Max = value; Current = Current; }
+    public void     SetMax(int value) { _Max = value; Current = Current; }
     public void SetMin(int value) { _Min = value; Current = Current; }
 }

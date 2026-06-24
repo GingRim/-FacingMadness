@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class StatModules : CharacterModule
@@ -44,17 +45,29 @@ public class StatModules : CharacterModule
     {
         EnsureArraySize();
 
+        int index = (int)type;
+        int value = stats[index];
+
+        Debug.Log($"[GetStat] module={GetInstanceID()} / " + $"owner={(_owner != null ? _owner.name : "null")} / " + $"{type}={value}");
+
+
         return stats[(int)type];
     }
 
     /// <summary>
     /// 능력치 설정
     /// </summary>
-    public void SetStat(StatType type, int value)
+    public void SetStat(StatType type, int value) //EX
     {
         EnsureArraySize();
+        
+        int index = (int)type;
+        int clampedValue = Mathf.Clamp(value, 0, 10);
+        //stats[(int)type] = Mathf.Clamp(value, 0, 10);
 
-        stats[(int)type] = Mathf.Clamp(value, 0, 10);
+        stats[index] = clampedValue;
+
+        Debug.Log($"[SetStat] module={GetInstanceID()} / " + $"owner={(_owner != null ? _owner.name : "null")} / " + $"{type}={clampedValue}");
     }
 
     /// <summary>

@@ -6,8 +6,8 @@ using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.LowLevel;
 using UnityEngine.UI;
-// �븮�ڴ� �ʿ��� �� ����� �����Ѵ�.
-// �븮�� �� �� �ִٴ� �� => �ɷ��� ���� ����. => �������� �� ��� �ѹ��� ����Ѵ�.
+
+
 public delegate void MouseButtonEvent(bool value, Vector2 screenPosition, Vector3 WorldPosition);
 public delegate void MouseMoveEvent(Vector2 screenPosition, Vector3 WorldPosition);
 public delegate void MouseHold(Vector2 screenPosition, Vector3 WorldPosition);
@@ -23,9 +23,7 @@ public delegate void CardEvent(bool value, Vector2 screenPosition, Vector3 World
 
 public class InputManager : ManagerBase
 {
-    // ���� ����� �� �־�� �Ѵ�.
-    // ���� �븮�ڴ� ������ ����ϰ� ������ �� �ִ�.
-    // event �븮�ڴ� ������ ����ϰ� ������ ������ �� �ִ�.
+
     public static event MouseButtonEvent OnMouseLeftButton; // ���� Ŭ��
     public static event MouseButtonEvent OnMouseRightButton;// ������ Ŭ��
     public static event MouseMoveEvent   OnMouseMove;       // ���콺 �̵�
@@ -34,9 +32,7 @@ public class InputManager : ManagerBase
     public static event ButtonEvent      OnShowStatus;      //
     public static event VectorEvent      OnMove;            //
     public static event ButtonEvent      OnPause;
-    //Ư���� Ŭ������ Ư�� ������Ʈ�� �Բ� ����ؾ� �Ѵ�.
-    //Ʈ�� Ŭ������ �ٸ� Ŭ������ Dependence �����ϴ� ���
-    //�ٸ� Ŭ������ �ʿ��ؿ�! Require
+
    
     PlayerInput targetInput;
     Dictionary<string, InputAction> actionDictionary = new();
@@ -50,13 +46,8 @@ public class InputManager : ManagerBase
     protected override IEnumerator OnConnected(GameManager newManager)
     {
 
-        
-
         targetInput = GetComponent<PlayerInput>();
-        // ���� ����� ������ Ű ������ �Ұ��� �ϴ�. (�ҿ� ������)
-        // Forward�� ���� �˾ƾ� �Ѵ�. => Forward�� ��ư�� �� �� ����
-        // On~~�� ������� �ʴ� ���� �ϴ� �̸��� �Լ��� ��ũ��Ʈ���� ã�Ƽ� �ǽð����� ������ �� �ִ� ����� �ҷ��;� �Ѵ�.
-        // �� ����� ����Ƽ�� �ƴ϶� ���� ���� �Ⱦ��� ���̴�.
+
         LoadAllActions();
         InitializeAllActions();
 
@@ -70,7 +61,7 @@ public class InputManager : ManagerBase
         GameManager.OnUpdateEventManager -= UpdateEvent;
     }
 
-    public void UpdateEvent(float deltaTime)// ���콺�� �ö󰡸� ��� ������Ʈ �ȴ�.
+    public void UpdateEvent(float deltaTime)
     {
         RefreshGameObjectUnderCursor(cursorScreenPosition);
     }
@@ -80,8 +71,6 @@ public class InputManager : ManagerBase
         cursorHitList.Clear();
          GameManager.Instance.Camera.GetRaycastResult(screenPosition, cursorHitList);
 
-        // ���콺�� ȭ��� ���� �ȼ� ��ġ (��ǥ�� �⺻ ��ġ)
-        // ī�޶� �������� ������ ����.
         Vector3 worldPosition = Camera.main.ScreenToWorldPoint(screenPosition);
         GameObject firstObject = null; //1등 선언
         
@@ -142,7 +131,7 @@ public class InputManager : ManagerBase
         }
     }
 
-    void InitializeAllActions() // �̴ϼ� ������ �� �׼� (��� �׼��� ����� ���� �ϳ��� �Լ�)
+    void InitializeAllActions()
     {
         if(actionDictionary == null || actionDictionary.Count == 0) return;
 
@@ -163,16 +152,25 @@ public class InputManager : ManagerBase
         InitializeAction("Pause"                , (context) => OnPause?.Invoke(true));
      
     }
-    void InitializeAction(string actionName, Action<InputAction.CallbackContext> actionMethod, Action<InputAction.CallbackContext> cancelMethod = null) // �̴ϼ� ������ �׼� (�� �׼��� ����� ���� �ϳ��� �Լ�)
+
+    void InitializeAction(string actionName, Action<InputAction.CallbackContext> actionMethod, Action<InputAction.CallbackContext> cancelMethod = null)
     {
-        if (actionDictionary == null || actionDictionary.Count == 0) return;
+        if (actionDictionary == null || actionDictionary.Count == 0)
+            return;
 
         if (actionDictionary.TryGetValue(actionName, out InputAction currentInput))
-        {   //발동할때 할 일
-            if(actionMethod is not null) currentInput.performed += actionMethod;
-            //취소될 때 할 일
-            if (actionMethod is not null) currentInput.canceled += cancelMethod;
-            //currentInput.started 키가 눌렀을 때 발동 된다. 무지성 발동
+        {
+            // 발동할 때 할 일
+            if (actionMethod is not null)
+            {
+                currentInput.performed += actionMethod;
+            }
+
+            // 취소될 때 할 일
+            if (cancelMethod is not null)
+            {
+                currentInput.canceled += cancelMethod;
+            }
         }
     }
 

@@ -203,7 +203,16 @@ public class DerivedStatModule : CharacterModule
     /// <returns></returns>
     public int GetDrawBonus()
     {
-        return stat.GetStat(StatType.Intelligence) / 3;
+        int intelligence = stat.GetStat(StatType.Intelligence);
+
+        int bonus = intelligence / 3;
+
+        if (intelligence >= 10)
+        {
+            bonus += 1;
+        }
+
+        return bonus;
     }
 
     /// <summary>

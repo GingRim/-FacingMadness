@@ -11,9 +11,11 @@ public class UI_TargetHoverInfoEX : OpenableUIBase
     CharacterBase target;
 
     [SerializeField] TextMeshProUGUI nameText;
-    [SerializeField] TextMeshProUGUI coommentText;
+    [SerializeField] TextMeshProUGUI HPcoommentText;
+    [SerializeField] TextMeshProUGUI SANcoommentText;
     [SerializeField] UnityEngine.UI.Image icon;
-    [SerializeField] UnityEngine.UI.Slider bar;
+    [SerializeField] UnityEngine.UI.Slider HPbar;
+    [SerializeField] UnityEngine.UI.Slider SANbar;
 
     public override void Registration(UIManager manager)
     {
@@ -48,7 +50,8 @@ public class UI_TargetHoverInfoEX : OpenableUIBase
 
         target = asCharacter;
 
-        Refresh(target);
+        HPRefresh(target);
+        SANRefresh(target);
 
         Open();
     }
@@ -56,7 +59,7 @@ public class UI_TargetHoverInfoEX : OpenableUIBase
     /// <summary>
     /// 대상 캐릭터의 정보를 UI에 표시
     /// </summary>
-    void Refresh(CharacterBase character)
+    void HPRefresh(CharacterBase character)
     {
         nameText.SetText(character.DisplayName);
 
@@ -64,14 +67,33 @@ public class UI_TargetHoverInfoEX : OpenableUIBase
 
         if (hp == null)
         {
-            coommentText.SetText("HP 정보 없음");
-            bar.value = 0;
+            HPcoommentText.SetText("HP 정보 없음");
+            HPbar.value = 0;
             return;
         }
 
-        coommentText.SetText($"{hp.Current} / {hp.Max}");
+        HPcoommentText.SetText($"{hp.Current} / {hp.Max}");
 
-        bar.maxValue = hp.Max;
-        bar.value = hp.Current;
+        HPbar.maxValue = hp.Max;
+        HPbar.value = hp.Current;
+    }
+
+    void SANRefresh(CharacterBase character)
+    {
+        nameText.SetText(character.DisplayName);
+
+        SanityModule san = character.GetModule<SanityModule>();
+
+        if (san == null)
+        {
+            SANcoommentText.SetText("HP 정보 없음");
+            HPbar.value = 0;
+            return;
+        }
+
+        SANcoommentText.SetText($"{san.CurrentSanity} / {san.MaxSanity}");
+
+        SANbar.maxValue = san.MaxSanity;
+        SANbar.value = san.CurrentSanity;
     }
 }

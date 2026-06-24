@@ -13,7 +13,35 @@ public class StatusEffectModule : CharacterModule
 
     private void Awake()
     {
+        EnsureStackSize();
         InitializeHandlers();
+    }
+
+    private void EnsureStackSize()
+    {
+        int needSize = (int)StatusEffectType._Length;
+
+        if (stacks == null)
+        {
+            stacks = new int[needSize];
+            return;
+        }
+
+        if (stacks.Length == needSize)
+            return;
+
+        int[] newStacks = new int[needSize];
+
+        int copyLength = Mathf.Min(stacks.Length, newStacks.Length);
+
+        for (int i = 0; i < copyLength; i++)
+        {
+            newStacks[i] = stacks[i];
+        }
+
+        stacks = newStacks;
+
+        Debug.Log($"StatusEffect stacks 배열 크기 보정: {copyLength} -> {needSize}");
     }
 
     private void InitializeHandlers()
@@ -79,6 +107,8 @@ public class StatusEffectModule : CharacterModule
 
     public void ClearStatus(StatusEffectType type)
     {
+        EnsureStackSize();
+
         if (!IsValidType(type))
             return;
 
@@ -407,4 +437,30 @@ public class StatusEffectModule : CharacterModule
         return true;
     }
 
+    public bool CanDraw()
+    {
+        return !HasStatus(StatusEffectType.DrawBlock);
+    }
+
+    /// <summary>
+    /// 턴 종료 시 처리되는 상태 이상.
+    /// </summary>
+    public void OnTurnEnd()
+    {
+        Debug.Log("StatusEffectModule OnTurnEnd 실행");
+
+        ReduceStatus(StatusEffectType.Haste, 1);
+        ReduceStatus(StatusEffectType.Bind, 1);
+
+        TickDoom();
+    }
+
+    public void OnRoundEnd()
+    {
+        Debug.Log("StatusEffectModule OnRoundEnd 실행");
+
+        ClearStatus(StatusEffectType.Vulnerable);
+        ClearStatus(StatusEffectType.Blessing);
+        ClearStatus(StatusEffectType.Curse);
+    }
 }

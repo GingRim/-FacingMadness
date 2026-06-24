@@ -60,6 +60,7 @@ public class DummyS : MonoBehaviour
         ApplyLevel(character, data);
         ApplyStats(character, data);
         RefreshHP(character);
+        RefreshSanity(character);
     }
 
     /// <summary>
@@ -179,5 +180,19 @@ public class DummyS : MonoBehaviour
         Debug.Log($"HP 초기화 후: {hp.Current} / {hp.Max}");
     }
 
+    private void RefreshSanity(CharacterBase character)
+    {
+        if (character == null)
+            return;
 
+        DerivedStatModule derived = character.GetModule<DerivedStatModule>();
+
+        SanityModule sanity = character.GetModule<SanityModule>();
+
+        if (derived == null || sanity == null)
+            return;
+
+        sanity.SetMaxSanity(derived.GetMaxSanity());
+        sanity.FillSanity();
+    }
 }

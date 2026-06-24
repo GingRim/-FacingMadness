@@ -25,6 +25,46 @@ public class UI_CardUseSelect : MonoBehaviour
         handUI = ui;
     }
 
+    /// <summary>
+    /// 타겟을 지정하는 카드인가?
+    /// </summary>
+    /// <param name="card"></param>
+    /// <param name="useCost"></param>
+    /// <returns></returns>
+    private bool NeedTarget(CardData card, CardUseCost useCost)
+    {
+        if (card == null)
+            return false;
+
+        if (card.magicCardType != MagicCardType.None)
+            return true;
+
+        switch (card.color)
+        {
+            case CardColorType.Red:
+                return useCost == CardUseCost.Action;
+
+            case CardColorType.Yellow:
+                return useCost == CardUseCost.Action;
+
+            case CardColorType.Blue:
+                return useCost == CardUseCost.Action;
+
+            case CardColorType.Black:
+                return true;
+
+            case CardColorType.Purple:
+                return false;
+
+            case CardColorType.Green:
+                return false;
+
+            case CardColorType.Colorless:
+                return useCost == CardUseCost.Action;
+        }
+
+        return false;
+    }
 
     /// <summary>
     /// 카드 사용 선택 팝업 열기.
@@ -78,38 +118,50 @@ public class UI_CardUseSelect : MonoBehaviour
         if (selectedCard == null || user == null)
             return;
 
-        CardResolver resolver = new CardResolver();
-
-        if (!resolver.CanUse(selectedCard, user, useCost))
+        if (NeedTarget(selectedCard, useCost) && target == null)
         {
-            Debug.Log("카드 사용 실패: 코스트 부족");
+            Debug.Log("대상이 필요한 카드입니다. 먼저 대상을 선택하세요.");
+            return;
+        }
+        /*
+        if (!CardResolver.CanUse(user, useCost))
+        {
+            Debug.Log("코스트 부족");
             Close();
             return;
         }
-
-        DeckModule deck = user.GetModule<DeckModule>();
+        */
+        DeckModule deck =
+            user.GetModule<DeckModule>();
 
         if (deck == null)
             return;
 
         deck.UseCard(selectedCard);
-
-        bool success = resolver.UseWithoutCostCheck(
-            selectedCard,
-            user,
-            target,
-            useCost
-        );
-
+        /*
+        bool success =
+            CardResolver.UseWithoutCostCheck(
+                selectedCard,
+                user,
+                target,
+                useCost
+            );
+        
         if (!success)
-        {
-            Debug.Log("카드 사용 실패");
-            handUI?.RefreshFromDeck(deck);
-            Close();
             return;
-        }
+*/
+        handUI.RefreshFromDeck(deck);
 
-        handUI?.RefreshFromDeck(deck);
         Close();
+    }
+
+    public void SetTarget(CharacterBase newTarget)
+    {
+        target = newTarget;
+
+        if (target != null)
+        {
+            Debug.Log($"카드 대상 선택: {target.name}");
+        }
     }
 }

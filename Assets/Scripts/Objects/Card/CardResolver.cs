@@ -73,6 +73,7 @@ public class CardResolver
         return false;
     }
 
+
     /// <summary>
     /// 적색 카드 효과.
     /// 행동: 1D10 피해
@@ -948,8 +949,7 @@ public class CardResolver
             return;
         }
 
-        StatModules stat =
-            user.GetModule<StatModules>();
+        StatModules stat = user.GetModule<StatModules>();
 
         if (stat == null)
         {
@@ -986,27 +986,140 @@ public class CardResolver
 
     private void ResolveBlackStrength(CardData card, CharacterBase user, CharacterBase target)
     {
-        throw new NotImplementedException();
+        {
+            if (user == null)
+            {
+                Debug.Log("검은 근력 카드 실패: 사용자 없음");
+                return;
+            }
+
+            CombatModule combat =
+                user.GetModule<CombatModule>();
+
+            if (combat == null)
+            {
+                Debug.Log("검은 근력 카드 실패: 사용자에게 CombatModule 없음");
+                return;
+            }
+
+            int damage = Dice.RollD8();
+
+            DamageStruct damageInfo = new DamageStruct
+            {
+                from = user.gameObject,
+                instigator = user.Controller,
+                damageAmount = damage,
+                critical = false,
+                damageType = DamageType.Magic
+            };
+
+            combat.OnHit(damageInfo);
+
+            Debug.Log($"검은 근력 카드: 자신에게 {damage} 피해");
+        }
     }
 
     private void ResolveBlackAgility(CardData card, CharacterBase user, CharacterBase target)
     {
-        throw new NotImplementedException();
+        if (target == null)
+        {
+            Debug.Log("검은 민첩 카드 실패: 대상 없음");
+            return;
+        }
+
+        StatusEffectModule status =
+            target.GetModule<StatusEffectModule>();
+
+        if (status == null)
+        {
+            Debug.Log("검은 민첩 카드 실패: 대상에게 StatusEffectModule 없음");
+            return;
+        }
+
+        int bindStack = 1;
+
+        status.AddStatus(StatusEffectType.Bind, bindStack);
+
+        Debug.Log($"검은 민첩 카드: {target.name}에게 속박 {bindStack} 부여");
     }
 
     private void ResolveBlackHealth(CardData card, CharacterBase user, CharacterBase target)
     {
-        throw new NotImplementedException();
+        if (target == null)
+        {
+            Debug.Log("검은 건강 카드 실패: 대상 없음");
+            return;
+        }
+
+        StatusEffectModule status =
+            target.GetModule<StatusEffectModule>();
+
+        if (status == null)
+        {
+            Debug.Log("검은 건강 카드 실패: 대상에게 StatusEffectModule 없음");
+            return;
+        }
+
+        int vulnerableStack = 1;
+
+        status.AddStatus(StatusEffectType.Vulnerable, vulnerableStack);
+
+        Debug.Log($"검은 건강 카드: {target.name}에게 취약 {vulnerableStack} 부여");
     }
 
     private void ResolveBlackIntelligence(CardData card, CharacterBase user, CharacterBase target)
     {
-        throw new NotImplementedException();
+        if (target == null)
+        {
+            Debug.Log("검은 지능 카드 실패: 대상 없음");
+            return;
+        }
+
+        StatusEffectModule status =
+            target.GetModule<StatusEffectModule>();
+
+        if (status == null)
+        {
+            Debug.Log("검은 지능 카드 실패: 대상에게 StatusEffectModule 없음");
+            return;
+        }
+
+        status.AddStatus(StatusEffectType.DrawBlock, 1);
+
+        Debug.Log($"검은 지능 카드: {target.name}에게 드로우 제한 부여");
     }
 
     private void ResolveBlackWill(CardData card, CharacterBase user, CharacterBase target)
     {
-        throw new NotImplementedException();
+        if (user == null)
+        {
+            Debug.Log("검은 의지 카드 실패: 사용자 없음");
+            return;
+        }
+
+        CombatModule combat =
+            user.GetModule<CombatModule>();
+
+        if (combat == null)
+        {
+            Debug.Log("검은 의지 카드 실패: 사용자에게 CombatModule 없음");
+            return;
+        }
+
+        int damage = Dice.RollD4();
+
+        DamageStruct damageInfo = new DamageStruct
+        {
+            from = user.gameObject,
+            instigator = user.Controller,
+            damageAmount = damage,
+            critical = false,
+            damageType = DamageType.Magic
+        };
+
+        combat.OnHit(damageInfo);
+
+        Debug.Log($"검은 의지 카드: 자신에게 {damage} 피해");
     }
 
 }

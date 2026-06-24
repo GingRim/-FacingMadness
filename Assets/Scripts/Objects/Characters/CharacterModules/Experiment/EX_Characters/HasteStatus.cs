@@ -11,10 +11,7 @@ public class HasteStatus : StatusEffectHandler
         return stack * 5;
     }
 
-    public override int ReduceDamage(
-        int damage,
-        DamageType damageType,
-        int stack)
+    public override int ReduceDamage(int damage, DamageType damageType, int stack)
     {
         if (damageType == DamageType.Magic)
             return damage;

@@ -64,7 +64,7 @@ public class CharacterFactory : MonoBehaviour
         
         ApplyCost(character);
         RefreshHP(character);
-
+        RefreshSanity(character);
     }
 
     /// <summary>
@@ -182,6 +182,25 @@ public class CharacterFactory : MonoBehaviour
         hp.InitializeHP(maxHP);
 
         Debug.Log($"HP 초기화 후: {hp.Current} / {hp.Max}");
+    }
+
+    /// <summary>
+    /// 능력치 기반 최대 정신력 재설정
+    /// </summary>
+    private void RefreshSanity(CharacterBase character)
+    {
+        if (character == null)
+            return;
+
+        DerivedStatModule derived = character.GetModule<DerivedStatModule>();
+
+        SanityModule sanity = character.GetModule<SanityModule>();
+
+        if (derived == null || sanity == null)
+            return;
+
+        sanity.SetMaxSanity(derived.GetMaxSanity());
+        sanity.FillSanity();
     }
 
     /// <summary>

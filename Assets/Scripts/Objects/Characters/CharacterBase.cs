@@ -51,12 +51,21 @@ public class CharacterBase : MonoBehaviour
         }
     }
 
+
     public void AddAllModuleFromObject(GameObject target)
     {
-        if(!target) return;
+        if (!target)
+            return;
 
-        foreach(CharacterModule currentModule in target.GetComponentsInChildren<CharacterModule>())
+        CharacterModule[] modules =
+            target.GetComponentsInChildren<CharacterModule>(true);
+
+        Debug.Log($"{target.name}: 발견된 CharacterModule 수 = {modules.Length}");
+
+        foreach (CharacterModule currentModule in modules)
         {
+            Debug.Log($"{target.name}: 발견 모듈 = {currentModule.GetType().Name} / 등록 타입 = {currentModule.RegistrationType.Name}");
+
             AddModule(currentModule.RegistrationType, currentModule);
         }
     }

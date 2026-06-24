@@ -123,8 +123,8 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 6608066892723015499}
-        m_TargetAssemblyTypeName: EX_CostResetButton, Assembly-CSharp
-        m_MethodName: ResetCost
+        m_TargetAssemblyTypeName: EX_BattleStartButtonTest, Assembly-CSharp
+        m_MethodName: StartBattle
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -146,6 +146,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9b3e2571403d8b0489a506129f5163a8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EX_CostResetButton
+  players:
+  - {fileID: 419033906825107805, guid: 2ecdb7a6e64f01a4c8b2e4898cbdd700, type: 3}
+  monsterDatas:
+  - {fileID: 11400000, guid: 7ebf95d82acf01e4dbe3cdd7ee934289, type: 2}
+  monsterSpawner: {fileID: 5683008549338722458, guid: dd6b8164d2439704f9ef7f7059610f68, type: 3}
 --- !u!1 &1531340929205634622
 GameObject:
   m_ObjectHideFlags: 0
@@ -1368,8 +1373,8 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 4837227293439188442}
-        m_TargetAssemblyTypeName: EX_CardDrawButtonTest, Assembly-CSharp
-        m_MethodName: DrawCardToHand
+        m_TargetAssemblyTypeName: EX_TurnEndButtonTest, Assembly-CSharp
+        m_MethodName: EndTurn
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1391,7 +1396,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 18ff9783f474b0d4f99aa90bc117b0f0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EX_CardDrawButtonTest
-  handUI: {fileID: 3437038977938789864}
 --- !u!1 &6220273986548412717
 GameObject:
   m_ObjectHideFlags: 0
@@ -2114,17 +2118,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 62bbef7ef943c0e4f80a622b63b6943f, type: 3}
---- !u!114 &3437038977938789864 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 8684136772629545498, guid: 62bbef7ef943c0e4f80a622b63b6943f, type: 3}
-  m_PrefabInstance: {fileID: 6284369618136684530}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c6f9ef6dd70b93143992fff7e1b5ffa6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UI_Hand
 --- !u!224 &6796450956324237628 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 677590523079993038, guid: 62bbef7ef943c0e4f80a622b63b6943f, type: 3}

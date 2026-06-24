@@ -17,6 +17,20 @@ public class CombatModule : CharacterModule
 
     public void OnHit(DamageStruct damageInfo)
     {
+        if (Owner == null)
+        {
+            Debug.LogError("피해 처리 실패: CombatModule Owner 없음");
+            return;
+        }
+
+        HitpointModules hp = Owner.GetModule<HitpointModules>();
+
+        if (hp == null)
+        {
+            Debug.LogError($"{Owner.name}: HitpointModules 없음. 피해 처리 불가");
+            return;
+        }
+
         int finalDamage = damageInfo.damageAmount;
 
         // 1. 공격자 상태 효과: 의욕 / 무기력 등
@@ -24,16 +38,19 @@ public class CombatModule : CharacterModule
         {
             CharacterBase attacker = damageInfo.from.GetComponent<CharacterBase>();
 
-            StatusEffectModule attackerStatus = attacker != null ? attacker.GetModule<StatusEffectModule>() : null;
-
-            if (attackerStatus != null)
+            if (attacker != null)
             {
-                finalDamage = attackerStatus.ModifyOutgoingDamage(finalDamage);
+                StatusEffectModule attackerStatus = attacker.GetModule<StatusEffectModule>();
+
+                if (attackerStatus != null)
+                {
+                    finalDamage = attackerStatus.ModifyOutgoingDamage(finalDamage);
+                }
             }
         }
 
         // 2. 방어자 장갑
-        ArmorModule armor = GetComponent<ArmorModule>();
+        ArmorModule armor = Owner.GetModule<ArmorModule>();
 
         if (armor != null)
         {
@@ -41,7 +58,7 @@ public class CombatModule : CharacterModule
         }
 
         // 3. 방어자 상태 효과: 가속 피해 감소, 취약 피해 증가 등
-        StatusEffectModule defenderStatus = GetComponent<StatusEffectModule>();
+        StatusEffectModule defenderStatus = Owner.GetModule<StatusEffectModule>();
 
         if (defenderStatus != null)
         {
@@ -54,7 +71,7 @@ public class CombatModule : CharacterModule
 
         hp.TakeDamage(damageInfo);
 
-        Debug.Log($"최종 피해: {damageInfo.damageAmount}");
+        Debug.Log($"{Owner.name} 최종 피해: {damageInfo.damageAmount} / 현재 HP {hp.Current}/{hp.Max}");
     }
 
 
