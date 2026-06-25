@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 4577060176833659908}
   - component: {fileID: 2519033003844175896}
   - component: {fileID: 5204643327949282232}
+  - component: {fileID: 1534954332903207840}
   m_Layer: 5
   m_Name: UI_Card
   m_TagString: Untagged
@@ -170,6 +171,20 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
+--- !u!114 &1534954332903207840
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2891088092043084667}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b82c559bd7cb2a646bcb333df7219b45, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CardCrkClick
+  useSelectUI: {fileID: 0}
+  canvas: {fileID: 0}
 --- !u!1 &2947881873126989167
 GameObject:
   m_ObjectHideFlags: 0

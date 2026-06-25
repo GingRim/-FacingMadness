@@ -50,7 +50,7 @@ public enum CardUseCost
 /// </summary>
  public enum TeamType
  {
-    None, Ally, Enemy, _Length
+    None, Self, Ally, Enemy, _Length
  }
 
 
@@ -140,4 +140,9 @@ public enum BattleTurnState
 }
 
 
-//UI_CardUseSelect 오류 패치 해야함
+public enum CardDropResult
+{
+    Invalid,
+    OpenPopup,
+    UseDirect
+}

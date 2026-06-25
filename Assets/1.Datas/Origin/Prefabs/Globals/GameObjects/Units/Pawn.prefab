@@ -21,6 +21,7 @@ GameObject:
   - component: {fileID: 6431412654786922983}
   - component: {fileID: 2565061661021932827}
   - component: {fileID: -5635047688952113253}
+  - component: {fileID: -8368011815822870095}
   m_Layer: 0
   m_Name: Pawn
   m_TagString: Untagged
@@ -246,6 +247,18 @@ MonoBehaviour:
   _owner: {fileID: 166239877226498500}
   currentSanity: 0
   maxSanity: 0
+--- !u!114 &-8368011815822870095
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3023755181494899158}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 101bfbadc1e01ac4db592a939c620e37, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CardDropTarget
 --- !u!1 &8084384703228284361
 GameObject:
   m_ObjectHideFlags: 0

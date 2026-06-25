@@ -8,6 +8,8 @@ using UnityEngine;
 /// </summary>
 public class UI_CardUseSelect : MonoBehaviour
 {
+
+    private CardResolver cardResolver;
     private CardData selectedCard;
     private CharacterBase user;
     private CharacterBase target;
@@ -17,6 +19,10 @@ public class UI_CardUseSelect : MonoBehaviour
 
     private void Awake()
     {
+        cardResolver = new CardResolver();
+
+        handUI = FindFirstObjectByType<UI_Hand>();
+
         gameObject.SetActive(false);
     }
 
@@ -76,6 +82,11 @@ public class UI_CardUseSelect : MonoBehaviour
         target = newTarget;
 
         gameObject.SetActive(true);
+        Debug.Log(
+       $"카드 사용 팝업 열림 / 카드 {(selectedCard != null ? selectedCard.cardName : "null")} / " +
+       $"사용자 {(user != null ? user.name : "null")} / " +
+       $"대상 {(target != null ? target.name : "null")}"
+   );
     }
 
     /// <summary>
@@ -118,39 +129,51 @@ public class UI_CardUseSelect : MonoBehaviour
         if (selectedCard == null || user == null)
             return;
 
+        if (cardResolver == null)
+            cardResolver = new CardResolver();
+
         if (NeedTarget(selectedCard, useCost) && target == null)
         {
             Debug.Log("대상이 필요한 카드입니다. 먼저 대상을 선택하세요.");
             return;
         }
-        /*
-        if (!CardResolver.CanUse(user, useCost))
+
+        if (!cardResolver.CanUse(selectedCard, user, useCost))
         {
-            Debug.Log("코스트 부족");
+            Debug.Log("카드 사용 불가");
             Close();
             return;
         }
-        */
-        DeckModule deck =
-            user.GetModule<DeckModule>();
+
+        DeckModule deck = user.GetModule<DeckModule>();
 
         if (deck == null)
+        {
+            Debug.LogWarning($"{user.name}: DeckModule 없음");
             return;
+        }
 
-        deck.UseCard(selectedCard);
-        /*
         bool success =
-            CardResolver.UseWithoutCostCheck(
+            cardResolver.UseWithoutCostCheck(
                 selectedCard,
                 user,
                 target,
                 useCost
             );
-        
+
         if (!success)
+        {
+            Debug.Log("카드 효과 처리 실패");
             return;
-*/
-        handUI.RefreshFromDeck(deck);
+        }
+
+        deck.UseCard(selectedCard);
+
+        if (handUI == null)
+            handUI = FindFirstObjectByType<UI_Hand>();
+
+        if (handUI != null)
+            handUI.RefreshFromDeck(deck);
 
         Close();
     }

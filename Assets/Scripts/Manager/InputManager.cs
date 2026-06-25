@@ -10,7 +10,7 @@ using UnityEngine.UI;
 
 public delegate void MouseButtonEvent(bool value, Vector2 screenPosition, Vector3 WorldPosition);
 public delegate void MouseMoveEvent(Vector2 screenPosition, Vector3 WorldPosition);
-public delegate void MouseHold(Vector2 screenPosition, Vector3 WorldPosition);
+public delegate void MouseHoldEvent(Vector2 screenPosition, Vector3 WorldPosition);
 public delegate void MouseHoverEvent(GameObject newTarget, GameObject oldTarget);
 public delegate void ButtonEvent(bool value);
 public delegate void VectorEvent(Vector2 value);
@@ -24,13 +24,14 @@ public delegate void CardEvent(bool value, Vector2 screenPosition, Vector3 World
 public class InputManager : ManagerBase
 {
 
-    public static event MouseButtonEvent OnMouseLeftButton; // ���� Ŭ��
-    public static event MouseButtonEvent OnMouseRightButton;// ������ Ŭ��
-    public static event MouseMoveEvent   OnMouseMove;       // ���콺 �̵�
+    public static event MouseButtonEvent OnMouseLeftButton; 
+    public static event MouseButtonEvent OnMouseRightButton;
+    public static event MouseMoveEvent   OnMouseMove;   
+    public static event MouseHoldEvent   OnMouseHold;
     public static event MouseHoverEvent  OnMouseHover;
-    public static event ButtonEvent      OnCancel;          // 
-    public static event ButtonEvent      OnShowStatus;      //
-    public static event VectorEvent      OnMove;            //
+    public static event ButtonEvent      OnCancel;           
+    public static event ButtonEvent      OnShowStatus;      
+    public static event VectorEvent      OnMove;            
     public static event ButtonEvent      OnPause;
 
    
@@ -139,6 +140,9 @@ public class InputManager : ManagerBase
         InitializeAction("Move"                 , (context) => OnMove?.Invoke(GetVector2Value(context))
                                                 , (context) => OnMove?.Invoke(Vector2.zero));
 
+        InitializeAction("Hold"                 , (context) => OnMouseHold?.Invoke(cursorScreenPosition, cursorWorldPosition)
+                                                , (context) => OnMouseHold?.Invoke(cursorScreenPosition, cursorWorldPosition));
+
         InitializeAction("MouseLeftButton"      ,  (context) => OnMouseLeftButton?.Invoke( true, cursorScreenPosition, cursorWorldPosition) //���ٸ� �̿��� �̸� ���� �Լ�
                                                 , (context) => OnMouseLeftButton?.Invoke( false, cursorScreenPosition, cursorWorldPosition));
        
@@ -196,6 +200,11 @@ public class InputManager : ManagerBase
     {
 
     }
- 
+
+    public GameObject GetHoverObject()
+    {
+        return cursorHoverObhect;
+    }
+
 }
 
