@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 
@@ -150,12 +151,7 @@ public class CardCrkClick : MonoBehaviour
         if (canvasRect == null)
             return;
 
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(
-            canvasRect,
-            screenPosition,
-            canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : canvas.worldCamera,
-            out Vector2 localPoint
-        );
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRect, screenPosition, canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : canvas.worldCamera, out Vector2 localPoint);
 
         transform.SetParent(canvasRect, false);
         rectTransform.anchoredPosition = localPoint;
@@ -166,8 +162,6 @@ public class CardCrkClick : MonoBehaviour
         if (!isDragging)
             return;
 
-        Debug.Log("카드 드래그 종료");
-
         CharacterBase target = FindDropTarget();
 
         ReturnCard();
@@ -176,18 +170,94 @@ public class CardCrkClick : MonoBehaviour
 
         CharacterBase user = FindControlledCharacter();
 
-        if (target == null)
-        {
-            Debug.Log("카드 드롭 실패: 대상 없음");
-            return;
-        }   
-
         if (user == null)
         {
-            Debug.LogWarning("카드 사용 실패: 조작 중인 캐릭터 없음");
+            Debug.LogWarning("카드 드롭 실패: 조작 중인 캐릭터 없음");
             return;
         }
 
+        if (myCard == null || myCard.CardData == null)
+            return;
+
+        CardData card = myCard.CardData;
+
+        CardDropDecision decision = GetDropDecision(card, user, target);
+
+        switch (decision.result)
+        {
+            case CardDropResult.Invalid:
+                Debug.Log($"카드 사용 불가 / 카드 {card.cardName} / 대상 {(target != null ? target.name : "없음")}"
+                );
+                return;
+
+            case CardDropResult.OpenPopup:
+                OpenPopup(card, user, target);
+                return;
+
+            case CardDropResult.UseDirect:
+                TryUseCardDirect(card, user, target, decision.useCost);
+                return;
+        }
+    }
+
+    private bool TryUseCardDirect(CardData card, CharacterBase user, CharacterBase target, CardUseCost useCost)
+    {
+        if (card == null || user == null)
+        {
+            Debug.LogWarning("카드 직접 사용 실패: 카드 또는 사용자 없음");
+            return false;
+        }
+
+        CardResolver resolver = new CardResolver();
+
+        if (!resolver.CanUse(card, user, useCost))
+        {
+            Debug.Log("카드 직접 사용 실패: 코스트 부족 또는 사용 조건 불가");
+            return false;
+        }
+
+        DeckModule deck = user.GetModule<DeckModule>();
+
+        if (deck == null)
+        {
+            Debug.LogWarning($"{user.name}: DeckModule 없음");
+            return false;
+        }
+
+        bool success = resolver.UseWithoutCostCheck(card, user, target, useCost);
+
+        if (!success)
+        {
+            Debug.Log("카드 직접 사용 실패: 효과 처리 실패");
+            return false;
+        }
+
+        deck.UseCard(card);
+
+        UI_Hand handUI = GetComponentInParent<UI_Hand>();
+
+        if (handUI == null)
+        {
+            handUI = FindFirstObjectByType<UI_Hand>();
+        }
+
+        if (handUI != null)
+        {
+            handUI.RefreshFromDeck(deck);
+        }
+
+        Debug.Log(
+            $"카드 직접 사용 성공 / 카드 {card.cardName} / " +
+            $"사용자 {user.name} / " +
+            $"대상 {(target != null ? target.name : "없음")} / " +
+            $"코스트 {useCost}"
+        );
+
+        return true;
+    }
+
+    private void OpenPopup(CardData card, CharacterBase user, CharacterBase target)
+    {
         if (useSelectUI == null)
         {
             useSelectUI = FindFirstObjectByType<UI_CardUseSelect>(FindObjectsInactive.Include);
@@ -195,13 +265,14 @@ public class CardCrkClick : MonoBehaviour
 
         if (useSelectUI == null)
         {
-            Debug.LogWarning("카드 사용 실패: UI_CardUseSelect 없음");
+            Debug.LogWarning("팝업 열기 실패: UI_CardUseSelect 없음");
             return;
         }
 
-        Debug.Log($"카드 드롭 성공 / 카드 {myCard.CardData.cardName} / 대상 {target.name}");
+        Debug.Log($"팝업 열기 / 카드 {card.cardName} / 사용자 {user.name} / 대상 {(target != null ? target.name : "없음")}"
+        );
 
-        useSelectUI.Open(myCard.CardData, user, target);
+        useSelectUI.Open(card, user, target);
     }
 
     private void ReturnCard()
@@ -338,7 +409,7 @@ public class CardCrkClick : MonoBehaviour
                 result = CardDropResult.UseDirect,
                 useCost = cost
             };
-        }
+        }   
     }
 
     private CardDropDecision GetDropDecision(CardData card, CharacterBase user, CharacterBase target)
@@ -350,6 +421,15 @@ public class CardCrkClick : MonoBehaviour
         {
             case CardColorType.Red:
                 return GetRedDropDecision(user, target);
+
+            case CardColorType.Yellow:
+                return GetYellowDropDecision(user, target);
+
+            case CardColorType.Green:
+                return GetGreenDropDecision(user, target);
+
+            case CardColorType.Blue:
+                return GetBlueDropDecision(user, target);
         }
 
         Debug.Log($"{card.cardName}: 아직 드롭 조건이 연결되지 않은 카드 색상");
@@ -360,7 +440,7 @@ public class CardCrkClick : MonoBehaviour
     {
         TeamType targetType = GetTargetTeamType(user, target);
 
-        if (targetType == TeamType.Enemy)
+        if (targetType == TeamType.Enemy)   
         {
             // 적색은 행동/보조 둘 다 공격이라 선택 필요
             return CardDropDecision.Popup();

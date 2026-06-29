@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.TextCore.Text;
 
 public class BattleManager : ManagerBase
 {
@@ -178,9 +179,30 @@ public class BattleManager : ManagerBase
 
         OnTurnStart(CurrentCharacter);
 
-        State = BattleTurnState.WaitingAction;
+        Debug.Log(
+            $"턴 시작 대상: {CurrentCharacter.name} / " +
+            $"Controller={(CurrentCharacter.Controller != null ? CurrentCharacter.Controller.GetType().Name : "null")}"
+        );
 
-        Debug.Log($"턴 시작 대상: {CurrentCharacter.name} / " + $"Controller={(CurrentCharacter.Controller != null ? CurrentCharacter.Controller.GetType().Name : "null")}");
+        // 몬스터 턴이면 AI 실행
+        if (IsMonster(CurrentCharacter))
+        {
+            MonsterAIModule ai =
+                CurrentCharacter.GetModule<MonsterAIModule>();
+
+            if (ai == null)
+            {
+                Debug.LogWarning($"{CurrentCharacter.name}: MonsterAIModule 없음. 턴 종료");
+                EndTurn();
+                return;
+            }
+
+            ai.ExecuteTurn(this);
+            return;
+        }
+
+        // 플레이어 턴이면 입력 대기
+        State = BattleTurnState.WaitingAction;
     }
 
     public void EndTurn()
@@ -437,6 +459,8 @@ public class BattleManager : ManagerBase
         if (user == null)
             return result;
 
+
+
         bool userIsPlayer = user.Controller != null;
 
         foreach (CharacterBase character in participants)
@@ -445,6 +469,9 @@ public class BattleManager : ManagerBase
                 continue;
 
             if (character == user)
+                continue;
+
+            if (!IsAlive(character))
                 continue;
 
             bool targetIsPlayer = character.Controller != null;
@@ -477,6 +504,9 @@ public class BattleManager : ManagerBase
             if (character == null)
                 continue;
 
+            if (character == user)
+                continue;
+
             bool targetIsPlayer = character.Controller != null;
 
             if (userIsPlayer == targetIsPlayer)
@@ -488,4 +518,24 @@ public class BattleManager : ManagerBase
         return result;
     }
 
+    private bool IsAlive(CharacterBase character)
+    {
+        if (character == null)
+            return false;
+
+        HitpointModules hp = character.GetModule<HitpointModules>();
+
+        if (hp == null)
+            return true;
+
+        return !hp.IsEmpty;
+    }
+
+    internal void EndCurrentTurn()
+    {
+        if (State == BattleTurnState.BattleEnd)
+            return;
+
+        EndTurn();
+    }
 }

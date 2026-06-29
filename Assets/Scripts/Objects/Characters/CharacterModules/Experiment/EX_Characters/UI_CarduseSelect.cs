@@ -153,13 +153,7 @@ public class UI_CardUseSelect : MonoBehaviour
             return;
         }
 
-        bool success =
-            cardResolver.UseWithoutCostCheck(
-                selectedCard,
-                user,
-                target,
-                useCost
-            );
+        bool success = cardResolver.UseWithoutCostCheck(selectedCard, user, target, useCost);
 
         if (!success)
         {

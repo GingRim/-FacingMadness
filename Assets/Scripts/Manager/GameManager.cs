@@ -15,6 +15,9 @@ public class GameManager : MonoBehaviour
     UIManager _ui;
     public UIManager UI =>_ui;
 
+    DBManager _db;
+    public DBManager DB =>_db;
+
     DataManager _data;
     public DataManager Data => _data;
 
@@ -100,6 +103,7 @@ public class GameManager : MonoBehaviour
     {
         int totalLoadCount = 0;
       totalLoadCount += CreateManager(ref _ui).LoadCount;
+        totalLoadCount += CreateManager(ref _db).LoadCount;  
       totalLoadCount += CreateManager(ref _data).LoadCount;
       totalLoadCount += CreateManager(ref _objectM).LoadCount;
       totalLoadCount += CreateManager(ref _save).LoadCount ;
@@ -122,6 +126,8 @@ public class GameManager : MonoBehaviour
        yield return ObjectM.Connect(this);
         loadingProgress?.AddCurrent(1);
         yield return UI.Connect(this);
+        loadingProgress?.AddCurrent(1);
+        yield return _db.Connect(this);
         loadingProgress?.AddCurrent(1);
        yield return _save.Connect(this);
         loadingProgress?.AddCurrent(1);
@@ -170,6 +176,7 @@ public class GameManager : MonoBehaviour
         UI?.Disconnect();
         //����������
         Data?.Disconnect();
+        DB?.Disconnect();
     }
     //�޶����� ���� "�ڷ���"���̶�� �ڷ����� ���� ������ �ۿ��ϴ� �Լ��� ���� �� ���� ������?
     //"Generic Method" => ���� �Լ�
