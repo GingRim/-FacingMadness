@@ -29,7 +29,6 @@ public class BattleManager : ManagerBase
             Debug.LogWarning("BattleManager: UI_Hand를 찾지 못했습니다.");
         }
 
-        Debug.Log("BattleManager 연결 완료");
 
         yield return null;
     }
@@ -41,8 +40,6 @@ public class BattleManager : ManagerBase
 
         CurrentCharacter = null;
         State = BattleTurnState.None;
-
-        Debug.Log("BattleManager 연결 해제");
     }
 
     private void OnRoundStart(CharacterBase character)
@@ -76,11 +73,9 @@ public class BattleManager : ManagerBase
 
         if (!IsPlayer(character))
         {
-            Debug.Log($"{character.name}: 몬스터이므로 드로우 스킵");
             return;
         }
 
-        Debug.Log($"{character.name}: 플레이어 확인됨. 드로우 시작");
 
         DrawCardsByIntelligence(character);
     }
@@ -295,7 +290,6 @@ public class BattleManager : ManagerBase
 
         cost.RefillAll();
 
-        Debug.Log($"{character.name} 코스트 초기화");
     }
 
     private void BuildTurnOrder()
@@ -318,7 +312,6 @@ public class BattleManager : ManagerBase
             return bInitiative.CompareTo(aInitiative);
         });
 
-        Debug.Log("턴 순서 정렬 완료");
 
         foreach (CharacterBase character in turnOrder)
         {
@@ -385,7 +378,6 @@ public class BattleManager : ManagerBase
 
         int drawCount = 1 + derived.GetDrawBonus();
 
-        Debug.Log($"{character.name}: 턴 시작 드로우 {drawCount}장");
 
         for (int i = 0; i < drawCount; i++)
         {
@@ -393,11 +385,9 @@ public class BattleManager : ManagerBase
 
             if (drawCard == null)
             {
-                Debug.LogWarning($"{character.name}: {i + 1}번째 드로우 실패");
                 break;
             }
 
-            Debug.Log($"{character.name} 드로우: {drawCard.cardName}");
         }
 
         RefreshHandUI(deck);
@@ -422,7 +412,6 @@ public class BattleManager : ManagerBase
 
         handUI.RefreshFromDeck(deck);
 
-        Debug.Log("Hand UI 갱신 완료");
     }
 
     private void PrepareParticipant(CharacterBase character)

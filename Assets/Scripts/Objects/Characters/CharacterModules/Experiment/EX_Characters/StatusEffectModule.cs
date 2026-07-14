@@ -41,7 +41,6 @@ public class StatusEffectModule : CharacterModule
 
         stacks = newStacks;
 
-        Debug.Log($"StatusEffect stacks 배열 크기 보정: {copyLength} -> {needSize}");
     }
 
     private void InitializeHandlers()
@@ -447,7 +446,6 @@ public class StatusEffectModule : CharacterModule
     /// </summary>
     public void OnTurnEnd()
     {
-        Debug.Log("StatusEffectModule OnTurnEnd 실행");
 
         ReduceStatus(StatusEffectType.Haste, 1);
         ReduceStatus(StatusEffectType.Bind, 1);
@@ -457,7 +455,6 @@ public class StatusEffectModule : CharacterModule
 
     public void OnRoundEnd()
     {
-        Debug.Log("StatusEffectModule OnRoundEnd 실행");
 
         ClearStatus(StatusEffectType.Vulnerable);
         ClearStatus(StatusEffectType.Blessing);

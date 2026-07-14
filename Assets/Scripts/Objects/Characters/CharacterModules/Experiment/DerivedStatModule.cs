@@ -1,4 +1,3 @@
-using UnityEditor.Experimental.Rendering;
 using UnityEngine;
 
 public class DerivedStatModule : CharacterModule

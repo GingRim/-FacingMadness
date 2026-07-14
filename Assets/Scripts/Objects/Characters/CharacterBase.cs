@@ -42,12 +42,11 @@ public class CharacterBase : MonoBehaviour
     {
         if(moduleDictipnary.TryAdd(wantType, wantModule))
         {
-            Debug.Log($"모듈 등록 성공: {wantType.Name}");
             wantModule.OnRegistration(this);
         }
         else
         {
-            Debug.LogWarning($"모듈 등록 실패/중복: {wantType.Name}");
+
         }
     }
 
@@ -57,15 +56,11 @@ public class CharacterBase : MonoBehaviour
         if (!target)
             return;
 
-        CharacterModule[] modules =
-            target.GetComponentsInChildren<CharacterModule>(true);
+        CharacterModule[] modules = target.GetComponentsInChildren<CharacterModule>(true);
 
-        Debug.Log($"{target.name}: 발견된 CharacterModule 수 = {modules.Length}");
 
         foreach (CharacterModule currentModule in modules)
         {
-            Debug.Log($"{target.name}: 발견 모듈 = {currentModule.GetType().Name} / 등록 타입 = {currentModule.RegistrationType.Name}");
-
             AddModule(currentModule.RegistrationType, currentModule);
         }
     }

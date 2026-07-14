@@ -76,30 +76,26 @@ public class CardCrkClick : MonoBehaviour
 
     private void BeginDrag(Vector2 screenPosition)
     {
-        Debug.Log($"{name}: BeginDrag 진입");
+
         if (isDragging)
             return;
 
         if (myCard == null || myCard.CardData == null)
         {
-            Debug.LogWarning($"{name}: myCard 없음");
             return;
         }
 
         if (useSelectUI != null && useSelectUI.IsOpened)
         {
-            Debug.LogWarning($"{name}: CardData 없음");
             return;
         }
 
 
         GameObject clickedObject = GameManager.Instance.Input.GetGameObjectUnderCursor();
 
-        Debug.Log($"클릭 오브젝트: {(clickedObject != null ? clickedObject.name : "null")}");
 
         UI_Card clickedCard = clickedObject != null ? clickedObject.GetComponentInParent<UI_Card>() : null;
 
-        Debug.Log($"클릭 카드: {(clickedCard != null ? clickedCard.name : "null")} / 내 카드: {myCard.name}");
             
         // 중요:
         // 모든 카드가 InputManager 이벤트를 받기 때문에,
@@ -109,7 +105,6 @@ public class CardCrkClick : MonoBehaviour
 
         if (rectTransform == null)
         {
-            Debug.LogWarning($"{name}: RectTransform 없음");
             return;
         }
 
@@ -124,7 +119,6 @@ public class CardCrkClick : MonoBehaviour
 
         MoveCard(screenPosition);
 
-        Debug.Log($"카드 드래그 시작: {myCard.CardData.cardName}");
     }
 
     private void OnMouseMove(Vector2 screenPosition, Vector3 worldPosition)
@@ -172,7 +166,6 @@ public class CardCrkClick : MonoBehaviour
 
         if (user == null)
         {
-            Debug.LogWarning("카드 드롭 실패: 조작 중인 캐릭터 없음");
             return;
         }
 
@@ -186,8 +179,7 @@ public class CardCrkClick : MonoBehaviour
         switch (decision.result)
         {
             case CardDropResult.Invalid:
-                Debug.Log($"카드 사용 불가 / 카드 {card.cardName} / 대상 {(target != null ? target.name : "없음")}"
-                );
+
                 return;
 
             case CardDropResult.OpenPopup:
@@ -204,7 +196,6 @@ public class CardCrkClick : MonoBehaviour
     {
         if (card == null || user == null)
         {
-            Debug.LogWarning("카드 직접 사용 실패: 카드 또는 사용자 없음");
             return false;
         }
 
@@ -212,7 +203,6 @@ public class CardCrkClick : MonoBehaviour
 
         if (!resolver.CanUse(card, user, useCost))
         {
-            Debug.Log("카드 직접 사용 실패: 코스트 부족 또는 사용 조건 불가");
             return false;
         }
 
@@ -220,7 +210,6 @@ public class CardCrkClick : MonoBehaviour
 
         if (deck == null)
         {
-            Debug.LogWarning($"{user.name}: DeckModule 없음");
             return false;
         }
 
@@ -228,11 +217,12 @@ public class CardCrkClick : MonoBehaviour
 
         if (!success)
         {
-            Debug.Log("카드 직접 사용 실패: 효과 처리 실패");
             return false;
         }
 
-        deck.UseCard(card);
+        bool isExhaust = ShouldExhaustOnUse(card);
+
+        deck.UseCard(card, isExhaust);
 
         UI_Hand handUI = GetComponentInParent<UI_Hand>();
 
@@ -246,14 +236,24 @@ public class CardCrkClick : MonoBehaviour
             handUI.RefreshFromDeck(deck);
         }
 
-        Debug.Log(
-            $"카드 직접 사용 성공 / 카드 {card.cardName} / " +
-            $"사용자 {user.name} / " +
-            $"대상 {(target != null ? target.name : "없음")} / " +
-            $"코스트 {useCost}"
-        );
 
         return true;
+    }
+
+    private bool ShouldExhaustOnUse(CardData card)
+    {
+        if (card == null)
+            return false;
+
+        // 기본 자색 카드
+        if (card.color == CardColorType.Purple && card.magicCardType == MagicCardType.None)
+            return true;
+
+        // 생성된 마법 카드도 사용 시 삭제/소멸 처리
+        if (card.magicCardType != MagicCardType.None)
+            return true;
+
+        return false;
     }
 
     private void OpenPopup(CardData card, CharacterBase user, CharacterBase target)
@@ -269,8 +269,6 @@ public class CardCrkClick : MonoBehaviour
             return;
         }
 
-        Debug.Log($"팝업 열기 / 카드 {card.cardName} / 사용자 {user.name} / 대상 {(target != null ? target.name : "없음")}"
-        );
 
         useSelectUI.Open(card, user, target);
     }
@@ -320,7 +318,6 @@ public class CardCrkClick : MonoBehaviour
         GameObject hoverObject =
             GameManager.Instance.Input.GetGameObjectUnderCursor();
 
-        Debug.Log($"드롭 위치 오브젝트: {(hoverObject != null ? hoverObject.name : "null")}");
 
         if (hoverObject == null)
             return null;
@@ -334,7 +331,6 @@ public class CardCrkClick : MonoBehaviour
 
         if (dropTarget == null)
         {
-            Debug.LogWarning($"{hoverObject.name}: CardDropTarget 없음");
             return null;
         }
 
@@ -342,7 +338,6 @@ public class CardCrkClick : MonoBehaviour
 
         if (character == null)
         {
-            Debug.LogWarning($"{dropTarget.name}: CharacterBase 찾기 실패");
             return null;
         }
 
@@ -417,6 +412,12 @@ public class CardCrkClick : MonoBehaviour
         if (card == null || user == null)
             return CardDropDecision.Invalid();
 
+        // 생성된 마법 카드는 magicCardType으로 먼저 분기
+        if (card.magicCardType != MagicCardType.None)
+        {
+            return GetMagicDropDecision(card, user, target);
+        }
+
         switch (card.color)
         {
             case CardColorType.Red:
@@ -430,10 +431,56 @@ public class CardCrkClick : MonoBehaviour
 
             case CardColorType.Blue:
                 return GetBlueDropDecision(user, target);
+
+            case CardColorType.Purple:
+                return GetBasicPurpleDropDecision();
+
         }
 
         Debug.Log($"{card.cardName}: 아직 드롭 조건이 연결되지 않은 카드 색상");
         return CardDropDecision.Invalid();
+    }
+
+    private CardDropDecision GetMagicDropDecision(CardData card, CharacterBase user, CharacterBase target)
+    {
+        TeamType targetType = GetTargetTeamType(user, target);
+
+        switch (card.magicCardType)
+        {
+            case MagicCardType.Attack:
+                if (targetType == TeamType.Enemy)
+                    return CardDropDecision.Direct(CardUseCost.ActionAndAuxiliary);
+
+                Debug.Log("공격 마법 사용 불가: 적 대상만 가능");
+                return CardDropDecision.Invalid();
+
+            case MagicCardType.Defense:
+                if (targetType == TeamType.Self || targetType == TeamType.Ally)
+                    return CardDropDecision.Direct(CardUseCost.ActionAndAuxiliary);
+
+                Debug.Log("방어 마법 사용 불가: 자신 또는 아군 대상만 가능");
+                return CardDropDecision.Invalid();
+
+            case MagicCardType.Buff:
+                // 대상이 없어도 사용 가능.
+                // 사용 시 자신과 아군 전체에게 버프.
+                return CardDropDecision.Direct(CardUseCost.ActionAndAuxiliary);
+
+            case MagicCardType.Forbidden:
+                if (targetType == TeamType.Enemy)
+                    return CardDropDecision.Direct(CardUseCost.ActionAndAuxiliary);
+
+                Debug.Log("금지된 마법 사용 불가: 적 대상만 가능");
+                return CardDropDecision.Invalid();
+        }
+
+        return CardDropDecision.Invalid();
+    }
+
+    private CardDropDecision GetBasicPurpleDropDecision()
+    {
+        // 기본 자색 카드는 대상 지정 없이 사용
+        return CardDropDecision.Direct(CardUseCost.ActionAndAuxiliary);
     }
 
     private CardDropDecision GetRedDropDecision(CharacterBase user, CharacterBase target)

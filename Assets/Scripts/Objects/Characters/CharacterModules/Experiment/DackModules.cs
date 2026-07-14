@@ -138,8 +138,6 @@ public class DeckModule : CharacterModule
         deck.RemoveAt(0);
         hand.Add(card);
 
-        Debug.Log($"드로우: {card.cardName}");
-
         return card;
     }
 

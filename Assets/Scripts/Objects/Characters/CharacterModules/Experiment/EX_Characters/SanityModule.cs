@@ -23,7 +23,7 @@ public class SanityModule : CharacterModule
             currentSanity = maxSanity;
         }
 
-        Debug.Log($"최대 정신력 설정: {currentSanity}/{maxSanity}");
+
     }
 
     /// <summary>

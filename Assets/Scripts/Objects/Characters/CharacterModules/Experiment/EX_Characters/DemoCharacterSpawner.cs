@@ -30,7 +30,6 @@ public class DemoCharacterSpawner : MonoBehaviour
 
         for (int i = 0; i < presets.Length; i++)
         {
-            Debug.Log($"스폰 루프 실행: {i} / {presets[i].characterName}");
 
             if (presets[i] == null)
                 continue;

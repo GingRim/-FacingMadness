@@ -150,7 +150,7 @@ public class CardResolver
             return;
 
         combat.OnHit(damageInfo);
-        Debug.Log($"적색 카드 피해: {damage} / 크리티컬: {criticalType}");
+        Debug.Log($"크리티컬: {criticalType}");
     }
 
     /// <summary>
@@ -202,7 +202,7 @@ public class CardResolver
         
                 combat.OnHit(damageInfo);
         
-                Debug.Log($"황색 카드 피해: {damage} / 크리티컬: {criticalType}");
+                Debug.Log($"크리티컬: {criticalType}");
                 break;
             }
 
@@ -272,7 +272,7 @@ public class CardResolver
 
                 combat.OnRestore(restoreInfo);
 
-                Debug.Log($"녹색 회복: {restore} / 크리티컬:{result.criticalType}");
+                Debug.Log($"크리티컬:{result.criticalType}");
 
                 break;
             }
@@ -295,7 +295,7 @@ public class CardResolver
                     armor = Dice.RollD8() + Dice.RollD8();
                 }
 
-                Debug.Log($"임시 장갑 획득: {armor} / 크리티컬:{result.criticalType}");
+                Debug.Log($"크리티컬:{result.criticalType}");
 
                 // 나중에 ArmorModule / EffectModule 생기면 여기서 적용
                  ArmorModule armorModule = user.GetModule<ArmorModule>();
@@ -375,7 +375,7 @@ public class CardResolver
                     combat.OnHit(damageInfo);
 
                     Debug.Log(
-                        $"청색 피해: {damage} / 크리티컬:{result.criticalType}");
+                        $"크리티컬:{result.criticalType}");
 
                     break;
                 }
@@ -426,21 +426,18 @@ public class CardResolver
     /// 크리티컬 없음.
     /// 1D10 결과에 따라 마법 카드를 생성해 핸드에 추가한다.
     /// </summary>
-    private void ResolvePurple(CardData card, CharacterBase user, CharacterBase target, CardUseCost useCost)
+    private bool ResolvePurple(CardData card, CharacterBase user, CharacterBase target, CardUseCost useCost)
     {
+        if (card == null || user == null)
+            return false;
 
         if (useCost != CardUseCost.ActionAndAuxiliary)
-        {
-            return;
-        }
-
+            return false;
 
         DeckModule deck = GetDeckModule(user);
 
         if (deck == null)
-        {
-            return;
-        }
+            return false;
 
         int result = Dice.RollD10();
 
@@ -465,16 +462,18 @@ public class CardResolver
 
         if (generatedCard == null)
         {
-            Debug.Log(
+            Debug.LogWarning(
                 $"자색 카드 생성 실패: 결과 {result}에 해당하는 마법 카드가 {card.cardName}에 연결되지 않았습니다.");
-            return;
+
+            return false;
         }
 
         deck.AddCardToDeckAndShuffle(generatedCard);
 
         Debug.Log(
             $"자색 카드 결과: {result} / {generatedCard.cardName} 덱에 생성 후 셔플");
-    
+
+        return true;
     }
 
     /// <summary>
@@ -666,8 +665,7 @@ public class CardResolver
 
             // 자색 카드
             case CardColorType.Purple:
-                ResolvePurple(card, user, target, useCost);
-                break;
+                return ResolvePurple(card, user, target, useCost);
 
             // 무색 카드
             case CardColorType.Colorless:

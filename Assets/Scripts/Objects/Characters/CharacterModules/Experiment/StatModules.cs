@@ -48,9 +48,6 @@ public class StatModules : CharacterModule
         int index = (int)type;
         int value = stats[index];
 
-        Debug.Log($"[GetStat] module={GetInstanceID()} / " + $"owner={(_owner != null ? _owner.name : "null")} / " + $"{type}={value}");
-
-
         return stats[(int)type];
     }
 
@@ -67,7 +64,6 @@ public class StatModules : CharacterModule
 
         stats[index] = clampedValue;
 
-        Debug.Log($"[SetStat] module={GetInstanceID()} / " + $"owner={(_owner != null ? _owner.name : "null")} / " + $"{type}={clampedValue}");
     }
 
     /// <summary>

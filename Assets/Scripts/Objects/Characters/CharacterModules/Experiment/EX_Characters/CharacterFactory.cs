@@ -102,18 +102,6 @@ public class CharacterFactory : MonoBehaviour
         stat.SetStat(StatType.Intelligence, data.intelligence);
         stat.SetStat(StatType.Will, data.will);
 
-        Debug.Log(
-         $"능력치 확인 / " +
-         $"근력:{stat.GetStat(StatType.Strength)}, " +
-         $"민첩:{stat.GetStat(StatType.Agility)}, " +
-         $"건강:{stat.GetStat(StatType.Health)}, " +
-         $"지능:{stat.GetStat(StatType.Intelligence)}, " +
-         $"의지:{stat.GetStat(StatType.Will)}" + 
-         $"행동:{derived.GetMaxActionCost()} " +
-         $"보조:{derived.GetMaxAuxiliaryCost()} " +
-         $"대응:{derived.GetMaxReactionCost()}"
-        
-        );
     }
 
     /// <summary>
@@ -176,8 +164,6 @@ public class CharacterFactory : MonoBehaviour
         }
 
         int maxHP = derived.GetMaxHP();
-
-        Debug.Log($"계산된 최대 HP: {maxHP}");
 
         hp.InitializeHP(maxHP);
 
