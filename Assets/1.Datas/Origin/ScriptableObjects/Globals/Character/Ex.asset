@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: Ex
   m_EditorClassIdentifier: Assembly-CSharp::CharacterPresetData
   characterName: EX
-  level: 10
-  strength: 3
+  level: 1
+  strength: 4
   agility: 6
-  health: 9
-  intelligence: 9
-  will: 9
+  health: 3
+  intelligence: 5
+  will: 3
   startDeck: {fileID: 11400000, guid: ea6aa9d6ec25147449b7e0f81a1a7fe9, type: 2}

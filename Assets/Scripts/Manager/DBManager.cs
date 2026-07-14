@@ -9,6 +9,7 @@ using System.Security.Authentication;
 using System.Threading.Tasks;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class DBManager : ManagerBase
 {
@@ -46,6 +47,7 @@ public class DBManager : ManagerBase
 
     protected override void OnDisconnected()
     {
+
     }
 
     public void MakeUserData()
@@ -53,18 +55,25 @@ public class DBManager : ManagerBase
         WriteData(MakeNewUserData(nickNameInput.text), "users", "userData", user.UserId);
     }
 
-    public void GuestLogin()
+    public async void GuestLogin()
     {
         if (authentication is null) return;
 
-        if(user is not null)
+        if (user is not null)
         {
-            Debug.LogError("Login");
-            WriteData(MakeNewUserData("제로"), "users", "userData", user.UserId);
+            Debug.LogError($"Login Failed : Already Has Login Data ({user.IsValid()}, {user.UserId})");
+            UserData resultData = await ReadDataAsync<UserData>("users", "userData", user.UserId);
+            if (resultData is not null)
+            {
+                Debug.Log(resultData.nickname);
+            }
+            else
+            {
+                WriteData(MakeNewUserData("제로"), "users", "userData", user.UserId);
+            }
             return;
         }
-
-        authentication.SignInAnonymouslyAsync().ContinueWithOnMainThread(OnLoginResult);
+           await authentication.SignInAnonymouslyAsync().ContinueWithOnMainThread(OnLoginResult);
     }
 
     void OnLoginResult(Task<AuthResult> task)
@@ -76,7 +85,7 @@ public class DBManager : ManagerBase
         }
 
         user = task.Result.User;
-        WriteData(MakeNewUserData("제로"), "users", "userData" );
+        WriteData(MakeNewUserData("제로"), "users", "userData", user.UserId);
         Debug.LogError("ㅗㅅ오ㅅㅗ");
     }
 
@@ -97,32 +106,74 @@ public class DBManager : ManagerBase
         miney = 1,
         attendtime = 0
     };
+    public DatabaseReference GetFinalDirectory(DatabaseReference root, params string[] directory)
+    {
+        if (directory is null || directory.Length == 0) return root;
+        DatabaseReference currentRegerence = rootDB;
+        foreach (string currentChild in directory)
+        {
+            currentRegerence = currentRegerence.Child(currentChild);
+        }
+
+
+        return currentRegerence;
+    }
 
     public void WriteData(object wantData, params string[] directory)
     {
         if (rootDB is null || wantData is null) return;
 
         string jsonData = JsonUtility.ToJson(wantData);
-        DatabaseReference currentRegerence = rootDB;
-        foreach (string currentChild in directory) 
+        GetFinalDirectory(rootDB, directory).SetRawJsonValueAsync(jsonData).ContinueWithOnMainThread(OnTaskResult);
+
+    }
+
+    public void WiteData(Dictionary<string, object> changes, params string[] directory)
+    {
+        if (rootDB is null || changes is null) return;
+
+        GetFinalDirectory(rootDB, directory).UpdateChildrenAsync(changes).ContinueWithOnMainThread(OnTaskResult);
+    }
+
+    public void ReadDate(Action<Task<DataSnapshot>> OnReadData, params string[] directory)
+    {
+        GetFinalDirectory(rootDB, directory).GetValueAsync().ContinueWithOnMainThread(OnReadData);
+
+
+    }
+
+    public IEnumerator ReadData(Action<Task<DataSnapshot>> OnReadData, params string[] directory)
+    {
+        Task<DataSnapshot> readTask = GetFinalDirectory(rootDB, directory).GetValueAsync();
+        yield return readTask.WaitForTask();
+        OnReadData?.Invoke(readTask);
+    }
+
+    public async Task<T> ReadDataAsync<T>(params string[] directory)
+    {
+        DataSnapshot currentTask = await GetFinalDirectory(rootDB, directory).GetValueAsync();
+
+        if (currentTask is null) return default;
+        if (!currentTask.Exists) return default;
+
+        //복합타입
+        try
         {
-            currentRegerence = currentRegerence.Child(currentChild);
+            if (currentTask.HasChildren)
+            {
+                return JsonUtility.FromJson<T>(currentTask.GetRawJsonValue());
+            }
+
+            //단일 타입
+            //diyble 8바이트 소수점이 있는 숫자
+            //float  4바이트 소수점이 있는 숫자
+            return (T)System.Convert.ChangeType(currentTask.Value, typeof(T));
         }
-
-        currentRegerence.SetRawJsonValueAsync(jsonData).ContinueWithOnMainThread(OnTaskResult);
-        
-
-        Dictionary<string, object> item = new()
+        catch (Exception e)
         {
-            {"name", "돌" },
-            //무개
-            {"weight", 0.3 },
-            {"price", 1 }
-        };
-
-        rootDB.Child("Items").Child("Misc").Child("Nature").Child("Stone")
-            .UpdateChildrenAsync(item).ContinueWithOnMainThread(OnTaskResult);
-
+            Debug.LogError(e);
+            return default;
+        }
     }
 
     void OnTaskResult(Task task)
@@ -132,4 +183,5 @@ public class DBManager : ManagerBase
             Debug.Log(task.Exception);
         }
     }
+
 }

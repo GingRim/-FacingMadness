@@ -11,6 +11,17 @@ public struct DamageStruct // 이벤트 데이터 팻킷
     public bool critical;// 크리티컬
     public bool highCritical; // 상위 크리티컬
     public DamageType damageType; // 대미지 유형
+    /// <summary>
+    /// 이 공격이 반격 가능한 공격인지.
+    /// 근접 공격 또는 근접 사격이면 true.
+    /// </summary>
+    public bool canCounter;
+
+    /// <summary>
+    /// 선택된 대응.
+    /// None이면 대응하지 않음.
+    /// </summary>
+    public ActionType reactionType;
 }
     
 public struct RestoreStruct

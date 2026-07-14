@@ -366,16 +366,14 @@ public class CardResolver
                             damageType = DamageType.Long_range_combat
                         };
 
-                    CombatModule combat =
-                        target.GetModule<CombatModule>();
+                    CombatModule combat = target.GetModule<CombatModule>();
 
                     if (combat == null)
                         return;
 
                     combat.OnHit(damageInfo);
 
-                    Debug.Log(
-                        $"크리티컬:{result.criticalType}");
+                    Debug.Log($"크리티컬:{result.criticalType}");
 
                     break;
                 }

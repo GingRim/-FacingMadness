@@ -12,6 +12,15 @@ public class BattleManager : ManagerBase
     private int currentTurnIndex;
     private UI_Hand handUI;
 
+    private CharacterBase pendingAttacker;
+    private CharacterBase pendingDefender;
+    private DamageStruct pendingDamageInfo;
+
+    private bool waitingReaction;
+    private bool endTurnAfterReaction;
+
+    private UI_ReactionSelect reactionSelectUI;
+
 
     public CharacterBase CurrentCharacter { get; private set; }
     public BattleTurnState State { get; private set; }
@@ -69,6 +78,12 @@ public class BattleManager : ManagerBase
 
     private void OnTurnStart(CharacterBase character)
     {
+        if (waitingReaction || State == BattleTurnState.WaitingReaction)
+        {
+            Debug.Log("StartTurn 중단: 대응 선택 대기 중");
+            return;
+        }
+
         Debug.Log($"OnTurnStart 호출: {character.name}");
 
         if (!IsPlayer(character))
@@ -92,6 +107,7 @@ public class BattleManager : ManagerBase
 
     public void StartBattle(List<CharacterBase> characters)
     {
+        BindBattleUI();
         participants.Clear();
         turnOrder.Clear();
 
@@ -119,7 +135,7 @@ public class BattleManager : ManagerBase
 
         Debug.Log("전투 시작");
 
-        StartRound();
+        StartRound();   
     }
 
     private void StartRound()
@@ -147,9 +163,9 @@ public class BattleManager : ManagerBase
 
     private void StartTurn()
     {
-        if (turnOrder.Count <= 0)
+        if (waitingReaction || State == BattleTurnState.WaitingReaction)
         {
-            EndRound();
+            Debug.Log("StartTurn 중단: 대응 선택 대기 중");
             return;
         }
 
@@ -163,10 +179,9 @@ public class BattleManager : ManagerBase
 
         if (CurrentCharacter == null)
         {
-            EndTurn();
+            EndCurrentTurn();
             return;
         }
-
 
         State = BattleTurnState.TurnStart;
 
@@ -182,13 +197,12 @@ public class BattleManager : ManagerBase
         // 몬스터 턴이면 AI 실행
         if (IsMonster(CurrentCharacter))
         {
-            MonsterAIModule ai =
-                CurrentCharacter.GetModule<MonsterAIModule>();
+            MonsterAIModule ai = CurrentCharacter.GetModule<MonsterAIModule>();
 
             if (ai == null)
             {
                 Debug.LogWarning($"{CurrentCharacter.name}: MonsterAIModule 없음. 턴 종료");
-                EndTurn();
+                EndCurrentTurn();
                 return;
             }
 
@@ -202,6 +216,15 @@ public class BattleManager : ManagerBase
 
     public void EndTurn()
     {
+        if (State == BattleTurnState.BattleEnd)
+            return;
+
+        if (waitingReaction || State == BattleTurnState.WaitingReaction)
+        {
+            Debug.Log("EndTurn 중단: 대응 선택 대기 중");
+            return;
+        }
+
         if (CurrentCharacter != null)
         {
             Debug.Log($"턴 종료: {CurrentCharacter.name}");
@@ -349,8 +372,7 @@ public class BattleManager : ManagerBase
 
     private void DrawCardsByIntelligence(CharacterBase character)
     {
-        DerivedStatModule derived =
-            character.GetModule<DerivedStatModule>();
+        DerivedStatModule derived = character.GetModule<DerivedStatModule>();
 
         if (derived == null)
         {
@@ -358,8 +380,7 @@ public class BattleManager : ManagerBase
             return;
         }
 
-        DeckModule deck =
-            character.GetModule<DeckModule>();
+        DeckModule deck = character.GetModule<DeckModule>();
 
         if (deck == null)
         {
@@ -367,8 +388,7 @@ public class BattleManager : ManagerBase
             return;
         }
 
-        StatusEffectModule status =
-            character.GetModule<StatusEffectModule>();
+        StatusEffectModule status = character.GetModule<StatusEffectModule>();
 
         if (status != null && status.ConsumeDrawBlock())
         {
@@ -527,4 +547,236 @@ public class BattleManager : ManagerBase
 
         EndTurn();
     }
+
+    private bool IsPhysicalDamage(DamageType damageType)
+    {
+        switch (damageType)
+        {
+            case DamageType.Hand_to_hand_combat:
+            case DamageType.Long_range_combat:
+                return true;
+
+            default:
+                return false;
+        }
+    }
+
+    public void RequestAttack(CharacterBase attacker, CharacterBase defender, DamageStruct damageInfo, bool endTurnAfterResolve = false)
+    {
+        if (attacker == null || defender == null)
+            return;
+
+        Debug.Log(
+            $"공격 요청 / 공격자:{attacker.name} / 대상:{defender.name} / " +
+            $"피해:{damageInfo.damageAmount} / 타입:{damageInfo.damageType} / 반격가능:{damageInfo.canCounter}"
+        );
+
+        pendingAttacker = attacker;
+        pendingDefender = defender;
+        pendingDamageInfo = damageInfo;
+        endTurnAfterReaction = endTurnAfterResolve;
+
+        if (CanOpenReactionPopup(defender, damageInfo))
+        {
+            waitingReaction = true;
+            State = BattleTurnState.WaitingAction;
+
+            OpenReactionPopup(
+                defender,
+                attacker,
+                damageInfo
+            );
+
+            return;
+        }
+
+        ApplyDamageToTarget(
+            defender,
+            damageInfo
+        );
+
+        if (endTurnAfterResolve)
+        {
+            EndTurn();
+        }
+    }
+
+
+    private bool CanOpenReactionPopup(CharacterBase defender, in DamageStruct damageInfo)
+    {
+        if (defender == null)
+        {
+            Debug.Log("대응 팝업 불가: defender null");
+            return false;
+        }
+
+        // 플레이어만 대응 팝업 사용
+        if (defender.Controller == null)
+        {
+            Debug.Log($"대응 팝업 불가: {defender.name}은 플레이어가 아님");
+            return false;
+        }
+
+        // 물리 공격만 대응 가능
+        if (!IsPhysicalDamage(damageInfo.damageType))
+        {
+            Debug.Log($"대응 팝업 불가: 물리 공격이 아님 / {damageInfo.damageType}");
+            return false;
+        }
+
+        ReactionModule reaction = defender.GetModule<ReactionModule>();
+
+        if (reaction == null)
+        {
+            Debug.Log($"대응 팝업 불가: {defender.name}에게 ReactionModule 없음");
+            return false;
+        }
+
+        if (!reaction.CanUseAnyReaction())
+        {
+            Debug.Log($"대응 팝업 불가: {defender.name} 대응 코스트 부족");
+            return false;
+        }
+
+        return true;
+    }
+
+    private bool CanCounterAttack(CharacterBase defender, CharacterBase attacker, in DamageStruct damageInfo)
+    {
+        if (defender == null || attacker == null)
+            return false;
+
+        if (!damageInfo.canCounter)
+            return false;
+
+        ReactionModule reaction = defender.GetModule<ReactionModule>();
+
+        if (reaction == null)
+            return false;
+
+        return reaction.CanUse(ActionType.Counterattack);
+    }
+
+    private void OpenReactionPopup(CharacterBase defender, CharacterBase attacker, in DamageStruct damageInfo)
+    {
+        if (reactionSelectUI == null)
+            BindBattleUI();
+
+        if (reactionSelectUI == null)
+        {
+            Debug.LogWarning("대응 팝업 실패: reactionSelectUI null");
+            return;
+        }
+
+        bool canCounter = CanCounterAttack(defender, attacker, damageInfo);
+
+        Debug.Log(
+            $"대응 팝업 열기 / 대상:{defender.name} / 피해:{damageInfo.damageAmount} / 반격버튼:{canCounter}"
+        );
+
+        reactionSelectUI.Open(damageInfo.damageAmount, canCounter);
+    }
+
+    private void BindBattleUI()
+    {
+        UIBase actionPopupUI = UIManager.GetUIM2(UIType.ActionPopUp);
+
+        if (actionPopupUI == null)
+        {
+            Debug.LogWarning("ActionPopUp UI를 찾을 수 없습니다.");
+            return;
+        }
+
+        reactionSelectUI = actionPopupUI.GetComponentInChildren<UI_ReactionSelect>(true);
+
+        if (reactionSelectUI == null)
+        {
+            Debug.LogWarning("ReactionSelectUI를 찾을 수 없습니다.");
+            return;
+        }
+
+        reactionSelectUI.OnSelected -= ResolveReaction;
+        reactionSelectUI.OnSelected += ResolveReaction;
+
+        Debug.Log("ReactionSelectUI 연결 완료");
+    }
+
+    internal void ResolveReaction(ActionType actionType)
+    {
+        if (!waitingReaction)
+        {
+            Debug.LogWarning($"대응 처리 실패: 현재 대응 대기 상태가 아닙니다. / 선택:{actionType}");
+            return;
+        }
+
+        waitingReaction = false;
+
+        CharacterBase attacker = pendingAttacker;
+        CharacterBase defender = pendingDefender;
+        DamageStruct damageInfo = pendingDamageInfo;
+        bool shouldEndTurn = endTurnAfterReaction;
+
+        if (defender == null)
+        {
+            Debug.LogWarning("대응 처리 실패: defender null");
+            State = BattleTurnState.WaitingAction;
+            return;
+        }
+
+        ReactionModule reaction = defender.GetModule<ReactionModule>();
+
+        if (reaction == null)
+        {
+            Debug.LogWarning($"{defender.name}: ReactionModule 없음. 대응 없이 피해 처리");
+        }
+        else
+        {
+            bool success =
+                reaction.TryUse(
+                    actionType,
+                    damageInfo,
+                    out damageInfo
+                );
+
+            if (!success)
+            {
+                Debug.LogWarning($"{defender.name}: 대응 실패 / 선택:{actionType}");
+            }
+            else
+            {
+                Debug.Log($"{defender.name}: 대응 적용 / 선택:{damageInfo.reactionType}");
+            }
+        }
+
+        ApplyDamageToTarget(
+            defender,
+            damageInfo
+        );
+
+        State = BattleTurnState.WaitingAction;
+
+        if (shouldEndTurn)
+        {
+            EndTurn();
+        }
+    }
+
+    private void ApplyDamageToTarget(CharacterBase defender, DamageStruct damageInfo)
+    {
+        if (defender == null)
+            return;
+
+        CombatModule combat = defender.GetModule<CombatModule>();
+
+        if (combat == null)
+        {
+            Debug.LogWarning($"{defender.name}: CombatModule 없음. 피해 처리 불가");
+            return;
+        }
+
+        combat.OnHit(damageInfo);
+
+        //CheckBattleEnd();
+    }
+
 }

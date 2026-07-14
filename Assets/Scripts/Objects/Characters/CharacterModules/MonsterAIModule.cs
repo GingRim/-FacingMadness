@@ -28,9 +28,8 @@ public class MonsterAIModule : CharacterModule
             return;
         }
 
-        BasicAttack(target);
+        BasicAttack(battle, target);
 
-        battle.EndTurn();
     }
 
     private CharacterBase FindTarget(BattleManager battle)
@@ -45,33 +44,32 @@ public class MonsterAIModule : CharacterModule
         return enemies[0];
     }
 
-    private void BasicAttack(CharacterBase target)
+    private void BasicAttack(BattleManager battle, CharacterBase target)
     {
-        if (target == null)
+        if (battle == null || target == null)
             return;
 
-        CombatModule combat =
-            target.GetModule<CombatModule>();
-
-        if (combat == null)
-        {
-            Debug.LogWarning($"{target.name}: CombatModule 없음");
-            return;
-        }
-
-        int damage = Dice.RollD6();
+        int damage = Dice.RollD10();
 
         DamageStruct damageInfo = new DamageStruct
         {
             from = Owner.gameObject,
-            instigator = null,
+            instigator = Owner.Controller,
+
             damageAmount = damage,
+
             critical = false,
             highCritical = false,
-            damageType = DamageType.Hand_to_hand_combat
+
+            damageType = DamageType.Hand_to_hand_combat,
+
+            canCounter = true,
+            reactionType = ActionType.None
         };
 
-        combat.OnHit(damageInfo);
+        Debug.Log($"{Owner.name} 기본 공격 요청 → {target.name} / 피해:{damage}");
+
+        battle.RequestAttack(Owner, target, damageInfo, true);
 
         Debug.Log($"{Owner.name} 기본 공격 → {target.name} / 피해 {damage}");
     }

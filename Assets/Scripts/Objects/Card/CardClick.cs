@@ -315,8 +315,7 @@ public class CardCrkClick : MonoBehaviour
 
     private CharacterBase FindDropTarget()
     {
-        GameObject hoverObject =
-            GameManager.Instance.Input.GetGameObjectUnderCursor();
+        GameObject hoverObject = GameManager.Instance.Input.GetGameObjectUnderCursor();
 
 
         if (hoverObject == null)
@@ -544,8 +543,7 @@ public class CardCrkClick : MonoBehaviour
 
             case TeamType.Self:
             case TeamType.Ally:
-                // 버프 / 드로우 선택
-                return CardDropDecision.Popup();
+                return CardDropDecision.Direct(CardUseCost.Auxiliary);
 
             default:
                 return CardDropDecision.Invalid();

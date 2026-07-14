@@ -333,21 +333,19 @@ public class StatusEffectModule : CharacterModule
 
         return Mathf.Max(0, damage);
     }
+    public int GetEvadeBonusByHaste()
+    {
+        int hasteStack = GetStack(StatusEffectType.Haste);
 
-    
+        return hasteStack / 2;
+    }
+
     public int ModifyIncomingDamage(int damage, DamageType damageType)
     {
         // 취약: 받는 피해 +2 / 중첩
         if (HasStatus(StatusEffectType.Vulnerable))
         {
             damage += GetStack(StatusEffectType.Vulnerable) * 2;
-        }
-
-        // 가속: 2중첩당 받는 물리 피해 -2
-        if (damageType == DamageType.Physical && HasStatus(StatusEffectType.Haste))
-        {
-            int hasteStack = GetStack(StatusEffectType.Haste);
-            damage -= (hasteStack / 2) * 2;
         }
 
         return Mathf.Max(0, damage);
@@ -446,8 +444,6 @@ public class StatusEffectModule : CharacterModule
     /// </summary>
     public void OnTurnEnd()
     {
-
-        ReduceStatus(StatusEffectType.Haste, 1);
         ReduceStatus(StatusEffectType.Bind, 1);
 
         TickDoom();
@@ -455,6 +451,9 @@ public class StatusEffectModule : CharacterModule
 
     public void OnRoundEnd()
     {
+
+        ReduceStatus(StatusEffectType.Haste, 1);
+        ReduceStatus(StatusEffectType.Bind, 1);
 
         ClearStatus(StatusEffectType.Vulnerable);
         ClearStatus(StatusEffectType.Blessing);

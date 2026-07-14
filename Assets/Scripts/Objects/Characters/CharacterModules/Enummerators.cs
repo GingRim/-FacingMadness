@@ -4,7 +4,7 @@ using UnityEngine;
 public enum UIType
 {
     None, Loading, Title, Movable, Menu, Info, Battle, Reward, Pause, Creation, Quit, SavePopUp, InComplete, CostHoverInfo,
-    TargeHoverInfp, experimentHoverInfp, Cards, ResolverPopUp, _Length
+    TargeHoverInfp, ExperimentHoverInfp, Cards, ResolverPopUp, ActionPopUp, _Length
 
 }
 
@@ -136,7 +136,7 @@ public enum StatusEffectType
 
 public enum BattleTurnState
 {
-    None, BattleStart, RoundStart, TurnStart, WaitingAction, TurnEnd, RoundEnd, BattleEnd, _Length
+    None, BattleStart, RoundStart, TurnStart, WaitingAction, WaitingReaction, TurnEnd, RoundEnd, BattleEnd, _Length
 }
 
 

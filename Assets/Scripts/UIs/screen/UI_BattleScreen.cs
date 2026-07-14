@@ -6,17 +6,24 @@ public class UI_BattleScreen : UI_ScreenBase
     private CardCrkClick cardClick;
     private UI_Hand handUI;
 
+    private UI_ReactionSelect reactionSelect;
+    public UI_ReactionSelect ReactionSelect => reactionSelect;
 
     private void Awake()
     {
         cardClick = GetComponentInChildren<CardCrkClick>(true);
         handUI = GetComponentInChildren<UI_Hand>(true);
 
-        GameObject popupObj =
-            ObjectManager.CreateObject("Resolver", transform);
+        reactionSelect = GetComponentInChildren<UI_ReactionSelect>(true);
 
-        cardUseSelect =
-            popupObj.GetComponent<UI_CardUseSelect>();
+        if (reactionSelect != null)
+        {
+            reactionSelect.Close();
+        }
+
+        GameObject popupObj = ObjectManager.CreateObject("Resolver", transform);
+
+        cardUseSelect = popupObj.GetComponent<UI_CardUseSelect>();
 
         if (cardUseSelect != null)
         {

@@ -1740,11 +1740,14 @@ MonoBehaviour:
   - prefabName: CharacterHoverInfo
     uiType: 14
     isOpen: 0
-  - prefabName: KeywordHoverInfo
+  - prefabName: KeywordEncyclopedia
     uiType: 15
     isOpen: 0
   - prefabName: Resolver
     uiType: 17
+    isOpen: 0
+  - prefabName: ActionPopUp
+    uiType: 18
     isOpen: 0
 --- !u!1 &6740300669997054849
 GameObject:
