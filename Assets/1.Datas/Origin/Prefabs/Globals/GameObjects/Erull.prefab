@@ -67,8 +67,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "\uC0C1\uD14C\uC774\uC0C1 \uC544\uC774\uCF58"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 6305cc965c5a1414baf8feea65709da8, type: 2}
-  m_sharedMaterial: {fileID: -5247412543679069724, guid: 6305cc965c5a1414baf8feea65709da8, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 2fa312cf9d697af4589780c3b5ab66da, type: 2}
+  m_sharedMaterial: {fileID: -5247412543679069724, guid: 2fa312cf9d697af4589780c3b5ab66da, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -204,8 +204,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "\uC608\uB294 \uBB34\uC2A8\uBB34\uC2A8 \uC0C1\uD14C\uC774\uC0C1\uC774\uC57C"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 6305cc965c5a1414baf8feea65709da8, type: 2}
-  m_sharedMaterial: {fileID: -5247412543679069724, guid: 6305cc965c5a1414baf8feea65709da8, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 2fa312cf9d697af4589780c3b5ab66da, type: 2}
+  m_sharedMaterial: {fileID: -5247412543679069724, guid: 2fa312cf9d697af4589780c3b5ab66da, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -366,6 +366,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::UI_TargetHoverInfo
   shiftedPosition: {x: 0, y: 0}
   nameText: {fileID: 0}
+  coommentText: {fileID: 0}
   Icon: {fileID: 0}
   bar: {fileID: 0}
 --- !u!1 &5303334165904188118

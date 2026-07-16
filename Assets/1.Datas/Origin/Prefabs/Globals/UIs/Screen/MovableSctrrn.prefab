@@ -67,8 +67,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: patun
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 2fa312cf9d697af4589780c3b5ab66da, type: 2}
+  m_sharedMaterial: {fileID: -5247412543679069724, guid: 2fa312cf9d697af4589780c3b5ab66da, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -264,12 +264,44 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: -0.000030517578
       objectReference: {fileID: 0}
+    - target: {fileID: 3994623080010691012, guid: d2666738cc14c6b4780bf783a6ce89a2, type: 3}
+      propertyPath: m_fontSize
+      value: 34.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 3994623080010691012, guid: d2666738cc14c6b4780bf783a6ce89a2, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 2fa312cf9d697af4589780c3b5ab66da, type: 2}
+    - target: {fileID: 3994623080010691012, guid: d2666738cc14c6b4780bf783a6ce89a2, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -5247412543679069724, guid: 2fa312cf9d697af4589780c3b5ab66da, type: 2}
+    - target: {fileID: 3994623080010691012, guid: d2666738cc14c6b4780bf783a6ce89a2, type: 3}
+      propertyPath: m_hasFontAssetChanged
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5386283348062906745, guid: d2666738cc14c6b4780bf783a6ce89a2, type: 3}
       propertyPath: m_text
       value: DeepOnes
       objectReference: {fileID: 0}
     - target: {fileID: 5386283348062906745, guid: d2666738cc14c6b4780bf783a6ce89a2, type: 3}
+      propertyPath: m_fontSize
+      value: 78.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 5386283348062906745, guid: d2666738cc14c6b4780bf783a6ce89a2, type: 3}
       propertyPath: m_margin.w
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5386283348062906745, guid: d2666738cc14c6b4780bf783a6ce89a2, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 2fa312cf9d697af4589780c3b5ab66da, type: 2}
+    - target: {fileID: 5386283348062906745, guid: d2666738cc14c6b4780bf783a6ce89a2, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -5247412543679069724, guid: 2fa312cf9d697af4589780c3b5ab66da, type: 2}
+    - target: {fileID: 5386283348062906745, guid: d2666738cc14c6b4780bf783a6ce89a2, type: 3}
+      propertyPath: m_hasFontAssetChanged
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6256449344536098857, guid: d2666738cc14c6b4780bf783a6ce89a2, type: 3}
@@ -398,6 +430,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7791bb188eeef3d44b5183e10c4b4348, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UI_MovableScreen
+  requiredUI: []
   popupList:
   - {fileID: -7177898630162023775}
 --- !u!224 &3824703837838318304 stripped
