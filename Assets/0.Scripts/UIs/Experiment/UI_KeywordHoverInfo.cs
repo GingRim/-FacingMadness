@@ -10,11 +10,11 @@ public class UI_KeywordHoverInfo : OpenableUIBase
 {
     [SerializeField] private TextMeshProUGUI nameText;
     [SerializeField] private TextMeshProUGUI commentText;
-
     UI_Keyword target;
 
     [SerializeField] private UI_KeywordHoverInfo keywordEncyclopedia;
-
+    [SerializeField] private UI_ReactionSelect reactionSelect;
+        
     public override void Registration(UIManager manager)
     {
         base.Registration(manager);
@@ -71,6 +71,9 @@ public class UI_KeywordHoverInfo : OpenableUIBase
         if (IsPauseOpen())
             return;
 
+        if (IsReactionOpen())
+            return;
+
         Open();
     }
 
@@ -82,6 +85,9 @@ public class UI_KeywordHoverInfo : OpenableUIBase
 
         // 일시정지 중에는 Tab 입력 무시
         if (IsPauseOpen())
+            return;
+
+        if (IsReactionOpen())
             return;
 
         if (IsOpen)
@@ -117,6 +123,20 @@ public class UI_KeywordHoverInfo : OpenableUIBase
                pauseUI.isActiveAndEnabled;
     }
 
+    private bool IsReactionOpen()
+    {
+        if (reactionSelect == null)
+        {
+            reactionSelect =
+                UnityEngine.Object.FindFirstObjectByType<UI_ReactionSelect>(
+                    FindObjectsInactive.Include);
+        }
+
+        return reactionSelect != null &&
+               reactionSelect.IsOpen;
+    }
+
+   
     /// <summary>
     /// 생성된 도감 버튼에서 이름과 설명을 전달한다.
     /// </summary>

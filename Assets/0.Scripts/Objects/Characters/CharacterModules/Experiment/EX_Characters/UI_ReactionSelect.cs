@@ -16,11 +16,55 @@ public class UI_ReactionSelect : UIBase
 
     public event Action<ActionType> OnSelected;
 
+    public bool IsOpen => gameObject.activeSelf;
+
     private void Awake()
     {
         gameObject.SetActive(false);
-
         BindButtons();
+    }
+
+    private void OnEnable()
+    {
+        InputManager.OnPausePriority -= BlockPause;
+        InputManager.OnPausePriority += BlockPause;
+    }
+
+    private void OnDisable()
+    {
+        InputManager.OnPausePriority -= BlockPause;
+    }
+
+    private bool BlockPause()
+    {
+        // 대응 UI가 켜져 있으면
+        // Pause 입력을 소비함
+        return IsOpen;
+    }
+
+    public void Open(int damageAmount, bool canCounter)
+    {
+        CloseOtherUI();
+
+        if (descriptionText != null)
+        {
+            descriptionText.SetText(
+                $"{damageAmount} 피해를 받았습니다.\n" + "어느 방식으로 대응하시겠습니까?");
+        }
+
+        if (guardButton != null)
+            guardButton.gameObject.SetActive(true);
+
+        if (evadeButton != null)
+            evadeButton.gameObject.SetActive(true);
+
+        if (counterattackButton != null)
+            counterattackButton.gameObject.SetActive(canCounter);
+
+        if (cancelButton != null)
+            cancelButton.gameObject.SetActive(true);
+
+        gameObject.SetActive(true);
     }
 
     private void BindButtons()
@@ -48,30 +92,6 @@ public class UI_ReactionSelect : UIBase
             cancelButton.onClick.RemoveListener(SelectCancel);
             cancelButton.onClick.AddListener(SelectCancel);
         }
-    }
-
-    public void Open(int damageAmount, bool canCounter)
-    {
-        if (descriptionText != null)
-        {
-            descriptionText.SetText(
-                $"{damageAmount} 피해를 받았습니다.\n어느 방식으로 대응하시겠습니까?"
-            );
-        }
-
-        if (guardButton != null)
-            guardButton.gameObject.SetActive(true);
-
-        if (evadeButton != null)
-            evadeButton.gameObject.SetActive(true);
-
-        if (counterattackButton != null)
-            counterattackButton.gameObject.SetActive(canCounter);
-
-        if (cancelButton != null)
-            cancelButton.gameObject.SetActive(true);
-
-        gameObject.SetActive(true);
     }
 
     public void Close()
@@ -108,4 +128,22 @@ public class UI_ReactionSelect : UIBase
         OnSelected?.Invoke(actionType);
     }
 
+    private void CloseOtherUI()
+    {
+        UIBase pauseUI = UIManager.GetUIM2(UIType.Pause);
+
+        if (pauseUI != null &&
+            pauseUI.isActiveAndEnabled)
+        {
+            UIManager.CloseUIM2(UIType.Pause);
+        }
+
+        UI_KeywordHoverInfo encyclopedia = UnityEngine.Object.FindFirstObjectByType<UI_KeywordHoverInfo>(
+                FindObjectsInactive.Include);
+
+        if (encyclopedia != null && encyclopedia.IsOpen)
+        {
+            encyclopedia.Close();
+        }
+    }
 }

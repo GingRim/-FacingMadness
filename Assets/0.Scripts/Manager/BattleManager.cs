@@ -441,19 +441,26 @@ public class BattleManager : ManagerBase
 
         character.AddAllModuleFromObject(character.gameObject);
 
+        HitpointModules hp =
+            character.GetModule<HitpointModules>();
+
+        if (hp != null)
+        {
+            hp.OnEmpty -= CheckBattleEnd;
+            hp.OnEmpty += CheckBattleEnd;
+        }
+
         ControllerBase controller =
             character.GetComponent<ControllerBase>();
 
-        if (controller != null && character.Controller == null)
+        if (controller != null &&
+            character.Controller == null)
         {
             controller.Possess(character);
 
-            Debug.Log($"{character.name}: Controller Possess 실행");
+            Debug.Log(
+                $"{character.name}: Controller Possess 실행");
         }
-
-        Debug.Log(
-            $"전투 참가자 준비: {character.name} / " +
-            $"Controller={(character.Controller != null ? character.Controller.GetType().Name : "null")}");
     }
 
     /// <summary>
@@ -594,6 +601,9 @@ public class BattleManager : ManagerBase
             defender,
             damageInfo
         );
+
+        if (State == BattleTurnState.BattleEnd)
+            return;
 
         if (endTurnAfterResolve)
         {
@@ -753,11 +763,32 @@ public class BattleManager : ManagerBase
             damageInfo
         );
 
+        ApplyDamageToTarget(defender, damageInfo);
+
+        if (State == BattleTurnState.BattleEnd)
+        {
+            ClearPendingReaction();
+            return;
+        }
+
         State = BattleTurnState.WaitingAction;
 
         if (shouldEndTurn)
         {
             EndTurn();
+        }
+    }
+
+    private void ClearPendingReaction()
+    {
+        waitingReaction = false;
+        pendingAttacker = null;
+        pendingDefender = null;
+        endTurnAfterReaction = false;
+
+        if (reactionSelectUI != null)
+        {
+            reactionSelectUI.Close();
         }
     }
 
@@ -776,7 +807,139 @@ public class BattleManager : ManagerBase
 
         combat.OnHit(damageInfo);
 
-        //CheckBattleEnd();
+        CheckBattleEnd();
+    }
+
+    private void CheckBattleEnd()
+    {
+        bool playerAlive = HasAlivePlayer();
+
+        bool monsterAlive = HasAliveMonster();
+
+        if (!playerAlive)
+        {
+            EndBattle(false);
+            return;
+        }
+
+        if (!monsterAlive)
+        {
+            EndBattle(true);
+        }
+    }
+
+    private void EndBattle(bool victory)
+    {
+        if (State == BattleTurnState.BattleEnd)
+            return;
+
+        State = BattleTurnState.BattleEnd;
+
+        UnbindHitPointEvents();
+        ClearPendingReaction();
+
+        if (!victory)
+        {
+            OpenGameOver();
+            return;
+        }
+
+        StartCoroutine(VictorySequence());
+    }
+
+    [SerializeField]
+    private float victoryDelay = 1.0f;
+
+    private IEnumerator VictorySequence()
+    {
+        // 마지막 공격 결과를 잠시 보여줌
+        yield return new WaitForSeconds(victoryDelay);
+
+        HideMonsters();
+
+        // 몬스터가 사라진 화면을 잠깐 보여줌
+        yield return new WaitForSeconds(0.5f);
+
+        OpenReward();
+    }
+
+    private void HideMonsters()
+    {
+        foreach (CharacterBase character in participants)
+        {
+            if (character == null)
+                continue;
+
+            if (!IsMonster(character))
+                continue;
+
+            character.gameObject.SetActive(false);
+        }
+    }   
+
+    private void OpenGameOver()
+    {
+        UIManager.OpenUIM2(UIType.GameOver);
+    }
+
+    private void OpenReward()
+    {
+        UI_RewardWindow rewardUI = UIManager.OpenUIM2(UIType.Reward)
+            as UI_RewardWindow;
+
+        if (rewardUI == null)
+        {
+            Debug.LogWarning(
+                "BattleManager: Reward UI를 찾지 못했습니다.");
+
+            return;
+        }
+
+        //rewardUI.SetReward(/* 전투 보상 */);
+    }
+    private bool HasAlivePlayer()
+    {
+        foreach (CharacterBase character in participants)
+        {
+            if (character == null)
+                continue;
+
+            if (IsPlayer(character) && IsAlive(character))
+                return true;
+        }
+
+        return false;
+    }
+
+    private bool HasAliveMonster()
+    {
+        foreach (CharacterBase character in participants)
+        {
+            if (character == null)
+                continue;
+
+            if (IsMonster(character) && IsAlive(character))
+                return true;
+        }
+
+        return false;
+    }
+
+    private void UnbindHitPointEvents()
+    {
+        foreach (CharacterBase character in participants)
+        {
+            if (character == null)
+                continue;
+
+            HitpointModules hp =
+                character.GetModule<HitpointModules>();
+
+            if (hp != null)
+            {
+                hp.OnEmpty -= CheckBattleEnd;
+            }
+        }
     }
 
 }

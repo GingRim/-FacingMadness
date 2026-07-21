@@ -4,7 +4,7 @@ using UnityEngine;
 public enum UIType
 {
     None, Loading, Title, Movable, Menu, Info, Battle, Reward, Pause, Creation, Quit, SavePopUp, InComplete, CostHoverInfo,
-    TargeHoverInfp, ExperimentHoverInfp, Cards, ResolverPopUp, ActionPopUp, _Length
+    TargeHoverInfp, ExperimentHoverInfp, Cards, ResolverPopUp, ActionPopUp, GameOver, _Length
 
 }
 

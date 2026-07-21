@@ -34,24 +34,46 @@ public abstract class HitpointModules : CharacterModule
 {
     protected FillValue fill = new FillValue();
 
-    public sealed override System.Type RegistrationType => typeof(HitpointModules);
+    public sealed override Type RegistrationType => typeof(HitpointModules);
 
-    public int Max =>   fill.Max;
+    public int Max => fill.Max;
     public int Min => fill.Min;
     public int Current => fill.Current;
+
     public bool IsFullHealth => fill.IsMax;
-    public bool IsEmpty => fill.IsEmpty;
-    
+
+    // FillValue.IsEmpty에 의존하지 않고 0을 포함해 직접 판정
+    public bool IsEmpty => fill.Current <= fill.Min;
+
+    /// <summary>
+    /// 생명력이 남아 있는 상태에서 0 이하가 된 순간 한 번 발생
+    /// </summary>
+    public event Action OnEmpty;
 
     public int TakeDamage(in DamageStruct damageInfo)
     {
+        int before = fill.Current;
+
         fill.DecreaseCurrent(damageInfo.damageAmount);
-        return damageInfo.damageAmount;
+
+        int actualDamage = before - fill.Current;
+
+        if (before > fill.Min &&
+            fill.Current <= fill.Min)
+        {
+            OnEmpty?.Invoke();
+        }
+
+        return actualDamage;
     }
+
     public int TakeRestore(in RestoreStruct restoreInfo)
     {
+        int before = fill.Current;
+
         fill.IncreaseCurrent(restoreInfo.restoreAmount);
-        return restoreInfo.restoreAmount;
+
+        return fill.Current - before;
     }
 
     public void InitializeHP(int maxHp)
@@ -59,6 +81,4 @@ public abstract class HitpointModules : CharacterModule
         fill.SetMax(maxHp);
         fill.SetCurrent(maxHp);
     }
-
-
 }

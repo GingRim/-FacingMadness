@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using static UnityEngine.GraphicsBuffer;
 
 
 /// <summary>
@@ -434,11 +435,14 @@ public class CardCrkClick : MonoBehaviour
             case CardColorType.Purple:
                 return GetBasicPurpleDropDecision();
 
+            case CardColorType.Colorless:
+                return GatColorlessDecision(user, target);
         }
 
         Debug.Log($"{card.cardName}: 아직 드롭 조건이 연결되지 않은 카드 색상");
         return CardDropDecision.Invalid();
     }
+
 
     private CardDropDecision GetMagicDropDecision(CardData card, CharacterBase user, CharacterBase target)
     {
@@ -549,6 +553,22 @@ public class CardCrkClick : MonoBehaviour
                 return CardDropDecision.Invalid();
         }
     }
+    private CardDropDecision GatColorlessDecision(CharacterBase user, CharacterBase target)
+    {
+        TeamType targetType = GetTargetTeamType(user, target);
 
+        switch (targetType)
+        {
+            case TeamType.Enemy:
+                return CardDropDecision.Direct(CardUseCost.Action);
+
+            case TeamType.Self:
+            case TeamType.Ally:
+                return CardDropDecision.Direct(CardUseCost.Auxiliary);
+
+            default:
+                return CardDropDecision.Invalid();
+        }
+    }
 
 }

@@ -1749,6 +1749,9 @@ MonoBehaviour:
   - prefabName: ActionPopUp
     uiType: 18
     isOpen: 0
+  - prefabName: RewardWindow
+    uiType: 7
+    isOpen: 0
 --- !u!1 &6740300669997054849
 GameObject:
   m_ObjectHideFlags: 0
