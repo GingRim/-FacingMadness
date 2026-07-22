@@ -132,8 +132,7 @@ public class CombatModule : CharacterModule
     {
         int strengthBonus = 0;
 
-        StatModules stat =
-            defender.GetModule<StatModules>();
+        StatModules stat = defender.GetModule<StatModules>();
 
         if (stat != null)
             strengthBonus = stat.GetModifier(StatType.Strength);
@@ -151,9 +150,7 @@ public class CombatModule : CharacterModule
         return result;
     }
 
-    private bool TryEvadeReaction(
-    CharacterBase defender,
-    int damage)
+    private bool TryEvadeReaction(CharacterBase defender, int damage)
     {
         int agilityBonus = 0;
         int hasteEvadeBonus = 0;

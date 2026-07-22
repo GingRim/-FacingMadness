@@ -18,8 +18,12 @@ public class BattleManager : ManagerBase
 
     private bool waitingReaction;
     private bool endTurnAfterReaction;
+    private bool isBattleActive;
 
     private UI_ReactionSelect reactionSelectUI;
+
+    [Header("Battle Log")]
+    [SerializeField] private UI_BattleLog battleLog;
 
 
     public CharacterBase CurrentCharacter { get; private set; }
@@ -107,9 +111,14 @@ public class BattleManager : ManagerBase
 
     public void StartBattle(List<CharacterBase> characters)
     {
+        isBattleActive = true;
+
         BindBattleUI();
         participants.Clear();
         turnOrder.Clear();
+
+
+        WriteBattleLog("전투가 시작되었습니다.");
 
         if (characters != null)
         {
@@ -184,8 +193,8 @@ public class BattleManager : ManagerBase
         }
 
         State = BattleTurnState.TurnStart;
-
-        Debug.Log($"턴 시작: {CurrentCharacter.name}");
+ 
+        WriteBattleLog($"{CurrentCharacter.name}의 턴입니다.");
 
         OnTurnStart(CurrentCharacter);
 
@@ -216,6 +225,9 @@ public class BattleManager : ManagerBase
 
     public void EndTurn()
     {
+        if (!isBattleActive)
+            return;
+
         if (State == BattleTurnState.BattleEnd)
             return;
 
@@ -255,7 +267,6 @@ public class BattleManager : ManagerBase
 
         StartRound();
     }
-
 
     private bool IsPlayer(CharacterBase character)
     {
@@ -796,7 +807,7 @@ public class BattleManager : ManagerBase
     {
         if (defender == null)
             return;
-
+        
         CombatModule combat = defender.GetModule<CombatModule>();
 
         if (combat == null)
@@ -805,7 +816,26 @@ public class BattleManager : ManagerBase
             return;
         }
 
+        HitpointModules hp = defender.GetModule<HitpointModules>();
+
+        int beforeHP = hp != null ? hp.Current : 0;
+
         combat.OnHit(damageInfo);
+
+        int afterHP = hp != null ? hp.Current : 0;
+
+        int actualDamage = Mathf.Max(0, beforeHP - afterHP);
+
+        WriteBattleLog(
+            $"{defender.name}이(가) " +
+            $"{actualDamage}의 피해를 받았습니다.");
+
+        if (hp != null && hp.IsEmpty)
+        {
+            WriteBattleLog(
+                $"{defender.name}이(가) 쓰러졌습니다.");
+        }
+
 
         CheckBattleEnd();
     }
@@ -830,9 +860,10 @@ public class BattleManager : ManagerBase
 
     private void EndBattle(bool victory)
     {
-        if (State == BattleTurnState.BattleEnd)
+        if (!isBattleActive)
             return;
 
+        isBattleActive = false;
         State = BattleTurnState.BattleEnd;
 
         UnbindHitPointEvents();
@@ -940,6 +971,19 @@ public class BattleManager : ManagerBase
                 hp.OnEmpty -= CheckBattleEnd;
             }
         }
+    }
+
+
+    public void WriteBattleLog(string message)
+    {
+        if (battleLog == null)
+        {
+            Debug.LogWarning(
+                "BattleManager: UI_BattleLog가 연결되지 않았습니다.");
+            return;
+        }
+
+        battleLog.AddLog(message);
     }
 
 }
