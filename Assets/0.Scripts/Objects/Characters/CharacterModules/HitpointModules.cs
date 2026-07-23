@@ -5,47 +5,30 @@ using UnityEngine;
 
 public struct DamageStruct // 이벤트 데이터 팻킷
 {
-    public GameObject from; // 양식
-    public ControllerBase instigator; // 선동가(명령자)
+    public GameObject from;
+    public ControllerBase instigator;
 
-    /// <summary>
-    /// 모든 계산이 끝난 뒤 실제 적용할 최종 피해량
-    /// </summary>
+    // 주사위 결과
+    public int diceValue;
+
+    // 계산 과정에서 불러온 보정치
+    public int abilityModifier;
+    public int statusModifier;
+
+    // 대응 과정에서 감소한 값
+    public int reactionReduction;
+
+    // 실제 적용된 장갑 감소량
+    public int armorReduction;
+
+    // 최종 적용 피해
     public int damageAmount;
 
-    /// <summary>
-    /// 공격에서 나온 주사위 값.
-    /// 여러 주사위라면 주사위 결과의 합계.
-    /// </summary>
-    public int diceValue;// 크리티컬
+    public bool critical;
+    public bool highCritical;
 
-    /// <summary>
-    /// 이 공격이 능력 보정치를 사용하는지 여부.
-    /// 보정치가 0이어도 사용하는 공격인지 구분하기 위해 필요.
-    /// </summary>
-    public bool hasAbilityModifier;
-
-
-    /// <summary>
-    /// 근력·민첩·지능 등의 능력 보정치.
-    /// </summary>
-    public int abilityModifier;
-    public bool highCritical; // 상위 크리티컬
-
-
-    public DamageType damageType; // 대미지 유형
-
-
-    /// <summary>
-    /// 이 공격이 반격 가능한 공격인지.
-    /// 근접 공격 또는 근접 사격이면 true.
-    /// </summary>
+    public DamageType damageType;
     public bool canCounter;
-
-    /// <summary>
-    /// 선택된 대응.
-    /// None이면 대응하지 않음.
-    /// </summary>
     public ActionType reactionType;
 }
     
@@ -55,6 +38,8 @@ public struct RestoreStruct
     public ControllerBase instigator;
     public int restoreAmount;
 }
+
+
 public abstract class HitpointModules : CharacterModule
 {
     protected FillValue fill = new FillValue();

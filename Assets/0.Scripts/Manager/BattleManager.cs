@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -22,8 +23,8 @@ public class BattleManager : ManagerBase
 
     private UI_ReactionSelect reactionSelectUI;
 
-    [Header("Battle Log")]
-    [SerializeField] private UI_BattleLog battleLog;
+    public static event Action<string> OnBattleLog;
+    public static event Action OnBattleLogClear;
 
 
     public CharacterBase CurrentCharacter { get; private set; }
@@ -35,7 +36,7 @@ public class BattleManager : ManagerBase
         round = 0;
         currentTurnIndex = 0;
 
-        handUI = Object.FindFirstObjectByType<UI_Hand>(FindObjectsInactive.Include);
+        handUI = FindFirstObjectByType<UI_Hand>(FindObjectsInactive.Include);
 
         if (handUI == null)
         {
@@ -117,8 +118,6 @@ public class BattleManager : ManagerBase
         participants.Clear();
         turnOrder.Clear();
 
-
-        WriteBattleLog("전투가 시작되었습니다.");
 
         if (characters != null)
         {
@@ -432,7 +431,7 @@ public class BattleManager : ManagerBase
 
         if (handUI == null)
         {
-            handUI = Object.FindFirstObjectByType<UI_Hand>(FindObjectsInactive.Include);
+            handUI = FindFirstObjectByType<UI_Hand>(FindObjectsInactive.Include);
         }
 
         if (handUI == null)
@@ -973,17 +972,15 @@ public class BattleManager : ManagerBase
         }
     }
 
-
     public void WriteBattleLog(string message)
     {
-        if (battleLog == null)
-        {
-            Debug.LogWarning(
-                "BattleManager: UI_BattleLog가 연결되지 않았습니다.");
+        if (string.IsNullOrEmpty(message))
             return;
-        }
 
-        battleLog.AddLog(message);
+        OnBattleLog?.Invoke(message);
     }
+
+
+
 
 }

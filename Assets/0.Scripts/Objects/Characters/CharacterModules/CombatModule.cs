@@ -33,10 +33,15 @@ public class CombatModule : CharacterModule
         
         CharacterBase attacker = GetAttacker(damageInfo);
 
-        int finalDamage = damageInfo.damageAmount;
+        int finalDamage = damageInfo.diceValue + damageInfo.abilityModifier;
 
+        damageInfo.damageAmount = Mathf.Max(0, finalDamage);
 
-        Debug.Log($"{Owner.name} 피격 시작 / 원본 피해:{finalDamage} / " + $"타입:{damageInfo.damageType} / 대응:{damageInfo.reactionType}");
+        damageInfo.damageAmount = finalDamage;
+
+        Debug.Log($"{Owner.name} 피격 시작 / " + $"주사위:{damageInfo.diceValue} / " +$"능력 보정:{damageInfo.abilityModifier} / " +
+             
+            $"대응:{damageInfo.reactionType}");
 
         // 1. 버프/디버프에 의한 1차 피해량 상승/감소
         finalDamage =ApplyPrimaryDamageModifier(attacker, Owner, finalDamage, damageInfo.damageType);
@@ -76,11 +81,15 @@ public class CombatModule : CharacterModule
         finalDamage = Mathf.Max(0, finalDamage);
 
         // 3. 장갑에 의한 피해 감소
+        int beforeArmorDamage = finalDamage;
+        
         finalDamage = ApplyArmorReduction(Owner, finalDamage, damageInfo.damageType);
 
         finalDamage = Mathf.Max(0, finalDamage);
 
-        Debug.Log($"장갑 적용 후 피해: {finalDamage}");
+        damageInfo.armorReduction = Mathf.Max(0, beforeArmorDamage - finalDamage);
+
+        Debug.Log($"장갑 감소:{damageInfo.armorReduction} / " + $"{beforeArmorDamage} → {finalDamage}");
 
         // 4. 취약 등 최종 피해 증가
         finalDamage = ApplyFinalIncomingDamageModifier(Owner, finalDamage, damageInfo.damageType);
@@ -137,11 +146,9 @@ public class CombatModule : CharacterModule
         if (stat != null)
             strengthBonus = stat.GetModifier(StatType.Strength);
 
-        int guardValue =
-            Dice.RollD10() + strengthBonus;
+        int guardValue = Dice.RollD10() + strengthBonus;
 
-        int result =
-            Mathf.Max(0, damage - guardValue);
+        int result = Mathf.Max(0, damage - guardValue);
 
         Debug.Log(
             $"{defender.name}: 방어 대응 / 감소량:{guardValue} / {damage} → {result}"
@@ -155,22 +162,19 @@ public class CombatModule : CharacterModule
         int agilityBonus = 0;
         int hasteEvadeBonus = 0;
 
-        StatModules stat =
-            defender.GetModule<StatModules>();
+        StatModules stat = defender.GetModule<StatModules>();
 
         if (stat != null)
             agilityBonus = stat.GetModifier(StatType.Agility);
 
-        StatusEffectModule status =
-            defender.GetModule<StatusEffectModule>();
+        StatusEffectModule status = defender.GetModule<StatusEffectModule>();
 
         if (status != null)
             hasteEvadeBonus = status.GetEvadeBonusByHaste();
 
         int dice = Dice.RollD10();
 
-        int evadeValue =
-            dice + agilityBonus + hasteEvadeBonus;
+        int evadeValue = dice + agilityBonus + hasteEvadeBonus;
 
         Debug.Log(
             $"{defender.name}: 회피 판정 / 피해:{damage} / " +
@@ -232,27 +236,34 @@ public class CombatModule : CharacterModule
         if (stat != null)
             healthBonus = stat.GetModifier(StatType.Health);
 
-        int counterDamage = Dice.RollD8() + healthBonus;
+        int counterDice = Dice.RollD8();
 
         DamageStruct counterDamageInfo = new DamageStruct
         {
             from = defender.gameObject,
             instigator = defender.Controller,
 
-            damageAmount = counterDamage,
+            diceValue = counterDice,
+
+            abilityModifier = healthBonus,
+
+            armorReduction = 0,
+
+            damageAmount =
+                Mathf.Max(0, counterDice + healthBonus),
 
             critical = false,
             highCritical = false,
 
-            damageType = DamageType.Hand_to_hand_combat,
+            damageType =
+                DamageType.Hand_to_hand_combat,
 
             canCounter = false,
             reactionType = ActionType.None
         };
 
-        Debug.Log(
-            $"{defender.name}: 반격 발동 → {attacker.name} / 피해:{counterDamage}"
-        );
+        Debug.Log($"{defender.name}: 반격 발동 → {attacker.name} / " + $"주사위:{counterDice} + 건강 보정:{healthBonus} " +
+            $"= {counterDamageInfo.damageAmount}");
 
         attackerCombat.OnHit(counterDamageInfo);
     }

@@ -9,12 +9,22 @@ public class UI_BattleScreen : UI_ScreenBase
     private UI_ReactionSelect reactionSelect;
     public UI_ReactionSelect ReactionSelect => reactionSelect;
 
+    private UI_BattleLog battleLog;
+    public UI_BattleLog BattleLog => battleLog;
+
     private void Awake()
     {
         cardClick = GetComponentInChildren<CardCrkClick>(true);
         handUI = GetComponentInChildren<UI_Hand>(true);
 
         reactionSelect = GetComponentInChildren<UI_ReactionSelect>(true);
+
+        battleLog = GetComponentInChildren<UI_BattleLog>(true);
+
+        if (battleLog == null)
+        {
+            Debug.LogWarning("UI_BattleScreen: UI_BattleLog를 찾지 못했습니다.");
+        }
 
         if (reactionSelect != null)
         {

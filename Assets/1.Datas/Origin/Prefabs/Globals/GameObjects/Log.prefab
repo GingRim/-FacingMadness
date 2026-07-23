@@ -11,8 +11,8 @@ GameObject:
   - component: {fileID: 4784397908645736600}
   - component: {fileID: 6833432420025032148}
   - component: {fileID: 6266076805741497937}
-  - component: {fileID: 3536053480364933478}
   - component: {fileID: 6429738010363310269}
+  - component: {fileID: 6967895813298915675}
   m_Layer: 5
   m_Name: Log
   m_TagString: Untagged
@@ -82,21 +82,6 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &3536053480364933478
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 533993362679008751}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: eb4ab3e751431c84987f1cb88ea4a2d5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UI_CostHoverInfo
-  shiftedPosition: {x: 0, y: 0}
-  nameText: {fileID: 0}
-  commentText: {fileID: 1830221115884961956}
 --- !u!114 &6429738010363310269
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -121,6 +106,28 @@ MonoBehaviour:
   m_Spacing: {x: 0, y: 5}
   m_Constraint: 2
   m_ConstraintCount: 5
+--- !u!114 &6967895813298915675
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 533993362679008751}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 603e8e0a27d75de48bd333ec9dae7449, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UI_BattleLog
+  core: {fileID: 4784397908645736600}
+  logTemplate: {fileID: 1830221115884961956}
+  poolCount: 5
+  damageAmount: 0
+  diceValue: 0
+  hasAbilityModifier: 0
+  abilityModifier: 0
+  weightModifier: 0
+  armorReduction: 0
+  finalDamage: 0
 --- !u!1 &716963300391556020
 GameObject:
   m_ObjectHideFlags: 0

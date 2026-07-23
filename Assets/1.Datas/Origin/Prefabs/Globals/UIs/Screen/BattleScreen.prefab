@@ -2951,7 +2951,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4784397908645736600, guid: 88759ee67bba4f547b9f95eb5809e0d5, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -0.87213
+      value: -0.87213135
       objectReference: {fileID: 0}
     - target: {fileID: 4784397908645736600, guid: 88759ee67bba4f547b9f95eb5809e0d5, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -3025,6 +3025,10 @@ PrefabInstance:
       propertyPath: m_Padding.m_Bottom
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6967895813298915675, guid: 88759ee67bba4f547b9f95eb5809e0d5, type: 3}
+      propertyPath: hasAbilityModifier
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6984657551382786441, guid: 88759ee67bba4f547b9f95eb5809e0d5, type: 3}
       propertyPath: m_fontSize
       value: 25.55
@@ -3053,7 +3057,8 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 3536053480364933478, guid: 88759ee67bba4f547b9f95eb5809e0d5, type: 3}
     m_RemovedGameObjects:
     - {fileID: 992456122897285248, guid: 88759ee67bba4f547b9f95eb5809e0d5, type: 3}
     - {fileID: 8806365907433689827, guid: 88759ee67bba4f547b9f95eb5809e0d5, type: 3}
