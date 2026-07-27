@@ -7,20 +7,9 @@ public class UI_BattleLog : MonoBehaviour
     [Header("Log Pool")]
     [SerializeField] private Transform core;
     [SerializeField] private TextMeshProUGUI logTemplate;
-    [SerializeField, Min(1)] private int poolCount = 5;
+    [SerializeField, Min(1)] private int poolCount = 3;
 
     private readonly List<TextMeshProUGUI> logPool = new();
-    public int damageAmount;
-
-    public int diceValue;
-
-    public bool hasAbilityModifier;
-    public int abilityModifier;
-
-    public int weightModifier;
-    public int armorReduction;
-
-    public int finalDamage;
 
     private void Awake()
     {
@@ -29,6 +18,9 @@ public class UI_BattleLog : MonoBehaviour
 
     private void InitializePool()
     {
+        if (logPool.Count > 0)
+            return;
+
         if (core == null)
         {
             Debug.LogWarning(
@@ -43,12 +35,13 @@ public class UI_BattleLog : MonoBehaviour
             return;
         }
 
-        logPool.Clear();
+        int createCount = Mathf.Max(1, poolCount);
 
         // 원본은 복제용이므로 화면에서 숨김
         logTemplate.gameObject.SetActive(false);
+        
 
-        for (int i = 0; i < poolCount; i++)
+        for (int i = 0; i < createCount; i++)
         {
             TextMeshProUGUI newLog = Instantiate(logTemplate, core);
 
@@ -64,12 +57,22 @@ public class UI_BattleLog : MonoBehaviour
     {
         if (string.IsNullOrEmpty(message))
             return;
-
+       
+        // Awake보다 먼저 로그 요청이 들어온 경우 대비
         if (logPool.Count == 0)
+        {
+            InitializePool();
+        }
+
+        // 초기화에 실패했거나 생성 개수가 0인 경우
+        if (logPool.Count == 0)
+        {
+            Debug.LogWarning(
+                "UI_BattleLog: 사용할 로그 슬롯이 없습니다.");
             return;
+        }
 
-
-        for (int i = 0; i < logPool.Count; i++)
+        for (int i = 0; i < logPool.Count -1; i++)
         {
             TextMeshProUGUI current = logPool[i];
             TextMeshProUGUI next = logPool[i + 1];

@@ -201,8 +201,8 @@ public class CardResolver
                     return;
         
                 combat.OnHit(damageInfo);
-        
-                Debug.Log($"크리티컬: {criticalType}");
+
+                BattleManager.ClaimBattleLog($"크리티컬: {criticalType}");
                 break;
             }
 
@@ -392,7 +392,7 @@ public class CardResolver
                             deck.Draw();
                         }
 
-                        Debug.Log("청색 보조: 2 드로우");
+                        BattleManager.ClaimBattleLog("청색 보조: 2 드로우");
                     }
                     else
                     {
@@ -468,8 +468,8 @@ public class CardResolver
 
         deck.AddCardToDeckAndShuffle(generatedCard);
 
-        Debug.Log(
-            $"자색 카드 결과: {result} / {generatedCard.cardName} 덱에 생성 후 셔플");
+        BattleManager.ClaimBattleLog(
+            $"{generatedCard.cardName} 생성");
 
         return true;
     }

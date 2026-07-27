@@ -8,28 +8,27 @@ public struct DamageStruct // 이벤트 데이터 팻킷
     public GameObject from;
     public ControllerBase instigator;
 
-    // 주사위 결과
+    /// <summary>
+    /// 카드 효과에서 나온 주사위 결과.
+    /// 주사위를 사용하지 않는 피해라면 0.
+    /// </summary>
     public int diceValue;
 
-    // 계산 과정에서 불러온 보정치
-    public int abilityModifier;
-    public int statusModifier;
-
-    // 대응 과정에서 감소한 값
-    public int reactionReduction;
-
-    // 실제 적용된 장갑 감소량
-    public int armorReduction;
-
-    // 최종 적용 피해
+    /// <summary>
+    /// OnHit에 들어오기 전까지 계산된 피해량.
+    /// 주사위와 카드 자체 보정치가 포함된 값.
+    /// </summary>
     public int damageAmount;
 
     public bool critical;
     public bool highCritical;
 
     public DamageType damageType;
+
     public bool canCounter;
     public ActionType reactionType;
+
+    internal int armorReduction;
 }
     
 public struct RestoreStruct

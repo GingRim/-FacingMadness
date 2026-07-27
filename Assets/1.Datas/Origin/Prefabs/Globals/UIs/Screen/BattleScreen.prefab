@@ -2859,7 +2859,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1830221115884961956, guid: 88759ee67bba4f547b9f95eb5809e0d5, type: 3}
       propertyPath: m_fontSize
-      value: 25.55
+      value: 27.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 1830221115884961956, guid: 88759ee67bba4f547b9f95eb5809e0d5, type: 3}
+      propertyPath: m_fontStyle
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2583145427946970715, guid: 88759ee67bba4f547b9f95eb5809e0d5, type: 3}
       propertyPath: m_AnchorMax.y
@@ -3022,8 +3026,16 @@ PrefabInstance:
       value: 300
       objectReference: {fileID: 0}
     - target: {fileID: 6429738010363310269, guid: 88759ee67bba4f547b9f95eb5809e0d5, type: 3}
+      propertyPath: m_CellSize.y
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 6429738010363310269, guid: 88759ee67bba4f547b9f95eb5809e0d5, type: 3}
       propertyPath: m_Padding.m_Bottom
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6967895813298915675, guid: 88759ee67bba4f547b9f95eb5809e0d5, type: 3}
+      propertyPath: poolCount
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 6967895813298915675, guid: 88759ee67bba4f547b9f95eb5809e0d5, type: 3}
       propertyPath: hasAbilityModifier

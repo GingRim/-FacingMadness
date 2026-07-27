@@ -59,8 +59,10 @@ public class CostModule : CharacterModule
     public bool Use(CostType type, int amount)
     {
         if (!CanUse(type, amount))
+        {
+            BattleManager.ClaimBattleLog("코스트가 부족합니다.");
             return false;
-
+        }
         costs[(int)type].currntCost -= amount;
 
         return true;

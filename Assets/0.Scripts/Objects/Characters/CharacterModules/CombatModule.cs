@@ -1,4 +1,6 @@
+using System;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class CombatModule : CharacterModule
 {
@@ -14,6 +16,8 @@ public class CombatModule : CharacterModule
         base.OnRegistration(owner);
         hp = owner.GetModule<HitpointModules>();
     }
+   
+
 
     public void OnHit(DamageStruct damageInfo)
     {
@@ -33,40 +37,55 @@ public class CombatModule : CharacterModule
         
         CharacterBase attacker = GetAttacker(damageInfo);
 
-        int finalDamage = damageInfo.diceValue + damageInfo.abilityModifier;
+        int finalDamage = Mathf.Max(0, damageInfo.damageAmount);
 
-        damageInfo.damageAmount = Mathf.Max(0, finalDamage);
+        int diceValue = damageInfo.diceValue;
 
-        damageInfo.damageAmount = finalDamage;
+        // 로그에 필요한 임시 기록
+        int logDiceValue = damageInfo.diceValue;
+        
+        int armorReduction = 0;
 
-        Debug.Log($"{Owner.name} 피격 시작 / " + $"주사위:{damageInfo.diceValue} / " +$"능력 보정:{damageInfo.abilityModifier} / " +
-             
-            $"대응:{damageInfo.reactionType}");
+        bool shouldCounter = false;
+        bool damageNegated = false;
 
-        // 1. 버프/디버프에 의한 1차 피해량 상승/감소
-        finalDamage =ApplyPrimaryDamageModifier(attacker, Owner, finalDamage, damageInfo.damageType);
+
+
+        Debug.Log($"{Owner.name} 피격 시작 / " + $"기본 피해:{finalDamage} / " + $"타입:{damageInfo.damageType} / " +
+                  $"대응:{damageInfo.reactionType}");
+
+        // 1. 공격자의 버프·디버프 적용
+        finalDamage = ApplyPrimaryDamageModifier(attacker, Owner, finalDamage, damageInfo.damageType);
 
         finalDamage = Mathf.Max(0, finalDamage);
 
         Debug.Log($"1차 피해 보정 후: {finalDamage}");
 
-        // 2. 대응 효과 처리
-        bool shouldCounter = false;
-
+        // 2. 대응 적용
         switch (damageInfo.reactionType)
         {
             case ActionType.Guard:
-                finalDamage = ApplyGuardReaction(Owner, finalDamage);
+                finalDamage =
+                    ApplyGuardReaction(
+                        Owner,
+                        finalDamage);
                 break;
 
             case ActionType.Evade:
                 if (TryEvadeReaction(Owner, finalDamage))
                 {
-                    Debug.Log($"{Owner.name}: 회피 성공 / 피해 무효");
-                    return;
+                    damageNegated = true;
+                    finalDamage = 0;
+
+                    Debug.Log(
+                        $"{Owner.name}: 회피 성공 / 피해 무효");
+                }
+                else
+                {
+                    Debug.Log(
+                        $"{Owner.name}: 회피 실패");
                 }
 
-                Debug.Log($"{Owner.name}: 회피 실패");
                 break;
 
             case ActionType.Counterattack:
@@ -77,40 +96,83 @@ public class CombatModule : CharacterModule
             default:
                 break;
         }
-
-        finalDamage = Mathf.Max(0, finalDamage);
-
-        // 3. 장갑에 의한 피해 감소
-        int beforeArmorDamage = finalDamage;
         
-        finalDamage = ApplyArmorReduction(Owner, finalDamage, damageInfo.damageType);
-
         finalDamage = Mathf.Max(0, finalDamage);
 
-        damageInfo.armorReduction = Mathf.Max(0, beforeArmorDamage - finalDamage);
+        // 회피 성공 시 장갑과 받는 피해 보정을 적용하지 않음
+        if (!damageNegated)
+        {
+            // 3. 장갑 적용
+            int beforeArmorDamage = finalDamage;
 
-        Debug.Log($"장갑 감소:{damageInfo.armorReduction} / " + $"{beforeArmorDamage} → {finalDamage}");
+            finalDamage = ApplyArmorReduction(Owner, finalDamage, damageInfo.damageType);
 
-        // 4. 취약 등 최종 피해 증가
-        finalDamage = ApplyFinalIncomingDamageModifier(Owner, finalDamage, damageInfo.damageType);
+            finalDamage = Mathf.Max(0, finalDamage);
 
-        finalDamage = Mathf.Max(0, finalDamage);
+            armorReduction = Mathf.Max(0, beforeArmorDamage - finalDamage);
 
-        Debug.Log($"최종 상태 보정 후 피해: {finalDamage}");
+            Debug.Log($"장갑 감소:{armorReduction} / " + $"{beforeArmorDamage} → {finalDamage}");
+
+            // 4. 받는 피해 최종 보정
+            finalDamage = ApplyFinalIncomingDamageModifier(Owner, finalDamage, damageInfo.damageType);
+
+            finalDamage = Mathf.Max(0, finalDamage);
+        }
+
+        int totalModifier = finalDamage + armorReduction - diceValue;
+
+        // 계산 정보가 살아 있는 동안 로그 전송
+        WriteCardRollLog(damageInfo);
 
         // 5. HP 감소
         damageInfo.damageAmount = finalDamage;
 
+        damageInfo.armorReduction = armorReduction;
+
         hp.TakeDamage(damageInfo);
 
-        Debug.Log($"{Owner.name} 최종 피해 적용: {finalDamage}");
+        BattleManager.ClaimBattleLog($"{Owner.name} 최종 피해 적용: {finalDamage}");
 
-        // 6. 반격 처리
+        // 6. 반격
         if (shouldCounter)
         {
-            ResolveCounterDamage(Owner,attacker);
+            ResolveCounterDamage(Owner, attacker);
         }
+
     }
+
+    private void WriteCardRollLog(DamageStruct damageInfo)
+    {
+        if (damageInfo.diceValue <= 0)
+            return;
+
+        int modifier = damageInfo.damageAmount - damageInfo.diceValue;
+
+        if (damageInfo.highCritical)
+        {
+            BattleManager.ClaimBattleLog($"상위 크리티컬 ({damageInfo.diceValue})");
+        }
+        else if (damageInfo.critical)
+        {
+            BattleManager.ClaimBattleLog($"크리티컬 ({damageInfo.diceValue})");
+        }
+
+        string modifierText;
+
+        if (modifier >= 0)
+        {
+            modifierText = $"+ 보정치 {modifier}";
+        }
+        else
+        {
+            modifierText = $"- 보정치 {Mathf.Abs(modifier)}";
+        }
+
+        BattleManager.ClaimBattleLog($"주사위 {damageInfo.diceValue} " + $"{modifierText} " + $"= {damageInfo.damageAmount}");
+    }
+
+
+
 
     private CharacterBase GetAttacker(DamageStruct damageInfo)
     {
@@ -245,18 +307,12 @@ public class CombatModule : CharacterModule
 
             diceValue = counterDice,
 
-            abilityModifier = healthBonus,
-
-            armorReduction = 0,
-
-            damageAmount =
-                Mathf.Max(0, counterDice + healthBonus),
+            damageAmount = Mathf.Max(0, counterDice + healthBonus),
 
             critical = false,
             highCritical = false,
 
-            damageType =
-                DamageType.Hand_to_hand_combat,
+            damageType = DamageType.Hand_to_hand_combat,
 
             canCounter = false,
             reactionType = ActionType.None

@@ -86,4 +86,39 @@ public class UI_BattleScreen : UI_ScreenBase
         pauseUI.Toggle();
     }
 
+    public override void Registration(UIManager manager)
+    {
+        base.Registration(manager);
+
+        BattleManager.OnBattleLog -= AddBattleLog;
+        BattleManager.OnBattleLog += AddBattleLog;
+
+        BattleManager.OnBattleLogClear -= ClearBattleLog;
+        BattleManager.OnBattleLogClear += ClearBattleLog;
+    }
+
+    public override void Unregistration(UIManager manager)
+    {
+        BattleManager.OnBattleLog -= AddBattleLog;
+        BattleManager.OnBattleLogClear -= ClearBattleLog;
+
+        base.Unregistration(manager);
+    }
+
+    private void AddBattleLog(string message)
+    {
+        if (battleLog == null)
+            return;
+
+        battleLog.AddLog(message);
+    }
+
+    private void ClearBattleLog()
+    {
+        if (battleLog == null)
+            return;
+
+        battleLog.Clear();
+    }
+
 }

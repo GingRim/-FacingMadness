@@ -61,7 +61,7 @@ public class DBManager : ManagerBase
 
         if (user is not null)
         {
-            Debug.LogError($"Login Failed : Already Has Login Data ({user.IsValid()}, {user.UserId})");
+            Debug.Log($"Login Failed : Already Has Login Data ({user.IsValid()}, {user.UserId})");
             UserData resultData = await ReadDataAsync<UserData>("users", "userData", user.UserId);
             if (resultData is not null)
             {

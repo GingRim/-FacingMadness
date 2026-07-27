@@ -972,6 +972,19 @@ public class BattleManager : ManagerBase
         }
     }
 
+    public static void ClaimBattleLog(string message)
+    {
+        if (string.IsNullOrEmpty(message))
+            return;
+
+        OnBattleLog?.Invoke(message);
+    }
+
+    public static void ClaimBattleLogClear()
+    {
+        OnBattleLogClear?.Invoke();
+    }
+
     public void WriteBattleLog(string message)
     {
         if (string.IsNullOrEmpty(message))
@@ -980,7 +993,31 @@ public class BattleManager : ManagerBase
         OnBattleLog?.Invoke(message);
     }
 
+    internal static void WriteBattleLogM2(string message)
+    {
+        if (string.IsNullOrEmpty(message))
+            return;
 
+        OnBattleLog?.Invoke(message);
+    }
+    public static void ClaimCardRollLog(int diceValue, bool critical, bool highCritical)
+    {
+        string result;
 
+        if (highCritical)
+        {
+            result = "상위 크리티컬";
+        }
+        else if (critical)
+        {
+            result = "크리티컬";
+        }
+        else
+        {
+            result = "일반";
+        }
 
+        ClaimBattleLog(
+            $"{result} / 주사위 {diceValue}");
+    }
 }

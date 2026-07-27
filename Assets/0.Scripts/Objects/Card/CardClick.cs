@@ -204,6 +204,7 @@ public class CardCrkClick : MonoBehaviour
 
         if (!resolver.CanUse(card, user, useCost))
         {
+            BattleManager.ClaimBattleLog("코스트가<br>부족합니다.");
             return false;
         }
 
@@ -454,14 +455,14 @@ public class CardCrkClick : MonoBehaviour
                 if (targetType == TeamType.Enemy)
                     return CardDropDecision.Direct(CardUseCost.ActionAndAuxiliary);
 
-                Debug.Log("공격 마법 사용 불가: 적 대상만 가능");
+                BattleManager.ClaimBattleLog("공격 마법 사용 불가<br>적 대상만 가능");
                 return CardDropDecision.Invalid();
 
             case MagicCardType.Defense:
                 if (targetType == TeamType.Self || targetType == TeamType.Ally)
                     return CardDropDecision.Direct(CardUseCost.ActionAndAuxiliary);
 
-                Debug.Log("방어 마법 사용 불가: 자신 또는 아군 대상만 가능");
+                BattleManager.ClaimBattleLog("방어 마법 사용 불가<br>자신 또는 아군 대상만 가능");
                 return CardDropDecision.Invalid();
 
             case MagicCardType.Buff:
@@ -473,7 +474,7 @@ public class CardCrkClick : MonoBehaviour
                 if (targetType == TeamType.Enemy)
                     return CardDropDecision.Direct(CardUseCost.ActionAndAuxiliary);
 
-                Debug.Log("금지된 마법 사용 불가: 적 대상만 가능");
+                BattleManager.ClaimBattleLog("금지된 마법 사용 불가<br>적 대상만 가능");
                 return CardDropDecision.Invalid();
         }
 
@@ -495,7 +496,7 @@ public class CardCrkClick : MonoBehaviour
             // 적색은 행동/보조 둘 다 공격이라 선택 필요
             return CardDropDecision.Popup();
         }
-
+        BattleManager.ClaimBattleLog("적색 카드 사용 불가<br>적 대상만 가능");
         return CardDropDecision.Invalid();
     }
 
@@ -513,6 +514,7 @@ public class CardCrkClick : MonoBehaviour
                 return CardDropDecision.Direct(CardUseCost.Auxiliary);
 
             default:
+                
                 return CardDropDecision.Invalid();
         }
     }
@@ -532,6 +534,7 @@ public class CardCrkClick : MonoBehaviour
                 return CardDropDecision.Direct(CardUseCost.Auxiliary);
 
             default:
+                BattleManager.ClaimBattleLog("녹색 카드 사용 불가<br>팀 대상만 가능");
                 return CardDropDecision.Invalid();
         }
     }

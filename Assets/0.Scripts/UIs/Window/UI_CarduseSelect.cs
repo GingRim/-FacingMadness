@@ -134,13 +134,13 @@ public class UI_CardUseSelect : MonoBehaviour
 
         if (NeedTarget(selectedCard, useCost) && target == null)
         {
-            Debug.Log("대상이 필요한 카드입니다. 먼저 대상을 선택하세요.");
+            BattleManager.ClaimBattleLog("대상이 필요한 카드입니다. 먼저 대상을 선택하세요.");
             return;
         }
 
         if (!cardResolver.CanUse(selectedCard, user, useCost))
         {
-            Debug.Log("카드 사용 불가");
+            BattleManager.ClaimBattleLog("코스트가 부족합니다.");
             Close();
             return;
         }
@@ -157,7 +157,7 @@ public class UI_CardUseSelect : MonoBehaviour
 
         if (!success)
         {
-            Debug.Log("카드 효과 처리 실패");
+            BattleManager.ClaimBattleLog("카드 효과 처리 실패");
             return;
         }
 
