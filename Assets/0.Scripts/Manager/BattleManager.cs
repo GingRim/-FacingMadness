@@ -25,7 +25,9 @@ public class BattleManager : ManagerBase
 
     public static event Action<string> OnBattleLog;
     public static event Action OnBattleLogClear;
+    public static event Action<int> OnRoundChanged;
 
+    public int Round => round;
 
     public CharacterBase CurrentCharacter { get; private set; }
     public BattleTurnState State { get; private set; }
@@ -117,6 +119,7 @@ public class BattleManager : ManagerBase
         BindBattleUI();
         participants.Clear();
         turnOrder.Clear();
+       
 
 
         if (characters != null)
@@ -127,8 +130,10 @@ public class BattleManager : ManagerBase
                     continue;
 
                 character.AddAllModuleFromObject(character.gameObject);
-
+                
+                PrepareParticipant(character);
                 participants.Add(character);
+
 
                 Debug.Log(
                     $"전투 참가자 등록: {character.name} / " +
@@ -148,15 +153,26 @@ public class BattleManager : ManagerBase
 
     private void StartRound()
     {
+        if (!isBattleActive)
+            return;
+
+        if (State == BattleTurnState.BattleEnd)
+            return;
+
         round++;
 
         State = BattleTurnState.RoundStart;
 
         Debug.Log($"라운드 시작: {round}");
 
+        OnRoundChanged?.Invoke(round);
+        
         foreach (CharacterBase character in participants)
         {
             if (character == null)
+                continue;
+            
+            if (!IsAlive(character))
                 continue;
 
             OnRoundStart(character);
@@ -192,7 +208,28 @@ public class BattleManager : ManagerBase
         }
 
         State = BattleTurnState.TurnStart;
- 
+
+        while (currentTurnIndex < turnOrder.Count)
+        {
+            CharacterBase candidate =
+                turnOrder[currentTurnIndex];
+
+            if (IsAlive(candidate))
+                break;
+
+            Debug.Log(
+                $"{candidate?.name}: 생명력 0으로 턴 제외");
+
+            currentTurnIndex++;
+        }
+
+        if (currentTurnIndex >= turnOrder.Count)
+        {
+            EndRound();
+            return;
+        }
+
+        CurrentCharacter = turnOrder[currentTurnIndex];
         WriteBattleLog($"{CurrentCharacter.name}의 턴입니다.");
 
         OnTurnStart(CurrentCharacter);
@@ -217,6 +254,7 @@ public class BattleManager : ManagerBase
             ai.ExecuteTurn(this);
             return;
         }
+
 
         // 플레이어 턴이면 입력 대기
         State = BattleTurnState.WaitingAction;
@@ -451,8 +489,7 @@ public class BattleManager : ManagerBase
 
         character.AddAllModuleFromObject(character.gameObject);
 
-        HitpointModules hp =
-            character.GetModule<HitpointModules>();
+        HitpointModules hp = character.GetModule<HitpointModules>();
 
         if (hp != null)
         {
@@ -817,23 +854,7 @@ public class BattleManager : ManagerBase
 
         HitpointModules hp = defender.GetModule<HitpointModules>();
 
-        int beforeHP = hp != null ? hp.Current : 0;
-
         combat.OnHit(damageInfo);
-
-        int afterHP = hp != null ? hp.Current : 0;
-
-        int actualDamage = Mathf.Max(0, beforeHP - afterHP);
-
-        WriteBattleLog(
-            $"{defender.name}이(가) " +
-            $"{actualDamage}의 피해를 받았습니다.");
-
-        if (hp != null && hp.IsEmpty)
-        {
-            WriteBattleLog(
-                $"{defender.name}이(가) 쓰러졌습니다.");
-        }
 
 
         CheckBattleEnd();
@@ -841,6 +862,11 @@ public class BattleManager : ManagerBase
 
     private void CheckBattleEnd()
     {
+        if (State == BattleTurnState.BattleEnd)
+            return;
+
+        HideDefeatedCharacters();
+
         bool playerAlive = HasAlivePlayer();
 
         bool monsterAlive = HasAliveMonster();
@@ -854,6 +880,20 @@ public class BattleManager : ManagerBase
         if (!monsterAlive)
         {
             EndBattle(true);
+        }
+    }
+
+    private void HideDefeatedCharacters()
+    {
+        foreach (CharacterBase character in participants)
+        {
+            if (character == null)
+                continue;
+
+            if (IsAlive(character))
+                continue;
+
+            character.gameObject.SetActive(false);
         }
     }
 
@@ -993,31 +1033,4 @@ public class BattleManager : ManagerBase
         OnBattleLog?.Invoke(message);
     }
 
-    internal static void WriteBattleLogM2(string message)
-    {
-        if (string.IsNullOrEmpty(message))
-            return;
-
-        OnBattleLog?.Invoke(message);
-    }
-    public static void ClaimCardRollLog(int diceValue, bool critical, bool highCritical)
-    {
-        string result;
-
-        if (highCritical)
-        {
-            result = "상위 크리티컬";
-        }
-        else if (critical)
-        {
-            result = "크리티컬";
-        }
-        else
-        {
-            result = "일반";
-        }
-
-        ClaimBattleLog(
-            $"{result} / 주사위 {diceValue}");
-    }
 }

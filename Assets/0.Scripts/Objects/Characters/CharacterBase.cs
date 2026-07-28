@@ -20,9 +20,6 @@ public class CharacterBase : MonoBehaviour
     public void RestoreNitify(in RestoreStruct info) => OnRestore?.Invoke(info);
     public event RestoreEvent OnRestore;
 
-
-
-
     //가장 중요한 기능!
     //말을 했을 때 말을 잘 들어먹는 것
     ControllerBase _controller;
@@ -32,6 +29,7 @@ public class CharacterBase : MonoBehaviour
     public Vector3 LookRotation => _lookRotation;
 
     public virtual string DisplayName => "Character";
+    public Sprite Icon { get; private set; }
 
     // 모듈을 저장해놓기!
     // List :  추가/제거가 쉽다. <-> 메모리 효율이 낮고, 전체 순환이 느리다.
@@ -118,5 +116,9 @@ public class CharacterBase : MonoBehaviour
         return true;
     }
 
+    public void SetIcon(Sprite newIcon)
+    {
+        Icon = newIcon;
+    }
 
 }

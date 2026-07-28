@@ -68,20 +68,12 @@ public class ReactionModule : CharacterModule
         if (cost == null)
             return false;
 
-        Debug.Log(
-            $"{Owner.name}: 대응 코스트 사용 전 / {cost.GetCurrent(CostType.Reaction)}"
-        );
 
         if (!cost.Use(CostType.Reaction, 1))
             return false;
 
-        Debug.Log(
-            $"{Owner.name}: 대응 코스트 사용 후 / {cost.GetCurrent(CostType.Reaction)}"
-        );
 
         result.reactionType = actionType;
-
-        Debug.Log($"{Owner.name}: 대응 선택 / {actionType}");
 
         return true;
     }

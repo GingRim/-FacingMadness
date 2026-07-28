@@ -20,3 +20,4 @@ MonoBehaviour:
   intelligence: 5
   will: 3
   startDeck: {fileID: 11400000, guid: ea6aa9d6ec25147449b7e0f81a1a7fe9, type: 2}
+  Icon: {fileID: -3121999666969096214, guid: 4c51e954a0db87747aff446e4a7711a5, type: 3}

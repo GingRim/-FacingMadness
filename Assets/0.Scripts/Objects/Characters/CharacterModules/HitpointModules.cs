@@ -68,8 +68,7 @@ public abstract class HitpointModules : CharacterModule
 
         int actualDamage = before - fill.Current;
 
-        if (before > fill.Min &&
-            fill.Current <= fill.Min)
+        if (before > fill.Min && fill.Current <= fill.Min)
         {
             OnEmpty?.Invoke();
         }

@@ -6,8 +6,6 @@ public class CombatModule : CharacterModule
 {
 
     public sealed override System.Type RegistrationType => typeof(CombatModule);
-
-    protected HitpointModules hitpointModule;
    
     private HitpointModules hp;
 
@@ -21,13 +19,10 @@ public class CombatModule : CharacterModule
 
     public void OnHit(DamageStruct damageInfo)
     {
-        if (Owner == null)
+        if (hp == null)
         {
-            Debug.LogError("피해 처리 실패: CombatModule Owner 없음");
-            return;
+            hp = Owner.GetModule<HitpointModules>();
         }
-
-        HitpointModules hp = Owner.GetModule<HitpointModules>();
 
         if (hp == null)
         {
@@ -38,11 +33,6 @@ public class CombatModule : CharacterModule
         CharacterBase attacker = GetAttacker(damageInfo);
 
         int finalDamage = Mathf.Max(0, damageInfo.damageAmount);
-
-        int diceValue = damageInfo.diceValue;
-
-        // 로그에 필요한 임시 기록
-        int logDiceValue = damageInfo.diceValue;
         
         int armorReduction = 0;
 
@@ -50,12 +40,8 @@ public class CombatModule : CharacterModule
         bool damageNegated = false;
 
 
-
-        Debug.Log($"{Owner.name} 피격 시작 / " + $"기본 피해:{finalDamage} / " + $"타입:{damageInfo.damageType} / " +
-                  $"대응:{damageInfo.reactionType}");
-
         // 1. 공격자의 버프·디버프 적용
-        finalDamage = ApplyPrimaryDamageModifier(attacker, Owner, finalDamage, damageInfo.damageType);
+        finalDamage =ApplyPrimaryDamageModifier(attacker, Owner, finalDamage, damageInfo.damageType);
 
         finalDamage = Mathf.Max(0, finalDamage);
 
@@ -77,13 +63,11 @@ public class CombatModule : CharacterModule
                     damageNegated = true;
                     finalDamage = 0;
 
-                    Debug.Log(
-                        $"{Owner.name}: 회피 성공 / 피해 무효");
+                    Debug.Log($"{Owner.name} : 회피 성공");
                 }
                 else
                 {
-                    Debug.Log(
-                        $"{Owner.name}: 회피 실패");
+                    Debug.Log($"{Owner.name} : 회피 실패");
                 }
 
                 break;
@@ -112,26 +96,12 @@ public class CombatModule : CharacterModule
             armorReduction = Mathf.Max(0, beforeArmorDamage - finalDamage);
 
             Debug.Log($"장갑 감소:{armorReduction} / " + $"{beforeArmorDamage} → {finalDamage}");
-
-            // 4. 받는 피해 최종 보정
-            finalDamage = ApplyFinalIncomingDamageModifier(Owner, finalDamage, damageInfo.damageType);
-
-            finalDamage = Mathf.Max(0, finalDamage);
         }
-
-        int totalModifier = finalDamage + armorReduction - diceValue;
-
-        // 계산 정보가 살아 있는 동안 로그 전송
-        WriteCardRollLog(damageInfo);
 
         // 5. HP 감소
         damageInfo.damageAmount = finalDamage;
 
-        damageInfo.armorReduction = armorReduction;
-
         hp.TakeDamage(damageInfo);
-
-        BattleManager.ClaimBattleLog($"{Owner.name} 최종 피해 적용: {finalDamage}");
 
         // 6. 반격
         if (shouldCounter)
@@ -139,47 +109,6 @@ public class CombatModule : CharacterModule
             ResolveCounterDamage(Owner, attacker);
         }
 
-    }
-
-    private void WriteCardRollLog(DamageStruct damageInfo)
-    {
-        if (damageInfo.diceValue <= 0)
-            return;
-
-        int modifier = damageInfo.damageAmount - damageInfo.diceValue;
-
-        if (damageInfo.highCritical)
-        {
-            BattleManager.ClaimBattleLog($"상위 크리티컬 ({damageInfo.diceValue})");
-        }
-        else if (damageInfo.critical)
-        {
-            BattleManager.ClaimBattleLog($"크리티컬 ({damageInfo.diceValue})");
-        }
-
-        string modifierText;
-
-        if (modifier >= 0)
-        {
-            modifierText = $"+ 보정치 {modifier}";
-        }
-        else
-        {
-            modifierText = $"- 보정치 {Mathf.Abs(modifier)}";
-        }
-
-        BattleManager.ClaimBattleLog($"주사위 {damageInfo.diceValue} " + $"{modifierText} " + $"= {damageInfo.damageAmount}");
-    }
-
-
-
-
-    private CharacterBase GetAttacker(DamageStruct damageInfo)
-    {
-        if (damageInfo.from == null)
-            return null;
-
-        return damageInfo.from.GetComponent<CharacterBase>();
     }
 
     private int ApplyPrimaryDamageModifier(CharacterBase attacker, CharacterBase defender, int damage, DamageType damageType)
@@ -196,8 +125,27 @@ public class CombatModule : CharacterModule
             }
         }
 
-        return result;
+        if (defender != null)
+        {
+            StatusEffectModule defenderStatus = defender.GetModule<StatusEffectModule>();
+
+            if (defenderStatus != null)
+            {
+                result = defenderStatus.ModifyIncomingDamage(result, damageType);
+            }
+        }
+
+        return Mathf.Max(0, result);
     }
+
+    private CharacterBase GetAttacker(DamageStruct damageInfo)
+    {
+        if (damageInfo.from == null)
+            return null;
+
+        return damageInfo.from.GetComponent<CharacterBase>();
+    }
+
 
     private int ApplyGuardReaction(CharacterBase defender, int damage)
     {
@@ -258,24 +206,6 @@ public class CombatModule : CharacterModule
             damage,
             damageType
         );
-    }
-
-    private int ApplyFinalIncomingDamageModifier(CharacterBase defender, int damage, DamageType damageType)
-    {
-        int result = damage;
-
-        StatusEffectModule defenderStatus = defender.GetModule<StatusEffectModule>();
-
-        if (defenderStatus != null)
-        {
-            result =
-                defenderStatus.ModifyIncomingDamage(
-                    result,
-                    damageType
-                );
-        }
-
-        return result;
     }
 
     private void ResolveCounterDamage(CharacterBase defender, CharacterBase attacker)

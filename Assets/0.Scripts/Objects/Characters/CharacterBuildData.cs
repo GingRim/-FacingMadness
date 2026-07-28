@@ -25,4 +25,6 @@ public class CharacterBuildData
     [Header("기본 덱")]
     public DeckData startDeck;
 
+    [Header("캐릭터 아이콘")]
+    public Sprite Icon;
 }

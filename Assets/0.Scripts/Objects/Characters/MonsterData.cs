@@ -21,4 +21,7 @@ public class MonsterData : ScriptableObject
 
     [Header("난이도 보정")]
     public int difficultyModifier = 0;
+
+    [Header("캐릭터 아이콘")]
+    public Sprite Icon;
 }

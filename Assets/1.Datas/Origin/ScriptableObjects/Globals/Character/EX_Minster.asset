@@ -21,3 +21,4 @@ MonoBehaviour:
   will: 4
   baseArmor: 0
   difficultyModifier: 0
+  Icon: {fileID: -6829165948154904987, guid: 030b5140f18bb1944ae9adef46748a52, type: 3}

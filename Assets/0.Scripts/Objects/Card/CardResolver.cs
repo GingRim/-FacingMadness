@@ -150,7 +150,18 @@ public class CardResolver
             return;
 
         combat.OnHit(damageInfo);
-        Debug.Log($"크리티컬: {criticalType}");
+        if (criticalType == CriticalType.GreatCritical)
+        {
+            BattleManager.ClaimBattleLog($"상위 크리티컬<br>{damage}피해");
+        }
+        else if (criticalType == CriticalType.Critical)
+        {
+            BattleManager.ClaimBattleLog($"크리티컬<br>{damage}피해");
+        }
+        else
+        {
+            BattleManager.ClaimBattleLog($"{damage}피해");
+        }
     }
 
     /// <summary>

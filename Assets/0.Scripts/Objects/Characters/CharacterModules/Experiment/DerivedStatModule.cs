@@ -271,7 +271,7 @@ public class DerivedStatModule : CharacterModule
     }
 
     /// <summary>
-    /// 힘 스텟 불러오기
+    /// 힘 보정치 불러오기
     /// </summary>
     /// <returns></returns>
     public int GetStrengthModifier()
@@ -280,7 +280,7 @@ public class DerivedStatModule : CharacterModule
     }
 
     /// <summary>
-    /// 민첩 스텟 불러오기
+    /// 민첩 보정치 불러오기
     /// </summary>
     /// <returns></returns>
     public int GetAgilityModifier()
@@ -289,7 +289,7 @@ public class DerivedStatModule : CharacterModule
     }
 
     /// <summary>
-    /// 건강 스텟 불러오기
+    /// 건강 보정치 불러오기
     /// </summary>
     /// <returns></returns>
     public int GetHealthModifier()
@@ -298,7 +298,7 @@ public class DerivedStatModule : CharacterModule
     }
 
     /// <summary>
-    /// 지능 스텟 불러오기
+    /// 지능 보정치 불러오기
     /// </summary>
     /// <returns></returns>
     public int GetIntelligenceModifier()
@@ -307,7 +307,7 @@ public class DerivedStatModule : CharacterModule
     }
 
     /// <summary>
-    /// 의지 스텟 불러오기
+    /// 의지 보정치 불러오기
     /// </summary>
     /// <returns></returns>
     public int GetWillModifier()

@@ -26,8 +26,9 @@ public class CharacterFactory : MonoBehaviour
 
         Debug.Log("CreatePlayerCharacter 호출됨");
 
-        GameObject characterObject =
-            ObjectManager.CreateObject(characterPrefab, position);
+        GameObject characterObject = ObjectManager.CreateObject(characterPrefab, position);
+
+  
 
         Debug.Log($"생성된 캐릭터 오브젝트: {characterObject.name}");
 
@@ -37,13 +38,17 @@ public class CharacterFactory : MonoBehaviour
             return null;
         }
 
-        CharacterBase character =
-            characterObject.GetComponent<CharacterBase>();
+        CharacterBase character = characterObject.GetComponent<CharacterBase>();
 
         if (character == null)
         {
             Debug.LogError("생성된 오브젝트에 CharacterBase가 없습니다.");
             return null;
+        }
+
+        if (character != null)
+        {
+            character.SetIcon(data.Icon);
         }
 
         ApplyBuildData(character, data);

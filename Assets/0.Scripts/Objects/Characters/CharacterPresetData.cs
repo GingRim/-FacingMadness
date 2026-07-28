@@ -1,5 +1,5 @@
 using UnityEngine;
-
+using UnityEngine.UI;
 
 /// <summary>
 /// 데모용 캐릭터 프리셋 데이터
@@ -25,6 +25,9 @@ public class CharacterPresetData : ScriptableObject
     [Header("기본 덱")]
     public DeckData startDeck;
 
+    [Header("캐릭터 아이콘")]
+    public Sprite Icon;
+
     /// <summary>
     /// 프리셋 데이터를 실제 생성용 데이터로 변환한다.
     /// </summary>
@@ -42,7 +45,9 @@ public class CharacterPresetData : ScriptableObject
             intelligence = intelligence,
             will = will,
 
-            startDeck = startDeck
+            startDeck = startDeck,
+
+            Icon = Icon
         };
     }
 }

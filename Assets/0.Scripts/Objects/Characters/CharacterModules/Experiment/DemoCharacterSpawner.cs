@@ -15,6 +15,7 @@ public class DemoCharacterSpawner : MonoBehaviour
     [Header("생성 위치")]
     [SerializeField] private Transform[] spawnPoints;
 
+
     private void Start()
     {
         SpawnDemoCharacters();
@@ -44,6 +45,8 @@ public class DemoCharacterSpawner : MonoBehaviour
                 position
             );
         }
+
+
     }
 
 }
