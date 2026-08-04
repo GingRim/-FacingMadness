@@ -102,13 +102,11 @@ public class CombatModule : CharacterModule
         damageInfo.damageAmount = finalDamage;
 
         hp.TakeDamage(damageInfo);
-
         // 6. 반격
         if (shouldCounter)
         {
             ResolveCounterDamage(Owner, attacker);
         }
-
     }
 
     private int ApplyPrimaryDamageModifier(CharacterBase attacker, CharacterBase defender, int damage, DamageType damageType)

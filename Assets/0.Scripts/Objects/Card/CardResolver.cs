@@ -212,31 +212,39 @@ public class CardResolver
                     return;
         
                 combat.OnHit(damageInfo);
-
-                BattleManager.ClaimBattleLog($"크리티컬: {criticalType}");
-                break;
+                    if (criticalType == CriticalType.GreatCritical)
+                    {
+                        BattleManager.ClaimBattleLog($"상위 크리티컬<br>{damage}피해");
+                    }
+                    else if (criticalType == CriticalType.Critical)
+                    {
+                        BattleManager.ClaimBattleLog($"크리티컬<br>{damage}피해");
+                    }
+                    else
+                    {
+                        BattleManager.ClaimBattleLog($"{damage}피해");
+                    }
+                    break;
             }
 
 
             case CardUseCost.Auxiliary:
             {
                     StatusEffectModule status = user.GetModule<StatusEffectModule>();
-
+                    int q = RollD4();
                     if (status == null)
                     {
                         Debug.Log("상태 이상 모듈 없음");
                         return;
                     }
 
-                    status.AddStatus(StatusEffectType.Haste, RollD4());
+                    status.AddStatus(StatusEffectType.Haste, q);
 
+
+                    BattleManager.ClaimBattleLog($"가속{q} 증가");
                     break;
             }
         }
-        
-        
-
-
     }
 
     /// <summary>
@@ -260,7 +268,7 @@ public class CardResolver
 
                 DiceResult result = Dice.RollD10WithCritical(derived.GetHealthModifier(), lv.Level);
 
-                int restore = result.total;
+                int restore = RollD10();
 
                 if (result.criticalType == CriticalType.Critical)
                 {
@@ -282,8 +290,19 @@ public class CardResolver
                     return;
 
                 combat.OnRestore(restoreInfo);
-
-                Debug.Log($"크리티컬:{result.criticalType}");
+                  
+                    if (result.criticalType == CriticalType.GreatCritical)
+                    {
+                        BattleManager.ClaimBattleLog($"상위 크리티컬<br>{restore}생명력 회복");
+                    }
+                    else if (result.criticalType == CriticalType.Critical)
+                    {
+                        BattleManager.ClaimBattleLog($"크리티컬<br>{restore}생명력 회복");
+                    }
+                    else
+                    {
+                        BattleManager.ClaimBattleLog($"{restore}생명력 회복");
+                    }
 
                 break;
             }
@@ -308,7 +327,6 @@ public class CardResolver
 
                 Debug.Log($"크리티컬:{result.criticalType}");
 
-                // 나중에 ArmorModule / EffectModule 생기면 여기서 적용
                  ArmorModule armorModule = user.GetModule<ArmorModule>();
 
                     if (armorModule == null)
@@ -318,8 +336,19 @@ public class CardResolver
                     }
 
                     armorModule.AddTemporaryArmor(armor);
-
-                    Debug.Log($"임시 장갑 {armor} 획득");
+                    if (result.criticalType == CriticalType.GreatCritical)
+                    {
+                        BattleManager.ClaimBattleLog($"상위 크리티컬<br>임시 장갑{armor} 획득");
+                    }
+                    else if (result.criticalType == CriticalType.Critical)
+                    {
+                        BattleManager.ClaimBattleLog($"크리티컬<br>임시 장갑{armor} 획득");
+                    }
+                    else
+                    {
+                        BattleManager.ClaimBattleLog($"임시 장갑{armor} 획득");
+                    }
+                    
 
                     break;
             }
@@ -349,13 +378,9 @@ public class CardResolver
                     if (target == null)
                         return;
 
-                    DiceResult result =
-                        Dice.RollD10WithCritical(
-                            derived.GetIntelligenceModifier(),
-                            lv.Level
-                        );
+                    DiceResult result = Dice.RollD10WithCritical(derived.GetIntelligenceModifier(), lv.Level);
 
-                    int damage = result.diceValue;
+                    int damage = RollD10();
 
                     if (result.criticalType == CriticalType.Critical)
                     {
@@ -367,8 +392,7 @@ public class CardResolver
                         damage += Dice.RollD10();
                     }
 
-                    DamageStruct damageInfo =
-                        new DamageStruct
+                    DamageStruct damageInfo = new DamageStruct
                         {
                             from = user.gameObject,
                             instigator = user.Controller,
@@ -384,7 +408,18 @@ public class CardResolver
 
                     combat.OnHit(damageInfo);
 
-                    Debug.Log($"크리티컬:{result.criticalType}");
+                    if (result.criticalType == CriticalType.GreatCritical)
+                    {
+                        BattleManager.ClaimBattleLog($"상위 크리티컬<br>{damage}피해");
+                    }
+                    else if (result.criticalType == CriticalType.Critical)
+                    {
+                        BattleManager.ClaimBattleLog($"크리티컬<br>{damage}피해");
+                    }
+                    else
+                    {
+                        BattleManager.ClaimBattleLog($"{damage}피해");
+                    }
 
                     break;
                 }
@@ -409,10 +444,7 @@ public class CardResolver
                     {
                         StatusEffectModule status = user.GetModule<StatusEffectModule>();
 
-                        int gat = 0;
-
-                        gat = Dice.RollD4();
-
+                        int gat = RollD4();
 
                         if (status == null)
                         {
@@ -421,6 +453,7 @@ public class CardResolver
                         }
 
                         status.AddStatus(StatusEffectType.Motivation, gat);
+                        BattleManager.ClaimBattleLog($"의욕{gat} 증가");
                     }
 
                     break;
@@ -479,8 +512,7 @@ public class CardResolver
 
         deck.AddCardToDeckAndShuffle(generatedCard);
 
-        BattleManager.ClaimBattleLog(
-            $"{generatedCard.cardName} 생성");
+        BattleManager.ClaimBattleLog($"{generatedCard.cardName} 생성");
 
         return true;
     }
@@ -496,8 +528,7 @@ public class CardResolver
     /// <param name="useCost"></param>
     private void ResolveColorless(CardData card, CharacterBase user, CharacterBase target, CardUseCost useCost)
     {
-        LVModules lv =
-            user.GetModule<LVModules>();
+        LVModules lv = user.GetModule<LVModules>();
 
         if (lv == null)
             return;
@@ -534,16 +565,25 @@ public class CardResolver
                             damageType = DamageType.Hand_to_hand_combat
                         };
 
-                    CombatModule combat =
-                        target.GetModule<CombatModule>();
+                    CombatModule combat =target.GetModule<CombatModule>();
 
                     if (combat == null)
                         return;
 
                     combat.OnHit(damageInfo);
-
-                    Debug.Log(
-                        $"무색 카드 피해: {damage} / 크리티컬: {criticalResult.criticalType}");
+                    if (criticalResult.criticalType == CriticalType.GreatCritical)
+                    {
+                        BattleManager.ClaimBattleLog($"상위 크리티컬<br>{damage} 피해");
+                    }
+                    else if (criticalResult.criticalType == CriticalType.Critical)
+                    {
+                        BattleManager.ClaimBattleLog($"크리티컬<br>{damage} 피해");
+                    }
+                    else
+                    {
+                        BattleManager.ClaimBattleLog($"{damage} 피해");
+                    }
+                    Debug.Log($"무색 카드 피해: {damage} / 크리티컬: {criticalResult.criticalType}");
 
                     break;
                 }
@@ -569,14 +609,24 @@ public class CardResolver
                             restoreAmount = restore
                         };
 
-                    CombatModule combat =
-                        user.GetModule<CombatModule>();
+                    CombatModule combat = user.GetModule<CombatModule>();
 
                     if (combat == null)
                         return;
 
                     combat.OnRestore(restoreInfo);
-
+                    if (criticalResult.criticalType == CriticalType.GreatCritical)
+                    {
+                        BattleManager.ClaimBattleLog($"상위 크리티컬<br>{restore}생명력 회복");
+                    }
+                    else if (criticalResult.criticalType == CriticalType.Critical)
+                    {
+                        BattleManager.ClaimBattleLog($"크리티컬<br>{restore}생명력 회복");
+                    }
+                    else
+                    {
+                        BattleManager.ClaimBattleLog($"{restore}생명력 회복");
+                    }
                     Debug.Log(
                         $"무색 카드 회복: {restore} / 크리티컬: {criticalResult.criticalType}");
 
@@ -750,7 +800,7 @@ public class CardResolver
 
         status.AddDoom(doomValue);
 
-        Debug.Log($"금지된 마법: 종언 {doomValue} 부여");
+        BattleManager.ClaimBattleLog($"금지된 마법: 종언 {doomValue} 부여");
     }
 
     /// <summary>
@@ -794,7 +844,7 @@ public class CardResolver
 
         combat.OnHit(damageInfo);
 
-        Debug.Log($"공격 마법 피해: {damage}");
+        BattleManager.ClaimBattleLog($"{damage}피해");
     }
 
     /// <summary>
@@ -805,25 +855,20 @@ public class CardResolver
     /// </summary>
     private void ResolveDefenseMagic(CardData card, CharacterBase user, CharacterBase target, CardUseCost useCost)
     {
+        ArmorModule armorModule = user.GetModule<ArmorModule>();
+
         if (useCost != CardUseCost.ActionAndAuxiliary)
         {
             Debug.Log("방어 마법은 행동 코스트로만 사용할 수 있습니다.");
             return;
         }
 
-        int shieldAmount = 10 + Dice.RollD10();
+        int shieldAmount = 200;
 
         // 보호막/임시 장갑 시스템이 아직 없다면 일단 로그만 처리
-        Debug.Log($"방어 마법: 보호막 {shieldAmount} 획득");
+        armorModule.AddTemporaryArmor(shieldAmount);
 
-        // 나중에 보호막 모듈이 생기면 이런 식으로 연결
-        // StatusEffectModule status = user.GetModule<StatusEffectModule>();
-        // if (status == null)
-        // {
-        //     Debug.Log("방어 마법 실패: StatusEffectModule 없음");
-        //     return;
-        // }
-        // status.AddShield(shieldAmount);
+        BattleManager.ClaimBattleLog($"임시 장갑{shieldAmount} 획득");
     }
 
     /// <summary>
@@ -854,7 +899,10 @@ public class CardResolver
         }
 
         status.AddStatus(StatusEffectType.Blessing, 1);
-        status.AddStatus(StatusEffectType.Motivation, 1);
+        status.AddStatus(StatusEffectType.Motivation, 4);
+
+        BattleManager.ClaimBattleLog($"축복 획득");
+        BattleManager.ClaimBattleLog($"의지4 획득");
 
     }
 
