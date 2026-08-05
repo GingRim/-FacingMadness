@@ -454,7 +454,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2bd9361a8c865a447bf615b5ce04d864, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UI_LoadingSceen
-  requiredUI: []
   progressBar: {fileID: 565300478782137589}
   progressText: {fileID: 4457724999468753280}
   explainText: {fileID: 3931164076091802371}
@@ -755,8 +754,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Description
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: e0e7fc8813d09c04eaacca07a543efc4, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: e0e7fc8813d09c04eaacca07a543efc4, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []

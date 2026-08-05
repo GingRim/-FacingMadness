@@ -146,3 +146,19 @@ public enum CardDropResult
     OpenPopup,
     UseDirect
 }
+
+/// <summary>
+/// 현제 상테에 따른 카드 효과 변경점
+/// </summary>
+public enum CardUseContext
+{
+    Field,
+    Battle
+}
+
+public enum FieldLineType
+{
+    Normal,
+    Red,
+    Hidden
+}

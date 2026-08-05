@@ -1,0 +1,347 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: origin
+  m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
+  m_GroupName: origin
+  m_GUID: 39d016f45e14d2c4284861b245f0dadb
+  m_SerializeEntries:
+  - m_GUID: 001ab1e115cd44f47a528d3f40dcf048
+    m_Address: Assets/1.Datas/Origin/ScriptableObjects/Globals/Card/AttackMagicCard.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - OGlobals
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 00b3802e11c2ae94391741c1fba0ba3e
+    m_Address: Assets/1.Datas/Origin/ScriptableObjects/Globals/Card/BCard.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - OGlobals
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 071b21854f5130d41a6874cfed52bc94
+    m_Address: Assets/1.Datas/Origin/ScriptableObjects/Globals/Character/Ex.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - OGlobals
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 0daf15688e0df934987d64002535f416
+    m_Address: Assets/1.Datas/Origin/ScriptableObjects/Globals/poolRequests/GlobalControllerPool.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - OGlobals
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 14491716c8dffe14abc134d0d016a970
+    m_Address: Assets/1.Datas/Origin/Prefabs/Globals/GameObjects/Units/Pawn.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - OGlobals
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 19726ac184bb1674aae2035b7906c6e7
+    m_Address: Assets/1.Datas/Origin/Prefabs/Globals/UIs/Windou/RewardWindow.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - OGlobals
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 1cc874f95834c03478a99bcfe1fe29fa
+    m_Address: Assets/1.Datas/Origin/ScriptableObjects/Globals/Card/UI_Card.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - OGlobals
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 28c08882937881f4880972545c401f8a
+    m_Address: Assets/1.Datas/Origin/Prefabs/Globals/UIs/Windou/inventoryMenu.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - OGlobals
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 2dea4509f2aad6f4fa325ef97ce45c63
+    m_Address: Assets/1.Datas/Origin/Prefabs/Globals/GameObjects/CharacterHoverInfo.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - OGlobals
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 2ecdb7a6e64f01a4c8b2e4898cbdd700
+    m_Address: Assets/1.Datas/Origin/Prefabs/Globals/GameObjects/Units/CharacterBase.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - OGlobals
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 30b9955f363eb52468382d0ab649b7a0
+    m_Address: Assets/1.Datas/Origin/ScriptableObjects/Globals/poolRequests/GlobalCharacterPool.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - OGlobals
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 34e2ab970d5d0eb4c91ae90514a076dd
+    m_Address: Assets/1.Datas/Origin/Prefabs/Globals/GameObjects/CostHoverInfo.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - OGlobals
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 36615d2bcc094114ebb4c5d9a5e3c3fe
+    m_Address: Assets/1.Datas/Origin/ScriptableObjects/Globals/poolRequests/GlobalUIPool.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - OGlobals
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 49b3b86c0e2b11a46b3a93fe3e5e0ca5
+    m_Address: Assets/1.Datas/Origin/Prefabs/Globals/UIs/Screen/LoadingScreen.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - OGlobals
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 49da40c16ecd56c46abb443ea5ae2f26
+    m_Address: Assets/1.Datas/Origin/Prefabs/Globals/Items/Potion.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - OGlobals
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 4cce998780d0bc945a414d9d97f4348f
+    m_Address: Assets/1.Datas/Origin/Prefabs/Globals/UIs/Windou/ActionPopUp.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - OGlobals
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 545bef2623c60344c87c74706bd4e2a7
+    m_Address: Assets/1.Datas/Origin/ScriptableObjects/Globals/Card/BKCard.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - OGlobals
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5510179eba0a08e4196e35b32db6bc45
+    m_Address: Assets/1.Datas/Origin/ScriptableObjects/Globals/Card/GCard.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - OGlobals
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5a83997190b1de847848e9e64b3b61fc
+    m_Address: Assets/1.Datas/Origin/ScriptableObjects/Globals/Card/BuffMagicCard.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - OGlobals
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5ed4f6429096afc42b0fa294ef3419c8
+    m_Address: Assets/1.Datas/Origin/ScriptableObjects/Globals/Card/CCard.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - OGlobals
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 62bbef7ef943c0e4f80a622b63b6943f
+    m_Address: Assets/1.Datas/Origin/ScriptableObjects/Globals/Card/Hand.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - OGlobals
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 62e37bf17570bab47a8281e2507ecf23
+    m_Address: Assets/1.Datas/Origin/ScriptableObjects/Globals/Card/RCard.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - OGlobals
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 679dc5909619eaa4abbe6f5a58513423
+    m_Address: Assets/1.Datas/Origin/Prefabs/Globals/UIs/Windou/QuitConfir.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - OGlobals
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 68a69075616179b4c8e041ccd679e49b
+    m_Address: Assets/1.Datas/Origin/Prefabs/Globals/UIs/Screen/SeveScreen.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - OGlobals
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6b6165dfd4106114aaae12cb972f928a
+    m_Address: Assets/1.Datas/Origin/Prefabs/Globals/UIs/Screen/BattleScreen.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - OGlobals
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6fcc934c761607d41becfabb42f745a9
+    m_Address: Assets/1.Datas/Origin/Prefabs/Globals/GameObjects/Units/EX_Monsrt.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - OGlobals
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 71844e95a79e95a4d8eb7ebf85980793
+    m_Address: Assets/1.Datas/Origin/ScriptableObjects/Globals/Card/YCard.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - OGlobals
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 76de404a081060d48a3e60388a71ae53
+    m_Address: Assets/1.Datas/Origin/ScriptableObjects/Globals/Card/PCard.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - OGlobals
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 776f3d135a1c85944969a06efe65ff92
+    m_Address: Assets/1.Datas/Origin/Prefabs/Globals/GameObjects/Erull.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - OGlobals
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 7b0178d7daf2c76418e68f476450d375
+    m_Address: Assets/1.Datas/Origin/Prefabs/Globals/UIs/Screen/MovableSctrrn.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - OGlobals
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 7ebf95d82acf01e4dbe3cdd7ee934289
+    m_Address: Assets/1.Datas/Origin/ScriptableObjects/Globals/Character/EX_Minster.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - OGlobals
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 855587ccb340dd049bc010f5ac763289
+    m_Address: Assets/1.Datas/Origin/Prefabs/Globals/UIs/Screen/MenuScreen.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - OGlobals
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 86d1c6253e9b72a44b1ffd5bc95afa06
+    m_Address: Assets/1.Datas/Origin/Prefabs/Globals/UIs/ScreenChanger.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - OGlobals
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 88428191fdbb6cd43bf9a54305f1031f
+    m_Address: Assets/1.Datas/Origin/Prefabs/Globals/UIs/Windou/InCompletePopUp.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - OGlobals
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 88759ee67bba4f547b9f95eb5809e0d5
+    m_Address: Assets/1.Datas/Origin/Prefabs/Globals/GameObjects/Log.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - OGlobals
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 9a851491749efb54ea1ace5af0a169cf
+    m_Address: Assets/1.Datas/Origin/Prefabs/Globals/GameObjects/KeywordEncyclopedia.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - OGlobals
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 9b7d2395f77b7cb44bbc594259a6dcaa
+    m_Address: Assets/1.Datas/Origin/ScriptableObjects/Globals/Card/ForbiddenMagicCard.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - OGlobals
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a754dc43342de9b4284c8d83c20a1a61
+    m_Address: Assets/1.Datas/Origin/Prefabs/Globals/UIs/Screen/TitleScreen.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - OGlobals
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: acdc089dd330a614c83223c077067c35
+    m_Address: Assets/1.Datas/Origin/ScriptableObjects/Globals/Card/DefenseMagicCard.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - OGlobals
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: aceb4a016d35fb04887668208582c4b3
+    m_Address: Assets/1.Datas/Origin/Prefabs/Globals/UIs/Windou/Resolver.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - OGlobals
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b1c3d5f114f797a4f990a076cdbdc391
+    m_Address: Assets/1.Datas/Origin/Prefabs/Globals/UIs/Windou/SavePopUp.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - OGlobals
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c08b54a4cdf53544eb3763502777d4c3
+    m_Address: Assets/1.Datas/Origin/Prefabs/Globals/UIs/SlideChanger.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - OGlobals
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c8afff1bb8bf5624c8ea9aede538755b
+    m_Address: Assets/1.Datas/Origin/Prefabs/Globals/UIs/Windou/Canves.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - OGlobals
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c8fd3091716f68d4b8ca8d73f449db98
+    m_Address: Assets/1.Datas/Origin/Prefabs/Globals/UIs/Screen/MovableScreen.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - OGlobals
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c9c20cfd5e5172e4e92e5fc803b1b006
+    m_Address: Assets/1.Datas/Origin/ScriptableObjects/Globals/poolRequests/GlobalEffectPool.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - OGlobals
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c9f03edae2a12604cb2ad3b312d49b24
+    m_Address: Assets/1.Datas/Origin/Prefabs/Globals/UIs/LoadingBar.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - OGlobals
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: cc54e4dd4432e0e46a821ef634213328
+    m_Address: Assets/1.Datas/Origin/ScriptableObjects/Globals/Character/Dummy.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - OGlobals
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: d08c6a9b243adbe4db1e85adcfc3c7c7
+    m_Address: Assets/1.Datas/Origin/Prefabs/Globals/UIs/Screen/EPSD.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - OGlobals
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: d2666738cc14c6b4780bf783a6ce89a2
+    m_Address: Assets/1.Datas/Origin/Prefabs/Globals/UIs/Windou/PopUp.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - OGlobals
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: d38a43b55c1d3bf4e82f4ced9fbe382d
+    m_Address: Assets/1.Datas/Origin/ScriptableObjects/Globals/poolRequests/GlobalObjectPool.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - OGlobals
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: dd6b8164d2439704f9ef7f7059610f68
+    m_Address: Assets/1.Datas/Origin/Prefabs/Globals/GameObjects/Rdummy.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - OGlobals
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e440e93768295b849b5dde30e83215dc
+    m_Address: Assets/1.Datas/Origin/Prefabs/Globals/UIs/Windou/PauseWindow.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - OGlobals
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ea6aa9d6ec25147449b7e0f81a1a7fe9
+    m_Address: Assets/1.Datas/Origin/ScriptableObjects/Globals/Deck/EX.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - OGlobals
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f612e7abc2b9743468ad3a1b25c2a33a
+    m_Address: Assets/1.Datas/Origin/Prefabs/Globals/UIs/Screen/CharacterCreationScreen.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - OGlobals
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: c80322e84e1d8644f9db746036e25a16, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: da63c7be46589ca478bd2e52dc3e5c48, type: 2}
+    - {fileID: 11400000, guid: 4ea110b2295f75d4d8919c000cf86a6e, type: 2}
