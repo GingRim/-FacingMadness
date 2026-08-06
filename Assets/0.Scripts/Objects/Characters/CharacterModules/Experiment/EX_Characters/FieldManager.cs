@@ -5,26 +5,55 @@ using UnityEngine;
 
 public class FieldManager : ManagerBase
 {
-    
     [Header("필드 구성")]
     [SerializeField] private FieldNode startingNode;
     [SerializeField] private List<FieldNode> nodes = new();
 
+    [Header("이벤트 실행기")]
+    [SerializeField] private FieldEventRunner eventRunner;
+
+    private readonly List<CharacterBase> participants = new();
+
     private CharacterBase currentPlayer;
     private FieldNode currentNode;
+
+    private int currentPlayerIndex;
+    private int totalFieldTurn;
+
+    private FieldLine pendingRedLine;
+    private FieldNode pendingTargetNode;
+
+    private readonly List<FieldNode>
+    startingNodeCandidates = new();
+
+    public IReadOnlyList<FieldNode>
+        StartingNodeCandidates => startingNodeCandidates;
 
     public CharacterBase CurrentPlayer => currentPlayer;
     public FieldNode CurrentNode => currentNode;
 
+    public IReadOnlyList<CharacterBase> Participants => participants;
+
+    public int TotalFieldTurn => totalFieldTurn;
+
     public bool IsFieldActive { get; private set; }
 
-    public event Action<FieldNode> OnNodeChanged;
-    public event Action<FieldNode> OnNodeEventRequested;
+    public FieldTurnState TurnState { get; private set; } = FieldTurnState.Inactive;
+
     public event Action<CharacterBase> OnCurrentPlayerChanged;
+
+    public event Action<FieldNode> OnNodeChanged;
+
+    public event Action<FieldLine, FieldNode> OnRedLineEventRequested;
+
+    public event Action<int> OnMythTurnRequested;
+
+    public event Action OnFieldGameOver;
 
     protected override IEnumerator OnConnected(GameManager newManager)
     {
         RegisterNodes();
+        RegisterEventRunner();
 
         yield return null;
     }
@@ -32,6 +61,7 @@ public class FieldManager : ManagerBase
     protected override void OnDisconnected()
     {
         UnregisterNodes();
+        UnregisterEventRunner();
     }
 
     private void RegisterNodes()
@@ -57,45 +87,121 @@ public class FieldManager : ManagerBase
         }
     }
 
-    public void StartField(CharacterBase player)
+    private void RegisterEventRunner()
     {
-        if (player == null)
+        if (eventRunner == null)
+            return;
+
+        eventRunner.OnEventClosed -= HandleEventClosed;
+        eventRunner.OnEventClosed += HandleEventClosed;
+    }
+
+    private void UnregisterEventRunner()
+    {
+        if (eventRunner == null)
+            return;
+
+        eventRunner.OnEventClosed -= HandleEventClosed;
+    }
+
+    public void StartField(
+        List<CharacterBase> players)
+    {
+        if (players == null || players.Count == 0)
         {
-            Debug.LogWarning(
-                "FieldManager: 현재 플레이어가 없습니다.");
+            Debug.LogWarning("FieldManager: 필드 참가자가 없습니다.");
 
             return;
         }
 
         if (startingNode == null)
         {
-            Debug.LogWarning(
-                "FieldManager: 시작 노드가 없습니다.");
+            Debug.LogWarning("FieldManager: 시작 노드가 없습니다.");
 
             return;
         }
 
-        IsFieldActive = true;
+        ResetFieldState();
 
-        SetCurrentPlayer(player);
-        SetCurrentNode(startingNode);
-    }
-
-    public void EndField()
-    {
-        if (currentNode != null &&
-            currentPlayer != null)
+        foreach (CharacterBase player in players)
         {
-            currentNode.Exit(currentPlayer);
+            if (player == null)
+                continue;
+
+            player.AddAllModuleFromObject(player.gameObject);
+
+            participants.Add(player);
+            startingNode.Enter(player);
         }
 
-        currentNode = null;
-        currentPlayer = null;
+        if (participants.Count == 0)
+            return;
 
-        IsFieldActive = false;
+        IsFieldActive = true;
+        currentPlayerIndex = 0;
+        totalFieldTurn = 0;
+
+        StartFieldTurn();
+
+        // 필드 시작 노드의 최초 이벤트
+        if (startingNode.FirstVisitEvent != null)
+        {
+            OpenFieldEvent(startingNode.FirstVisitEvent, startingNode);
+        }
     }
 
-    public void SetCurrentPlayer(CharacterBase player)
+    private void ResetFieldState()
+    {
+        foreach (FieldNode node in nodes)
+        {
+            if (node == null)
+                continue;
+
+            node.ResetNode();
+        }
+
+        participants.Clear();
+
+        currentPlayer = null;
+        currentNode = null;
+
+        pendingRedLine = null;
+        pendingTargetNode = null;
+
+        eventRunner?.ResetCompletedEvents();
+
+        IsFieldActive = false;
+        TurnState = FieldTurnState.Inactive;
+    }
+
+    private void StartFieldTurn()
+    {
+        if (!IsFieldActive || participants.Count == 0)
+        {
+            return;
+        }
+
+        if (currentPlayerIndex >= participants.Count)
+        {
+            currentPlayerIndex = 0;
+        }
+
+        CharacterBase nextPlayer = participants[currentPlayerIndex];
+
+        SetCurrentPlayer(nextPlayer);
+
+        currentNode = FindCharacterNode(currentPlayer);
+
+        TurnState = FieldTurnState.TurnStart;
+
+        InitializeActionPoint(currentPlayer);
+
+        TurnState = FieldTurnState.PlayerAction;
+
+        Debug.Log($"필드 턴 시작: {currentPlayer.DisplayName}");
+    }
+
+    private void SetCurrentPlayer(CharacterBase player)
     {
         if (currentPlayer == player)
             return;
@@ -105,45 +211,164 @@ public class FieldManager : ManagerBase
         OnCurrentPlayerChanged?.Invoke(currentPlayer);
     }
 
+    private FieldNode FindCharacterNode(CharacterBase character)
+    {
+        if (character == null)
+            return null;
+
+        foreach (FieldNode node in nodes)
+        {
+            if (node == null)
+                continue;
+
+            if (node.ContainsCharacter(character))
+                return node;
+        }
+
+        return null;
+    }
+
+    private void InitializeActionPoint(CharacterBase player)
+    {
+        if (player == null)
+            return;
+
+        ActionPointModule actionPoint = player.GetModule<ActionPointModule>();
+
+        DerivedStatModule derived = player.GetModule<DerivedStatModule>();
+
+        LVModules level = player.GetModule<LVModules>();
+
+        if (actionPoint == null)
+        {
+            Debug.LogWarning($"{player.name}: ActionPointModule이 없습니다.");
+
+            return;
+        }
+
+        if (derived == null || level == null)
+        {
+            Debug.LogWarning($"{player.name}: 행동력 계산 모듈이 없습니다.");
+
+            return;
+        }
+
+        int levelDice;
+
+        if (level.Level >= 10)
+        {
+            levelDice = Dice.RollD4() + Dice.RollD4();
+        }
+        else if (level.Level >= 5)
+        {
+            levelDice = Dice.RollD6();
+        }
+        else
+        {
+            levelDice = Dice.RollD4();
+        }
+
+        int maximum = derived.GetAgilityModifier() + levelDice;
+
+        actionPoint.Initialize(Mathf.Max(1, maximum));
+    }
+
     private void HandleNodeClicked(FieldNode clickedNode)
     {
+        if (clickedNode == null)
+            return;
+
+        if (isSelectingStartingNode)
+        {
+            SelectStartingNode(clickedNode);
+            return;
+        }
+
         if (!IsFieldActive)
             return;
+
+
+        if (!IsFieldActive)
+            return;
+
+        if (TurnState !=
+            FieldTurnState.PlayerAction)
+        {
+            return;
+        }
 
         if (clickedNode == null || currentPlayer == null)
         {
             return;
         }
 
-        // 현재 플레이어가 있는 노드를 다시 클릭
+        // 현재 노드를 다시 클릭하면
+        // 추가 이벤트 요청
         if (clickedNode == currentNode)
         {
-            RequestCurrentNodeEvent();
+            TryOpenAdditionalEvent();
             return;
         }
 
         TryMoveToNode(clickedNode);
     }
 
+    private void SelectStartingNode(FieldNode node)
+    {
+        if (node == null || !node.CanBeStartingNode)
+        {
+            Debug.Log("선택할 수 없는 시작 지점입니다.");
+
+            return;
+        }
+
+        startingNode = node;
+        isSelectingStartingNode = false;
+
+        Debug.Log($"시작 지점 선택: {node.DisplayName}");
+    }
+
     public bool TryMoveToNode(FieldNode targetNode)
     {
-        if (!CanMoveToNode(targetNode))
+        if (!CanAttemptMove(targetNode))
             return false;
 
-        // 행동력 시스템이 만들어지면
-        // 여기서 행동력 1을 차감한다.
-        if (!TryUseActionPoint())
+        FieldLine line = currentNode.GetLineTo(targetNode);
+
+        if (line == null)
             return false;
 
-        SetCurrentNode(targetNode);
+        if (line.IsHidden)
+            return false;
+
+        if (line.IsBlocked)
+        {
+            return TryStartRedLineEvent(line, targetNode);
+        }
+
+        if (!line.CanPass)
+            return false;
+
+        if (!TryUseActionPoint(currentPlayer, 1))
+        {
+            Debug.Log("행동력이 부족합니다.");
+            return false;
+        }
+
+        MoveCurrentPlayerTo(targetNode);
 
         return true;
     }
 
-    private bool CanMoveToNode(FieldNode targetNode)
+    private bool CanAttemptMove(FieldNode targetNode)
     {
         if (!IsFieldActive)
             return false;
+
+        if (TurnState != FieldTurnState.PlayerAction)
+        {
+            return false;
+        }
 
         if (currentPlayer == null || currentNode == null || targetNode == null)
         {
@@ -153,58 +378,383 @@ public class FieldManager : ManagerBase
         if (targetNode == currentNode)
             return false;
 
-        FieldLine line = currentNode.GetLineTo(targetNode);
-
-        if (!currentNode.IsConnectedTo(targetNode))
-        {
-            Debug.Log(
-                $"{currentNode.DisplayName}에서 " +
-                $"{targetNode.DisplayName}(으)로 연결된 길이 없습니다.");
-
-            return false;
-        }
-
-        // 다음 단계에서 FieldLine의 통행 가능 여부도 검사
-        return true;
+        return currentNode.IsConnectedTo(targetNode);
     }
 
-    private void SetCurrentNode(FieldNode newNode)
+    private void MoveCurrentPlayerTo(FieldNode targetNode)
     {
-        if (newNode == null ||
-            currentPlayer == null)
+        if (targetNode == null || currentPlayer == null)
         {
+            CompleteFieldAction();
             return;
         }
+
+        bool firstVisit = !targetNode.IsVisited;
 
         if (currentNode != null)
         {
             currentNode.Exit(currentPlayer);
         }
 
-        currentNode = newNode;
+        currentNode = targetNode;
         currentNode.Enter(currentPlayer);
 
         OnNodeChanged?.Invoke(currentNode);
 
-        // 최초 진입 및 재진입 이벤트 요청
-        OnNodeEventRequested?.Invoke(currentNode);
+        FieldEventData eventData = firstVisit? currentNode.FirstVisitEvent : currentNode.GetRandomRepeatEvent();
+
+        if (eventData != null && OpenFieldEvent(eventData, currentNode))
+        {
+            return;
+        }
+
+        CompleteFieldAction();
     }
 
-    private void RequestCurrentNodeEvent()
+    private void TryOpenAdditionalEvent()
     {
-        if (currentNode == null)
+        if (currentNode == null || currentPlayer == null)
+        {
             return;
+        }
 
-        // 현재 노드 추가 상호작용에도 행동력 소비
-        if (!TryUseActionPoint())
+        FieldEventData eventData = currentNode.GetRandomRepeatEvent();
+
+        if (eventData == null)
+        {
+            Debug.Log($"{currentNode.DisplayName}: " + "추가 이벤트가 없습니다.");
+
             return;
+        }
 
-        OnNodeEventRequested?.Invoke(currentNode);
+        if (!TryUseActionPoint(currentPlayer, 1))
+        {
+            Debug.Log("행동력이 부족합니다.");
+            return;
+        }
+
+        if (!OpenFieldEvent(eventData, currentNode))
+        {
+            CompleteFieldAction();
+        }
     }
 
-    private bool TryUseActionPoint()
+    private bool OpenFieldEvent(FieldEventData eventData, FieldNode node)
     {
-        // ActionPointModule을 연결하기 전의 임시 처리
+        if (eventData == null || node == null || currentPlayer == null || eventRunner == null)
+        {
+            return false;
+        }
+
+        FieldEventContext context = new FieldEventContext(currentPlayer, node, this);
+
+        bool opened = eventRunner.OpenEvent(eventData, context);
+
+        if (opened)
+        {
+            TurnState = FieldTurnState.Event;
+        }
+
+        return opened;
+    }
+
+    private void HandleEventClosed()
+    {
+        if (!IsFieldActive)
+            return;
+
+        if (TurnState != FieldTurnState.Event)
+            return;
+
+        // 적색 라인 이벤트는
+        // CompleteRedLineEvent에서 처리
+        if (pendingRedLine != null)
+            return;
+
+        CompleteFieldAction();
+    }
+
+    private bool TryStartRedLineEvent(FieldLine line, FieldNode targetNode)
+    {
+        if (line == null || targetNode == null)
+        {
+            return false;
+        }
+
+        // 적색 라인 이벤트를 받을 UI가 없으면
+        // 행동력을 소비하지 않음
+        if (OnRedLineEventRequested == null)
+        {
+            Debug.LogWarning("FieldManager: 적색 라인 이벤트가 연결되지 않았습니다.");
+
+            return false;
+        }
+
+        if (!TryUseActionPoint(currentPlayer, 1))
+        {
+            Debug.Log("행동력이 부족합니다.");
+            return false;
+        }
+
+        pendingRedLine = line;
+        pendingTargetNode = targetNode;
+
+        TurnState = FieldTurnState.Event;
+
+        OnRedLineEventRequested.Invoke(pendingRedLine, pendingTargetNode);
+
         return true;
     }
+
+    /// <summary>
+    /// 적색 라인 이벤트 처리 완료 시 호출
+    /// </summary>
+    public void CompleteRedLineEvent(bool passed)
+    {
+        if (pendingRedLine == null)
+            return;
+
+        FieldLine resolvedLine = pendingRedLine;
+
+        FieldNode targetNode = pendingTargetNode;
+
+        pendingRedLine = null;
+        pendingTargetNode = null;
+
+        if (passed)
+        {
+            resolvedLine.ClearBlock();
+
+            MoveCurrentPlayerTo(targetNode);
+            return;
+        }
+
+        CompleteFieldAction();
+    }
+
+    public bool TryUseActionPoint(CharacterBase player, int amount = 1)
+    {
+        if (!IsFieldActive)
+            return false;
+
+        if (player == null || player != currentPlayer)
+        {
+            return false;
+        }
+
+        ActionPointModule actionPoint = player.GetModule<ActionPointModule>();
+
+        if (actionPoint == null)
+            return false;
+
+        return actionPoint.TryUse(amount);
+    }
+
+    private void CompleteFieldAction()
+    {
+        if (!IsFieldActive || currentPlayer == null)
+        {
+            return;
+        }
+
+        TurnState = FieldTurnState.PlayerAction;
+
+        ActionPointModule actionPoint = currentPlayer.GetModule<ActionPointModule>();
+
+        if (actionPoint == null)
+            return;
+
+        // 행동력 0은 추가 이벤트 조건이 아님
+        // 즉시 턴 종료 절차로 이동
+        if (actionPoint.IsEmpty)
+        {
+            EndFieldTurn();
+        }
+    }
+
+    public void EndFieldTurn()
+    {
+        if (!IsFieldActive)
+            return;
+
+        if (TurnState == FieldTurnState.Event || TurnState == FieldTurnState.MythTurn || TurnState == FieldTurnState.GameOver)
+        {
+            return;
+        }
+
+        TurnState = FieldTurnState.TurnEnd;
+
+        totalFieldTurn++;
+
+        Debug.Log($"필드 턴 종료 / 누적 턴:{totalFieldTurn}");
+
+        if (totalFieldTurn % 10 == 0)
+        {
+            StartMythTurn();
+            return;
+        }
+
+        CheckPlayersAndStartNextTurn();
+    }
+
+    private void StartMythTurn()
+    {
+        TurnState = FieldTurnState.MythTurn;
+
+        Debug.Log($"신화 턴 발생: {totalFieldTurn}");
+
+        if (OnMythTurnRequested != null)
+        {
+            OnMythTurnRequested.Invoke(totalFieldTurn);
+
+            return;
+        }
+
+        // 아직 신화 이벤트 시스템이 없다면
+        // 바로 사망 확인으로 이동
+        CompleteMythTurn();
+    }
+
+    /// <summary>
+    /// 신화 이벤트와 연출이 모두 끝났을 때 호출
+    /// </summary>
+    public void CompleteMythTurn()
+    {
+        if (TurnState != FieldTurnState.MythTurn)
+        {
+            return;
+        }
+
+        CheckPlayersAndStartNextTurn();
+    }
+
+    private void CheckPlayersAndStartNextTurn()
+    {
+        if (HasDeadPlayer())
+        {
+            EndFieldByGameOver();
+            return;
+        }
+
+        MoveToNextPlayer();
+        StartFieldTurn();
+    }
+
+    private bool HasDeadPlayer()
+    {
+        foreach (CharacterBase player in participants)
+        {
+            if (player == null)
+                return true;
+
+            HitpointModules hp =
+                player.GetModule<HitpointModules>();
+
+            if (hp != null && hp.IsEmpty)
+                return true;
+
+            // 최대 정신력 0 조건은
+            // 정신력 모듈 확인 후 이곳에 추가
+        }
+
+        return false;
+    }
+
+    private void MoveToNextPlayer()
+    {
+        if (participants.Count == 0)
+            return;
+
+        currentPlayerIndex++;
+
+        if (currentPlayerIndex >= participants.Count)
+        {
+            currentPlayerIndex = 0;
+        }
+    }
+
+    private void EndFieldByGameOver()
+    {
+        TurnState = FieldTurnState.GameOver;
+
+        IsFieldActive = false;
+
+        Debug.Log("필드 게임 오버");
+
+        OnFieldGameOver?.Invoke();
+    }
+
+    public void EndField()
+    {
+        IsFieldActive = false;
+
+        TurnState = FieldTurnState.Inactive;
+
+        pendingRedLine = null;
+        pendingTargetNode = null;
+
+        eventRunner?.CloseEvent();
+
+        currentPlayer = null;
+        currentNode = null;
+
+        participants.Clear();
+    }
+
+    public bool SetStartingNode(FieldNode node)
+    {
+        if (IsFieldActive)
+        {
+            Debug.LogWarning("필드가 시작된 뒤에는 시작 노드를 변경할 수 없습니다.");
+
+            return false;
+        }
+
+        if (node == null)
+            return false;
+
+        if (!nodes.Contains(node))
+        {
+            Debug.LogWarning("필드에 등록되지 않은 노드입니다.");
+
+            return false;
+        }
+
+        startingNode = node;
+
+        return true;
+    }
+
+    public bool SetStartingNode(string nodeId)
+    {
+        if (string.IsNullOrWhiteSpace(nodeId))
+            return false;
+
+        foreach (FieldNode node in nodes)
+        {
+            if (node == null)
+                continue;
+
+            if (node.NodeId == nodeId)
+            {
+                return SetStartingNode(node);
+            }
+        }
+
+        return false;
+    }
+
+    private bool isSelectingStartingNode;
+
+    public void BeginStartingNodeSelection()
+    {
+        if (IsFieldActive)
+            return;
+
+        startingNode = null;
+        isSelectingStartingNode = true;
+    }
+
+
 }
+

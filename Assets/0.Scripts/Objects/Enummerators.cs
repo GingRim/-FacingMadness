@@ -162,3 +162,21 @@ public enum FieldLineType
     Red,
     Hidden
 }
+
+public enum FieldEventType
+{
+    Core,       // 미션 진행에 필요한 핵심 이벤트
+    Stat,       // 능력치·카드 판정 이벤트
+    MacGuffin   // 진행 없이 행동력을 소비하는 일반 사건
+}
+
+public enum FieldTurnState
+{
+    Inactive,
+    TurnStart,
+    PlayerAction,
+    Event,
+    TurnEnd,
+    MythTurn,
+    GameOver
+}

@@ -10,7 +10,7 @@ using static Dice;
 public class CardResolver
 {
     /// <summary>
-    /// 기존 통합 사용 함수
+    /// 전투 카드 효과
     /// </summary>
     public bool Use(CardData card, CharacterBase user, CharacterBase target, CardUseCost useCost)
     {
@@ -26,7 +26,78 @@ public class CardResolver
         return UseWithoutCostCheck(card, user, target, useCost);
     }
 
+    /// <summary>
+    /// 필드에서 카드 사용
+    /// 전투 코스트인 행동·보조 행동은 사용하지 않는다.
+    /// </summary>
+    public bool UseField(CardData card, CharacterBase user, FieldEventContext context)
+    {
+        if (card == null || user == null || context == null)
+        {
+            return false;
+        }
 
+        // 먼저 해당 카드가 현재 이벤트에서
+        // 사용 가능한지 확인
+        if (!CanUseField(card, user, context))
+            return false;
+
+        // 필드 카드 사용 비용: 행동력 1
+        if (!context.FieldManager.TryUseActionPoint(user, 1))
+        {
+            Debug.Log("행동력이 부족합니다.");
+            return false;
+        }
+
+        return ResolveFieldEffect(card, user,context);
+
+
+    }
+
+    private bool CanUseField(CardData card, CharacterBase user, FieldEventContext context)
+    {
+        if (card == null || user == null || context == null)
+        {
+            return false;
+        }
+
+        // 검은색 카드는 전투 전용
+        if (card.color == CardColorType.Black)
+            return false;
+
+        return true;
+    }
+
+    private bool ResolveFieldEffect(CardData card, CharacterBase user, FieldEventContext context)
+    {
+        switch (card.color)
+        {
+            case CardColorType.Red:
+                return ResolveRedField(card, user, context);
+
+            case CardColorType.Yellow:
+                return ResolveYellowField(card, user, context);
+
+            case CardColorType.Green:
+                return ResolveGreenField(card, user, context);
+
+            case CardColorType.Blue:
+                return ResolveBlueField(card, user, context);
+
+            case CardColorType.Colorless:
+                return ResolveColorlessField(card, user, context);
+
+            // 자색 카드의 필드 사용 규칙은 별도 확인 필요
+            case CardColorType.Purple:
+                return ResolvePurpleField(card, user, context);
+
+            // 검은색은 전투 전용
+            case CardColorType.Black:
+                return false;
+        }
+
+        return false;
+    }
 
     /// <summary>
     /// 카드 사용 전 코스트 지불
@@ -1177,5 +1248,45 @@ public class CardResolver
 
         Debug.Log($"검은 의지 카드: 자신에게 {damage} 피해");
     }
+
+
+    private bool ResolveRedField(CardData card, CharacterBase user, FieldEventContext context)
+    {
+        // 적색 카드가 필요한 장애물 제거
+        return true;
+    }
+
+    private bool ResolveColorlessField(CardData card, CharacterBase user, FieldEventContext context)
+    {
+        // 제외된 카드 복귀 및 판정 성공 시 소멸 카드 복귀
+        return true;
+    }
+
+    private bool ResolveBlueField(CardData card, CharacterBase user, FieldEventContext context)
+    {
+        
+        // 특이점 탐색 또는 비밀 라인 발견
+        return true;
+    }
+
+    private bool ResolveGreenField(CardData card, CharacterBase user, FieldEventContext context)
+    {
+        // 녹색 필드 효과
+        
+        return true;
+    }
+
+    private bool ResolveYellowField(CardData card, CharacterBase user, FieldEventContext context)
+    {
+        // 위험 감지 또는 중간 노드 무시 이동
+        
+        return true;
+    }
+
+    private bool ResolvePurpleField(CardData card, CharacterBase user, FieldEventContext context)
+    {
+        return true;
+    }
+
 
 }

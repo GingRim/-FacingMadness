@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -72,19 +73,5 @@ public class UI_Hand : MonoBehaviour
 
         cardUIs.Clear();
     }
-
-    //public void UseCard(CardBase card, CharacterBase user, CardUseContext context)
-    //{
-    //    switch (context)
-    //    {
-    //        case CardUseContext.Field:
-    //            ResolveFieldEffect(card, user);
-    //            break;
-
-    //        case CardUseContext.Battle:
-    //            ResolveBattleEffect(card, user);
-    //            break;
-    //    }
-    //}
 
 }

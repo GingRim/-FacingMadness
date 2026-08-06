@@ -5,6 +5,12 @@ using UnityEngine;
 public class FieldNode : MonoBehaviour
 {
 
+    [Header("시작 지점")]
+    [SerializeField]
+    private bool canBeStartingNode;
+
+    public bool CanBeStartingNode => canBeStartingNode;
+
     [Header("노드 정보")]
     [SerializeField] private string nodeId;
     [SerializeField] private string displayName;
@@ -15,8 +21,15 @@ public class FieldNode : MonoBehaviour
     [Header("연결 정보")]
     [SerializeField] private List<FieldLine> connectedLines = new();
 
-    [Header("노드 이벤트")]
-    [SerializeField] private FieldEvent nodeEvent;
+    [Header("최초 진입 이벤트")]
+    [SerializeField]
+    private FieldEventData firstVisitEvent;
+
+    [Header("재진입 이벤트")]
+    [SerializeField]
+    private FieldEventData[] repeatEvents;
+
+    public FieldEventData FirstVisitEvent => firstVisitEvent;
 
     private readonly List<CharacterBase> characters = new();
 
@@ -28,13 +41,9 @@ public class FieldNode : MonoBehaviour
 
     public bool IsVisited => isVisited;
 
-    public FieldEvent NodeEvent => nodeEvent;
+    public IReadOnlyList<FieldLine> ConnectedLines => connectedLines;
 
-    public IReadOnlyList<FieldLine> ConnectedLines =>
-        connectedLines;
-
-    public IReadOnlyList<CharacterBase> Characters =>
-        characters;
+    public IReadOnlyList<CharacterBase> Characters => characters;
 
     public event Action<FieldNode> OnClicked;
     public event Action<FieldNode, CharacterBase> OnCharacterEntered;
@@ -147,5 +156,34 @@ public class FieldNode : MonoBehaviour
         connectedLines.RemoveAll(line => line == null);
     }
 #endif
-}
 
+    public FieldLine GetLineTo(FieldNode target)
+    {
+        if (target == null)
+            return null;
+
+        foreach (FieldLine line in connectedLines)
+        {
+            if (line == null)
+                continue;
+
+            if (line.Connects(this, target))
+                return line;
+        }
+
+        return null;
+    }
+
+    public FieldEventData GetRandomRepeatEvent()
+    {
+        if (repeatEvents == null || repeatEvents.Length == 0)
+        {
+            return null;
+        }
+
+        int randomIndex = UnityEngine.Random.Range(0, repeatEvents.Length);
+
+        return repeatEvents[randomIndex];
+    }
+
+}

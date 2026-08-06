@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3b7b621ae8604b5409b81880b9d3b2ca, type: 3}
+  m_Name: Tutorial
+  m_EditorClassIdentifier: Assembly-CSharp::FieldMissionData
+  missionId: 00
+  missionName: "\uD29C\uD1A0\uB9AC\uC5BC"
+  description: "\uAC04\uB7B5\uD55C \uAC8C\uC784\uC744 \uC9C4\uD589\uD558\uBA70 \uC5B4\uB5BB\uAC8C
+    \uC9C4\uD589\uD558\uB294\uC9C0 \uC553\uC544 \uBCF4\uC790!"
+  missionImage: {fileID: 0}

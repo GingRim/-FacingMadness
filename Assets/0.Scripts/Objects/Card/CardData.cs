@@ -26,6 +26,8 @@ public class CardData : ScriptableObject
 
 
     [Header("설명")]
-    [TextArea]
+    [TextArea(3, 10)]
     public string description;
+
+
 }

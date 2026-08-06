@@ -39,6 +39,11 @@ MonoBehaviour:
     m_SerializedLabels:
     - OGlobals
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 13b31d5aa7dc4154faed29e2f6b019f7
+    m_Address: Assets/3.Prefabs/UIs/AI_Image/0.1.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 14491716c8dffe14abc134d0d016a970
     m_Address: Assets/1.Datas/Origin/Prefabs/Globals/GameObjects/Units/Pawn.prefab
     m_ReadOnly: 0
