@@ -14,18 +14,29 @@ public class FieldLine : MonoBehaviour
     [Header("표시 오브젝트")]
     [SerializeField] private GameObject visualObject;
 
+    [Header("라인 식별")]
+    [SerializeField]
+    private string lineId;
+
+    [Header("런타임 상태")]
+    [SerializeField]
+    private bool isDiscovered;
+
+    [SerializeField]
+    private bool isUnlocked;
+
     private bool isRegistered;
 
     public FieldNode NodeA => nodeA;
     public FieldNode NodeB => nodeB;
 
     public FieldLineType LineType => lineType;
-
     public bool IsHidden => lineType == FieldLineType.Hidden;
-
     public bool IsBlocked => lineType == FieldLineType.Red;
-
     public bool CanPass => lineType == FieldLineType.Normal;
+    public string LineId => lineId;
+    public bool IsDiscovered => isDiscovered;
+    public bool IsUnlocked => isUnlocked;
 
     public event Action<FieldLine> OnLineStateChanged;
 

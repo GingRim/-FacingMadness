@@ -14,7 +14,8 @@ public class ObjectManager : ManagerBase
         "GlobalControllerPool",
         "GlobalEffectPool",
         "GlobalObjectPool",
-        "GlobalUIPool"
+        "GlobalUIPool",
+
     };
     //[SerializeField] PoolSetting[] testSettings; �׽�Ʈ ����
 

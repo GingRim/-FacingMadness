@@ -9,12 +9,19 @@ public class FieldMissionData : ScriptableObject
 
     [TextArea(3, 8)]
     [SerializeField] private string description;
-
+    
     [Header("미션 표시")]
     [SerializeField] private Sprite missionImage;
+
+    [Header("필드 오브젝트")]
+    [SerializeField]
+    private string fieldObjectName;
+
+    public string FieldObjectName => fieldObjectName;
 
     public string MissionId => missionId;
     public string MissionName => missionName;
     public string Description => description;
     public Sprite MissionImage => missionImage;
+
 }

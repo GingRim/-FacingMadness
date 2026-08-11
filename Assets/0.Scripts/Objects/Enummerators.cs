@@ -4,7 +4,7 @@ using UnityEngine;
 public enum UIType
 {
     None, Loading, Title, Movable, Menu, Info, Battle, Reward, Pause, Creation, Quit, SavePopUp, InComplete, CostHoverInfo,
-    TargeHoverInfp, ExperimentHoverInfp, Cards, ResolverPopUp, ActionPopUp, GameOver, _Length
+    TargeHoverInfp, ExperimentHoverInfp, Cards, ResolverPopUp, ActionPopUp, GameOver, Field, _Length
 
 }
 
@@ -179,4 +179,38 @@ public enum FieldTurnState
     TurnEnd,
     MythTurn,
     GameOver
+}
+
+public enum FieldCardCheckResult
+{
+    Success,
+    Failure,
+    Fumble
+}
+
+public enum FieldEffectDiceType
+{
+    None,
+    D4,
+    D6,
+    D8,
+    D10
+}
+
+public enum FieldHitpointEffectType
+{
+    Damage,
+    Restore
+}
+
+public enum FieldSanityEffectType
+{
+    Damage,
+    Restore
+}
+
+public enum FieldItemEffectType
+{
+    Add,
+    Remove
 }

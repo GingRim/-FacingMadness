@@ -10,6 +10,7 @@ using static UnityEngine.GraphicsBuffer;
 /// </summary>
 public class CardCrkClick : MonoBehaviour
 {
+    [SerializeField] private UI_FieldCardSelector fieldCardSelector;
     [SerializeField] private UI_CardUseSelect useSelectUI;
     [SerializeField] private Canvas canvas;
 
@@ -32,6 +33,12 @@ public class CardCrkClick : MonoBehaviour
 
         if (useSelectUI == null)
             useSelectUI = FindFirstObjectByType<UI_CardUseSelect>(FindObjectsInactive.Include);
+
+        if (fieldCardSelector == null)
+        {
+            fieldCardSelector =
+                FindFirstObjectByType<UI_FieldCardSelector>(FindObjectsInactive.Include);
+        }
     }
 
     public void SetUseSelectUI(UI_CardUseSelect ui)
@@ -175,7 +182,15 @@ public class CardCrkClick : MonoBehaviour
 
         CardData card = myCard.CardData;
 
+        // 필드 이벤트가 카드 선택을 기다리는 중이라면
+        // 전투 카드 사용 처리로 넘어가지 않는다.
+        if (TryHandleFieldCardSelection(card))
+        {
+            return;
+        }
+
         CardDropDecision decision = GetDropDecision(card, user, target);
+
 
         switch (decision.result)
         {
@@ -572,6 +587,23 @@ public class CardCrkClick : MonoBehaviour
             default:
                 return CardDropDecision.Invalid();
         }
+    }
+
+
+    private bool TryHandleFieldCardSelection(CardData card)
+    {
+        if (card == null)
+            return false;
+
+        if (fieldCardSelector == null)
+        {
+            fieldCardSelector = FindFirstObjectByType<UI_FieldCardSelector>(FindObjectsInactive.Include);
+        }
+
+        if (fieldCardSelector == null)
+            return false;
+
+        return fieldCardSelector.TrySelectCard(card);
     }
 
 }

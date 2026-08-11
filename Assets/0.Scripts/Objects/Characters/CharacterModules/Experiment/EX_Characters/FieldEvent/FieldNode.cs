@@ -29,6 +29,12 @@ public class FieldNode : MonoBehaviour
     [SerializeField]
     private FieldEventData[] repeatEvents;
 
+    [Header("캐릭터 표시 위치")]
+    [SerializeField]
+    private Transform markerRoot;
+
+    public Transform MarkerRoot => markerRoot != null ? markerRoot : transform;
+
     public FieldEventData FirstVisitEvent => firstVisitEvent;
 
     private readonly List<CharacterBase> characters = new();

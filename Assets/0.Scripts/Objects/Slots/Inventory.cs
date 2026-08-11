@@ -1,9 +1,16 @@
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using static UnityEngine.GraphicsBuffer;
 
 public class Inventory : MonoBehaviour
 {
+
+    private void Awake()
+    {
+        Initialized();
+    }
+
     //몇 칸인지?
     //칸 제한을 걸기 위해서 필요한 두가지의 숫자
     //가로개수 세로개수
@@ -20,12 +27,16 @@ public class Inventory : MonoBehaviour
 
     public void Initialized()
     {
+        columns = Mathf.Max(1, columns);
+        rows = Mathf.Max(1, rows);
+
         slots = new ItemSlot[columns, rows];
-        for (int r = 0; r < columns; r++) 
-        { 
-            for (int c = 0; c < rows; c++)
+
+        for (int column = 0; column < columns; column++)
+        {
+            for (int row = 0; row < rows; row++)
             {
-                slots[r, c] = new ItemSlot();
+                slots[column, row] = new ItemSlot();
             }
         }
     }
@@ -98,14 +109,22 @@ public class Inventory : MonoBehaviour
 
     public IEnumerable<ItemSlot> GetAllSlotReveres()
     {
+        if (slots == null)
+            yield break;
+
         int height = slots.GetLength(0);
         int width = slots.GetLength(1);
-        for (int r = height -1; r >= height; r--)
+
+        for (int row = height - 1; row >= 0; row--)
         {
-            for(int c = width -1; c >= width; c--)
+            for (int column = width - 1;
+                 column >= 0;
+                 column--)
             {
-                if (slots[r, c] is null) continue;
-                yield return slots[r,c];
+                if (slots[row, column] == null)
+                    continue;
+
+                yield return slots[row, column];
             }
         }
     }
@@ -164,10 +183,14 @@ public class Inventory : MonoBehaviour
     /// 아이템 추가
     /// </summary>
     public int AddItem(ItemContainer wantItem, int amount = 1)
-    { 
-        amount = AddItemOnEmptySlots(wantItem, amount);
+    {
+        if (wantItem == null || amount <= 0)
+            return amount;
 
-        if(amount <= 0) return 0;
+        amount = AddItemOnExistSlots(wantItem, amount);
+
+        if (amount <= 0)
+            return 0;
 
         return AddItemOnEmptySlots(wantItem, amount);
     }
@@ -208,12 +231,21 @@ public class Inventory : MonoBehaviour
 
     public int RemoveItem(ItemContainer wantItam, int amount)
     {
-        foreach (ItemSlot currentSlot in FindFirstItem(wantItam)) 
+        if (wantItam == null || amount <= 0)
+            return amount;
+
+        foreach (ItemSlot currentSlot
+                 in FindFirstItem(wantItam))
         {
-            if (amount <= 0) return 0;
-            amount = currentSlot.AddItem(wantItam, amount);
+            if (amount <= 0)
+                return 0;
+
+            amount = currentSlot.RemoveItem(wantItam, amount);
+
             currentSlot.NoticeChanged();
         }
+
+        // 제거하지 못하고 남은 수량
         return amount;
     }
     /// <summary>
@@ -233,7 +265,7 @@ public class Inventory : MonoBehaviour
 
     public int RemoveItemOnExistSlots(ItemContainer wantItem, int amount)
     {
-        return default;
+        return RemoveItem(wantItem, amount); 
     }
     public int RemoveItemFromLocation(int row, int column)
     {
@@ -267,10 +299,40 @@ public class Inventory : MonoBehaviour
 
     public int CounItem(ItemContainer wantitem, out List<ItemSlot> returnSlots)
     {
-        returnSlots = default;
-        return default;
+        returnSlots = new List<ItemSlot>();
+
+        if (wantitem == null || slots == null)
+            return 0;
+
+        int totalAmount = 0;
+
+        foreach (ItemSlot slot in FindItem(wantitem))
+        {
+            if (slot == null)
+                continue;
+
+            returnSlots.Add(slot);
+            totalAmount += slot.GatStack();
+        }
+
+        return totalAmount;
     }
 
+
+    public int CountItem(ItemContainer item)
+    {
+        return CounItem(item, out _);
+    }
+
+    public bool HasItem(
+        ItemContainer item,
+        int amount = 1)
+    {
+        if (item == null || amount <= 0)
+            return false;
+
+        return CountItem(item) >= amount;
+    }
 
     public void EX(int amount)
     {

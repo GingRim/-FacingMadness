@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public class FieldManager : ManagerBase
@@ -23,14 +24,23 @@ public class FieldManager : ManagerBase
     private FieldLine pendingRedLine;
     private FieldNode pendingTargetNode;
 
-    private readonly List<FieldNode>
-    startingNodeCandidates = new();
+    private Transform fieldCore;
+    private GameObject currentFieldObject;
+    private MissionFieldRoot currentFieldRoot;
 
-    public IReadOnlyList<FieldNode>
-        StartingNodeCandidates => startingNodeCandidates;
+    private readonly List<FieldNode> startingNodeCandidates = new();
 
+    public IReadOnlyList<FieldNode> StartingNodeCandidates => startingNodeCandidates;
+    public GameObject CurrentFieldObject => currentFieldObject;
     public CharacterBase CurrentPlayer => currentPlayer;
     public FieldNode CurrentNode => currentNode;
+    public MissionFieldRoot CurrentFieldRoot => currentFieldRoot;
+    public bool HasStartingNode => startingNode != null;
+
+
+    public bool IsSelectingStartingNode => isSelectingStartingNode;
+
+    public event Action<FieldNode> OnStartingNodeConfirmed;
 
     public IReadOnlyList<CharacterBase> Participants => participants;
 
@@ -49,6 +59,11 @@ public class FieldManager : ManagerBase
     public event Action<int> OnMythTurnRequested;
 
     public event Action OnFieldGameOver;
+
+    public event Action<MissionFieldRoot> OnMissionFieldLoaded;
+
+    public event Action<IReadOnlyList<FieldNode>> OnStartingNodeSelectionRequested;
+
 
     protected override IEnumerator OnConnected(GameManager newManager)
     {
@@ -104,8 +119,7 @@ public class FieldManager : ManagerBase
         eventRunner.OnEventClosed -= HandleEventClosed;
     }
 
-    public void StartField(
-        List<CharacterBase> players)
+    public void StartField(List<CharacterBase> players)
     {
         if (players == null || players.Count == 0)
         {
@@ -280,30 +294,19 @@ public class FieldManager : ManagerBase
 
         if (isSelectingStartingNode)
         {
-            SelectStartingNode(clickedNode);
+            ConfirmStartingNode(clickedNode);
             return;
         }
 
         if (!IsFieldActive)
             return;
 
-
-        if (!IsFieldActive)
+        if (TurnState != FieldTurnState.PlayerAction)
             return;
 
-        if (TurnState !=
-            FieldTurnState.PlayerAction)
-        {
+        if (currentPlayer == null)
             return;
-        }
 
-        if (clickedNode == null || currentPlayer == null)
-        {
-            return;
-        }
-
-        // 현재 노드를 다시 클릭하면
-        // 추가 이벤트 요청
         if (clickedNode == currentNode)
         {
             TryOpenAdditionalEvent();
@@ -313,19 +316,38 @@ public class FieldManager : ManagerBase
         TryMoveToNode(clickedNode);
     }
 
-    private void SelectStartingNode(FieldNode node)
+    private void ResolveStartingNode(MissionFieldRoot fieldRoot)
     {
-        if (node == null || !node.CanBeStartingNode)
+        startingNode = null;
+
+        if (fieldRoot == null)
+            return;
+
+        if (fieldRoot.FixedStartingNode != null)
         {
-            Debug.Log("선택할 수 없는 시작 지점입니다.");
+            startingNode = fieldRoot.FixedStartingNode;
 
             return;
         }
 
-        startingNode = node;
-        isSelectingStartingNode = false;
+        IReadOnlyList<FieldNode> candidates = fieldRoot.StartingNodeCandidates;
 
-        Debug.Log($"시작 지점 선택: {node.DisplayName}");
+        if (candidates == null || candidates.Count == 0)
+        {
+            Debug.LogWarning("FieldManager: 시작 가능한 노드가 없습니다.");
+
+            return;
+        }
+
+        if (candidates.Count == 1)
+        {
+            startingNode = candidates[0];
+            return;
+        }
+
+        isSelectingStartingNode = true;
+
+        OnStartingNodeSelectionRequested?.Invoke(candidates);
     }
 
     public bool TryMoveToNode(FieldNode targetNode)
@@ -401,7 +423,7 @@ public class FieldManager : ManagerBase
 
         OnNodeChanged?.Invoke(currentNode);
 
-        FieldEventData eventData = firstVisit? currentNode.FirstVisitEvent : currentNode.GetRandomRepeatEvent();
+        FieldEventData eventData = firstVisit ? currentNode.FirstVisitEvent : currentNode.GetRandomRepeatEvent();
 
         if (eventData != null && OpenFieldEvent(eventData, currentNode))
         {
@@ -725,23 +747,36 @@ public class FieldManager : ManagerBase
         return true;
     }
 
-    public bool SetStartingNode(string nodeId)
+    public void SetStartingNode(MissionFieldRoot fieldRoot)
     {
-        if (string.IsNullOrWhiteSpace(nodeId))
-            return false;
 
-        foreach (FieldNode node in nodes)
+        startingNode = null;
+
+        if (fieldRoot.FixedStartingNode != null)
         {
-            if (node == null)
-                continue;
+            startingNode = fieldRoot.FixedStartingNode;
 
-            if (node.NodeId == nodeId)
-            {
-                return SetStartingNode(node);
-            }
+            return;
         }
 
-        return false;
+        IReadOnlyList<FieldNode> candidates = fieldRoot.StartingNodeCandidates;
+
+        if (candidates == null || candidates.Count == 0)
+        {
+            Debug.LogWarning("FieldManager: 시작 가능한 노드가 없습니다.");
+
+            return;
+        }
+
+        if (candidates.Count == 1)
+        {
+            startingNode = candidates[0];
+            return;
+        }
+
+        // 시작 후보가 여러 개라면
+        // 플레이어가 UI에서 선택
+        OnStartingNodeSelectionRequested?.Invoke(candidates);
     }
 
     private bool isSelectingStartingNode;
@@ -755,6 +790,170 @@ public class FieldManager : ManagerBase
         isSelectingStartingNode = true;
     }
 
+    private void HandleMissionSelected(FieldMissionData mission)
+    {
+        if (mission == null)
+            return;
+
+        LoadMissionField(mission);
+    }
+
+    public bool LoadMissionField(FieldMissionData mission)
+    {
+        if (mission == null)
+        {
+            Debug.LogWarning("FieldManager: 미션 데이터가 없습니다.");
+
+            return false;
+        }
+
+        if (fieldCore == null)
+        {
+            Debug.LogWarning("FieldManager: FieldCore가 등록되지 않았습니다.");
+
+            return false;
+        }
+
+        if (string.IsNullOrWhiteSpace(mission.FieldObjectName))
+        {
+            Debug.LogWarning($"{mission.MissionName}: " + "필드 오브젝트 이름이 없습니다.");
+
+            return false;
+        }
+
+        if (currentFieldObject != null)
+        {
+            Debug.LogWarning("FieldManager: 이미 불러온 필드가 있습니다.");
+
+            return false;
+        }
+
+        GameObject fieldObject = ObjectManager.CreateObject(mission.FieldObjectName, fieldCore);
+
+        if (fieldObject == null)
+        {
+            Debug.LogWarning($"필드를 불러오지 못했습니다: " + $"{mission.FieldObjectName}");
+
+            return false;
+        }
+
+        MissionFieldRoot fieldRoot = fieldObject.GetComponent<MissionFieldRoot>();
+
+        if (fieldRoot == null)
+        {
+            Debug.LogWarning($"{mission.FieldObjectName}: " + "MissionFieldRoot가 없습니다.");
+
+            return false;
+        }
+
+        currentFieldObject = fieldObject;
+        currentFieldRoot = fieldRoot;
+
+        RegisterMissionField(fieldRoot);
+
+        OnMissionFieldLoaded?.Invoke(fieldRoot);
+
+        return true;
+    }
+
+
+    private void RegisterLoadedField(MissionFieldRoot fieldRoot)
+    {
+        if (fieldRoot == null)
+            return;
+
+        UnregisterNodes();
+
+        nodes.Clear();
+
+        fieldRoot.DetectFieldObjects();
+
+
+        foreach (FieldNode node in fieldRoot.Nodes)
+        {
+            if (node == null)
+                continue;
+
+            nodes.Add(node);
+
+            node.OnClicked -= HandleNodeClicked;
+
+            node.OnClicked += HandleNodeClicked;
+        }
+
+        ResolveStartingNode(fieldRoot);
+    }
+
+    private void FindStartingNode()
+    {
+        startingNode = null;
+
+        foreach (FieldNode node in nodes)
+        {
+            if (node == null)
+                continue;
+
+            if (node.CanBeStartingNode)
+            {
+                startingNode = node;
+                return;
+            }
+        }
+    }
+
+    public void SetFieldCore(Transform newFieldCore)
+    {
+        fieldCore = newFieldCore;
+    }
+
+    private void RegisterMissionField(MissionFieldRoot fieldRoot)
+    {
+        if (fieldRoot == null)
+            return;
+
+        UnregisterNodes();
+
+        nodes.Clear();
+
+        fieldRoot.DetectFieldObjects();
+
+        foreach (FieldNode node in fieldRoot.Nodes)
+        {
+            if (node == null)
+                continue;
+
+            nodes.Add(node);
+
+            node.OnClicked -= HandleNodeClicked;
+
+            node.OnClicked += HandleNodeClicked;
+        }
+
+        ResolveStartingNode(fieldRoot);
+    }
+
+
+    public bool ConfirmStartingNode(FieldNode selectedNode)
+    {
+        if (selectedNode == null)
+            return false;
+
+        if (!selectedNode.CanBeStartingNode)
+            return false;
+
+        if (!nodes.Contains(selectedNode))
+            return false;
+
+        startingNode = selectedNode;
+        isSelectingStartingNode = false;
+
+        Debug.Log($"시작 노드 선택: " + $"{selectedNode.DisplayName}");
+
+        OnStartingNodeConfirmed?.Invoke(startingNode);
+
+        return true;
+    }
 
 }
+
 

@@ -13,7 +13,7 @@ public class FieldEventRunner : MonoBehaviour
     private FieldEventContext currentContext;
 
     public FieldEventData CurrentEvent => currentEvent;
-
+    public FieldEventContext CurrentContext => currentContext;
     public bool IsEventActive => currentEvent != null;
 
     private bool isChoiceResolved;
@@ -111,4 +111,21 @@ public class FieldEventRunner : MonoBehaviour
     {
         completedEvents.Clear();
     }
+
+    public void SetSelectedCard(CardData card)
+    {
+        if (currentContext == null)
+            return;
+
+        currentContext.SetSelectedCard(card);
+    }
+
+    public void ClearSelectedCard()
+    {
+        if (currentContext == null)
+            return;
+
+        currentContext.ClearSelectedCard();
+    }
+
 }

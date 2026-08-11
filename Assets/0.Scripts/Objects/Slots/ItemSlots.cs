@@ -36,15 +36,21 @@ public class ItemSlot
 
     public int AddItem(ItemContainer wantItem, int amount)
     {
-        if (amount <= 0) return 0;
-        if(!Containable(wantItem)) return amount;
+        if (amount <= 0)
+            return 0;
+
+        if (!Containable(wantItem))
+            return amount;
 
         item = wantItem;
-        //넣을 수 있는 만큼만 넣어야 한다.
-        int stackable = Mathf.Max(item.maxStack - currentStack, 0);
-        currentStack += stackable;
 
-        return stackable;//남은 값을 돌려준다.
+        int available = Mathf.Max(item.maxStack - currentStack, 0);
+
+        int addedAmount = Mathf.Min(amount, available);
+
+        currentStack += addedAmount;
+
+        return amount - addedAmount;
     }
 
     public int RemoveItem(ItemContainer wantItem)

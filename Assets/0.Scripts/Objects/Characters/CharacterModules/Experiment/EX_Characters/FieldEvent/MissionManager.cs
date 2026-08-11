@@ -13,28 +13,21 @@ public class MissionManager : ManagerBase
     [SerializeField, Min(1)]
     private int drawCount = 3;
 
-    private readonly List<FieldMissionData>
-        drawnMissions = new();
+    private readonly List<FieldMissionData> drawnMissions = new();
 
     private FieldMissionData selectedMission;
 
-    public IReadOnlyList<FieldMissionData> DrawnMissions =>
-        drawnMissions;
+    public IReadOnlyList<FieldMissionData> DrawnMissions => drawnMissions;
 
-    public FieldMissionData SelectedMission =>
-        selectedMission;
+    public FieldMissionData SelectedMission => selectedMission;
 
-    public bool HasSelectedMission =>
-        selectedMission != null;
+    public bool HasSelectedMission => selectedMission != null;
 
-    public event Action<IReadOnlyList<FieldMissionData>>
-        OnMissionsDrawn;
+    public event Action<IReadOnlyList<FieldMissionData>> OnMissionsDrawn;
 
-    public event Action<FieldMissionData>
-        OnMissionSelected;
+    public event Action<FieldMissionData> OnMissionSelected;
 
-    protected override IEnumerator OnConnected(
-        GameManager newManager)
+    protected override IEnumerator OnConnected(GameManager newManager)
     {
         yield return null;
     }
@@ -50,30 +43,23 @@ public class MissionManager : ManagerBase
         drawnMissions.Clear();
         selectedMission = null;
 
-        List<FieldMissionData> availableMissions =
-            CreateAvailableMissionList();
+        List<FieldMissionData> availableMissions = CreateAvailableMissionList();
 
         if (availableMissions.Count == 0)
         {
-            Debug.LogWarning(
-                "MissionManager: 뽑을 수 있는 미션이 없습니다.");
+            Debug.LogWarning("MissionManager: 뽑을 수 있는 미션이 없습니다.");
 
             OnMissionsDrawn?.Invoke(drawnMissions);
             return;
         }
 
-        int actualDrawCount =
-            Mathf.Min(drawCount, availableMissions.Count);
+        int actualDrawCount = Mathf.Min(drawCount, availableMissions.Count);
 
         for (int i = 0; i < actualDrawCount; i++)
         {
-            int randomIndex =
-                UnityEngine.Random.Range(
-                    0,
-                    availableMissions.Count);
+            int randomIndex = UnityEngine.Random.Range(0, availableMissions.Count);
 
-            FieldMissionData mission =
-                availableMissions[randomIndex];
+            FieldMissionData mission = availableMissions[randomIndex];
 
             drawnMissions.Add(mission);
             availableMissions.RemoveAt(randomIndex);
@@ -105,8 +91,7 @@ public class MissionManager : ManagerBase
 
     public bool SelectMission(int index)
     {
-        if (index < 0 ||
-            index >= drawnMissions.Count)
+        if (index < 0 || index >= drawnMissions.Count)
         {
             return false;
         }
@@ -138,4 +123,19 @@ public class MissionManager : ManagerBase
         drawnMissions.Clear();
         selectedMission = null;
     }
+
+    private void Shuffle(List<FieldMissionData> missions)
+    {
+        for (int i = missions.Count - 1; i > 0; i--)
+        {
+            int randomIndex = UnityEngine.Random.Range(0, i + 1);
+
+            FieldMissionData temp = missions[i];
+
+            missions[i] = missions[randomIndex];
+
+            missions[randomIndex] = temp;
+        }
+    }
+
 }

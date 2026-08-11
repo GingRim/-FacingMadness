@@ -17,7 +17,7 @@ MonoBehaviour:
   eventType: 0
   description: "\uCC98\uC74C \uB4E4\uC5B4\uC120 \uBC29 \uB2F9\uC2E0\uC740 \uC8FC\uBCC0\uC744
     \uB458\uB7EC \uBCF8\uB2E4."
-  repeatable: 1
+  repeatable: 0
   choices:
   - choiceText: "\uC8FC\uBCC0\uC744 \uD6D1\uC5B4 \uBCF8\uB2E4."
     resultText: 
@@ -35,3 +35,4 @@ MonoBehaviour:
     resultText: 
     conditions: []
     effects: []
+  startingNodeId: 

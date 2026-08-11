@@ -416,6 +416,45 @@ public class DeckModule : CharacterModule
     }
 
 
+    /// <summary>
+    /// 필드에서 사용한 카드를 판정 결과에 따라 이동한다.
+    /// forceRemove가 true면 결과와 관계없이 소멸 영역으로 이동한다.
+    /// </summary>
+    public bool ResolveFieldCard(CardData card, FieldCardCheckResult result, bool forceRemove = false)
+    {
+        if (card == null)
+            return false;
 
+        if (!hand.Contains(card))
+        {
+            Debug.LogWarning($"필드 카드 처리 실패: {card.cardName}이 손패에 없습니다.");
+
+            return false;
+        }
+
+        CardZoneType targetZone;
+
+        if (forceRemove || result == FieldCardCheckResult.Fumble)
+        {
+            targetZone = CardZoneType.Remove;
+        }
+        else if (result == FieldCardCheckResult.Failure)
+        {
+            targetZone = CardZoneType.Exhaust;
+        }
+        else
+        {
+            targetZone = CardZoneType.Graveyard;
+        }
+
+        bool moved = MoveCard(card, CardZoneType.Hand, targetZone);
+
+        if (moved)
+        {
+            Debug.Log($"필드 카드 이동: {card.cardName} → {targetZone}");
+        }
+
+        return moved;
+    }
 
 }

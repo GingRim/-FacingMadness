@@ -20,6 +20,14 @@ public class FieldEventChoice
     [SerializeField]
     private FieldEventEffect[] effects;
 
+    [Header("카드 요구 조건")]
+    [SerializeField]
+    private FieldCardRequirement cardRequirement = new();
+
+    public FieldCardRequirement CardRequirement => cardRequirement;
+
+    public bool RequiresCard => cardRequirement != null && cardRequirement.RequiresCard;
+
     public string ChoiceText => choiceText;
     public string ResultText => resultText;
 
@@ -75,4 +83,13 @@ public class FieldEventChoice
             effect.Execute(context);
         }
     }
+
+    public bool CanUseCard(CardData card)
+    {
+        if (cardRequirement == null)
+            return true;
+
+        return cardRequirement.IsSatisfiedBy(card);
+    }
+
 }

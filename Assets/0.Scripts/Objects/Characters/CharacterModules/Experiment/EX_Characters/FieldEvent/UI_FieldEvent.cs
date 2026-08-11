@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -32,6 +33,18 @@ public class UI_FieldEvent : UIBase
     [SerializeField] private Button continueButton;
 
     private readonly List<UI_FieldEventChoiceButton> choicePool = new();
+
+    private FieldEventChoice pendingCardChoice;
+
+    public CharacterBase Character { get; private set; }
+
+    public bool IsWaitingCardSelection => pendingCardChoice != null;
+
+    private readonly Dictionary<int, FieldEventChoice> displayedChoices = new();
+
+    public event Action<FieldEventChoice> OnCardSelectionRequested;
+
+    private int pendingCardChoiceIndex = -1;
 
     private void Awake()
     {
@@ -160,7 +173,14 @@ public class UI_FieldEvent : UIBase
 
         for (int i = 0; i < choices.Length; i++)
         {
-            choicePool[i].SetChoice(i, choices[i], HandleChoiceButtonSelected);
+            FieldEventChoice choice = choices[i];
+
+            if (choice == null)
+                continue;
+
+            displayedChoices[i] = choice;
+
+            choicePool[i].SetChoice(i, choice, HandleChoiceButtonSelected);
         }
     }
 
@@ -185,6 +205,8 @@ public class UI_FieldEvent : UIBase
 
     private void ClearChoiceButtons()
     {
+        displayedChoices.Clear();
+
         foreach (UI_FieldEventChoiceButton button in choicePool)
         {
             if (button == null)
@@ -199,6 +221,24 @@ public class UI_FieldEvent : UIBase
         if (eventRunner == null)
             return;
 
+        if (!displayedChoices.TryGetValue(choiceIndex, out FieldEventChoice choice))
+        {
+            Debug.LogWarning($"선택지 정보를 찾을 수 없습니다: {choiceIndex}");
+
+            return;
+        }
+
+        eventRunner.ClearSelectedCard();
+
+        if (choice.RequiresCard)
+        {
+            pendingCardChoice = choice;
+            pendingCardChoiceIndex = choiceIndex;
+
+            OnCardSelectionRequested?.Invoke(choice);
+            return;
+        }
+
         eventRunner.SelectChoice(choiceIndex);
     }
 
@@ -206,10 +246,18 @@ public class UI_FieldEvent : UIBase
     {
         ClearChoiceButtons();
 
+        string displayResult = choice != null ? choice.ResultText : string.Empty;
+
+        FieldEventContext context = eventRunner != null ? eventRunner.CurrentContext : null;
+
+        if (context != null && context.HasResultTextOverride)
+        {
+            displayResult = context.ResultTextOverride;
+        }
+
         if (resultText != null)
         {
-            resultText.SetText(choice != null ? choice.ResultText : string.Empty);
-
+            resultText.SetText(displayResult);
             resultText.gameObject.SetActive(true);
         }
 
@@ -238,6 +286,7 @@ public class UI_FieldEvent : UIBase
 
     private void HandleEventClosed()
     {
+        CancelCardSelection();
         ClearChoiceButtons();
 
         if (panel != null)
@@ -245,4 +294,42 @@ public class UI_FieldEvent : UIBase
             panel.SetActive(false);
         }
     }
+
+    public bool SubmitSelectedCard(CardData card)
+    {
+        if (pendingCardChoice == null || pendingCardChoiceIndex < 0)
+        {
+            return false;
+        }
+
+        if (!pendingCardChoice.CanUseCard(card))
+        {
+            Debug.Log("이 선택지에는 해당 카드를 사용할 수 없습니다.");
+
+            return false;
+        }
+
+        int selectedChoiceIndex = pendingCardChoiceIndex;
+
+        pendingCardChoice = null;
+        pendingCardChoiceIndex = -1;
+
+        eventRunner.SetSelectedCard(card);
+        eventRunner.SelectChoice(selectedChoiceIndex);
+
+        return true;
+    }
+
+
+    public void CancelCardSelection()
+    {
+        pendingCardChoice = null;
+        pendingCardChoiceIndex = -1;
+
+        if (eventRunner != null)
+        {
+            eventRunner.ClearSelectedCard();
+        }
+    }
+
 }
