@@ -22,8 +22,7 @@ public class UI_FieldCardSelector : MonoBehaviour
 
     private FieldEventChoice pendingChoice;
 
-    public bool IsSelectingCard =>
-        pendingChoice != null;
+    public bool IsSelectingCard => pendingChoice != null;
 
     /// <summary>
     /// 카드 조건을 통과한 카드가 선택됐을 때 발생한다.

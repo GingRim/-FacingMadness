@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public class FieldManager : ManagerBase
@@ -12,6 +11,10 @@ public class FieldManager : ManagerBase
 
     [Header("이벤트 실행기")]
     [SerializeField] private FieldEventRunner eventRunner;
+
+    [Header("필드 이벤트 선택")]
+    [SerializeField]
+    private FieldEventSelectionController fieldEventSelectionController;
 
     private readonly List<CharacterBase> participants = new();
 
@@ -29,14 +32,27 @@ public class FieldManager : ManagerBase
     private MissionFieldRoot currentFieldRoot;
 
     private readonly List<FieldNode> startingNodeCandidates = new();
+    private readonly HashSet<CharacterBase> coreEventReservations = new();
 
     public IReadOnlyList<FieldNode> StartingNodeCandidates => startingNodeCandidates;
+
+    private FieldMissionData currentMission;
+
+    private readonly Dictionary<string, int> missionProgress = new();
+
+    public FieldMissionData CurrentMission => currentMission;
+
+    public event Action<string, int, int> OnMissionProgressChanged;
+
+    public event Action<FieldMissionData> OnMissionCleared;
+
     public GameObject CurrentFieldObject => currentFieldObject;
     public CharacterBase CurrentPlayer => currentPlayer;
     public FieldNode CurrentNode => currentNode;
     public MissionFieldRoot CurrentFieldRoot => currentFieldRoot;
     public bool HasStartingNode => startingNode != null;
 
+    public IReadOnlyList<FieldNode> Nodes => nodes;
 
     public bool IsSelectingStartingNode => isSelectingStartingNode;
 
@@ -64,6 +80,7 @@ public class FieldManager : ManagerBase
 
     public event Action<IReadOnlyList<FieldNode>> OnStartingNodeSelectionRequested;
 
+    public event Action OnMadnessEntered;
 
     protected override IEnumerator OnConnected(GameManager newManager)
     {
@@ -145,6 +162,7 @@ public class FieldManager : ManagerBase
             player.AddAllModuleFromObject(player.gameObject);
 
             participants.Add(player);
+            RegisterPlayerDefeatEvents(player);
             startingNode.Enter(player);
         }
 
@@ -157,10 +175,10 @@ public class FieldManager : ManagerBase
 
         StartFieldTurn();
 
-        // 필드 시작 노드의 최초 이벤트
-        if (startingNode.FirstVisitEvent != null)
+        // 시작 노드 이벤트 후보 공개
+        if (!TryOpenNodeEvent(startingNode))
         {
-            OpenFieldEvent(startingNode.FirstVisitEvent, startingNode);
+            CompleteFieldAction();
         }
     }
 
@@ -174,6 +192,7 @@ public class FieldManager : ManagerBase
             node.ResetNode();
         }
 
+        UnregisterAllPlayerDefeatEvents();
         participants.Clear();
 
         currentPlayer = null;
@@ -183,7 +202,7 @@ public class FieldManager : ManagerBase
         pendingTargetNode = null;
 
         eventRunner?.ResetCompletedEvents();
-
+        coreEventReservations.Clear();
         IsFieldActive = false;
         TurnState = FieldTurnState.Inactive;
     }
@@ -411,8 +430,6 @@ public class FieldManager : ManagerBase
             return;
         }
 
-        bool firstVisit = !targetNode.IsVisited;
-
         if (currentNode != null)
         {
             currentNode.Exit(currentPlayer);
@@ -423,13 +440,13 @@ public class FieldManager : ManagerBase
 
         OnNodeChanged?.Invoke(currentNode);
 
-        FieldEventData eventData = firstVisit ? currentNode.FirstVisitEvent : currentNode.GetRandomRepeatEvent();
-
-        if (eventData != null && OpenFieldEvent(eventData, currentNode))
+        // 이벤트 후보 3~5개 공개
+        if (TryOpenNodeEvent(currentNode))
         {
             return;
         }
 
+        // 이벤트 풀이 없거나 UI를 열지 못한 경우
         CompleteFieldAction();
     }
 
@@ -440,25 +457,18 @@ public class FieldManager : ManagerBase
             return;
         }
 
-        FieldEventData eventData = currentNode.GetRandomRepeatEvent();
-
-        if (eventData == null)
-        {
-            Debug.Log($"{currentNode.DisplayName}: " + "추가 이벤트가 없습니다.");
-
-            return;
-        }
-
         if (!TryUseActionPoint(currentPlayer, 1))
         {
             Debug.Log("행동력이 부족합니다.");
             return;
         }
 
-        if (!OpenFieldEvent(eventData, currentNode))
+        if (TryOpenNodeEvent(currentNode))
         {
-            CompleteFieldAction();
+            return;
         }
+
+        CompleteFieldAction();
     }
 
     private bool OpenFieldEvent(FieldEventData eventData, FieldNode node)
@@ -488,9 +498,12 @@ public class FieldManager : ManagerBase
         if (TurnState != FieldTurnState.Event)
             return;
 
-        // 적색 라인 이벤트는
-        // CompleteRedLineEvent에서 처리
         if (pendingRedLine != null)
+            return;
+
+        // 방금 끝난 이벤트 결과로
+        // 미션 목표를 달성했는지 확인
+        if (TryCompleteCurrentMission())
             return;
 
         CompleteFieldAction();
@@ -543,14 +556,20 @@ public class FieldManager : ManagerBase
         pendingRedLine = null;
         pendingTargetNode = null;
 
+        // 적색 라인 이벤트가 끝났으므로
+        // 일반 행동 상태로 먼저 복귀
+        TurnState = FieldTurnState.PlayerAction;
+
         if (passed)
         {
             resolvedLine.ClearBlock();
 
+            // 이동 후 해당 노드의 이벤트 후보가 공개됨
             MoveCurrentPlayerTo(targetNode);
+
             return;
         }
-
+        // 적색 라인 해제 실패
         CompleteFieldAction();
     }
 
@@ -669,14 +688,10 @@ public class FieldManager : ManagerBase
             if (player == null)
                 return true;
 
-            HitpointModules hp =
-                player.GetModule<HitpointModules>();
+            HitpointModules hp = player.GetModule<HitpointModules>();
 
             if (hp != null && hp.IsEmpty)
                 return true;
-
-            // 최대 정신력 0 조건은
-            // 정신력 모듈 확인 후 이곳에 추가
         }
 
         return false;
@@ -697,6 +712,11 @@ public class FieldManager : ManagerBase
 
     private void EndFieldByGameOver()
     {
+        if (!IsFieldActive || TurnState == FieldTurnState.GameOver)
+        {
+            return;
+        }
+
         TurnState = FieldTurnState.GameOver;
 
         IsFieldActive = false;
@@ -708,19 +728,42 @@ public class FieldManager : ManagerBase
 
     public void EndField()
     {
+        // 이벤트 콜백이 다시 진행되지 않도록
+        // 가장 먼저 필드를 비활성화
         IsFieldActive = false;
-
         TurnState = FieldTurnState.Inactive;
+
+        UnregisterAllPlayerDefeatEvents();
+        UnregisterNodes();
 
         pendingRedLine = null;
         pendingTargetNode = null;
 
         eventRunner?.CloseEvent();
 
+        foreach (FieldNode node in nodes)
+        {
+            if (node == null)
+                continue;
+
+            node.ResetNode();
+        }
+
         currentPlayer = null;
         currentNode = null;
 
         participants.Clear();
+        nodes.Clear();
+
+        startingNode = null;
+        isSelectingStartingNode = false;
+
+        coreEventReservations.Clear();
+        missionProgress.Clear();
+
+        ReleaseCurrentFieldObject();
+
+        currentMission = null;
     }
 
     public bool SetStartingNode(FieldNode node)
@@ -849,6 +892,9 @@ public class FieldManager : ManagerBase
         currentFieldObject = fieldObject;
         currentFieldRoot = fieldRoot;
 
+        currentMission = mission;
+        missionProgress.Clear();
+
         RegisterMissionField(fieldRoot);
 
         OnMissionFieldLoaded?.Invoke(fieldRoot);
@@ -954,6 +1000,262 @@ public class FieldManager : ManagerBase
         return true;
     }
 
+    /// <summary>
+    /// 해당 캐릭터의 다음 이벤트 후보에
+    /// 핵심 이벤트가 포함되도록 예약한다.
+    /// </summary>
+    public void ReserveCoreEventForNextSelection(CharacterBase character)
+    {
+        if (character == null)
+            return;
+
+        coreEventReservations.Add(character);
+
+        Debug.Log($"{character.name}: 다음 이벤트 후보에 핵심 이벤트 포함 예약");
+    }
+
+    /// <summary>
+    /// 핵심 이벤트 예약 여부 확인.
+    /// 예약을 제거하지 않는다.
+    /// </summary>
+    public bool HasCoreEventReservation(CharacterBase character)
+    {
+        if (character == null)
+            return false;
+
+        return coreEventReservations.Contains(character);
+    }
+
+    /// <summary>
+    /// 다음 이벤트 후보를 만들 때 호출한다.
+    /// 예약이 있다면 제거하고 true를 반환한다.
+    /// </summary>
+    public bool ConsumeCoreEventReservation(CharacterBase character)
+    {
+        if (character == null)
+            return false;
+
+        return coreEventReservations.Remove(character);
+    }
+
+    public bool TryOpenNodeEvent(FieldNode node)
+    {
+        if (!IsFieldActive)
+            return false;
+
+        if (node == null || CurrentPlayer == null)
+            return false;
+
+        if (TurnState == FieldTurnState.Event)
+            return false;
+
+        if (fieldEventSelectionController == null)
+        {
+            Debug.LogWarning("FieldManager: FieldEventSelectionController가 없습니다.");
+
+            return false;
+        }
+
+        if (fieldEventSelectionController.IsSelecting)
+            return false;
+
+        FieldEventContext context = new FieldEventContext(this, node);
+
+        bool opened = fieldEventSelectionController.OpenNextEventSelection(context);
+
+        if (!opened)
+            return false;
+
+        TurnState = FieldTurnState.Event;
+
+        Debug.Log($"노드 이벤트 후보 공개: {node.DisplayName}");
+
+        return true;
+    }
+
+    private void RegisterPlayerDefeatEvents(CharacterBase player)
+    {
+        if (player == null)
+            return;
+
+        HitpointModules hp = player.GetModule<HitpointModules>();
+
+        if (hp == null)
+            return;
+
+        if (hp != null)
+        {
+            hp.OnEmpty -= HandlePlayerDefeated;
+            hp.OnEmpty += HandlePlayerDefeated;
+        }
+
+        SanityModule sanity = player.GetModule<SanityModule>();
+
+    }
+
+    private void UnregisterPlayerDefeatEvents(CharacterBase player)
+    {
+        if (player == null)
+            return;
+
+        HitpointModules hp = player.GetModule<HitpointModules>();
+
+        if (hp != null)
+        {
+            hp.OnEmpty -= HandlePlayerDefeated;
+        }
+
+    }
+
+    private void UnregisterAllPlayerDefeatEvents()
+    {
+        foreach (CharacterBase player in participants)
+        {
+            UnregisterPlayerDefeatEvents(player);
+        }
+    }
+
+    private void HandlePlayerDefeated()
+    {
+        if (!IsFieldActive)
+            return;
+
+        if (TurnState == FieldTurnState.GameOver)
+            return;
+
+        if (HasDeadPlayer())
+        {
+            EndFieldByGameOver();
+        }
+    }
+
+    public bool AddMissionProgress(string objectiveId, int amount = 1)
+    {
+        if (!IsFieldActive)
+            return false;
+
+        if (currentMission == null)
+            return false;
+
+        if (string.IsNullOrWhiteSpace(objectiveId))
+            return false;
+
+        FieldMissionObjectiveRequirement requirement = FindMissionObjective(objectiveId);
+
+        if (requirement == null)
+        {
+            Debug.LogWarning($"현재 미션에 존재하지 않는 목표입니다: {objectiveId}");
+
+            return false;
+        }
+
+        missionProgress.TryGetValue(objectiveId, out int currentAmount);
+
+        int newAmount = Mathf.Clamp(currentAmount + Mathf.Max(0, amount), 0, requirement.RequiredAmount);
+
+        missionProgress[objectiveId] = newAmount;
+
+        OnMissionProgressChanged?.Invoke(objectiveId, newAmount, requirement.RequiredAmount);
+
+        Debug.Log($"미션 진행: {objectiveId} / " + $"{newAmount}/{requirement.RequiredAmount}");
+
+        return true;
+    }
+
+    private FieldMissionObjectiveRequirement FindMissionObjective(string objectiveId)
+    {
+        if (currentMission == null || currentMission.Objectives == null)
+        {
+            return null;
+        }
+
+        foreach (FieldMissionObjectiveRequirement objective in currentMission.Objectives)
+        {
+            if (objective == null)
+                continue;
+
+            if (objective.ObjectiveId == objectiveId)
+                return objective;
+        }
+
+        return null;
+    }
+
+    private bool IsCurrentMissionClear()
+    {
+        if (currentMission == null)
+            return false;
+
+        IReadOnlyList<FieldMissionObjectiveRequirement> objectives =
+            currentMission.Objectives;
+
+        // 목표가 없는 미션은 자동 클리어하지 않음
+        if (objectives == null || objectives.Count == 0)
+            return false;
+
+        foreach (FieldMissionObjectiveRequirement objective
+                 in objectives)
+        {
+            if (objective == null)
+                continue;
+
+            missionProgress.TryGetValue(
+                objective.ObjectiveId,
+                out int currentAmount);
+
+            if (currentAmount < objective.RequiredAmount)
+                return false;
+        }
+
+        return true;
+    }
+
+    private bool TryCompleteCurrentMission()
+    {
+        if (!IsFieldActive)
+            return false;
+
+        if (!IsCurrentMissionClear())
+            return false;
+
+        FieldMissionData completedMission = currentMission;
+
+        IsFieldActive = false;
+        TurnState = FieldTurnState.MissionClear;
+
+        UnregisterAllPlayerDefeatEvents();
+
+        Debug.Log(
+            $"미션 클리어: {completedMission.MissionName}"
+        );
+
+        OnMissionCleared?.Invoke(completedMission);
+
+        return true;
+    }
+
+    private void ReleaseCurrentFieldObject()
+    {
+        if (currentFieldObject == null)
+        {
+            currentFieldRoot = null;
+            return;
+        }
+
+        PooledObject pooled =
+            currentFieldObject.GetComponent<PooledObject>();
+
+        if (pooled != null)
+        {
+            pooled.OnEnqueue();
+        }
+        else
+        {
+            Destroy(currentFieldObject);
+        }
+
+        currentFieldObject = null;
+        currentFieldRoot = null;
+    }
+
 }
-
-

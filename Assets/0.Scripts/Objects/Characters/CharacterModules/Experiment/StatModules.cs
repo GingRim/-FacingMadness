@@ -82,5 +82,10 @@ public class StatModules : CharacterModule
         return designatedStatType;
     }
 
+    public void SetDesignatedStatType(StatType type)
+    {
+        designatedStatType = type;
+    }
+
 
 }

@@ -16,6 +16,14 @@ public class FieldCardUseController : MonoBehaviour
     [SerializeField]
     private UI_Hand handUI;
 
+    [Header("무색 카드 복귀 선택")]
+    [SerializeField]
+    private UI_FieldRemovedCardSelect removedCardSelectUI;
+
+    private CardData pendingUsedCard;
+    private DeckModule pendingDeck;
+    private FieldEventContext pendingContext;
+
     private void OnEnable()
     {
         if (cardSelector == null)
@@ -103,6 +111,36 @@ public class FieldCardUseController : MonoBehaviour
         if (handUI != null)
         {
             handUI.RefreshFromDeck(deck);
+        }
+
+        // 무색 카드 효과로 제거 카드 복귀 선택이 요청됨
+        if (context.HasRemovedCardRecoveryRequest)
+        {
+            if (removedCardSelectUI == null)
+            {
+                Debug.LogWarning("FieldCardUseController: 제거 카드 선택 UI가 연결되지 않았습니다.");
+
+                context.ClearRemovedCardRecoveryRequest();
+
+                cardSelector.CompleteSelection(card);
+                return;
+            }
+
+            pendingUsedCard = card;
+            pendingDeck = deck;
+            pendingContext = context;
+
+            bool opened = removedCardSelectUI.Open(context.RemovedCardRecoveryCandidates, HandleRemovedCardSelected);
+
+            if (opened)
+            {
+                // 복귀 카드를 선택할 때까지 이벤트 진행 대기
+                return;
+            }
+
+            // 표시할 카드가 없거나 UI 열기에 실패한 경우
+            ClearPendingRecovery();
+            context.ClearRemovedCardRecoveryRequest();
         }
 
         cardSelector.CompleteSelection(card);
@@ -204,4 +242,45 @@ public class FieldCardUseController : MonoBehaviour
                     : StatType.None;
         }
     }
+    private void HandleRemovedCardSelected(CardData selectedCard)
+    {
+        CardData usedCard = pendingUsedCard;
+        DeckModule deck = pendingDeck;
+        FieldEventContext context = pendingContext;
+
+        ClearPendingRecovery();
+
+        if (deck != null && selectedCard != null)
+        {
+            bool returned = deck.ReturnRemovedCardToDeck(selectedCard);
+
+            if (!returned)
+            {
+                Debug.LogWarning($"제거 카드 복귀 실패: {selectedCard.cardName}");
+            }
+            else
+            {
+                Debug.Log($"제거 카드 복귀: {selectedCard.cardName}");
+            }
+        }
+
+        if (context != null)
+        {
+            context.ClearRemovedCardRecoveryRequest();
+        }
+
+        // 복귀 카드 선택까지 끝났으므로 이벤트 선택 처리 재개
+        if (usedCard != null && cardSelector != null)
+        {
+            cardSelector.CompleteSelection(usedCard);
+        }
+    }
+
+    private void ClearPendingRecovery()
+    {
+        pendingUsedCard = null;
+        pendingDeck = null;
+        pendingContext = null;
+    }
+
 }

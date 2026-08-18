@@ -303,6 +303,8 @@ public class DeckModule : CharacterModule
         exhaust.Clear();
 
         Shuffle(deck);
+
+        ReturnAllExhaustToDeck();
     }
 
     // =========================
@@ -455,6 +457,61 @@ public class DeckModule : CharacterModule
         }
 
         return moved;
+    }
+
+    /// <summary>
+    /// 제외 영역의 모든 카드를 덱으로 복귀시킨 뒤 셔플한다.
+    /// </summary>
+    public void ReturnAllExhaustToDeck()
+    {
+        if (exhaust.Count <= 0)
+            return;
+
+        deck.AddRange(exhaust);
+        exhaust.Clear();
+
+        Shuffle(deck);
+
+        Debug.Log("제외된 카드를 모두 덱으로 복귀했습니다.");
+    }
+
+    public List<CardData>
+    GetRecoverableRemovedCards()
+    {
+        List<CardData> result = new List<CardData>();
+
+        foreach (CardData card in remove)
+        {
+            if (card == null)
+                continue;
+
+            // 무색 카드는 복귀 대상에서 제외
+            if (card.color == CardColorType.Colorless)
+                continue;
+
+            result.Add(card);
+        }
+
+        return result;
+    }
+
+    public bool ReturnRemovedCardToDeck(CardData card)
+    {
+        if (card == null)
+            return false;
+
+        if (card.color == CardColorType.Colorless)
+            return false;
+
+        if (!remove.Remove(card))
+            return false;
+
+        deck.Add(card);
+        Shuffle(deck);
+
+        Debug.Log($"소멸 카드 복귀: {card.cardName}");
+
+        return true;
     }
 
 }

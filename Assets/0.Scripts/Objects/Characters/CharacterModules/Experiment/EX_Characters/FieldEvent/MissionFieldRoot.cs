@@ -5,6 +5,12 @@ using UnityEngine;
 /// </summary>
 public class MissionFieldRoot : MonoBehaviour
 {
+    [Header("필드 이벤트 풀")]
+    [SerializeField]
+    private List<FieldEventData> eventPool = new();
+
+    public IReadOnlyList<FieldEventData> EventPool => eventPool;
+
     [Header("고정 시작 노드")]
     [SerializeField]
     private FieldNode fixedStartingNode;
@@ -13,17 +19,13 @@ public class MissionFieldRoot : MonoBehaviour
     private readonly List<FieldLine> lines = new();
     private readonly List<FieldNode> startingNodeCandidates = new();
 
-    public FieldNode FixedStartingNode =>
-        fixedStartingNode;
+    public FieldNode FixedStartingNode => fixedStartingNode;
 
-    public IReadOnlyList<FieldNode> Nodes =>
-        nodes;
+    public IReadOnlyList<FieldNode> Nodes => nodes;
 
-    public IReadOnlyList<FieldLine> Lines =>
-        lines;
+    public IReadOnlyList<FieldLine> Lines => lines;
 
-    public IReadOnlyList<FieldNode> StartingNodeCandidates =>
-        startingNodeCandidates;
+    public IReadOnlyList<FieldNode> StartingNodeCandidates => startingNodeCandidates;
 
     private void Awake()
     {
@@ -36,8 +38,7 @@ public class MissionFieldRoot : MonoBehaviour
         lines.Clear();
         startingNodeCandidates.Clear();
 
-        FieldNode[] foundNodes =
-            GetComponentsInChildren<FieldNode>(true);
+        FieldNode[] foundNodes = GetComponentsInChildren<FieldNode>(true);
 
         foreach (FieldNode node in foundNodes)
         {
@@ -52,8 +53,7 @@ public class MissionFieldRoot : MonoBehaviour
             }
         }
 
-        FieldLine[] foundLines =
-            GetComponentsInChildren<FieldLine>(true);
+        FieldLine[] foundLines = GetComponentsInChildren<FieldLine>(true);
 
         foreach (FieldLine line in foundLines)
         {
@@ -63,11 +63,26 @@ public class MissionFieldRoot : MonoBehaviour
             }
         }
 
-        if (fixedStartingNode == null &&
-            startingNodeCandidates.Count == 1)
+        if (fixedStartingNode == null && startingNodeCandidates.Count == 1)
         {
-            fixedStartingNode =
-                startingNodeCandidates[0];
+            fixedStartingNode = startingNodeCandidates[0];
         }
+    }
+
+    public FieldLine FindLine(string lineId)
+    {
+        if (string.IsNullOrWhiteSpace(lineId))
+            return null;
+
+        foreach (FieldLine line in lines)
+        {
+            if (line == null)
+                continue;
+
+            if (line.LineId == lineId)
+                return line;
+        }
+
+        return null;
     }
 }

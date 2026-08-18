@@ -33,13 +33,39 @@ public class FieldNode : MonoBehaviour
     [SerializeField]
     private Transform markerRoot;
 
+    [Header("비밀 구역")]
+    [SerializeField]
+    private bool isHiddenArea;
+
+    [Header("오염")]
+    [SerializeField]
+    private GameObject pollutionVisual;
+
+    private bool isPolluted;
+
+    public bool IsPolluted => isPolluted;
+
+    public event Action<FieldNode, bool> OnPollutionChanged;
+
+    [SerializeField]
+    private bool startsDiscovered;
+
+    [SerializeField]
+    private GameObject hiddenAreaVisual;
+
+    private bool isHiddenAreaDiscovered;
+
     public Transform MarkerRoot => markerRoot != null ? markerRoot : transform;
 
     public FieldEventData FirstVisitEvent => firstVisitEvent;
 
     private readonly List<CharacterBase> characters = new();
 
+    public event Action<FieldNode> OnHiddenAreaDiscovered;
+
     private bool isVisited;
+    public bool IsHiddenArea => isHiddenArea;
+    public bool IsHiddenAreaDiscovered => !isHiddenArea || isHiddenAreaDiscovered;
 
     public string NodeId => nodeId;
     public string DisplayName => displayName;
@@ -55,6 +81,13 @@ public class FieldNode : MonoBehaviour
     public event Action<FieldNode, CharacterBase> OnCharacterEntered;
     public event Action<FieldNode, CharacterBase> OnCharacterExited;
     public event Action<FieldNode, CharacterBase> OnFirstEntered;
+
+    private void Awake()
+    {
+        isHiddenAreaDiscovered = !isHiddenArea || startsDiscovered;
+
+        RefreshHiddenAreaVisual();
+    }
 
     /// <summary>
     /// Button의 OnClick이나 별도의 노드 클릭 스크립트에서 호출
@@ -76,6 +109,9 @@ public class FieldNode : MonoBehaviour
 
         characters.Add(character);
         isVisited = true;
+
+        // 노드 진입 즉시 오염 처리
+        ResolvePollutionOnEnter(character);
 
         if (firstVisit)
         {
@@ -145,10 +181,18 @@ public class FieldNode : MonoBehaviour
         return false;
     }
 
+
     public void ResetNode()
     {
         characters.Clear();
         isVisited = false;
+
+        isHiddenAreaDiscovered = !isHiddenArea || startsDiscovered;
+
+        isPolluted = false;
+
+        RefreshHiddenAreaVisual();
+        RefreshPollutionVisual();
     }
 
 #if UNITY_EDITOR
@@ -190,6 +234,86 @@ public class FieldNode : MonoBehaviour
         int randomIndex = UnityEngine.Random.Range(0, repeatEvents.Length);
 
         return repeatEvents[randomIndex];
+    }
+
+
+    public bool DiscoverHiddenArea()
+    {
+        if (!isHiddenArea)
+            return false;
+
+        if (isHiddenAreaDiscovered)
+            return false;
+
+        isHiddenAreaDiscovered = true;
+
+        RefreshHiddenAreaVisual();
+
+        OnHiddenAreaDiscovered?.Invoke(this);
+
+        Debug.Log($"비밀 구역 확인: {DisplayName}");
+
+        return true;
+    }
+
+    private void RefreshHiddenAreaVisual()
+    {
+        if (hiddenAreaVisual == null)
+            return;
+
+        bool shouldShow = !isHiddenArea || isHiddenAreaDiscovered;
+
+        hiddenAreaVisual.SetActive(shouldShow);
+    }
+
+    public bool ApplyPollution()
+    {
+        if (isPolluted)
+            return false;
+
+        isPolluted = true;
+
+        RefreshPollutionVisual();
+
+        OnPollutionChanged?.Invoke(this, true);
+
+        Debug.Log($"노드 오염: {DisplayName}");
+
+        return true;
+    }
+
+    private void ResolvePollutionOnEnter(CharacterBase character)
+    {
+        if (!isPolluted || character == null)
+            return;
+
+        SanityModule sanity = character.GetModule<SanityModule>();
+
+        if (sanity == null)
+        {
+            Debug.LogWarning($"{character.name}: SanityModule이 없어 오염 피해를 적용하지 못했습니다.");
+        }
+        else
+        {
+            sanity.TakeSanityDamage(5);
+
+            Debug.Log($"오염: {character.DisplayName} " + $"정신력 5 감소");
+        }
+
+        // 피해 적용 후 오염은 즉시 해제
+        isPolluted = false;
+
+        RefreshPollutionVisual();
+
+        OnPollutionChanged?.Invoke(this, false);
+    }
+
+    private void RefreshPollutionVisual()
+    {
+        if (pollutionVisual == null)
+            return;
+
+        pollutionVisual.SetActive(isPolluted);
     }
 
 }

@@ -1,4 +1,6 @@
+using Unity.Android.Gradle;
 using UnityEngine;
+using System.Collections.Generic;
 
 /// <summary>
 /// 이벤트 실행 정보
@@ -10,6 +12,13 @@ public class FieldEventContext
     public FieldManager FieldManager { get; }
 
     public string ResultTextOverride { get; private set; }
+
+    private readonly List<CardData> removedCardRecoveryCandidates = new();
+
+    public IReadOnlyList<CardData> RemovedCardRecoveryCandidates => removedCardRecoveryCandidates;
+
+    public bool HasRemovedCardRecoveryRequest => removedCardRecoveryCandidates.Count > 0;
+
 
     public bool HasResultTextOverride => !string.IsNullOrEmpty(ResultTextOverride);
 
@@ -43,6 +52,7 @@ public class FieldEventContext
     {
         SelectedCard = null;
         ClearCardCheck();
+        ClearRemovedCardRecoveryRequest();
     }
 
 
@@ -71,6 +81,37 @@ public class FieldEventContext
 
             return Character.GetComponentInChildren<Inventory>(true);
         }
+    }
+
+    public void RequestRemovedCardRecovery(IEnumerable<CardData> cards)
+    {
+        removedCardRecoveryCandidates.Clear();
+
+        if (cards == null)
+            return;
+
+        foreach (CardData card in cards)
+        {
+            if (card == null)
+                continue;
+
+            // 무색 카드는 복귀 선택지에 표시하지 않는다.
+            if (card.color == CardColorType.Colorless)
+                continue;
+
+            removedCardRecoveryCandidates.Add(card);
+        }
+    }
+
+    public void ClearRemovedCardRecoveryRequest()
+    {
+        removedCardRecoveryCandidates.Clear();
+    }
+
+    public FieldEventContext(FieldManager fieldManager, FieldNode node)
+    {
+        FieldManager = fieldManager;
+        Node = node;
     }
 
 }

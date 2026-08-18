@@ -28,6 +28,9 @@ public class CharacterPresetData : ScriptableObject
     [Header("캐릭터 아이콘")]
     public Sprite Icon;
 
+    [Header("지정 능력치")]
+    public StatType designatedStatType = StatType.Strength;
+
     /// <summary>
     /// 프리셋 데이터를 실제 생성용 데이터로 변환한다.
     /// </summary>
@@ -47,7 +50,9 @@ public class CharacterPresetData : ScriptableObject
 
             startDeck = startDeck,
 
-            Icon = Icon
+            Icon = Icon,
+
+            designatedStatType = designatedStatType
         };
     }
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using static Dice;
 
@@ -1252,39 +1253,289 @@ public class CardResolver
 
     private bool ResolveRedField(CardData card, CharacterBase user, FieldEventContext context)
     {
-        // 적색 카드가 필요한 장애물 제거
+        if (card == null || user == null || context == null || context.FieldManager == null)
+        {
+            return false;
+        }
+
+        FieldNode currentNode = context.FieldManager.CurrentNode;
+
+        if (currentNode == null)
+        {
+            Debug.LogWarning("적색 카드 사용 실패: 현재 노드가 없습니다.");
+
+            return false;
+        }
+
+        int clearedLineCount = 0;
+
+        foreach (FieldLine line in currentNode.ConnectedLines)
+        {
+            if (line == null)
+                continue;
+
+            if (line.LineType != FieldLineType.Red)
+                continue;
+
+            line.ClearBlock();
+            clearedLineCount++;
+        }
+
+        if (clearedLineCount <= 0)
+        {
+            Debug.Log("적색 카드: 현재 위치 주변에 제거할 적색 라인이 없습니다.");
+        }
+        else
+        {
+            Debug.Log($"적색 카드: 적색 라인 {clearedLineCount}개를 일반 라인으로 변경했습니다.");
+        }
+
+        // 제거할 라인이 없어도 카드는 사용된 것으로 처리
         return true;
     }
 
     private bool ResolveColorlessField(CardData card, CharacterBase user, FieldEventContext context)
     {
-        // 제외된 카드 복귀 및 판정 성공 시 소멸 카드 복귀
+        if (card == null || user == null || context == null)
+        {
+            return false;
+        }
+
+        DeckModule deck = user.GetModule<DeckModule>();
+
+        StatModules stat = user.GetModule<StatModules>();
+
+        if (deck == null || stat == null)
+        {
+            Debug.LogWarning("무색 필드 효과 실패: DeckModule 또는 StatModules 없음");
+
+            return false;
+        }
+
+        // 1. 제외된 카드를 모두 덱으로 복귀
+        deck.ReturnAllExhaustToDeck();
+
+        // 2. 지정 능력치 판정
+        // 무색 카드 자체 효과 판정에는 보정치를 적용하지 않는다.
+        StatType designatedStat = stat.GetDesignatedStatType();
+
+        if (designatedStat == StatType.None)
+        {
+            Debug.Log("무색 필드 효과: 지정 능력치가 없습니다.");
+
+            return true;
+        }
+
+        int statValue = stat.GetStat(designatedStat);
+
+        int dice = Dice.RollD10();
+
+        bool success = dice <= statValue;
+
+        Debug.Log($"무색 카드 지정 판정: " + $"주사위 {dice} ≤ {designatedStat} {statValue} / " + $"성공:{success}");
+
+        // 판정 실패면 추가 복귀 효과 없음
+        if (!success)
+            return true;
+
+        // 3. 소멸 영역의 무색이 아닌 카드 확인
+        List<CardData> recoverableCards = deck.GetRecoverableRemovedCards();
+
+        // 복귀 가능한 색상 카드가 없으면 그대로 종료
+        if (recoverableCards.Count <= 0)
+        {
+            Debug.Log("무색 필드 효과: 복귀 가능한 색상 카드가 없습니다.");
+
+            return true;
+        }
+
+        // 4. 카드 선택 UI 요청
+        context.RequestRemovedCardRecovery(recoverableCards);
+
         return true;
     }
 
     private bool ResolveBlueField(CardData card, CharacterBase user, FieldEventContext context)
     {
-        
-        // 특이점 탐색 또는 비밀 라인 발견
+        if (card == null || user == null || context == null || context.FieldManager == null)
+        {
+            return false;
+        }
+
+        FieldNode currentNode = context.FieldManager.CurrentNode;
+
+        if (currentNode == null)
+        {
+            Debug.LogWarning("청색 카드 사용 실패: 현재 노드가 없습니다.");
+
+            return false;
+        }
+
+        int discoveredLineCount = 0;
+        int discoveredAreaCount = 0;
+
+        foreach (FieldLine line in currentNode.ConnectedLines)
+        {
+            if (line == null)
+                continue;
+
+            // 현재 노드와 연결된 비밀 라인을 발견
+            if (line.LineType == FieldLineType.Hidden)
+            {
+                line.Discover();
+                discoveredLineCount++;
+            }
+
+            FieldNode otherNode = line.GetOtherNode(currentNode);
+
+            if (otherNode == null)
+                continue;
+
+            // 연결된 노드가 비밀 구역이면 공개
+            if (otherNode.IsHiddenArea && !otherNode.IsHiddenAreaDiscovered)
+            {
+                if (otherNode.DiscoverHiddenArea())
+                {
+                    discoveredAreaCount++;
+                }
+            }
+        }
+
+        if (discoveredLineCount == 0 && discoveredAreaCount == 0)
+        {
+            Debug.Log("청색 카드: 주변에서 비밀 라인이나 비밀 구역을 찾지 못했습니다.");
+        }
+        else
+        {
+            Debug.Log($"청색 카드 탐색 결과 / " + $"비밀 라인:{discoveredLineCount} / " + $"비밀 구역:{discoveredAreaCount}");
+        }
+
+        // 아무것도 찾지 못해도 카드는 정상 사용된 것으로 처리
         return true;
     }
 
     private bool ResolveGreenField(CardData card, CharacterBase user, FieldEventContext context)
     {
-        // 녹색 필드 효과
-        
+        if (card == null || user == null)
+            return false;
+
+        HitpointModules hitpoint = user.GetModule<HitpointModules>();
+
+        if (hitpoint == null)
+        {
+            Debug.LogWarning("녹색 카드 사용 실패: HitpointModules가 없습니다.");
+
+            return false;
+        }
+
+        int restoreAmount = Dice.RollD10();
+
+        RestoreStruct restoreInfo = new RestoreStruct {from = user.gameObject, instigator = user.Controller, restoreAmount = restoreAmount};
+
+        int actualRestore = hitpoint.TakeRestore(restoreInfo);
+
+        Debug.Log($"녹색 카드: {user.name} 생명력 회복 " + $"{actualRestore} / 주사위:{restoreAmount}");
+
+        // 최대 생명력이라 실제 회복량이 0이어도
+        // 카드는 정상 사용된 것으로 처리
         return true;
     }
 
+    /// <summary>
+    /// 행동력 회복
+    /// </summary>
+    /// <param name="card"></param>
+    /// <param name="user"></param>
+    /// <param name="context"></param>
+    /// <returns></returns>
     private bool ResolveYellowField(CardData card, CharacterBase user, FieldEventContext context)
     {
-        // 위험 감지 또는 중간 노드 무시 이동
-        
+        if (card == null || user == null)
+            return false;
+
+        ActionPointModule actionPoint = user.GetModule<ActionPointModule>();
+
+        if (actionPoint == null)
+        {
+            Debug.LogWarning($"{user.name}: ActionPointModule이 없습니다.");
+
+            return false;
+        }
+
+        int dice = Dice.RollD4();
+
+        int additionalActionPoint = 1 + dice / 2;
+
+        actionPoint.AddTemporaryActionPoint(additionalActionPoint);
+
+        Debug.Log($"황색 카드 필드 효과: " + $"1 + ({dice} / 2) = " + $"{additionalActionPoint} 행동력 추가");
+
         return true;
     }
 
     private bool ResolvePurpleField(CardData card, CharacterBase user, FieldEventContext context)
     {
+        if (card == null ||
+            user == null ||
+            context == null ||
+            context.FieldManager == null)
+        {
+            return false;
+        }
+
+        int diceValue = Dice.RollD6();
+
+        // 홀수: 생명력 감소
+        if (diceValue % 2 != 0)
+        {
+            HitpointModules hitpoint = user.GetModule<HitpointModules>();
+
+            if (hitpoint == null)
+            {
+                Debug.LogWarning("자색 카드 사용 실패: HitpointModules가 없습니다.");
+
+                return false;
+            }
+
+            DamageStruct damageInfo = new DamageStruct
+                {
+                    from = user.gameObject,
+                    instigator = user.Controller,
+
+                    diceValue = diceValue,
+                    damageAmount = diceValue,
+
+                    critical = false,
+                    highCritical = false,
+
+                    damageType = DamageType.None,
+                    canCounter = false,
+                    reactionType = ActionType.None
+                };
+
+            int actualDamage = hitpoint.TakeDamage(damageInfo);
+
+            Debug.Log($"자색 카드: 주사위 {diceValue} 홀수 / " + $"생명력 {actualDamage} 감소");
+        }
+        // 짝수: 정신력 감소
+        else
+        {
+            SanityModule sanity = user.GetModule<SanityModule>();
+
+            if (sanity == null)
+            {
+                Debug.LogWarning("자색 카드 사용 실패: SanityModule이 없습니다.");
+
+                return false;
+            }
+
+            sanity.TakeSanityDamage(diceValue);
+
+            Debug.Log($"자색 카드: 주사위 {diceValue} 짝수 / " + $"정신력 {diceValue} 감소");
+        }
+
+        context.FieldManager.ReserveCoreEventForNextSelection(user);
+
         return true;
     }
 

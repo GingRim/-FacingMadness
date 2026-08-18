@@ -1,4 +1,6 @@
 using UnityEngine;
+using System.Collections.Generic;
+
 
 [CreateAssetMenu(fileName = "FieldMission", menuName = "Facing Madness/Field/Mission")]
 public class FieldMissionData : ScriptableObject
@@ -16,6 +18,12 @@ public class FieldMissionData : ScriptableObject
     [Header("필드 오브젝트")]
     [SerializeField]
     private string fieldObjectName;
+
+    [Header("미션 클리어 목표")]
+    [SerializeField]
+    private List<FieldMissionObjectiveRequirement> objectives = new();
+
+    public IReadOnlyList<FieldMissionObjectiveRequirement> Objectives => objectives;
 
     public string FieldObjectName => fieldObjectName;
 

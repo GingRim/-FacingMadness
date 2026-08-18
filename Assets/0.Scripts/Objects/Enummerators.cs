@@ -178,7 +178,10 @@ public enum FieldTurnState
     Event,
     TurnEnd,
     MythTurn,
-    GameOver
+    GameOver,
+    MissionClear,
+    MissionFailed,
+    _Length
 }
 
 public enum FieldCardCheckResult
@@ -214,3 +217,24 @@ public enum FieldItemEffectType
     Add,
     Remove
 }
+
+
+public enum FieldLineStateEffectType
+{
+    RevealHidden,
+    UnlockRed,
+    ChangeToNormal,
+    ChangeToRed,
+    ChangeToHidden
+}
+
+public enum MythEventType
+{
+    None,
+    Hallucination,
+    Obstacle,
+    Pollution,
+    Oblivion,
+    _Length
+}
+

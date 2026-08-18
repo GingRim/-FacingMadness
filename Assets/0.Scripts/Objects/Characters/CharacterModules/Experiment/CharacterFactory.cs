@@ -102,11 +102,16 @@ public class CharacterFactory : MonoBehaviour
         }
 
         stat.SetStat(StatType.Strength, data.strength);
+
         stat.SetStat(StatType.Agility, data.agility);
+
         stat.SetStat(StatType.Health, data.health);
+
         stat.SetStat(StatType.Intelligence, data.intelligence);
+
         stat.SetStat(StatType.Will, data.will);
 
+        stat.SetDesignatedStatType(data.designatedStatType);
     }
 
     /// <summary>

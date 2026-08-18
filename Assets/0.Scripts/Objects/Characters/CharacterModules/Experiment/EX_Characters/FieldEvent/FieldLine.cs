@@ -18,12 +18,7 @@ public class FieldLine : MonoBehaviour
     [SerializeField]
     private string lineId;
 
-    [Header("런타임 상태")]
-    [SerializeField]
-    private bool isDiscovered;
-
-    [SerializeField]
-    private bool isUnlocked;
+    private FieldLineType initialLineType;
 
     private bool isRegistered;
 
@@ -35,13 +30,14 @@ public class FieldLine : MonoBehaviour
     public bool IsBlocked => lineType == FieldLineType.Red;
     public bool CanPass => lineType == FieldLineType.Normal;
     public string LineId => lineId;
-    public bool IsDiscovered => isDiscovered;
-    public bool IsUnlocked => isUnlocked;
 
     public event Action<FieldLine> OnLineStateChanged;
 
+
     private void Awake()
     {
+        initialLineType = lineType;
+
         RegisterToNodes();
         RefreshVisual();
     }
@@ -177,12 +173,26 @@ public class FieldLine : MonoBehaviour
         visualObject.SetActive(lineType != FieldLineType.Hidden);
     }
 
+    public void ResetRuntimeState()
+    {
+        lineType = initialLineType;
+
+        RefreshVisual();
+        OnLineStateChanged?.Invoke(this);
+    }
+
+
 #if UNITY_EDITOR
     private void OnValidate()
     {
         if (nodeA == nodeB)
         {
             nodeB = null;
+        }
+
+        if (string.IsNullOrWhiteSpace(lineId))
+        {
+            lineId = gameObject.name;
         }
 
         RefreshVisual();

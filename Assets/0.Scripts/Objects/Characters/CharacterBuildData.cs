@@ -27,4 +27,7 @@ public class CharacterBuildData
 
     [Header("캐릭터 아이콘")]
     public Sprite Icon;
+
+    [Header("지정 능력치")]
+    public StatType designatedStatType;
 }

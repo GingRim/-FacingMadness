@@ -50,10 +50,18 @@ public class SanityModule : CharacterModule
 
         Debug.Log($"정신력 감소: {before} -> {currentSanity} / 감소 {value}");
 
-        if (currentSanity <= 0)
+
+        if (before > 0 && currentSanity <= 0)
         {
-            OnSanityBroken();
+            EnterMadness();
         }
+    }
+
+    private void EnterMadness()
+    {
+        Debug.Log("정신력 0 도달: 광기 진입");
+
+       // OnMadnessEntered?.Invoke();
     }
 
     /// <summary>
