@@ -1,0 +1,64 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e3f02e37dc0d4345ac9a45fe9d8e103, type: 3}
+  m_Name: KitchenMainPage
+  m_EditorClassIdentifier: Assembly-CSharp::FieldEventPageData
+  pageId: DefaultMainPage_0
+  description: "\uCC98\uC74C\uBCF4\uB294 \uACF5\uAC04\uC5D0 \uC9C4\uC785\uD588\uB2E4."
+  displayType: 0
+  maximumVisibleChoices: 3
+  choices:
+  - choiceId: DefaultEvent_01
+    choiceText: "\uD6D1\uC5B4\uBCF4\uAE30"
+    resultText: "\uC8FC\uBCC0\uC744 \uD6D1\uC5B4\uBCF4\uC790 \uBCF4\uC774\uB294 \uAC83\uC740
+      \uBC14 \uD14C\uC774\uBE14\uACFC \uC758\uC790 \uADF8\uB9AC\uACE0 \uC624\uD508\uD615
+      \uC8FC\uBC29\uC785\uB2C8\uB2E4."
+    actionType: 1
+    usageType: 0
+    nextPage: {fileID: 0}
+    conditions: []
+    effects: []
+    cardRequirement:
+      requiresCard: 0
+      allowedColors: 
+      checkStat: 0
+  - choiceId: DefaultEvent_02
+    choiceText: "\uD2B9\uC774\uC810\uC744 \uCC3E\uC544 \uBCF8\uB2E4."
+    resultText: "\uC8FC\uBCC0\uC744 \uD6D1\uC5B4\uBCF4\uC790 \uBCF4\uC774\uB294 \uAC83\uC740
+      \uBC14 \uD14C\uC774\uBE14\uACFC \uC758\uC790 \uADF8\uB9AC\uACE0 \uC624\uD508\uD615
+      \uC8FC\uBC29\uC785\uB2C8\uB2E4. \uCEE4\uB2E4\uB780 \uC1A5\uC774 \uB208\uC5D0
+      \uB701\uB2C8\uB2E4."
+    actionType: 1
+    usageType: 0
+    nextPage: {fileID: 0}
+    conditions: []
+    effects:
+    - {fileID: 11400000, guid: 197892cee6cf2874fb90280fbae35c0d, type: 2}
+    cardRequirement:
+      requiresCard: 1
+      allowedColors: 0400000006000000
+      checkStat: 4
+  - choiceId: DefaultEvent_03
+    choiceText: "\uC704\uD5D8\uC744 \uAC10\uC9C0\uD55C\uB2E4."
+    resultText: "\uC8FC\uBCC0\uC744 \uD6D1\uC5B4\uBCF4\uC790 \uBCF4\uC774\uB294 \uAC83\uC740
+      \uBC14 \uD14C\uC774\uBE14\uACFC \uC758\uC790 \uADF8\uB9AC\uACE0 \uC624\uD508\uD615
+      \uC8FC\uBC29\uC785\uB2C8\uB2E4. \uCEE4\uB2E4\uB780 \uC1A5\uC5D0\uC11C \uAEBC\uB9BC\uC9C1\uD55C
+      \uB2A6\uAE40\uC774 \uB0A9\uB2C8\uB2E4."
+    actionType: 1
+    usageType: 0
+    nextPage: {fileID: 0}
+    conditions: []
+    effects: []
+    cardRequirement:
+      requiresCard: 1
+      allowedColors: 0200000006000000
+      checkStat: 2

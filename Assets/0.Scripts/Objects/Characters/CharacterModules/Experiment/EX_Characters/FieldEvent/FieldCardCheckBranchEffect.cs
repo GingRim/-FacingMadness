@@ -34,8 +34,7 @@ public class FieldCardCheckBranchEffect : FieldEventEffect
 
         if (!context.HasCardCheck)
         {
-            context.SetResultText(
-                "카드 판정 정보를 찾을 수 없습니다.");
+            context.SetResultText("카드 판정 정보를 찾을 수 없습니다.");
 
             return;
         }

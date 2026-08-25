@@ -1,5 +1,7 @@
+using System;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class UI_Card : PooledObject
@@ -13,6 +15,8 @@ public class UI_Card : PooledObject
 
     CardData cardData;
     CanvasGroup canvasGroup;
+
+    public event Action<UI_Card> OnClicked;
 
     public CardData CardData => cardData;
 
@@ -71,8 +75,6 @@ public class UI_Card : PooledObject
             canvasGroup = gameObject.AddComponent<CanvasGroup>();
     }
 
-
-
     Color GetCardColor(CardColorType type)
     {
         switch (type)
@@ -100,7 +102,23 @@ public class UI_Card : PooledObject
         }
     }
 
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if (eventData.button != PointerEventData.InputButton.Left)
+        {
+            return;
+        }
 
+        if (cardData == null)
+            return;
+
+        OnClicked?.Invoke(this);
+    }
+
+    public void ClearClickListeners()
+    {
+        OnClicked = null;
+    }
 
 }
 

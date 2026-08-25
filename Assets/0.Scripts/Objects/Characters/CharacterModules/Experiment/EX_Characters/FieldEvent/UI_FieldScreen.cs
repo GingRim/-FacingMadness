@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 /// <summary>
 
@@ -6,191 +8,253 @@ using UnityEngine;
 /// </summary>
 public class UI_FieldScreen : UI_ScreenBase
 {
-    [Header("필드 생성 위치")]
+    [Header("필드 매니저")]
     [SerializeField]
-    private Transform fieldCore;
-
-    [Header("필드 UI")]
-    [SerializeField]
-    private UI_MissionSelect missionSelect;
-
-    [SerializeField]
-    private UI_FieldEvent fieldEventUI;
-
-    [SerializeField]
-    private UI_FieldCharacterMarkers characterMarkers;
-
-    private MissionManager missionManager;
     private FieldManager fieldManager;
 
-    private readonly List<CharacterBase> fieldPlayers = new();
+    [Header("손패")]
+    [SerializeField]
+    private UI_Hand handUI;
 
-    public Transform FieldCore => fieldCore;
+    [Header("현재 플레이어")]
+    [SerializeField]
+    private TextMeshProUGUI playerNameText;
 
-    public UI_MissionSelect MissionSelect => missionSelect;
+    [Header("행동력")]
+    [SerializeField]
+    private TextMeshProUGUI actionPointText;
 
-    public UI_FieldEvent FieldEventUI => fieldEventUI;
+    [Header("턴")]
+    [SerializeField]
+    private TextMeshProUGUI fieldTurnText;
 
-    private void Awake()
+    [SerializeField]
+    private TextMeshProUGUI mythTurnText;
+
+    private CharacterBase boundPlayer;
+
+    private ActionPointModule boundActionPoint;
+
+    public event Action<CardData, CharacterBase> OnFieldCardSelected;
+
+    private void OnEnable()
     {
-        if (missionSelect == null)
+        RegisterFieldManager();
+
+        if (handUI != null)
         {
-            missionSelect = GetComponentInChildren<UI_MissionSelect>(true);
+            handUI.OnCardSelected -= HandleCardSelected;
+
+            handUI.OnCardSelected += HandleCardSelected;
         }
 
-        if (fieldEventUI == null)
+        if (fieldManager != null && fieldManager.CurrentPlayer != null)
         {
-            fieldEventUI = GetComponentInChildren<UI_FieldEvent>(true);
-        }
+            BindPlayer(fieldManager.CurrentPlayer);
 
-        if (characterMarkers == null)
-        {
-            characterMarkers = GetComponentInChildren<UI_FieldCharacterMarkers>(true);
+            RefreshTurnTexts(fieldManager.TotalFieldTurn);
         }
     }
 
-    private void OnDestroy()
+    private void OnDisable()
     {
-        Unbind();
+        if (handUI != null)
+        {
+            handUI.OnCardSelected -= HandleCardSelected;
+        }
+
+        UnregisterFieldManager();
+        UnbindPlayer();
     }
 
-    public void Bind(MissionManager newMissionManager, FieldManager newFieldManager, List<CharacterBase> players)
-    {
-        Unbind();
-
-        missionManager = newMissionManager;
-        fieldManager = newFieldManager;
-
-        fieldPlayers.Clear();
-
-        if (players != null)
-        {
-            foreach (CharacterBase player in players)
-            {
-                if (player != null)
-                {
-                    fieldPlayers.Add(player);
-                }
-            }
-        }
-
-        if (missionSelect != null)
-        {
-            missionSelect.OnMissionConfirmed -= HandleMissionConfirmed;
-
-            missionSelect.OnMissionConfirmed += HandleMissionConfirmed;
-        }
-
-        if (fieldManager != null)
-        {
-            fieldManager.SetFieldCore(fieldCore);
-
-            fieldManager.OnStartingNodeConfirmed -= HandleStartingNodeConfirmed;
-
-            fieldManager.OnStartingNodeConfirmed += HandleStartingNodeConfirmed;
-        }
-
-        if (characterMarkers != null)
-        {
-            characterMarkers.Bind(fieldManager);
-        }
-
-    }
-
-    private void Unbind()
-    {
-        if (missionSelect != null)
-        {
-            missionSelect.OnMissionConfirmed -= HandleMissionConfirmed;
-        }
-
-        if (fieldManager != null)
-        {
-            fieldManager.OnStartingNodeConfirmed -= HandleStartingNodeConfirmed;
-        }
-
-        if (characterMarkers != null)
-        {
-            characterMarkers.Unbind();
-        }
-
-        missionManager = null;
-        fieldManager = null;
-
-        fieldPlayers.Clear();
-    }
-
-    public void OpenMissionSelect(MissionManager missionManager)
-    {
-        if (missionSelect == null || missionManager == null)
-        {   
-            Debug.LogWarning("UI_FieldScreen: " + "MissionManager가 연결되지 않았습니다.");
-
-            return;
-        }
- 
-        missionSelect.Open(missionManager);
-    }
-
-    private void HandleMissionConfirmed(FieldMissionData mission)
-    {
-        if (fieldManager == null || mission == null)
-        {
-            return;
-        }
-
-        bool loaded = fieldManager.LoadMissionField(mission);
-
-        if (!loaded)
-            return;
-
-        // 고정 시작 노드가 있다면 바로 시작
-        if (fieldManager.HasStartingNode)
-        {
-            StartLoadedField();
-            return;
-        }
-
-        // 시작 후보가 여러 개라면
-        // 노드 클릭을 기다림
-        Debug.Log("시작할 노드를 선택하십시오.");
-
-    }
-
-    private void HandleStartingNodeConfirmed(FieldNode selectedNode)
-    {
-        StartLoadedField();
-    }
-
-    private void StartLoadedField()
+    private void RegisterFieldManager()
     {
         if (fieldManager == null)
             return;
 
-        if (!fieldManager.HasStartingNode)
-        {
-            Debug.LogWarning("시작 노드가 정해지지 않았습니다.");
+        fieldManager.OnFieldTurnStarted -= HandleFieldTurnStarted;
 
-            return;
-        }
-
-        if (fieldPlayers.Count == 0)
-        {
-            Debug.LogWarning("필드 참가자가 없습니다.");
-
-            return;
-        }
-
-        fieldManager.StartField(fieldPlayers);
+        fieldManager.OnFieldTurnStarted += HandleFieldTurnStarted;
     }
 
-    public void BindFieldManager(FieldManager manager)
+    private void UnregisterFieldManager()
     {
-        fieldManager = manager;
+        if (fieldManager == null)
+            return;
 
-        if (fieldManager != null)
+        fieldManager.OnFieldTurnStarted -= HandleFieldTurnStarted;
+    }
+
+    private void HandleFieldTurnStarted(CharacterBase player, int completedTurnCount)
+    {
+        BindPlayer(player);
+
+        RefreshTurnTexts(completedTurnCount);
+    }
+
+    private void BindPlayer(CharacterBase player)
+    {
+        UnbindPlayer();
+
+        boundPlayer = player;
+
+        if (boundPlayer == null)
         {
-            fieldManager.SetFieldCore(fieldCore);
+            ClearScreen();
+            return;
+        }
+
+        if (playerNameText != null)
+        {
+            playerNameText.SetText(boundPlayer.DisplayName);
+        }
+
+        DeckModule deck = boundPlayer.GetModule<DeckModule>();
+
+        if (handUI != null)
+        {
+            if (deck != null)
+            {
+                handUI.RefreshFromDeck(deck);
+            }
+            else
+            {
+                handUI.ClearHand();
+            }
+        }
+
+        boundActionPoint = boundPlayer.GetModule<ActionPointModule>();
+
+        if (boundActionPoint == null)
+        {
+            RefreshActionPoint(0, 0);
+            return;
+        }
+
+        boundActionPoint.OnActionPointChanged -= RefreshActionPoint;
+
+        boundActionPoint.OnActionPointChanged += RefreshActionPoint;
+
+        RefreshActionPoint(boundActionPoint.Current, boundActionPoint.Max);
+    }
+
+    private void UnbindPlayer()
+    {
+        if (boundActionPoint != null)
+        {
+            boundActionPoint.OnActionPointChanged -= RefreshActionPoint;
+        }
+
+        boundActionPoint = null;
+        boundPlayer = null;
+    }
+
+    private void RefreshActionPoint(int current, int maximum)
+    {
+        if (actionPointText != null)
+        {
+            actionPointText.SetText($"행동력 {current}/{maximum}");
+        }
+    }
+
+    private void RefreshTurnTexts(int completedTurnCount)
+    {
+        // totalFieldTurn은 끝난 턴의 개수이므로
+        // 현재 진행 중인 턴은 +1
+        int currentTurn = completedTurnCount + 1;
+
+        if (fieldTurnText != null)
+        {
+            fieldTurnText.SetText($"필드 턴 {currentTurn}");
+        }
+
+        if (mythTurnText == null || fieldManager == null)
+        {
+            return;
+        }
+
+        int interval = Mathf.Max(1, fieldManager.MythTurnInterval);
+
+        int remaining = interval - completedTurnCount % interval;
+
+        mythTurnText.SetText($"신화턴까지 {remaining}턴");
+    }
+
+    private void ClearScreen()
+    {
+        if (playerNameText != null)
+        {
+            playerNameText.SetText(string.Empty);
+        }
+
+        RefreshActionPoint(0, 0);
+
+        if (handUI != null)
+        {
+            handUI.ClearHand();
+        }
+    }
+
+    private void HandleCardSelected(CardData selectedCard)
+    {
+        if (selectedCard == null)
+            return;
+
+        if (fieldManager == null || !fieldManager.IsFieldActive)
+        {
+            return;
+        }
+
+        if (fieldManager.TurnState != FieldTurnState.PlayerAction)
+        {
+            return;
+        }
+
+        if (boundPlayer == null || boundPlayer != fieldManager.CurrentPlayer)
+        {
+            return;
+        }
+
+        DeckModule deck = boundPlayer.GetModule<DeckModule>();
+
+        if (deck == null || !ContainsCard(deck, selectedCard))
+        {
+            return;
+        }
+
+        OnFieldCardSelected?.Invoke(selectedCard, boundPlayer);
+    }
+
+    private bool ContainsCard(DeckModule deck, CardData card)
+    {
+        foreach (CardData handCard in deck.Hand)
+        {
+            if (handCard == card)
+                return true;
+        }
+
+        return false;
+    }
+
+    private void HandleFieldCardResolved(CharacterBase user)
+    {
+        if (user == null || user != boundPlayer)
+        {
+            return;
+        }
+
+        DeckModule deck = user.GetModule<DeckModule>();
+
+        if (handUI == null)
+            return;
+
+        if (deck != null)
+        {
+            handUI.RefreshFromDeck(deck);
+        }
+        else
+        {
+            handUI.ClearHand();
         }
     }
 

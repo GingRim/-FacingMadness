@@ -1475,10 +1475,7 @@ public class CardResolver
 
     private bool ResolvePurpleField(CardData card, CharacterBase user, FieldEventContext context)
     {
-        if (card == null ||
-            user == null ||
-            context == null ||
-            context.FieldManager == null)
+        if (card == null || user == null || context == null || context.FieldManager == null)
         {
             return false;
         }

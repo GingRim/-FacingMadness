@@ -6,6 +6,8 @@ public class UI_Hand : MonoBehaviour
 {
     [SerializeField] Transform cardParent;
 
+    public event Action<CardData> OnCardSelected;
+
     readonly List<UI_Card> cardUIs = new();
 
     /// <summary>
@@ -35,8 +37,7 @@ public class UI_Hand : MonoBehaviour
         if (cardParent == null)
             return;
 
-        GameObject cardObject =
-            ObjectManager.CreateObject("UI_Card", cardParent);
+        GameObject cardObject = ObjectManager.CreateObject("UI_Card", cardParent);
 
         if (cardObject == null)
             return;
@@ -48,10 +49,13 @@ public class UI_Hand : MonoBehaviour
         if (uiCard == null)
             return;
 
+        uiCard.ClearClickListeners();
         uiCard.SetCard(cardData);
+
+        uiCard.OnClicked += HandleCardClicked;
+
         cardUIs.Add(uiCard);
     }
-
 
     /// <summary>
     /// 손패 UI 전체 초기화
@@ -63,15 +67,33 @@ public class UI_Hand : MonoBehaviour
             if (card == null)
                 continue;
 
+            card.OnClicked -= HandleCardClicked;
+
+            card.ClearClickListeners();
+
             PooledObject pooled = card.GetComponent<PooledObject>();
 
             if (pooled != null)
+            {
                 pooled.OnEnqueue();
+            }
             else
+            {
                 Destroy(card.gameObject);
+            }
         }
 
         cardUIs.Clear();
     }
 
+    private void HandleCardClicked(UI_Card clickedCard)
+    {
+        if (clickedCard == null || clickedCard.CardData == null)
+        {
+            return;
+        }
+
+        OnCardSelected?.Invoke(clickedCard.CardData);
+
+    }
 }

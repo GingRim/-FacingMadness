@@ -15,24 +15,32 @@ public class FieldEventData : ScriptableObject
     [SerializeField]
     private FieldEventType eventType;
 
+    [Header("이벤트 시작 페이지")]
+    [SerializeField]
+    private FieldEventPageData rootPage;
+
+    /// <summary>
+    /// 이벤트가 시작될 때 처음 표시하는 메인 페이지다.
+    /// </summary>
+    public FieldEventPageData RootPage => rootPage;
+
     [TextArea(4, 12)]
     [SerializeField] private string description;
 
     [Header("설정")]
     [SerializeField] private bool repeatable;
 
-    [Header("선택지")]
-    [SerializeField]
-    private FieldEventChoice[] choices;
-
     [SerializeField]
     private string startingNodeId;
 
-    [Header("필드 이벤트 풀")]
+    [Header("이벤트 표시")]
     [SerializeField]
-    private List<FieldEventData> eventPool = new();
+    private Sprite eventImage;
 
-    public IReadOnlyList<FieldEventData> EventPool => eventPool;
+    /// <summary>
+    /// 이벤트 화면에 표시할 분위기 이미지다.
+    /// </summary>
+    public Sprite EventImage => eventImage;
 
     public string StartingNodeId => startingNodeId;
 
@@ -42,5 +50,4 @@ public class FieldEventData : ScriptableObject
     public string Description => description;
     public bool Repeatable => repeatable;
 
-    public FieldEventChoice[] Choices => choices;
 }

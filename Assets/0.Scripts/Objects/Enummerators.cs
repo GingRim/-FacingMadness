@@ -238,3 +238,69 @@ public enum MythEventType
     _Length
 }
 
+
+/// <summary>
+/// 선택지가 필드 진행 중 반복 사용 가능한지 구분한다.
+/// </summary>
+public enum FieldChoiceUsageType
+{
+    Repeatable,     // 계속 등장 가능
+    OncePerField    // 이번 필드에서 한 번 선택하면 제거
+}
+
+/// <summary>
+/// 이벤트 페이지의 선택지 표시 방식을 구분한다.
+/// </summary>
+public enum FieldEventPageDisplayType
+{
+    Fixed,  // 등록된 선택지를 순서대로 표시
+    Random  // 등록된 선택지 중 최대 5개를 무작위 표시
+}
+
+/// <summary>
+/// 선택지가 하위 페이지로 이동하는지,
+/// 실제 효과를 실행하는지 구분한다.
+/// </summary>
+public enum FieldChoiceActionType
+{
+    Navigate,   // 하위 선택지 페이지로 이동
+    Resolve     // 효과 적용 후 이벤트 결과 표시
+}
+
+/// <summary>
+/// 필드 이벤트 선택지의 성격을 구분한다.
+/// </summary>
+public enum FieldChoiceType
+{
+    /// <summary>
+    /// 미션 진행에 영향을 주는 핵심 선택지.
+    /// </summary>
+    Core,
+
+    /// <summary>
+    /// 능력치를 활용하는 일반 선택지.
+    /// </summary>
+    Stat,
+
+    /// <summary>
+    /// 설명, 작은 보상, 상황 연출 등을 담당하는 선택지.
+    /// </summary>
+    MacGuffin
+}
+
+/// <summary>
+/// 필드 이벤트 선택지의 실행 방식을 구분한다.
+/// </summary>
+public enum FieldChoiceExecutionType
+{
+    /// <summary>
+    /// 별도의 능력치 판정 없이 결과를 실행한다.
+    /// </summary>
+    Direct,
+
+    /// <summary>
+    /// 지정된 능력치 판정의 성공 또는 실패에 따라 결과를 실행한다.
+    /// 대응 색상 카드를 사용하면 판정을 확정 성공시킬 수 있다.
+    /// </summary>
+    StatCheck
+}

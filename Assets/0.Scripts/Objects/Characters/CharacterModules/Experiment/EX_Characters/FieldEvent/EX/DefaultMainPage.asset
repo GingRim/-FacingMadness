@@ -1,0 +1,55 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e3f02e37dc0d4345ac9a45fe9d8e103, type: 3}
+  m_Name: DefaultMainPage
+  m_EditorClassIdentifier: Assembly-CSharp::FieldEventPageData
+  pageId: DefaultMainPage_0
+  description: "\uCC98\uC74C\uBCF4\uB294 \uACF5\uAC04\uC5D0 \uC9C4\uC785\uD588\uB2E4."
+  displayType: 0
+  maximumVisibleChoices: 3
+  choices:
+  - choiceId: DefaultEvent_01
+    choiceText: "\uD6D1\uC5B4\uBCF4\uAE30"
+    resultText: 
+    actionType: 0
+    usageType: 0
+    nextPage: {fileID: 0}
+    conditions: []
+    effects: []
+    cardRequirement:
+      requiresCard: 0
+      allowedColors: 
+      checkStat: 0
+  - choiceId: DefaultEvent_02
+    choiceText: "\uD2B9\uC774\uC810\uC744 \uCC3E\uC544 \uBCF8\uB2E4."
+    resultText: 
+    actionType: 0
+    usageType: 0
+    nextPage: {fileID: 0}
+    conditions: []
+    effects: []
+    cardRequirement:
+      requiresCard: 0
+      allowedColors: 
+      checkStat: 0
+  - choiceId: DefaultEvent_03
+    choiceText: "\uC704\uD5D8\uC744 \uAC10\uC9C0\uD55C\uB2E4."
+    resultText: 
+    actionType: 0
+    usageType: 0
+    nextPage: {fileID: 0}
+    conditions: []
+    effects: []
+    cardRequirement:
+      requiresCard: 0
+      allowedColors: 
+      checkStat: 0

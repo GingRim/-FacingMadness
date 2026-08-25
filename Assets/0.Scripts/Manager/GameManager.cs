@@ -44,6 +44,15 @@ public class GameManager : MonoBehaviour
     BattleManager _battle;
     public BattleManager Battle => _battle;
 
+    ScenarioManager _scenario;
+    public ScenarioManager Scenario => _scenario;
+
+    MissionManager _mission;
+    public MissionManager Mission => _mission;
+
+    FieldManager _field;
+    public FieldManager Field => _field;
+
 
     IEnumerator initializing;
 
@@ -97,13 +106,18 @@ public class GameManager : MonoBehaviour
         StartCoroutine(initializing);
     }
 
-    
 
+    /// <summary>
+    /// 게임에서 사용하는 모든 관리자를 생성하고 순서대로 연결합니다.
+    /// GameManager 오브젝트에 같은 관리자 컴포넌트가 이미 존재하면
+    /// 새로 생성하지 않고 기존 컴포넌트를 재사용합니다.
+    /// </summary>
+    /// <returns>관리자 초기화가 끝날 때까지 진행하는 코루틴입니다.</returns>
     IEnumerator InitalizeMangers()
     {
         int totalLoadCount = 0;
       totalLoadCount += CreateManager(ref _ui).LoadCount;
-        totalLoadCount += CreateManager(ref _db).LoadCount;  
+      totalLoadCount += CreateManager(ref _db).LoadCount;  
       totalLoadCount += CreateManager(ref _data).LoadCount;
       totalLoadCount += CreateManager(ref _objectM).LoadCount;
       totalLoadCount += CreateManager(ref _save).LoadCount ;
@@ -113,6 +127,9 @@ public class GameManager : MonoBehaviour
       totalLoadCount += CreateManager(ref _camera).LoadCount ;
       totalLoadCount += CreateManager(ref _input).LoadCount ;
       totalLoadCount += CreateManager(ref _battle).LoadCount;
+      totalLoadCount += CreateManager(ref _scenario).LoadCount;
+      totalLoadCount += CreateManager(ref _mission).LoadCount;
+      totalLoadCount += CreateManager(ref _field).LoadCount;
 
 
         yield return UI.Initialize(this);
@@ -143,6 +160,12 @@ public class GameManager : MonoBehaviour
         loadingProgress?.AddCurrent(1);
         yield return _battle.Connect(this);
         loadingProgress?.AddCurrent(1);
+        yield return Scenario.Connect(this);
+        loadingProgress?.AddCurrent(1);
+        yield return Mission.Connect(this);
+        loadingProgress?.AddCurrent(1);
+        yield return Field.Connect(this);
+        loadingProgress?.AddCurrent(1);
         yield return new WaitForSeconds(1.0f);
 
 
@@ -157,6 +180,9 @@ public class GameManager : MonoBehaviour
 
     void DeleteManagers()
     {
+        Field?.Disconnect();
+        Mission?.Disconnect();
+        Scenario?.Disconnect();
         Battle?.Disconnect();
         //�����Է� 
         Input?.Disconnect();

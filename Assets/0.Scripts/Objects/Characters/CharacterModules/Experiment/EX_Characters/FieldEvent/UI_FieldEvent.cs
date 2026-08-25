@@ -4,14 +4,26 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+
+/// <summary>
+/// 필드 이벤트의 이미지, 설명, 선택지 페이지,
+/// 카드 선택 및 결과 문장을 표시한다.
+/// </summary>
 public class UI_FieldEvent : UIBase
 {
+    private const int MaximumChoiceButtonCount = 5;
+
     [Header("이벤트 실행기")]
     [SerializeField]
     private FieldEventRunner eventRunner;
 
     [Header("화면")]
-    [SerializeField] private GameObject panel;
+    [SerializeField]
+    private GameObject panel;
+
+    [Header("이벤트 이미지")]
+    [SerializeField]
+    private Image eventImage;
 
     [Header("텍스트")]
     [SerializeField]
@@ -20,37 +32,65 @@ public class UI_FieldEvent : UIBase
     [SerializeField]
     private TextMeshProUGUI descriptionText;
 
+    [Header("선택지 그룹")]
     [SerializeField]
-    private TextMeshProUGUI resultText;
+    private GameObject choiceGroup;
 
-    [Header("선택지")]
-    [SerializeField] private Transform choiceCore;
-
+    [Header("기존 선택지 버튼")]
     [SerializeField]
-    private UI_FieldEventChoiceButton choiceTemplate;
+    private UI_FieldEventChoiceButton[] choiceButtons = new UI_FieldEventChoiceButton[5];
+
+    [Header("페이지 이동")]
+    [SerializeField]
+    private Button backButton;
 
     [Header("결과 확인")]
-    [SerializeField] private Button continueButton;
-
-    private readonly List<UI_FieldEventChoiceButton> choicePool = new();
-
-    private FieldEventChoice pendingCardChoice;
-
-    public CharacterBase Character { get; private set; }
-
-    public bool IsWaitingCardSelection => pendingCardChoice != null;
+    [SerializeField]
+    private Button continueButton;
 
     private readonly Dictionary<int, FieldEventChoice> displayedChoices = new();
 
-    public event Action<FieldEventChoice> OnCardSelectionRequested;
+    private readonly List<int> availableChoiceIndices = new();
+
+    private FieldEventChoice pendingCardChoice;
 
     private int pendingCardChoiceIndex = -1;
 
+    /// <summary>
+    /// 현재 이벤트를 진행하는 캐릭터다.
+    /// </summary>
+    public CharacterBase Character { get; private set; }
+
+    /// <summary>
+    /// 현재 선택지에 사용할 카드를 기다리는 상태인지 반환한다.
+    /// </summary>
+    public bool IsWaitingCardSelection => pendingCardChoice != null;
+
+    /// <summary>
+    /// 카드가 필요한 선택지를 눌렀을 때 발생한다.
+    /// </summary>
+    public event Action<FieldEventChoice> OnCardSelectionRequested;
+
+    /// <summary>
+    /// 이벤트 실행기와 버튼을 연결하고 화면을 초기화한다.
+    /// </summary>
     private void Awake()
     {
-        InitializeChoicePool();
         BindRunner();
-        BindContinueButton();
+
+        BindButtons();
+
+        ClearChoiceButtons();
+
+        if (backButton != null)
+        {
+            backButton.gameObject.SetActive(false);
+        }
+
+        if (continueButton != null)
+        {
+            continueButton.gameObject.SetActive(false);
+        }
 
         if (panel != null)
         {
@@ -58,9 +98,17 @@ public class UI_FieldEvent : UIBase
         }
     }
 
+    /// <summary>
+    /// 이벤트 실행기와 버튼에 연결한 콜백을 해제한다.
+    /// </summary>
     private void OnDestroy()
     {
         UnbindRunner();
+
+        if (backButton != null)
+        {
+            backButton.onClick.RemoveListener(HandleBackButtonClicked);
+        }
 
         if (continueButton != null)
         {
@@ -68,6 +116,10 @@ public class UI_FieldEvent : UIBase
         }
     }
 
+    /// <summary>
+    /// 이벤트 시작, 페이지 변경, 선택 결과,
+    /// 실패 및 종료 이벤트를 등록한다.
+    /// </summary>
     private void BindRunner()
     {
         if (eventRunner == null)
@@ -78,22 +130,24 @@ public class UI_FieldEvent : UIBase
         }
 
         eventRunner.OnEventOpened -= HandleEventOpened;
-
         eventRunner.OnEventOpened += HandleEventOpened;
 
-        eventRunner.OnChoiceSelected -= HandleChoiceSelected;
+        eventRunner.OnPageChanged -= HandlePageChanged;
+        eventRunner.OnPageChanged += HandlePageChanged;
 
+        eventRunner.OnChoiceSelected -= HandleChoiceSelected;
         eventRunner.OnChoiceSelected += HandleChoiceSelected;
 
         eventRunner.OnChoiceFailed -= HandleChoiceFailed;
-
         eventRunner.OnChoiceFailed += HandleChoiceFailed;
 
         eventRunner.OnEventClosed -= HandleEventClosed;
-
         eventRunner.OnEventClosed += HandleEventClosed;
     }
 
+    /// <summary>
+    /// 이벤트 실행기에 등록한 모든 콜백을 해제한다.
+    /// </summary>
     private void UnbindRunner()
     {
         if (eventRunner == null)
@@ -101,6 +155,8 @@ public class UI_FieldEvent : UIBase
 
         eventRunner.OnEventOpened -= HandleEventOpened;
 
+        eventRunner.OnPageChanged -= HandlePageChanged;
+
         eventRunner.OnChoiceSelected -= HandleChoiceSelected;
 
         eventRunner.OnChoiceFailed -= HandleChoiceFailed;
@@ -108,30 +164,39 @@ public class UI_FieldEvent : UIBase
         eventRunner.OnEventClosed -= HandleEventClosed;
     }
 
-    private void BindContinueButton()
+    /// <summary>
+    /// 이전 페이지 버튼과 결과 확인 버튼을 등록한다.
+    /// </summary>
+    private void BindButtons()
     {
-        if (continueButton == null)
-            return;
-
-        continueButton.onClick.RemoveListener(HandleContinue);
-
-        continueButton.onClick.AddListener(HandleContinue);
-    }
-
-    private void InitializeChoicePool()
-    {
-        if (choiceTemplate == null || choiceCore == null)
+        if (backButton != null)
         {
-            return;
+            backButton.onClick.RemoveListener(HandleBackButtonClicked);
+
+            backButton.onClick.AddListener(HandleBackButtonClicked);
         }
 
-        choiceTemplate.gameObject.SetActive(false);
+        if (continueButton != null)
+        {
+            continueButton.onClick.RemoveListener(HandleContinue);
+
+            continueButton.onClick.AddListener(HandleContinue);
+        }
     }
 
+    /// <summary>
+    /// 이벤트의 기본 정보와 분위기 이미지를 표시한다.
+    /// 시작 페이지가 없는 기존 이벤트는 기존 선택지 배열을 사용한다.
+    /// </summary>
+    /// <param name="eventData">표시할 이벤트 데이터</param>
+    /// <param name="context">현재 이벤트 실행 정보</param>
     private void HandleEventOpened(FieldEventData eventData, FieldEventContext context)
     {
         if (eventData == null)
             return;
+
+
+        Character = context != null ? context.Character : null;
 
         if (eventNameText != null)
         {
@@ -143,10 +208,17 @@ public class UI_FieldEvent : UIBase
             descriptionText.SetText(eventData.Description);
         }
 
-        if (resultText != null)
+        if (eventImage != null)
         {
-            resultText.SetText(string.Empty);
-            resultText.gameObject.SetActive(false);
+            eventImage.sprite = eventData.EventImage;
+
+            // 이미지를 숨기더라도 자식 텍스트는 유지한다.
+            eventImage.enabled = eventData.EventImage != null;
+        }
+
+        if (choiceGroup != null)
+        {
+            choiceGroup.SetActive(true);
         }
 
         if (continueButton != null)
@@ -154,7 +226,8 @@ public class UI_FieldEvent : UIBase
             continueButton.gameObject.SetActive(false);
         }
 
-        CreateChoiceButtons(eventData.Choices);
+        ClearChoiceButtons();
+
 
         if (panel != null)
         {
@@ -162,52 +235,189 @@ public class UI_FieldEvent : UIBase
         }
     }
 
-    private void CreateChoiceButtons(FieldEventChoice[] choices)
+    /// <summary>
+    /// 현재 페이지의 설명과 선택지를 새로 표시한다.
+    /// 고정 페이지는 순서대로 표시하고
+    /// 무작위 페이지는 후보를 섞어 표시한다.
+    /// </summary>
+    /// <param name="page">새로 표시할 이벤트 페이지</param>
+    private void HandlePageChanged(FieldEventPageData page)
+    {
+        if (page == null)
+            return;
+
+        if (descriptionText != null)
+        {
+            string pageDescription = !string.IsNullOrWhiteSpace(page.Description) ? page.Description : GetCurrentEventDescription();
+
+            descriptionText.SetText(pageDescription);
+        }
+
+        if (choiceGroup != null)
+        {
+            choiceGroup.SetActive(true);
+        }
+
+        if (continueButton != null)
+        {
+            continueButton.gameObject.SetActive(false);
+        }
+
+        CreateChoiceButtons(page.Choices, page.DisplayType, page.MaximumVisibleChoices);
+
+        RefreshBackButton();
+    }
+
+    /// <summary>
+    /// 현재 이벤트의 기본 설명 문장을 반환한다.
+    /// </summary>
+    /// <returns>현재 이벤트 설명</returns>
+    private string GetCurrentEventDescription()
+    {
+        if (eventRunner == null || eventRunner.CurrentEvent == null)
+        {
+            return string.Empty;
+        }
+
+        return eventRunner.CurrentEvent.Description;
+    }
+
+    /// <summary>
+    /// 사용 가능한 선택지 중 최대 5개를 기존 버튼에 연결한다.
+    /// 선택지 번호는 원본 배열 번호를 그대로 유지한다.
+    /// </summary>
+    /// <param name="choices">페이지에 등록된 전체 선택지</param>
+    /// <param name="displayType">고정 또는 무작위 표시 방식</param>
+    /// <param name="maximumCount">최대 표시 개수</param>
+    private void CreateChoiceButtons(FieldEventChoice[] choices, FieldEventPageDisplayType displayType, int maximumCount)
     {
         ClearChoiceButtons();
 
-        if (choices == null)
+        if (choices == null || choiceButtons == null || eventRunner == null)
+        {
             return;
+        }
 
-        EnsurePoolSize(choices.Length);
+        CollectAvailableChoiceIndices(choices);
+
+        if (availableChoiceIndices.Count == 0)
+        {
+            Debug.LogWarning("UI_FieldEvent: 표시할 수 있는 선택지가 없습니다.");
+
+            return;
+        }
+
+        if (displayType == FieldEventPageDisplayType.Random)
+        {
+            ShuffleChoiceIndices();
+        }
+
+        int usableButtonCount = GetUsableButtonCount();
+
+        int displayCount = Mathf.Min(maximumCount, MaximumChoiceButtonCount, usableButtonCount, availableChoiceIndices.Count);
+
+        int displayedCount = 0;
+
+        foreach (UI_FieldEventChoiceButton button
+                 in choiceButtons)
+        {
+            if (displayedCount >= displayCount)
+                break;
+
+            if (button == null)
+                continue;
+
+            int originalChoiceIndex = availableChoiceIndices[displayedCount];
+
+            FieldEventChoice choice = choices[originalChoiceIndex];
+
+            displayedChoices[originalChoiceIndex] = choice;
+
+            button.SetChoice(originalChoiceIndex, choice, HandleChoiceButtonSelected);
+
+            displayedCount++;
+        }
+    }
+
+    /// <summary>
+    /// 현재 필드에서 사용할 수 있는 선택지의 원본 배열 번호를 수집한다.
+    /// 이미 사용한 1회용 선택지는 제외한다.
+    /// </summary>
+    /// <param name="choices">현재 페이지의 전체 선택지</param>
+    private void CollectAvailableChoiceIndices(FieldEventChoice[] choices)
+    {
+        availableChoiceIndices.Clear();
+
+        if (choices == null || eventRunner == null)
+        {
+            return;
+        }
 
         for (int i = 0; i < choices.Length; i++)
         {
             FieldEventChoice choice = choices[i];
 
-            if (choice == null)
+            if (!eventRunner.IsChoiceAvailable(choice))
                 continue;
 
-            displayedChoices[i] = choice;
-
-            choicePool[i].SetChoice(i, choice, HandleChoiceButtonSelected);
+            availableChoiceIndices.Add(i);
         }
     }
 
-    private void EnsurePoolSize(int count)
+    /// <summary>
+    /// 무작위 페이지의 선택지 표시 순서를 섞는다.
+    /// </summary>
+    private void ShuffleChoiceIndices()
     {
-        if (choiceTemplate == null || choiceCore == null)
+        for (int i = availableChoiceIndices.Count - 1; i > 0; i--)
         {
-            return;
-        }
+            int randomIndex = UnityEngine.Random.Range(0, i + 1);
 
-        while (choicePool.Count < count)
-        {
-            UI_FieldEventChoiceButton newButton = Instantiate(choiceTemplate, choiceCore);
+            int temporary = availableChoiceIndices[i];
 
-            newButton.name = $"EventChoice_{choicePool.Count}";
+            availableChoiceIndices[i] = availableChoiceIndices[randomIndex];
 
-            newButton.gameObject.SetActive(false);
-
-            choicePool.Add(newButton);
+            availableChoiceIndices[randomIndex] = temporary;
         }
     }
 
+    /// <summary>
+    /// 실제로 연결되어 있는 선택지 버튼 개수를 확인한다.
+    /// </summary>
+    /// <returns>사용 가능한 버튼 개수</returns>
+    private int GetUsableButtonCount()
+    {
+        if (choiceButtons == null)
+            return 0;
+
+        int count = 0;
+
+        foreach (UI_FieldEventChoiceButton button
+                 in choiceButtons)
+        {
+            if (button == null)
+                continue;
+
+            count++;
+        }
+
+        return count;
+    }
+
+    /// <summary>
+    /// 기존 선택지 버튼을 비활성화하고 표시 기록을 초기화한다.
+    /// </summary>
     private void ClearChoiceButtons()
     {
         displayedChoices.Clear();
 
-        foreach (UI_FieldEventChoiceButton button in choicePool)
+        availableChoiceIndices.Clear();
+
+        if (choiceButtons == null)
+            return;
+
+        foreach (UI_FieldEventChoiceButton button
+                 in choiceButtons)
         {
             if (button == null)
                 continue;
@@ -216,6 +426,11 @@ public class UI_FieldEvent : UIBase
         }
     }
 
+    /// <summary>
+    /// 선택지 버튼을 클릭하면 카드 요구 여부를 확인한 후
+    /// 페이지 이동 또는 실제 효과 실행을 요청한다.
+    /// </summary>
+    /// <param name="choiceIndex">원본 선택지 배열의 번호</param>
     private void HandleChoiceButtonSelected(int choiceIndex)
     {
         if (eventRunner == null)
@@ -223,7 +438,7 @@ public class UI_FieldEvent : UIBase
 
         if (!displayedChoices.TryGetValue(choiceIndex, out FieldEventChoice choice))
         {
-            Debug.LogWarning($"선택지 정보를 찾을 수 없습니다: {choiceIndex}");
+            Debug.LogWarning($"선택지 정보를 찾을 수 없습니다: " + $"{choiceIndex}");
 
             return;
         }
@@ -233,32 +448,46 @@ public class UI_FieldEvent : UIBase
         if (choice.RequiresCard)
         {
             pendingCardChoice = choice;
+
             pendingCardChoiceIndex = choiceIndex;
 
             OnCardSelectionRequested?.Invoke(choice);
+
             return;
         }
 
         eventRunner.SelectChoice(choiceIndex);
     }
 
+    /// <summary>
+    /// 실제 선택지 효과 적용 후
+    /// 기본 결과 문장과 추가 효과 결과를 함께 표시한다.
+    /// </summary>
+    /// <param name="eventData">실행된 이벤트</param>
+    /// <param name="choice">실행된 선택지</param>
     private void HandleChoiceSelected(FieldEventData eventData, FieldEventChoice choice)
     {
         ClearChoiceButtons();
 
-        string displayResult = choice != null ? choice.ResultText : string.Empty;
+        if (choiceGroup != null)
+        {
+            choiceGroup.SetActive(false);
+        }
+
+        if (backButton != null)
+        {
+            backButton.gameObject.SetActive(false);
+        }
+
+        string defaultResult = choice != null ? choice.ResultText : string.Empty;
 
         FieldEventContext context = eventRunner != null ? eventRunner.CurrentContext : null;
 
-        if (context != null && context.HasResultTextOverride)
-        {
-            displayResult = context.ResultTextOverride;
-        }
+        string displayResult = context != null ? context.BuildResultText(defaultResult) : defaultResult;
 
-        if (resultText != null)
+        if (descriptionText != null)
         {
-            resultText.SetText(displayResult);
-            resultText.gameObject.SetActive(true);
+            descriptionText.SetText(displayResult);
         }
 
         if (continueButton != null)
@@ -267,15 +496,47 @@ public class UI_FieldEvent : UIBase
         }
     }
 
+    /// <summary>
+    /// 선택 조건을 만족하지 못했을 때 실패 이유를 표시한다.
+    /// </summary>
+    /// <param name="message">선택 실패 안내 문장</param>
     private void HandleChoiceFailed(string message)
     {
-        if (resultText == null)
+        if (descriptionText == null)
             return;
 
-        resultText.SetText(message);
-        resultText.gameObject.SetActive(true);
+        descriptionText.SetText(message);
     }
 
+    /// <summary>
+    /// 이전 페이지로 돌아가기 버튼의 표시 여부를 갱신한다.
+    /// </summary>
+    private void RefreshBackButton()
+    {
+        if (backButton == null)
+            return;
+
+        bool canReturn = eventRunner != null && eventRunner.CanReturnToPreviousPage;
+
+        backButton.gameObject.SetActive(canReturn);
+    }
+
+    /// <summary>
+    /// 현재 하위 페이지에서 이전 페이지로 돌아간다.
+    /// </summary>
+    private void HandleBackButtonClicked()
+    {
+        if (eventRunner == null)
+            return;
+
+        CancelCardSelection();
+
+        eventRunner.TryReturnToPreviousPage();
+    }
+
+    /// <summary>
+    /// 결과 확인 버튼을 눌러 현재 이벤트를 종료한다.
+    /// </summary>
     private void HandleContinue()
     {
         if (eventRunner == null)
@@ -284,10 +545,26 @@ public class UI_FieldEvent : UIBase
         eventRunner.CompleteCurrentEvent();
     }
 
+    /// <summary>
+    /// 이벤트 종료 시 카드 대기 상태와 화면 표시를 초기화한다.
+    /// </summary>
     private void HandleEventClosed()
     {
         CancelCardSelection();
+
         ClearChoiceButtons();
+
+        Character = null;
+
+        if (backButton != null)
+        {
+            backButton.gameObject.SetActive(false);
+        }
+
+        if (continueButton != null)
+        {
+            continueButton.gameObject.SetActive(false);
+        }
 
         if (panel != null)
         {
@@ -295,16 +572,23 @@ public class UI_FieldEvent : UIBase
         }
     }
 
+    /// <summary>
+    /// 카드 선택과 판정 처리가 끝난 후
+    /// 대기 중이던 이벤트 선택지를 실행한다.
+    /// </summary>
+    /// <param name="card">실제로 사용한 카드</param>
+    /// <returns>대기 중인 선택지가 실행되었으면 true</returns>
     public bool SubmitSelectedCard(CardData card)
     {
-        if (pendingCardChoice == null || pendingCardChoiceIndex < 0)
+        if (pendingCardChoice == null || pendingCardChoiceIndex < 0 || eventRunner == null)
         {
             return false;
         }
 
         if (!pendingCardChoice.CanUseCard(card))
         {
-            Debug.Log("이 선택지에는 해당 카드를 사용할 수 없습니다.");
+            Debug.Log(
+                "이 선택지에는 해당 카드를 사용할 수 없습니다.");
 
             return false;
         }
@@ -312,18 +596,21 @@ public class UI_FieldEvent : UIBase
         int selectedChoiceIndex = pendingCardChoiceIndex;
 
         pendingCardChoice = null;
+
         pendingCardChoiceIndex = -1;
 
         eventRunner.SetSelectedCard(card);
-        eventRunner.SelectChoice(selectedChoiceIndex);
 
-        return true;
+        return eventRunner.SelectChoice(selectedChoiceIndex);
     }
 
-
+    /// <summary>
+    /// 선택지에서 요구한 카드 선택 대기 상태를 해제한다.
+    /// </summary>
     public void CancelCardSelection()
     {
         pendingCardChoice = null;
+
         pendingCardChoiceIndex = -1;
 
         if (eventRunner != null)
@@ -331,5 +618,4 @@ public class UI_FieldEvent : UIBase
             eventRunner.ClearSelectedCard();
         }
     }
-
 }

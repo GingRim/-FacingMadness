@@ -16,6 +16,12 @@ public class FieldManager : ManagerBase
     [SerializeField]
     private FieldEventSelectionController fieldEventSelectionController;
 
+    [Header("필드 턴")]
+    [SerializeField, Min(1)]
+    private int mythTurnInterval = 10;
+
+    public int MythTurnInterval => mythTurnInterval;
+
     private readonly List<CharacterBase> participants = new();
 
     private CharacterBase currentPlayer;
@@ -33,6 +39,10 @@ public class FieldManager : ManagerBase
 
     private readonly List<FieldNode> startingNodeCandidates = new();
     private readonly HashSet<CharacterBase> coreEventReservations = new();
+    /// <summary>
+    /// 다음 이벤트를 핵심 이벤트로 확정한 캐릭터 목록이다.
+    /// </summary>
+    private readonly HashSet<CharacterBase> forcedCoreEventReservations = new();
 
     public IReadOnlyList<FieldNode> StartingNodeCandidates => startingNodeCandidates;
 
@@ -41,11 +51,6 @@ public class FieldManager : ManagerBase
     private readonly Dictionary<string, int> missionProgress = new();
 
     public FieldMissionData CurrentMission => currentMission;
-
-    public event Action<string, int, int> OnMissionProgressChanged;
-
-    public event Action<FieldMissionData> OnMissionCleared;
-
     public GameObject CurrentFieldObject => currentFieldObject;
     public CharacterBase CurrentPlayer => currentPlayer;
     public FieldNode CurrentNode => currentNode;
@@ -56,7 +61,6 @@ public class FieldManager : ManagerBase
 
     public bool IsSelectingStartingNode => isSelectingStartingNode;
 
-    public event Action<FieldNode> OnStartingNodeConfirmed;
 
     public IReadOnlyList<CharacterBase> Participants => participants;
 
@@ -67,20 +71,17 @@ public class FieldManager : ManagerBase
     public FieldTurnState TurnState { get; private set; } = FieldTurnState.Inactive;
 
     public event Action<CharacterBase> OnCurrentPlayerChanged;
-
     public event Action<FieldNode> OnNodeChanged;
-
     public event Action<FieldLine, FieldNode> OnRedLineEventRequested;
-
     public event Action<int> OnMythTurnRequested;
-
     public event Action OnFieldGameOver;
-
     public event Action<MissionFieldRoot> OnMissionFieldLoaded;
-
     public event Action<IReadOnlyList<FieldNode>> OnStartingNodeSelectionRequested;
-
     public event Action OnMadnessEntered;
+    public event Action<string, int, int> OnMissionProgressChanged;
+    public event Action<FieldMissionData> OnMissionCleared;
+    public event Action<FieldNode> OnStartingNodeConfirmed;
+    public event Action<CharacterBase, int> OnFieldTurnStarted;
 
     protected override IEnumerator OnConnected(GameManager newManager)
     {
@@ -175,8 +176,8 @@ public class FieldManager : ManagerBase
 
         StartFieldTurn();
 
-        // 시작 노드 이벤트 후보 공개
-        if (!TryOpenNodeEvent(startingNode))
+        // 필드 초기화 직후이므로 시작 노드는 최초 방문으로 처리한다.
+        if (!TryOpenNodeEvent(startingNode, true))
         {
             CompleteFieldAction();
         }
@@ -203,6 +204,7 @@ public class FieldManager : ManagerBase
 
         eventRunner?.ResetCompletedEvents();
         coreEventReservations.Clear();
+        forcedCoreEventReservations.Clear();
         IsFieldActive = false;
         TurnState = FieldTurnState.Inactive;
     }
@@ -232,6 +234,9 @@ public class FieldManager : ManagerBase
         TurnState = FieldTurnState.PlayerAction;
 
         Debug.Log($"필드 턴 시작: {currentPlayer.DisplayName}");
+
+        OnFieldTurnStarted?.Invoke(currentPlayer, totalFieldTurn);
+
     }
 
     private void SetCurrentPlayer(CharacterBase player)
@@ -591,6 +596,20 @@ public class FieldManager : ManagerBase
         return actionPoint.TryUse(amount);
     }
 
+    /// <summary>
+    /// 일반 필드 카드 사용이 완전히 끝난 뒤 호출
+    /// </summary>
+    public void CompleteCardAction()
+    {
+        if (!IsFieldActive)
+            return;
+
+        if (TurnState != FieldTurnState.PlayerAction)
+            return;
+
+        CompleteFieldAction();
+    }
+
     private void CompleteFieldAction()
     {
         if (!IsFieldActive || currentPlayer == null)
@@ -759,6 +778,7 @@ public class FieldManager : ManagerBase
         isSelectingStartingNode = false;
 
         coreEventReservations.Clear();
+        forcedCoreEventReservations.Clear();
         missionProgress.Clear();
 
         ReleaseCurrentFieldObject();
@@ -1038,20 +1058,63 @@ public class FieldManager : ManagerBase
         return coreEventReservations.Remove(character);
     }
 
-    public bool TryOpenNodeEvent(FieldNode node)
+    /// <summary>
+    /// 다음 이벤트가 핵심 이벤트로 예약되어 있다면 우선 실행한다.
+    /// 예약이 없다면 최초 방문 이벤트, 재방문 이벤트,
+    /// 공통 이벤트 순서로 처리한다.
+    /// </summary>
+    /// <param name="node">이벤트가 발생할 노드</param>
+    /// <param name="isFirstVisit">최초 방문 여부</param>
+    /// <returns>이벤트를 정상적으로 열었으면 true</returns>
+    public bool TryOpenNodeEvent(FieldNode node, bool isFirstVisit = false)
     {
         if (!IsFieldActive)
             return false;
 
-        if (node == null || CurrentPlayer == null)
+        if (node == null || currentPlayer == null)
+        {
             return false;
+        }
 
         if (TurnState == FieldTurnState.Event)
             return false;
 
+        // 핵심 이벤트 확정 예약이 있다면
+        // 최초 방문 이벤트보다 먼저 실행한다.
+        if (TryOpenForcedCoreEvent(node))
+        {
+            return true;
+        }
+
+        FieldEventData nodeEvent;
+
+        if (isFirstVisit)
+        {
+            nodeEvent = node.FirstVisitEvent;
+        }
+        else
+        {
+            nodeEvent = node.GetRandomRepeatEvent();
+        }
+
+        if (nodeEvent != null)
+        {
+            if (OpenFieldEvent(nodeEvent, node))
+            {
+                Debug.Log(
+                    $"노드 이벤트 실행: " +
+                    $"{node.DisplayName} / " +
+                    $"{nodeEvent.EventName}");
+
+                return true;
+            }
+        }
+
         if (fieldEventSelectionController == null)
         {
-            Debug.LogWarning("FieldManager: FieldEventSelectionController가 없습니다.");
+            Debug.LogWarning(
+                "FieldManager: " +
+                "FieldEventSelectionController가 없습니다.");
 
             return false;
         }
@@ -1068,7 +1131,9 @@ public class FieldManager : ManagerBase
 
         TurnState = FieldTurnState.Event;
 
-        Debug.Log($"노드 이벤트 후보 공개: {node.DisplayName}");
+        Debug.Log(
+            $"노드 이벤트 후보 공개: " +
+            $"{node.DisplayName}");
 
         return true;
     }
@@ -1256,6 +1321,119 @@ public class FieldManager : ManagerBase
 
         currentFieldObject = null;
         currentFieldRoot = null;
+    }
+
+    /// <summary>
+    /// 지정한 캐릭터의 다음 이벤트가
+    /// 핵심 이벤트로 실행되도록 예약한다.
+    /// </summary>
+    /// <param name="character">핵심 이벤트를 예약할 캐릭터</param>
+    public void ReserveCoreEventForNextEvent(CharacterBase character)
+    {
+        if (character == null)
+            return;
+
+        forcedCoreEventReservations.Add(character);
+
+        Debug.Log(
+            $"{character.name}: 다음 이벤트를 핵심 이벤트로 예약");
+    }
+
+    /// <summary>
+    /// 지정한 캐릭터에게 핵심 이벤트 확정 예약이 있는지 확인한다.
+    /// </summary>
+    /// <param name="character">확인할 캐릭터</param>
+    /// <returns>다음 이벤트가 핵심 이벤트로 예약되어 있으면 true</returns>
+    public bool HasForcedCoreEventReservation(CharacterBase character)
+    {
+        if (character == null)
+            return false;
+
+        return forcedCoreEventReservations.Contains(character);
+    }
+
+    /// <summary>
+    /// 현재 필드 이벤트 목록에서 실행 가능한 핵심 이벤트를 찾아
+    /// 일반 노드 이벤트보다 먼저 실행한다.
+    /// </summary>
+    /// <param name="node">이벤트를 실행할 현재 노드</param>
+    /// <returns>핵심 이벤트를 실행했으면 true</returns>
+    private bool TryOpenForcedCoreEvent(FieldNode node)
+    {
+        if (node == null || currentPlayer == null || currentFieldRoot == null)
+        {
+            return false;
+        }
+
+        if (!forcedCoreEventReservations.Contains(currentPlayer))
+        {
+            return false;
+        }
+
+        IReadOnlyList<FieldEventData> eventPool = currentFieldRoot.EventPool;
+
+        if (eventPool == null || eventPool.Count == 0)
+        {
+            Debug.LogWarning(
+                "핵심 이벤트 확정 실패: 필드 이벤트 목록이 비어 있습니다.");
+
+            return false;
+        }
+
+        List<FieldEventData> coreEvents = new List<FieldEventData>();
+
+        foreach (FieldEventData eventData in eventPool)
+        {
+            if (eventData == null)
+                continue;
+
+            if (eventData.EventType != FieldEventType.Core)
+                continue;
+
+            if (coreEvents.Contains(eventData))
+                continue;
+
+            coreEvents.Add(eventData);
+        }
+
+        if (coreEvents.Count == 0)
+        {
+            Debug.LogWarning(
+                "핵심 이벤트 확정 실패: " +
+                "Event Pool에 Core 이벤트가 없습니다.");
+
+            return false;
+        }
+
+        while (coreEvents.Count > 0)
+        {
+            int randomIndex =
+                UnityEngine.Random.Range(0, coreEvents.Count);
+
+            FieldEventData selectedEvent = coreEvents[randomIndex];
+
+            coreEvents.RemoveAt(randomIndex);
+
+            if (!OpenFieldEvent(selectedEvent, node))
+            {
+                continue;
+            }
+
+            // 실제로 핵심 이벤트가 열렸을 때만 예약을 소비한다.
+            forcedCoreEventReservations.Remove(currentPlayer);
+
+            Debug.Log(
+                $"핵심 이벤트 확정 실행: " +
+                $"{selectedEvent.EventName}");
+
+            return true;
+        }
+
+        Debug.LogWarning(
+            "핵심 이벤트 확정 실패: " +
+            "현재 실행할 수 있는 Core 이벤트가 없습니다.");
+
+        return false;
     }
 
 }
