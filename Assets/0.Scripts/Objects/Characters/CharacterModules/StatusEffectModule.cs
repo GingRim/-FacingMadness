@@ -282,19 +282,28 @@ public class StatusEffectModule : CharacterModule
         }
     }
 
-
+    /// <summary>
+    /// 축복과 저주를 적용하여 판정 주사위를 굴린다.
+    /// 축복은 두 주사위 중 높은 값을 사용하고,
+    /// 저주는 두 주사위 중 낮은 값을 사용한다.
+    /// </summary>
+    /// <returns>최종적으로 선택된 1D10 결과.</returns>
     public int RollJudgeDice()
     {
         bool hasBlessing = HasStatus(StatusEffectType.Blessing);
+
         bool hasCurse = HasStatus(StatusEffectType.Curse);
 
         if (hasBlessing)
         {
             int first = Dice.RollD10();
             int second = Dice.RollD10();
-            int result = Mathf.Min(first, second);
 
-            Debug.Log($"축복 판정: {first}, {second} 중 높은 값 {result}");
+            int result = Mathf.Max(first, second);
+
+            Debug.Log(
+                $"축복 판정: {first}, {second} 중 " +
+                $"높은 값 {result}");
 
             return result;
         }
@@ -303,17 +312,18 @@ public class StatusEffectModule : CharacterModule
         {
             int first = Dice.RollD10();
             int second = Dice.RollD10();
-            int result = Mathf.Max(first, second);
 
-            Debug.Log($"저주 판정: {first}, {second} 중 낮은 값 {result}");
+            int result = Mathf.Min(first, second);
+
+            Debug.Log($"저주 판정: {first}, {second} 중 " + $"낮은 값 {result}");
 
             return result;
         }
 
         return Dice.RollD10();
     }
-   
-    
+
+
     /// <summary>
     /// 의욕 및 무기력
     /// </summary>

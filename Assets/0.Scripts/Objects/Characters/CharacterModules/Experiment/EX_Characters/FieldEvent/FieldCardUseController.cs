@@ -7,6 +7,10 @@ public class FieldCardUseController : MonoBehaviour
     [SerializeField]
     private FieldManager fieldManager;
 
+    [Header("이벤트 판정 대체 카드")]
+    [SerializeField]
+    private CardData colorlessReplacementCard;
+
     [SerializeField]
     private FieldEventRunner eventRunner;
 
@@ -25,6 +29,10 @@ public class FieldCardUseController : MonoBehaviour
     [SerializeField]
     private UI_FieldScreen fieldScreen;
 
+    [Header("필드 카드 사용 공간")]
+    [SerializeField]
+    private UI_FieldCardUseDropTarget fieldCardUseArea;
+
     private bool isProcessingCard;
 
     public event Action<CharacterBase> OnFieldCardResolved;
@@ -34,7 +42,6 @@ public class FieldCardUseController : MonoBehaviour
     private DeckModule pendingDeck;
     private FieldEventContext pendingContext;
 
-    private bool pendingFromEventSelection;
 
     private void OnEnable()
     {
@@ -85,22 +92,76 @@ public class FieldCardUseController : MonoBehaviour
             return;
         }
 
-        CharacterBase user = fieldManager.CurrentPlayer;
-
-        FieldEventContext context = eventRunner.CurrentContext;
-
-        if (user == null || context == null)
+        if (!eventRunner.IsWaitingStatCheck || eventRunner.PendingStatChoice != choice)
         {
-            Debug.LogWarning("필드 카드 사용자 또는 이벤트 Context가 없습니다.");
+            Debug.LogWarning("현재 처리할 능력치 판정이 없습니다.");
 
             return;
         }
 
-        TryProcessFieldCard(card, user, context, choice.CardRequirement, true);
+        if (!choice.CanUseCard(card))
+        {
+            Debug.Log("이 능력치 판정에 대응하지 않는 카드입니다.");
+
+            return;
+        }
+
+        if (colorlessReplacementCard == null)
+        {
+            Debug.LogWarning("무색 대체 카드가 연결되지 않았습니다.");
+
+            return;
+        }
+
+        CharacterBase user = fieldManager.CurrentPlayer;
+
+        if (user == null)
+            return;
+
+        DeckModule deck = user.GetModule<DeckModule>();
+
+        if (deck == null)
+        {
+            Debug.LogWarning($"{user.name}: DeckModule이 없습니다.");
+
+            return;
+        }
+
+        isProcessingCard = true;
+
+        bool replaced = deck.ReplaceEventCardWithColorless(card, colorlessReplacementCard);
+
+        // 이벤트 판정 자동 성공
+        eventRunner.CompletePendingStatCheckByCard(card);
+
+        if (!replaced)
+        {
+            isProcessingCard = false;
+            return;
+        }
+
+        if (handUI != null)
+        {
+            handUI.RefreshFromDeck(deck);
+        }
+
+        isProcessingCard = false;
+
+        OnFieldCardResolved?.Invoke(user);
     }
 
-    private FieldCardCheckData RollFieldCardCheck(CharacterBase user, CardData card, FieldCardRequirement requirement)
+    /// <summary>
+    /// 필드에서 직접 사용한 카드의 판정을 실행합니다.
+    /// 색상 카드는 공용 판정기를 사용하고,
+    /// 무색 카드는 능력치와 상태 보정 없이 판정합니다.
+    /// </summary>
+    private FieldCardCheckData RollFieldCardCheck(CharacterBase user, CardData card)
     {
+        if (user == null || card == null)
+        {
+            return CreateFailedCheck(card);
+        }
+
         StatModules stat = user.GetModule<StatModules>();
 
         if (stat == null)
@@ -108,7 +169,7 @@ public class FieldCardUseController : MonoBehaviour
             return CreateFailedCheck(card);
         }
 
-        StatType statType = ResolveCheckStat(user, card, requirement);
+        StatType statType = ResolveFieldCheckStat(user, card);
 
         if (statType == StatType.None)
         {
@@ -117,71 +178,68 @@ public class FieldCardUseController : MonoBehaviour
 
         int statValue = stat.GetStat(statType);
 
-        // 이벤트 밖에서 직접 사용하는 무색 카드인지 확인
-        bool isDirectColorless = card.color == CardColorType.Colorless && requirement == null;
+        JudgeResult judgeResult;
 
-        int dice;
-        int abilityModifier = 0;
-        int statusModifier = 0;
-
-        StatusEffectModule status = user.GetModule<StatusEffectModule>();
-
-        if (isDirectColorless)
+        if (card.color == CardColorType.Colorless)
         {
             // 무색 카드 직접 사용:
-            // 지정 능력치 판정, 모든 보정 미적용
-            dice = Dice.RollD10();
+            // 능력치 및 상태 보정 없이 주사위만 사용
+            int dice = Dice.RollD10();
+
+            judgeResult = new JudgeResult(dice, 0, 0, card.FieldCheckTarget);
         }
         else
         {
-            abilityModifier = stat.GetModifier(statType);
-
-            if (status != null)
-            {
-                dice = status.RollJudgeDice();
-
-                statusModifier = status.GetJudgeBonus();
-            }
-            else
-            {
-                dice = Dice.RollD10();
-            }
+            judgeResult = JudgeUtility.Roll(user, statType, card.FieldCheckTarget);
         }
 
-        int judgmentValue = Mathf.Max(0, dice + abilityModifier + statusModifier);
+        FieldCardCheckResult checkResult;
 
-        FieldCardCheckResult result;
-
-        // 펌블은 주사위 단독이 아니라
-        // 모든 보정이 적용된 최종 판정값 기준
-        if (judgmentValue <= 1)
+        if (!judgeResult.valid)
         {
-            result = FieldCardCheckResult.Fumble;
+            checkResult = FieldCardCheckResult.Failure;
         }
-        else if (dice <= statValue)
+        else if (judgeResult.fumble)
         {
-            result = FieldCardCheckResult.Success;
+            checkResult = FieldCardCheckResult.Fumble;
+        }
+        else if (judgeResult.success)
+        {
+            checkResult = FieldCardCheckResult.Success;
         }
         else
         {
-            result = FieldCardCheckResult.Failure;
+            checkResult = FieldCardCheckResult.Failure;
         }
 
-        // 직접 사용한 무색 카드는
-        // 축복·저주 등의 판정 상태를 소비하지 않음
-        if (!isDirectColorless && status != null)
-        {
-            status.ConsumeJudgeStatus();
-        }
-
-        Debug.Log($"필드 판정: {card.cardName} / " + $"능력치:{statType}({statValue}) / " + $"주사위:{dice} + " +
-            $"능력 보정:{abilityModifier} + " + $"상태 보정:{statusModifier} " + $"= {judgmentValue} / 결과:{result}"
+        Debug.Log(
+            $"필드 카드 판정: {card.cardName} / " +
+            $"능력치:{statType}({statValue}) / " +
+            $"주사위:{judgeResult.dice} + " +
+            $"능력 보정:{judgeResult.statModifier} + " +
+            $"상태 보정:{judgeResult.statusModifier} " +
+            $"= {judgeResult.total} / " +
+            $"목표:{judgeResult.target} / " +
+            $"결과:{checkResult}"
         );
 
-        return new FieldCardCheckData(card, statType, dice, statValue, abilityModifier, statusModifier, judgmentValue, result);
+        return new FieldCardCheckData(
+            card,
+            statType,
+            judgeResult.dice,
+            statValue,
+            judgeResult.statModifier,
+            judgeResult.statusModifier,
+            judgeResult.total,
+            judgeResult.target,
+            checkResult);
     }
-
-    private StatType ResolveCheckStat(CardData card, FieldCardRequirement requirement)
+    
+    /// <summary>
+    /// 카드 색상에 대응하는 필드 판정 능력치를 반환합니다.
+    /// 무색 카드는 캐릭터의 지정 능력치를 사용합니다.
+    /// </summary>
+    private StatType ResolveFieldCheckStat(CharacterBase user, CardData card)
     {
         if (card == null)
             return StatType.None;
@@ -204,14 +262,12 @@ public class FieldCardUseController : MonoBehaviour
                 return StatType.Will;
 
             case CardColorType.Colorless:
-                return requirement != null
-                    ? requirement.CheckStat
-                    : StatType.None;
+                StatModules stat = user?.GetModule<StatModules>();
+
+                return stat != null ? stat.DesignatedStatType : StatType.None;
 
             default:
-                return requirement != null
-                    ? requirement.CheckStat
-                    : StatType.None;
+                return StatType.None;
         }
     }
 
@@ -243,10 +299,10 @@ public class FieldCardUseController : MonoBehaviour
 
         FieldEventContext context = new FieldEventContext(user, currentNode, fieldManager);
 
-        TryProcessFieldCard(card, user, context, null, false);
+        TryProcessFieldCard(card, user, context);
     }
 
-    private bool TryProcessFieldCard(CardData card, CharacterBase user, FieldEventContext context, FieldCardRequirement requirement, bool fromEventSelection)
+    private bool TryProcessFieldCard(CardData card, CharacterBase user, FieldEventContext context)
     {
         DeckModule deck = user.GetModule<DeckModule>();
 
@@ -274,9 +330,14 @@ public class FieldCardUseController : MonoBehaviour
 
         isProcessingCard = true;
 
-        FieldCardCheckData checkData = RollFieldCardCheck(user, card, requirement);
+        FieldCardCheckData checkData = RollFieldCardCheck(user, card);
 
         context.SetCardCheck(checkData);
+
+        if (fieldCardUseArea != null)
+        {
+            fieldCardUseArea.ShowResult(checkData);
+        }
 
         CardResolver resolver = new CardResolver();
 
@@ -302,10 +363,10 @@ public class FieldCardUseController : MonoBehaviour
 
         if (context.HasRemovedCardRecoveryRequest)
         {
-            return BeginRemovedCardSelection(card, user, deck, context, fromEventSelection);
+            return BeginRemovedCardSelection(card, user, deck, context);
         }
 
-        CompleteCardUse(card, user, fromEventSelection);
+        CompleteCardUse(card, user);
 
         return true;
     }
@@ -321,7 +382,7 @@ public class FieldCardUseController : MonoBehaviour
         return false;
     }
 
-    private bool BeginRemovedCardSelection(CardData usedCard, CharacterBase user, DeckModule deck, FieldEventContext context, bool fromEventSelection)
+    private bool BeginRemovedCardSelection(CardData usedCard, CharacterBase user, DeckModule deck, FieldEventContext context)
     {
         if (removedCardSelectUI == null)
         {
@@ -329,7 +390,7 @@ public class FieldCardUseController : MonoBehaviour
 
             context.ClearRemovedCardRecoveryRequest();
 
-            CompleteCardUse(usedCard, user, fromEventSelection);
+            CompleteCardUse(usedCard, user);
 
             return true;
         }
@@ -338,7 +399,7 @@ public class FieldCardUseController : MonoBehaviour
         pendingUser = user;
         pendingDeck = deck;
         pendingContext = context;
-        pendingFromEventSelection = fromEventSelection;
+
 
         bool opened = removedCardSelectUI.Open(context.RemovedCardRecoveryCandidates, HandleRemovedCardSelected);
 
@@ -348,7 +409,7 @@ public class FieldCardUseController : MonoBehaviour
         ClearPendingRecovery();
         context.ClearRemovedCardRecoveryRequest();
 
-        CompleteCardUse(usedCard, user, fromEventSelection);
+        CompleteCardUse(usedCard, user);
 
         return true;
     }
@@ -362,8 +423,6 @@ public class FieldCardUseController : MonoBehaviour
         DeckModule deck = pendingDeck;
 
         FieldEventContext context = pendingContext;
-
-        bool fromEventSelection = pendingFromEventSelection;
 
         ClearPendingRecovery();
 
@@ -386,7 +445,7 @@ public class FieldCardUseController : MonoBehaviour
             context.ClearRemovedCardRecoveryRequest();
         }
 
-        CompleteCardUse(usedCard, user, fromEventSelection);
+        CompleteCardUse(usedCard, user);
     }
 
     private void ClearPendingRecovery()
@@ -395,10 +454,9 @@ public class FieldCardUseController : MonoBehaviour
         pendingUser = null;
         pendingDeck = null;
         pendingContext = null;
-        pendingFromEventSelection = false;
     }
 
-    private void CompleteCardUse(CardData usedCard, CharacterBase user, bool fromEventSelection)
+    private void CompleteCardUse(CardData usedCard, CharacterBase user)
     {
         isProcessingCard = false;
 
@@ -421,21 +479,12 @@ public class FieldCardUseController : MonoBehaviour
             OnFieldCardResolved?.Invoke(user);
         }
 
-        if (fromEventSelection)
-        {
-            if (usedCard != null && cardSelector != null)
-            {
-                cardSelector.CompleteSelection(usedCard);
-            }
-
-            return;
-        }
-
         if (fieldManager != null)
         {
             fieldManager.CompleteCardAction();
         }
     }
+
     private StatType ResolveCheckStat(CharacterBase user, CardData card, FieldCardRequirement requirement)
     {
         if (card == null)
@@ -477,6 +526,9 @@ public class FieldCardUseController : MonoBehaviour
 
     private FieldCardCheckData CreateFailedCheck(CardData card)
     {
-        return new FieldCardCheckData(card, StatType.None, 0, 0, 0, 0, 0, FieldCardCheckResult.Failure);
+        int target = card != null ? card.FieldCheckTarget : 0;
+
+        return new FieldCardCheckData(card, StatType.None, 0, 0, 0, 0, 0, target, FieldCardCheckResult.Failure);
     }
+
 }

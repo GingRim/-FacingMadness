@@ -28,6 +28,10 @@ public class UI_FieldScreen : UI_ScreenBase
     [SerializeField]
     private TextMeshProUGUI fieldTurnText;
 
+    [Header("필드 카드 사용 공간")]
+    [SerializeField]
+    private UI_FieldCardUseDropTarget fieldCardUseArea;
+
     [SerializeField]
     private TextMeshProUGUI mythTurnText;
 
@@ -41,13 +45,6 @@ public class UI_FieldScreen : UI_ScreenBase
     {
         RegisterFieldManager();
 
-        if (handUI != null)
-        {
-            handUI.OnCardSelected -= HandleCardSelected;
-
-            handUI.OnCardSelected += HandleCardSelected;
-        }
-
         if (fieldManager != null && fieldManager.CurrentPlayer != null)
         {
             BindPlayer(fieldManager.CurrentPlayer);
@@ -58,11 +55,6 @@ public class UI_FieldScreen : UI_ScreenBase
 
     private void OnDisable()
     {
-        if (handUI != null)
-        {
-            handUI.OnCardSelected -= HandleCardSelected;
-        }
-
         UnregisterFieldManager();
         UnbindPlayer();
     }
@@ -90,6 +82,11 @@ public class UI_FieldScreen : UI_ScreenBase
         BindPlayer(player);
 
         RefreshTurnTexts(completedTurnCount);
+
+        if (fieldCardUseArea != null)
+        {
+            fieldCardUseArea.ResetDisplay();
+        }
     }
 
     private void BindPlayer(CharacterBase player)
@@ -195,34 +192,45 @@ public class UI_FieldScreen : UI_ScreenBase
         }
     }
 
-    private void HandleCardSelected(CardData selectedCard)
+    /// <summary>
+    /// 필드 카드 사용 영역에 놓인 손패 카드를
+    /// FieldCardUseController에 전달합니다.
+    /// </summary>
+    public bool TryUseDroppedCard(CardData selectedCard)
     {
         if (selectedCard == null)
-            return;
+            return false;
 
         if (fieldManager == null || !fieldManager.IsFieldActive)
         {
-            return;
+            return false;
         }
 
         if (fieldManager.TurnState != FieldTurnState.PlayerAction)
         {
-            return;
+            Debug.Log("현재는 필드 카드를 사용할 수 없습니다.");
+
+            return false;
         }
 
         if (boundPlayer == null || boundPlayer != fieldManager.CurrentPlayer)
         {
-            return;
+            return false;
         }
 
         DeckModule deck = boundPlayer.GetModule<DeckModule>();
 
-        if (deck == null || !ContainsCard(deck, selectedCard))
+        if (deck == null ||
+            !ContainsCard(deck, selectedCard))
         {
-            return;
+            Debug.LogWarning($"{selectedCard.cardName}: 손패에 없는 카드입니다.");
+
+            return false;
         }
 
         OnFieldCardSelected?.Invoke(selectedCard, boundPlayer);
+
+        return true;
     }
 
     private bool ContainsCard(DeckModule deck, CardData card)

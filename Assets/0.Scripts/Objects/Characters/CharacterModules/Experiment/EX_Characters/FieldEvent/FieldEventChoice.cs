@@ -34,12 +34,15 @@ public class FieldEventChoice
 
     [Header("실행 방식")]
     [SerializeField]
-    private FieldChoiceExecutionType executionType =
-        FieldChoiceExecutionType.Direct;
+    private FieldChoiceExecutionType executionType = FieldChoiceExecutionType.Direct;
 
     [Header("판정에 사용할 능력치")]
     [SerializeField]
     private StatType requiredStat = StatType.None;
+
+    [Header("판정 목표치")]
+    [SerializeField, Min(2)]
+    private int target = 5;
 
     [Header("추가 조건")]
     [SerializeField]
@@ -109,6 +112,11 @@ public class FieldEventChoice
     public FieldChoiceResultData FailureResult => failureResult;
 
     /// <summary>
+    /// 능력치 판정이 성공하기 위해 필요한 목표치.
+    /// </summary>
+    public int Target => target;
+
+    /// <summary>
     /// 다음 페이지로 이동하는 선택지인지 확인한다.
     /// </summary>
     public bool IsNavigation => actionType == FieldChoiceActionType.Navigate;
@@ -122,6 +130,23 @@ public class FieldEventChoice
     /// 선택지 실행 시 능력치 판정이 필요한지 확인한다.
     /// </summary>
     public bool RequiresStatCheck => executionType == FieldChoiceExecutionType.StatCheck;
+
+    /// <summary>
+    /// 선택지의 능력치 판정 설정이 정상인지 확인한다.
+    /// 일반 실행 선택지는 항상 정상으로 처리한다.
+    /// </summary>
+    public bool HasValidCheckSetting
+    {
+        get
+        {
+            if (!RequiresStatCheck)
+                return true;
+
+            return
+                requiredStat != StatType.None &&
+                target >= 2;
+        }
+    }
 
     /// <summary>
     /// 기존 UI가 결과 설명을 참조할 수 있도록
@@ -142,15 +167,17 @@ public class FieldEventChoice
     public bool RequiresCard => false;
 
     /// <summary>
-    /// 선택지에 연결된 추가 조건을 모두 만족하는지 확인한다.
-    /// 아이템이 없더라도 선택지는 표시할 수 있으며,
-    /// 실제 선택하는 시점에 이 함수를 사용하여 조건을 검사한다.
+    /// 선택지의 판정 설정과 추가 조건을 모두 만족하는지 확인한다.
+    /// 조건을 만족하지 못해도 선택지는 화면에 표시할 수 있다.
     /// </summary>
-    /// <param name="context">현재 이벤트의 실행 정보.</param>
-    /// <returns>모든 조건을 만족하면 true.</returns>
+    /// <param name="context">현재 이벤트 실행 정보.</param>
+    /// <returns>선택지를 실행할 수 있으면 true.</returns>
     public bool CanSelect(FieldEventContext context)
     {
         if (context == null)
+            return false;
+
+        if (!HasValidCheckSetting)
             return false;
 
         if (conditions == null)
@@ -175,6 +202,12 @@ public class FieldEventChoice
     /// <returns>실패한 조건의 안내 문구.</returns>
     public string GetFailMessage(FieldEventContext context)
     {
+
+        if (!HasValidCheckSetting)
+        {
+            return "능력치 판정 설정이 올바르지 않습니다.";
+        }
+
         if (conditions == null)
             return string.Empty;
 
@@ -282,4 +315,18 @@ public class FieldEventChoice
                 return CardColorType.None;
         }
     }
+
+    /// <summary>
+    /// 판정 성공 여부에 맞는 결과 설명을 반환합니다.
+    /// </summary>
+    public string GetResultText(bool success)
+    {
+        FieldChoiceResultData resultData = success ? successResult : failureResult;
+
+        if (resultData == null)
+            return string.Empty;
+
+        return resultData.Description;
+    }
+
 }

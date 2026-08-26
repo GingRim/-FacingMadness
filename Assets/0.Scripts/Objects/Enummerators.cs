@@ -304,3 +304,28 @@ public enum FieldChoiceExecutionType
     /// </summary>
     StatCheck
 }
+
+/// <summary>
+/// 카드에 부여할 수 있는 키워드 종류입니다.
+/// 키워드는 이벤트 선택 조건, 판정 보조 및 내구도 소비에 사용됩니다.
+/// </summary>
+public enum CardKeywordType
+{
+    None,
+
+    Light,     // 광원
+    Unignited, // 비점화
+    Ignition,  // 점화
+
+    Blade,     // 날붙이
+    Blunt,     // 둔기
+    Tool,      // 도구
+    Medicine,  // 약품
+    HolyRelic, // 성물
+    Binding,   // 결박
+    
+    Key,       // 열쇠
+    Record,    // 기록
+
+    _Length
+}

@@ -52,24 +52,10 @@ public class UI_FieldEvent : UIBase
 
     private readonly List<int> availableChoiceIndices = new();
 
-    private FieldEventChoice pendingCardChoice;
-
-    private int pendingCardChoiceIndex = -1;
-
     /// <summary>
     /// 현재 이벤트를 진행하는 캐릭터다.
     /// </summary>
     public CharacterBase Character { get; private set; }
-
-    /// <summary>
-    /// 현재 선택지에 사용할 카드를 기다리는 상태인지 반환한다.
-    /// </summary>
-    public bool IsWaitingCardSelection => pendingCardChoice != null;
-
-    /// <summary>
-    /// 카드가 필요한 선택지를 눌렀을 때 발생한다.
-    /// </summary>
-    public event Action<FieldEventChoice> OnCardSelectionRequested;
 
     /// <summary>
     /// 이벤트 실행기와 버튼을 연결하고 화면을 초기화한다.
@@ -443,51 +429,47 @@ public class UI_FieldEvent : UIBase
             return;
         }
 
-        eventRunner.ClearSelectedCard();
-
-        if (choice.RequiresCard)
-        {
-            pendingCardChoice = choice;
-
-            pendingCardChoiceIndex = choiceIndex;
-
-            OnCardSelectionRequested?.Invoke(choice);
-
-            return;
-        }
-
         eventRunner.SelectChoice(choiceIndex);
     }
 
     /// <summary>
-    /// 실제 선택지 효과 적용 후
-    /// 기본 결과 문장과 추가 효과 결과를 함께 표시한다.
+    /// 선택지의 판정 방식과 성공 여부에 맞는 결과를 표시합니다.
     /// </summary>
-    /// <param name="eventData">실행된 이벤트</param>
-    /// <param name="choice">실행된 선택지</param>
     private void HandleChoiceSelected(FieldEventData eventData, FieldEventChoice choice)
     {
         ClearChoiceButtons();
 
-        if (choiceGroup != null)
-        {
-            choiceGroup.SetActive(false);
-        }
+        string resultDescription = choice != null ? choice.GetResultText(eventRunner.LastChoiceSucceeded) : string.Empty;
 
-        if (backButton != null)
-        {
-            backButton.gameObject.SetActive(false);
-        }
-
-        string defaultResult = choice != null ? choice.ResultText : string.Empty;
+        string checkDescription = CreateCheckResultText();
 
         FieldEventContext context = eventRunner != null ? eventRunner.CurrentContext : null;
 
-        string displayResult = context != null ? context.BuildResultText(defaultResult) : defaultResult;
+        // 효과가 별도의 결과 문장을 설정했다면 우선 사용
+        if (context != null && context.HasResultTextOverride)
+        {
+            resultDescription = context.ResultTextOverride;
+        }
+
+        string displayText;
+
+        if (string.IsNullOrEmpty(checkDescription))
+        {
+            displayText = resultDescription;
+        }
+        else if (string.IsNullOrEmpty(resultDescription))
+        {
+            displayText = checkDescription;
+        }
+        else
+        {
+            displayText = $"{checkDescription}\n\n{resultDescription}";
+        }
 
         if (descriptionText != null)
         {
-            descriptionText.SetText(displayResult);
+            descriptionText.SetText(displayText);
+            descriptionText.gameObject.SetActive(true);
         }
 
         if (continueButton != null)
@@ -497,15 +479,16 @@ public class UI_FieldEvent : UIBase
     }
 
     /// <summary>
-    /// 선택 조건을 만족하지 못했을 때 실패 이유를 표시한다.
+    /// 선택지 조건을 만족하지 못했을 때
+    /// 이벤트 설명 공간에 실패 원인을 표시합니다.
     /// </summary>
-    /// <param name="message">선택 실패 안내 문장</param>
     private void HandleChoiceFailed(string message)
     {
         if (descriptionText == null)
             return;
 
         descriptionText.SetText(message);
+        descriptionText.gameObject.SetActive(true);
     }
 
     /// <summary>
@@ -529,8 +512,6 @@ public class UI_FieldEvent : UIBase
         if (eventRunner == null)
             return;
 
-        CancelCardSelection();
-
         eventRunner.TryReturnToPreviousPage();
     }
 
@@ -550,7 +531,6 @@ public class UI_FieldEvent : UIBase
     /// </summary>
     private void HandleEventClosed()
     {
-        CancelCardSelection();
 
         ClearChoiceButtons();
 
@@ -573,49 +553,45 @@ public class UI_FieldEvent : UIBase
     }
 
     /// <summary>
-    /// 카드 선택과 판정 처리가 끝난 후
-    /// 대기 중이던 이벤트 선택지를 실행한다.
+    /// 직접 판정 또는 대응 카드 사용 정보를
+    /// 이벤트 결과 화면에 표시할 문자열로 만듭니다.
     /// </summary>
-    /// <param name="card">실제로 사용한 카드</param>
-    /// <returns>대기 중인 선택지가 실행되었으면 true</returns>
-    public bool SubmitSelectedCard(CardData card)
+    private string CreateCheckResultText()
     {
-        if (pendingCardChoice == null || pendingCardChoiceIndex < 0 || eventRunner == null)
+        if (eventRunner == null)
+            return string.Empty;
+
+        CardData usedCard = eventRunner.LastUsedJudgeCard;
+
+        if (usedCard != null)
         {
-            return false;
+            return
+                $"{usedCard.cardName} 사용\n" +
+                "판정 자동 성공";
         }
 
-        if (!pendingCardChoice.CanUseCard(card))
-        {
-            Debug.Log(
-                "이 선택지에는 해당 카드를 사용할 수 없습니다.");
+        if (!eventRunner.HasLastJudgeResult)
+            return string.Empty;
 
-            return false;
+        JudgeResult result = eventRunner.LastJudgeResult;
+
+        string resultName;
+
+        if (result.fumble)
+        {
+            resultName = "펌블";
+        }
+        else
+        {
+            resultName = result.success ? "성공" : "실패";
         }
 
-        int selectedChoiceIndex = pendingCardChoiceIndex;
-
-        pendingCardChoice = null;
-
-        pendingCardChoiceIndex = -1;
-
-        eventRunner.SetSelectedCard(card);
-
-        return eventRunner.SelectChoice(selectedChoiceIndex);
+        return
+            $"D10 {result.dice} " +
+            $"+ 능력 보정 {result.statModifier} " +
+            $"+ 상태 보정 {result.statusModifier}\n" +
+            $"= {result.total} / 목표 {result.target}\n" +
+            $"{resultName}";
     }
 
-    /// <summary>
-    /// 선택지에서 요구한 카드 선택 대기 상태를 해제한다.
-    /// </summary>
-    public void CancelCardSelection()
-    {
-        pendingCardChoice = null;
-
-        pendingCardChoiceIndex = -1;
-
-        if (eventRunner != null)
-        {
-            eventRunner.ClearSelectedCard();
-        }
-    }
 }

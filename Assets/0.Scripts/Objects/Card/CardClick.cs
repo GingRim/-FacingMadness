@@ -13,6 +13,7 @@ public class CardCrkClick : MonoBehaviour
     [SerializeField] private UI_FieldCardSelector fieldCardSelector;
     [SerializeField] private UI_CardUseSelect useSelectUI;
     [SerializeField] private Canvas canvas;
+    [SerializeField] private UI_FieldScreen fieldScreen;
 
     private UI_Card myCard;
     private RectTransform rectTransform;
@@ -33,6 +34,11 @@ public class CardCrkClick : MonoBehaviour
 
         if (useSelectUI == null)
             useSelectUI = FindFirstObjectByType<UI_CardUseSelect>(FindObjectsInactive.Include);
+
+        if (fieldScreen == null)
+        {
+            fieldScreen = FindFirstObjectByType<UI_FieldScreen>(FindObjectsInactive.Include);
+        }
 
         if (fieldCardSelector == null)
         {
@@ -159,6 +165,10 @@ public class CardCrkClick : MonoBehaviour
         rectTransform.anchoredPosition = localPoint;
     }
 
+    /// <summary>
+    /// 카드 드래그 종료 위치를 확인하여
+    /// 이벤트 판정, 일반 필드 효과 또는 전투 사용으로 전달합니다.
+    /// </summary>
     private void EndDrag(Vector2 screenPosition)
     {
         if (!isDragging)
@@ -166,36 +176,45 @@ public class CardCrkClick : MonoBehaviour
 
         CharacterBase target = FindDropTarget();
 
+        bool droppedOnFieldCheck = IsFieldStatCardDropTarget();
+
+        bool droppedOnFieldUse = IsFieldCardUseDropTarget();
+
         ReturnCard();
 
         isDragging = false;
 
-        CharacterBase user = FindControlledCharacter();
-
-        if (user == null)
+        if (myCard == null || myCard.CardData == null)
         {
             return;
         }
-
-        if (myCard == null || myCard.CardData == null)
-            return;
 
         CardData card = myCard.CardData;
 
-        // 필드 이벤트가 카드 선택을 기다리는 중이라면
-        // 전투 카드 사용 처리로 넘어가지 않는다.
-        if (TryHandleFieldCardSelection(card))
+        // 이벤트 판정이 대기 중이라면
+        // 다른 필드 카드 사용과 전투 사용을 모두 차단합니다.
+        if (TryHandleFieldCardSelection(card, droppedOnFieldCheck))
         {
             return;
         }
 
-        CardDropDecision decision = GetDropDecision(card, user, target);
+        // 일반 필드 카드 사용 영역
+        if (droppedOnFieldUse)
+        {
+            TryHandleFieldCardUse(card);
+            return;
+        }
 
+        CharacterBase user = FindControlledCharacter();
+
+        if (user == null)
+            return;
+
+        CardDropDecision decision = GetDropDecision(card, user, target);
 
         switch (decision.result)
         {
             case CardDropResult.Invalid:
-
                 return;
 
             case CardDropResult.OpenPopup:
@@ -589,21 +608,93 @@ public class CardCrkClick : MonoBehaviour
         }
     }
 
-
-    private bool TryHandleFieldCardSelection(CardData card)
+    /// <summary>
+    /// 현재 카드가 이벤트 판정 카드 선택으로 처리되어야 하는지 확인합니다.
+    /// 선택 대기 중이면 드롭 위치가 잘못되어도 전투 카드 사용을 차단합니다.
+    /// </summary>
+    private bool TryHandleFieldCardSelection(CardData card, bool droppedOnFieldCheck)
     {
-        if (card == null)
-            return false;
-
         if (fieldCardSelector == null)
         {
             fieldCardSelector = FindFirstObjectByType<UI_FieldCardSelector>(FindObjectsInactive.Include);
         }
 
-        if (fieldCardSelector == null)
+        if (fieldCardSelector == null || !fieldCardSelector.IsSelectingCard)
+        {
+            return false;
+        }
+
+        if (droppedOnFieldCheck)
+        {
+            fieldCardSelector.TrySelectCard(card);
+        }
+
+        // 선택 대기 중에는 일반 카드 사용으로 넘기지 않습니다.
+        return true;
+    }
+
+    /// <summary>
+    /// 카드가 능력치 판정 전용 드롭 영역 위에 놓였는지 확인합니다.
+    /// </summary>
+    private bool IsFieldStatCardDropTarget()
+    {
+        if (GameManager.Instance == null || GameManager.Instance.Input == null)
+        {
+            return false;
+        }
+
+        GameObject hoverObject = GameManager.Instance.Input.GetGameObjectUnderCursor();
+
+        if (hoverObject == null)
             return false;
 
-        return fieldCardSelector.TrySelectCard(card);
+        UI_FieldStatCardDropTarget dropTarget = hoverObject.GetComponentInParent<UI_FieldStatCardDropTarget>();
+
+        return dropTarget != null;
+    }
+
+    /// <summary>
+    /// 카드가 일반 필드 카드 사용 영역에 놓였는지 확인합니다.
+    /// </summary>
+    private bool IsFieldCardUseDropTarget()
+    {
+        if (GameManager.Instance == null || GameManager.Instance.Input == null)
+        {
+            return false;
+        }
+
+        GameObject hoverObject = GameManager.Instance.Input.GetGameObjectUnderCursor();
+
+        if (hoverObject == null)
+            return false;
+
+        UI_FieldCardUseDropTarget dropTarget = hoverObject.GetComponentInParent<UI_FieldCardUseDropTarget>();
+
+        return dropTarget != null;
+    }
+
+    /// <summary>
+    /// 일반 필드 카드 사용 영역에 놓인 카드를
+    /// UI_FieldScreen으로 전달합니다.
+    /// </summary>
+    private bool TryHandleFieldCardUse(CardData card)
+    {
+        if (card == null)
+            return false;
+
+        if (fieldScreen == null)
+        {
+            fieldScreen = FindFirstObjectByType<UI_FieldScreen>(FindObjectsInactive.Include);
+        }
+
+        if (fieldScreen == null)
+            return false;
+
+        fieldScreen.TryUseDroppedCard(card);
+
+        // 필드 카드 영역에 놓았다면
+        // 결과와 관계없이 전투 카드 사용으로 전달하지 않습니다.
+        return true;
     }
 
 }

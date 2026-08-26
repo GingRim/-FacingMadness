@@ -8,8 +8,7 @@ using UnityEngine;
 
 public class DeckModule : CharacterModule
 {
-    public sealed override System.Type RegistrationType
-        => typeof(DeckModule);
+    public sealed override System.Type RegistrationType => typeof(DeckModule);
 
 
     /// <summary>
@@ -510,6 +509,51 @@ public class DeckModule : CharacterModule
         Shuffle(deck);
 
         Debug.Log($"소멸 카드 복귀: {card.cardName}");
+
+        return true;
+    }
+
+    /// <summary>
+    /// 이벤트 판정을 대신한 색상 카드를 손패에서 소멸시키고
+    /// 무색 카드 1장을 덱에 추가한 뒤 덱을 섞습니다.
+    /// </summary>
+    public bool ReplaceEventCardWithColorless(CardData usedCard, CardData colorlessCard)
+    {
+        if (usedCard == null || colorlessCard == null)
+            return false;
+
+        if (usedCard.color == CardColorType.Colorless || usedCard.color == CardColorType.None)
+        {
+            Debug.LogWarning("이벤트 판정에는 색상 카드만 사용할 수 있습니다.");
+
+            return false;
+        }
+
+        if (colorlessCard.color != CardColorType.Colorless)
+        {
+            Debug.LogWarning("대체 카드가 무색 카드가 아닙니다.");
+
+            return false;
+        }
+
+        if (!hand.Remove(usedCard))
+        {
+            Debug.LogWarning($"{usedCard.cardName}: 현재 손패에 없습니다.");
+
+            return false;
+        }
+
+        // 사용한 색상 카드 소멸
+        remove.Add(usedCard);
+
+        // 힘을 잃은 무색 카드가 덱에 남음
+        deck.Add(colorlessCard);
+        Shuffle(deck);
+
+        Debug.Log(
+            $"이벤트 대응 카드 사용: {usedCard.cardName} 소멸 / " +
+            $"{colorlessCard.cardName} 덱 추가"
+        );
 
         return true;
     }

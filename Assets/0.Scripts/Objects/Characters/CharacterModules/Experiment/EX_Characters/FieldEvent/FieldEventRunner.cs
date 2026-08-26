@@ -15,10 +15,22 @@ public class FieldEventRunner : MonoBehaviour
     private readonly Stack<FieldEventPageData> pageHistory = new();
 
     private FieldEventData currentEvent;
-
     private FieldEventContext currentContext;
-
     private FieldEventPageData currentPage;
+
+    private JudgeResult lastJudgeResult;
+    private bool hasLastJudgeResult;
+
+    private bool lastChoiceSucceeded;
+    private CardData lastUsedJudgeCard;
+
+    public JudgeResult LastJudgeResult => lastJudgeResult;
+
+    public bool HasLastJudgeResult => hasLastJudgeResult;
+
+    public bool LastChoiceSucceeded => lastChoiceSucceeded;
+
+    public CardData LastUsedJudgeCard => lastUsedJudgeCard;
 
     private bool isChoiceResolved;
 
@@ -36,6 +48,24 @@ public class FieldEventRunner : MonoBehaviour
     /// 현재 화면에 표시 중인 선택지 페이지다.
     /// </summary>
     public FieldEventPageData CurrentPage => currentPage;
+
+    private FieldEventChoice pendingStatChoice;
+
+    /// <summary>
+    /// 현재 능력치 판정 방법 선택을 기다리는 선택지.
+    /// </summary>
+    public FieldEventChoice PendingStatChoice => pendingStatChoice;
+
+    /// <summary>
+    /// 현재 능력치 판정 방법 선택을 기다리고 있는지 확인한다.
+    /// </summary>
+    public bool IsWaitingStatCheck => pendingStatChoice != null;
+
+    /// <summary>
+    /// 능력치 판정 선택지가 실행되어
+    /// 직접 판정 또는 카드 사용을 선택해야 할 때 발생한다.
+    /// </summary>
+    public event Action<FieldEventChoice> OnStatCheckRequested;
 
     /// <summary>
     /// 현재 이벤트가 실행 중인지 반환한다.
@@ -113,14 +143,16 @@ public class FieldEventRunner : MonoBehaviour
 
         pageHistory.Clear();
 
-        OnEventOpened?.Invoke(
-            currentEvent,
-            currentContext);
+        OnEventOpened?.Invoke(currentEvent, currentContext);
+
+        pendingStatChoice = null;
 
         if (currentPage != null)
         {
             OnPageChanged?.Invoke(currentPage);
         }
+
+        ResetLastChoiceResult();
 
         return true;
     }
@@ -160,60 +192,71 @@ public class FieldEventRunner : MonoBehaviour
 
         return !usedChoices.Contains(choice.ChoiceId);
     }
-
+ 
     /// <summary>
-    /// 현재 페이지에서 지정된 번호의 선택지를 실행한다.
-    /// 페이지 이동 선택지와 실제 효과 선택지를 구분해 처리한다.
+    /// 현재 페이지에서 지정된 선택지를 선택한다.
+    /// 페이지 이동 선택지는 다음 페이지를 열고,
+    /// 일반 선택지는 즉시 실행하며,
+    /// 능력치 선택지는 판정 방법 선택을 기다린다.
     /// </summary>
-    /// <param name="choiceIndex">원본 선택지 배열의 번호</param>
-    /// <returns>선택지가 정상적으로 처리되었으면 true</returns>
-    public bool SelectChoice(int choiceIndex)
+    /// <param name="choiceIndex">현재 페이지의 선택지 번호.</param>
+    public void SelectChoice(int choiceIndex)
     {
-        if (currentEvent == null ||
-            currentContext == null ||
-            isChoiceResolved)
+        if (currentEvent == null || currentContext == null || currentPage == null)
         {
-            return false;
+            return;
         }
 
-        FieldEventChoice[] choices = GetCurrentChoices();
-
-        if (choices == null ||
-            choiceIndex < 0 ||
-            choiceIndex >= choices.Length)
+        if (isChoiceResolved || IsWaitingStatCheck)
         {
-            return false;
+            return;
+        }
+
+        FieldEventChoice[] choices = currentPage.Choices;
+
+        if (choices == null || choiceIndex < 0 || choiceIndex >= choices.Length)
+        {
+            OnChoiceFailed?.Invoke(
+                "선택지 번호가 올바르지 않습니다.");
+
+            return;
         }
 
         FieldEventChoice choice = choices[choiceIndex];
 
         if (choice == null)
-            return false;
+            return;
 
         if (!IsChoiceAvailable(choice))
         {
-            OnChoiceFailed?.Invoke(
-                "이미 사용한 선택지입니다.");
+            OnChoiceFailed?.Invoke("이미 사용한 선택지입니다.");
 
-            return false;
+            return;
         }
 
         if (!choice.CanSelect(currentContext))
         {
-            string failMessage =
-                choice.GetFailMessage(currentContext);
+            OnChoiceFailed?.Invoke(choice.GetFailMessage(currentContext));
 
-            OnChoiceFailed?.Invoke(failMessage);
-
-            return false;
+            return;
         }
 
         if (choice.IsNavigation)
         {
-            return TryOpenNextPage(choice);
+            TryOpenNextPage(choice);
+            return;
         }
 
-        return ResolveChoice(choice);
+        if (choice.RequiresStatCheck)
+        {
+            pendingStatChoice = choice;
+
+            OnStatCheckRequested?.Invoke(choice);
+
+            return;
+        }
+
+        ResolveChoiceResult(choice, true);
     }
 
     /// <summary>
@@ -273,33 +316,38 @@ public class FieldEventRunner : MonoBehaviour
         return true;
     }
 
+
     /// <summary>
-    /// 실제 행동 선택지의 효과를 적용하고 결과 표시 상태로 전환한다.
+    /// 직접 판정과 카드 자동 성공의 결과를 하나의 경로로 처리합니다.
     /// </summary>
-    /// <param name="choice">실행할 행동 선택지</param>
-    /// <returns>선택 결과가 정상적으로 처리되었으면 true</returns>
-    private bool ResolveChoice(FieldEventChoice choice)
+    private void ResolveChoiceResult(FieldEventChoice choice, bool success)
     {
-        if (choice == null || currentContext == null)
-            return false;
-
-        choice.Execute(currentContext);
-
-        RegisterChoiceUse(choice);
-
-        isChoiceResolved = true;
-
-        if (!currentEvent.Repeatable &&
-            !string.IsNullOrWhiteSpace(currentEvent.EventId))
+        if (choice == null || currentEvent == null || currentContext == null)
         {
-            completedEvents.Add(currentEvent.EventId);
+            return;
         }
 
-        OnChoiceSelected?.Invoke(
-            currentEvent,
-            choice);
+        FieldEventData resolvedEvent = currentEvent;
 
-        return true;
+        pendingStatChoice = null;
+        isChoiceResolved = true;
+        lastChoiceSucceeded = success;
+
+        if (success)
+        {
+            choice.ExecuteSuccess(currentContext);
+        }
+        else
+        {
+            choice.ExecuteFailure(currentContext);
+        }
+
+        if (!resolvedEvent.Repeatable && !string.IsNullOrEmpty(resolvedEvent.EventId))
+        {
+            completedEvents.Add(resolvedEvent.EventId);
+        }
+
+        OnChoiceSelected?.Invoke(resolvedEvent, choice);
     }
 
     /// <summary>
@@ -347,6 +395,8 @@ public class FieldEventRunner : MonoBehaviour
 
         isChoiceResolved = false;
 
+        pendingStatChoice = null;
+
         pageHistory.Clear();
 
         OnEventClosed?.Invoke();
@@ -385,4 +435,98 @@ public class FieldEventRunner : MonoBehaviour
 
         currentContext.ClearSelectedCard();
     }
+
+    /// <summary>
+    /// 대기 중인 능력치 선택지를 카드 없이 직접 판정한다.
+    /// 범용 판정을 사용하며 펌블은 실패 결과로 처리한다.
+    /// </summary>
+    /// <returns>정상적으로 판정을 실행했으면 true.</returns>
+    public void TryRollPendingStatCheck()
+    {
+        if (pendingStatChoice == null || currentContext == null || isChoiceResolved)
+        {
+            return;
+        }
+
+        CharacterBase character = currentContext.Player;
+
+        if (character == null)
+        {
+            character = currentContext.Character;
+        }
+
+        if (character == null)
+        {
+            OnChoiceFailed?.Invoke("판정을 진행할 캐릭터가 없습니다.");
+
+            return;
+        }
+
+        FieldEventChoice choice = pendingStatChoice;
+
+        JudgeResult judgeResult = JudgeUtility.Roll(character, choice.RequiredStat, choice.Target);
+
+        hasLastJudgeResult = true;
+        lastUsedJudgeCard = null;
+
+        ResolveChoiceResult(choice, judgeResult.success);
+
+        Debug.Log($"이벤트 직접 판정: " + $"D10 {judgeResult.dice} + " + $"능력 보정 {judgeResult.statModifier} + " +
+                  $"상태 보정 {judgeResult.statusModifier} " + $"= {judgeResult.total} / " + $"목표 {judgeResult.target}");
+
+
+        ResolveChoiceResult(choice, judgeResult.success);
+    }
+
+    /// <summary>
+    /// 대응 색상 카드의 소비가 끝난 능력치 선택지를
+    /// 판정 없이 확정 성공으로 처리한다.
+    /// </summary>
+    /// <param name="usedCard">소비한 대응 색상 카드.</param>
+    /// <returns>확정 성공 처리가 완료되면 true.</returns>
+    public void CompletePendingStatCheckByCard(CardData usedCard)
+    {
+        if (pendingStatChoice == null || currentContext == null || isChoiceResolved)
+        {
+            return;
+        }
+
+        if (usedCard == null || !pendingStatChoice.CanUseCard(usedCard))
+        {
+            OnChoiceFailed?.Invoke("이 판정에 대응하지 않는 카드입니다.");
+
+            return;
+        }
+
+        FieldEventChoice choice = pendingStatChoice;
+
+        Debug.Log($"이벤트 카드 자동 성공: " + $"{usedCard.cardName} / " + $"{choice.RequiredStat} 판정");
+
+        lastJudgeResult = default;
+        hasLastJudgeResult = false;
+        lastUsedJudgeCard = usedCard;
+
+        ResolveChoiceResult(choice, true);
+    }
+
+    /// <summary>
+    /// 현재 대기 중인 능력치 판정 선택지를 초기화한다.
+    /// </summary>
+    public void ClearPendingStatCheck()
+    {
+        pendingStatChoice = null;
+    }
+
+    /// <summary>
+    /// 최근 선택지 판정 정보를 초기화합니다.
+    /// </summary>
+    private void ResetLastChoiceResult()
+    {
+        lastJudgeResult = default;
+        hasLastJudgeResult = false;
+
+        lastChoiceSucceeded = false;
+        lastUsedJudgeCard = null;
+    }
+
 }
