@@ -15,7 +15,7 @@ public class CardResolver
     /// </summary>
     public bool Use(CardData card, CharacterBase user, CharacterBase target, CardUseCost useCost)
     {
-        
+
         if (card == null || user == null)
             return false;
 
@@ -50,7 +50,7 @@ public class CardResolver
             return false;
         }
 
-        return ResolveFieldEffect(card, user,context);
+        return ResolveFieldEffect(card, user, context);
 
 
     }
@@ -168,33 +168,33 @@ public class CardResolver
         CriticalType criticalType = CriticalType.None;
 
         switch (useCost)
-        {    
+        {
             case CardUseCost.Action:
-            {
-                DiceResult result = Dice.RollD10WithCritical(derived.GetStrengthModifier(), lv.Level);
-
-                damage = result.total;
-                criticalType = result.criticalType;
-
-                if (criticalType == CriticalType.Critical)
-                {
-                    damage += Dice.RollD10();
-                }
-                else if (criticalType == CriticalType.GreatCritical)
-                {
-                    damage += Dice.RollD10();
-                    damage += derived.GetStrengthModifier() * 2;
-                }
-
-                break;
-            }
-
-                case CardUseCost.Auxiliary:
                 {
                     DiceResult result = Dice.RollD10WithCritical(derived.GetStrengthModifier(), lv.Level);
-                    
+
+                    damage = result.total;
+                    criticalType = result.criticalType;
+
+                    if (criticalType == CriticalType.Critical)
+                    {
+                        damage += Dice.RollD10();
+                    }
+                    else if (criticalType == CriticalType.GreatCritical)
+                    {
+                        damage += Dice.RollD10();
+                        damage += derived.GetStrengthModifier() * 2;
+                    }
+
+                    break;
+                }
+
+            case CardUseCost.Auxiliary:
+                {
+                    DiceResult result = Dice.RollD10WithCritical(derived.GetStrengthModifier(), lv.Level);
+
                     damage = Dice.RollD8();
-                    
+
                     criticalType = result.criticalType;
 
                     if (criticalType == CriticalType.Critical)
@@ -208,12 +208,14 @@ public class CardResolver
                     }
 
                     break;
-                } 
+                }
         }
 
         DamageStruct damageInfo = new DamageStruct
         {
-            from = user.gameObject, instigator = user.Controller, damageAmount = damage,
+            from = user.gameObject,
+            instigator = user.Controller,
+            damageAmount = damage,
             critical = criticalType != CriticalType.None,
             damageType = DamageType.Hand_to_hand_combat
         };
@@ -257,35 +259,35 @@ public class CardResolver
         switch (useCost)
         {
             case CardUseCost.Action:
-            {
-                DiceResult result = Dice.RollD10WithCritical(0, lv.Level);
-
-                damage = result.diceValue;
-                criticalType = result.criticalType;
-
-                if (criticalType == CriticalType.Critical)
                 {
+                    DiceResult result = Dice.RollD10WithCritical(0, lv.Level);
+
+                    damage = result.diceValue;
+                    criticalType = result.criticalType;
+
+                    if (criticalType == CriticalType.Critical)
+                    {
                         damage += Dice.RollD10() + Dice.RollD6();
-                }
-                else if (criticalType == CriticalType.GreatCritical)
-                {
-                    damage += Dice.RollD10() + Dice.RollD10() + Dice.RollD6() + Dice.RollD6();
-                }
-                DamageStruct damageInfo = new DamageStruct
-                {
-                    from = user.gameObject,
-                    instigator = user.Controller,
-                    damageAmount = damage,
-                    critical = criticalType != CriticalType.None,
-                    damageType = DamageType.Hand_to_hand_combat
-                };
-        
-                CombatModule combat = target.GetModule<CombatModule>();
-        
-                if (combat == null)
-                    return;
-        
-                combat.OnHit(damageInfo);
+                    }
+                    else if (criticalType == CriticalType.GreatCritical)
+                    {
+                        damage += Dice.RollD10() + Dice.RollD10() + Dice.RollD6() + Dice.RollD6();
+                    }
+                    DamageStruct damageInfo = new DamageStruct
+                    {
+                        from = user.gameObject,
+                        instigator = user.Controller,
+                        damageAmount = damage,
+                        critical = criticalType != CriticalType.None,
+                        damageType = DamageType.Hand_to_hand_combat
+                    };
+
+                    CombatModule combat = target.GetModule<CombatModule>();
+
+                    if (combat == null)
+                        return;
+
+                    combat.OnHit(damageInfo);
                     if (criticalType == CriticalType.GreatCritical)
                     {
                         BattleManager.ClaimBattleLog($"상위 크리티컬<br>{damage}피해");
@@ -299,11 +301,11 @@ public class CardResolver
                         BattleManager.ClaimBattleLog($"{damage}피해");
                     }
                     break;
-            }
+                }
 
 
             case CardUseCost.Auxiliary:
-            {
+                {
                     StatusEffectModule status = user.GetModule<StatusEffectModule>();
                     int q = RollD4();
                     if (status == null)
@@ -317,7 +319,7 @@ public class CardResolver
 
                     BattleManager.ClaimBattleLog($"가속{q} 증가");
                     break;
-            }
+                }
         }
     }
 
@@ -330,41 +332,43 @@ public class CardResolver
     {
         DerivedStatModule derived = user.GetModule<DerivedStatModule>();
         LVModules lv = user.GetModule<LVModules>();
-        
-        if(derived == null || lv == null)
+
+        if (derived == null || lv == null)
             return;
 
         switch (useCost)
         {
             case CardUseCost.Action:
-            {
-                CharacterBase restreTarget = target != null ? target : user;
-
-                DiceResult result = Dice.RollD10WithCritical(derived.GetHealthModifier(), lv.Level);
-
-                int restore = RollD10();
-
-                if (result.criticalType == CriticalType.Critical)
                 {
-                    restore += 5;
-                }
-                else if (result.criticalType == CriticalType.GreatCritical)
-                {
-                    restore += 15;
-                }
+                    CharacterBase restreTarget = target != null ? target : user;
 
-                RestoreStruct restoreInfo = new RestoreStruct{
-                    from = user.gameObject,
-                    instigator = user.Controller,
-                    restoreAmount = restore};
+                    DiceResult result = Dice.RollD10WithCritical(derived.GetHealthModifier(), lv.Level);
 
-                CombatModule combat = restreTarget.GetModule<CombatModule>();
+                    int restore = RollD10();
 
-                if(combat == null)
-                    return;
+                    if (result.criticalType == CriticalType.Critical)
+                    {
+                        restore += 5;
+                    }
+                    else if (result.criticalType == CriticalType.GreatCritical)
+                    {
+                        restore += 15;
+                    }
 
-                combat.OnRestore(restoreInfo);
-                  
+                    RestoreStruct restoreInfo = new RestoreStruct
+                    {
+                        from = user.gameObject,
+                        instigator = user.Controller,
+                        restoreAmount = restore
+                    };
+
+                    CombatModule combat = restreTarget.GetModule<CombatModule>();
+
+                    if (combat == null)
+                        return;
+
+                    combat.OnRestore(restoreInfo);
+
                     if (result.criticalType == CriticalType.GreatCritical)
                     {
                         BattleManager.ClaimBattleLog($"상위 크리티컬<br>{restore}생명력 회복");
@@ -378,30 +382,30 @@ public class CardResolver
                         BattleManager.ClaimBattleLog($"{restore}생명력 회복");
                     }
 
-                break;
-            }
+                    break;
+                }
 
 
-                
+
 
             case CardUseCost.Auxiliary:
-            {
-                DiceResult result = Dice.RollD10WithCritical(derived.GetHealthModifier(), lv.Level);
-
-                int armor = Dice.RollD4();
-
-                if (result.criticalType == CriticalType.Critical)
                 {
-                    armor += Dice.RollD4();
-                }
-                else if (result.criticalType == CriticalType.GreatCritical)
-                {
-                    armor = Dice.RollD8() + Dice.RollD8();
-                }
+                    DiceResult result = Dice.RollD10WithCritical(derived.GetHealthModifier(), lv.Level);
 
-                Debug.Log($"크리티컬:{result.criticalType}");
+                    int armor = Dice.RollD4();
 
-                 ArmorModule armorModule = user.GetModule<ArmorModule>();
+                    if (result.criticalType == CriticalType.Critical)
+                    {
+                        armor += Dice.RollD4();
+                    }
+                    else if (result.criticalType == CriticalType.GreatCritical)
+                    {
+                        armor = Dice.RollD8() + Dice.RollD8();
+                    }
+
+                    Debug.Log($"크리티컬:{result.criticalType}");
+
+                    ArmorModule armorModule = user.GetModule<ArmorModule>();
 
                     if (armorModule == null)
                     {
@@ -422,10 +426,10 @@ public class CardResolver
                     {
                         BattleManager.ClaimBattleLog($"임시 장갑{armor} 획득");
                     }
-                    
+
 
                     break;
-            }
+                }
         }
     }
 
@@ -436,11 +440,9 @@ public class CardResolver
     /// </summary>
     private void ResolveBlue(CardData card, CharacterBase user, CharacterBase target, CardUseCost useCost)
     {
-        DerivedStatModule derived =
-            user.GetModule<DerivedStatModule>();
+        DerivedStatModule derived = user.GetModule<DerivedStatModule>();
 
-        LVModules lv =
-            user.GetModule<LVModules>();
+        LVModules lv = user.GetModule<LVModules>();
 
         if (derived == null || lv == null)
             return;
@@ -467,13 +469,13 @@ public class CardResolver
                     }
 
                     DamageStruct damageInfo = new DamageStruct
-                        {
-                            from = user.gameObject,
-                            instigator = user.Controller,
-                            damageAmount = damage,
-                            critical = result.criticalType != CriticalType.None,
-                            damageType = DamageType.Long_range_combat
-                        };
+                    {
+                        from = user.gameObject,
+                        instigator = user.Controller,
+                        damageAmount = damage,
+                        critical = result.criticalType != CriticalType.None,
+                        damageType = DamageType.Long_range_combat
+                    };
 
                     CombatModule combat = target.GetModule<CombatModule>();
 
@@ -508,8 +510,8 @@ public class CardResolver
 
                         if (deck != null)
                         {
-                            deck.Draw();
-                            deck.Draw();
+                            deck.DrawInstance();
+                            deck.DrawInstance();
                         }
 
                         BattleManager.ClaimBattleLog("청색 보조: 2 드로우");
@@ -639,7 +641,7 @@ public class CardResolver
                             damageType = DamageType.Hand_to_hand_combat
                         };
 
-                    CombatModule combat =target.GetModule<CombatModule>();
+                    CombatModule combat = target.GetModule<CombatModule>();
 
                     if (combat == null)
                         return;
@@ -812,7 +814,7 @@ public class CardResolver
 
         return true;
     }
-   
+
     /// <summary>
     /// 마법 카드 처리 함수
     /// </summary>
@@ -964,7 +966,7 @@ public class CardResolver
 
 
         StatusEffectModule status = user.GetModule<StatusEffectModule>();
-        
+
 
         if (status == null)
         {
@@ -1339,7 +1341,7 @@ public class CardResolver
             return true;
 
         // 3. 소멸 영역의 무색이 아닌 카드 확인
-        List<CardData> recoverableCards = deck.GetRecoverableRemovedCards();
+        List<CardInstance> recoverableCards = deck.GetRecoverableRemovedCardInstances();
 
         // 복귀 가능한 색상 카드가 없으면 그대로 종료
         if (recoverableCards.Count <= 0)
@@ -1430,7 +1432,7 @@ public class CardResolver
 
         int restoreAmount = Dice.RollD10();
 
-        RestoreStruct restoreInfo = new RestoreStruct {from = user.gameObject, instigator = user.Controller, restoreAmount = restoreAmount};
+        RestoreStruct restoreInfo = new RestoreStruct { from = user.gameObject, instigator = user.Controller, restoreAmount = restoreAmount };
 
         int actualRestore = hitpoint.TakeRestore(restoreInfo);
 
@@ -1495,20 +1497,20 @@ public class CardResolver
             }
 
             DamageStruct damageInfo = new DamageStruct
-                {
-                    from = user.gameObject,
-                    instigator = user.Controller,
+            {
+                from = user.gameObject,
+                instigator = user.Controller,
 
-                    diceValue = diceValue,
-                    damageAmount = diceValue,
+                diceValue = diceValue,
+                damageAmount = diceValue,
 
-                    critical = false,
-                    highCritical = false,
+                critical = false,
+                highCritical = false,
 
-                    damageType = DamageType.None,
-                    canCounter = false,
-                    reactionType = ActionType.None
-                };
+                damageType = DamageType.None,
+                canCounter = false,
+                reactionType = ActionType.None
+            };
 
             int actualDamage = hitpoint.TakeDamage(damageInfo);
 

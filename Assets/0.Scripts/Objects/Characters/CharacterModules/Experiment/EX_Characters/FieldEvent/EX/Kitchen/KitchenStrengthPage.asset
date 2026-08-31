@@ -26,13 +26,17 @@ MonoBehaviour:
     nextPage: {fileID: 0}
     executionType: 0
     requiredStat: 0
+    target: 5
     conditions: []
     successResult:
       description: 
-      effects: []
+      effects:
+      - {fileID: 11400000, guid: 823a1fddceea4c1469cd8a6bd36148be, type: 2}
+      resultImage: {fileID: 0}
     failureResult:
       description: 
       effects: []
+      resultImage: {fileID: 0}
     legacyCardRequirement:
       requiresCard: 0
       allowedColors: 
@@ -45,13 +49,16 @@ MonoBehaviour:
     nextPage: {fileID: 0}
     executionType: 0
     requiredStat: 0
+    target: 5
     conditions: []
     successResult:
       description: 
       effects: []
+      resultImage: {fileID: 0}
     failureResult:
       description: 
       effects: []
+      resultImage: {fileID: 0}
     legacyCardRequirement:
       requiresCard: 0
       allowedColors: 

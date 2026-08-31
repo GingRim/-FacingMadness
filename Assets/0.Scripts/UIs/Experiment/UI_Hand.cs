@@ -4,38 +4,50 @@ using UnityEngine;
 
 public class UI_Hand : MonoBehaviour
 {
-    [SerializeField] Transform cardParent;
-
-    public event Action<CardData> OnCardSelected;
-
-    readonly List<UI_Card> cardUIs = new();
+    [SerializeField]
+    private Transform cardParent;
 
     /// <summary>
-    /// DeckModule의 현재 Hand 데이터를 기준으로 손패 UI를 다시 그림.
+    /// 실제 카드 인스턴스 선택 이벤트입니다.
+    /// 새로운 카드 시스템에서는 이 이벤트를 사용합니다.
+    /// </summary>
+    public event Action<CardInstance> OnCardInstanceSelected;
+
+    private readonly List<UI_Card> cardUIs = new();
+
+    /// <summary>
+    /// DeckModule의 실제 손패 인스턴스를 기준으로
+    /// 손패 UI를 다시 생성합니다.
     /// </summary>
     public void RefreshFromDeck(DeckModule deck)
     {
+        ClearHand();
+
         if (deck == null)
             return;
 
-        ClearHand();
-
-        foreach (CardData card in deck.Hand)
+        foreach (CardInstance cardInstance in deck.HandInstances)
         {
-            AddCard(card);
+            AddCard(cardInstance);
         }
     }
 
     /// <summary>
-    /// 손패 UI에 카드 1장 추가
+    /// 손패 UI에 실제 카드 인스턴스 한 장을 추가합니다.
     /// </summary>
-    public void AddCard(CardData cardData)
+    public void AddCard(CardInstance cardInstance)
     {
-        if (cardData == null)
+        if (cardInstance == null || cardInstance.Data == null)
+        {
             return;
+        }
 
         if (cardParent == null)
+        {
+            Debug.LogWarning("UI_Hand: cardParent가 없습니다.");
+
             return;
+        }
 
         GameObject cardObject = ObjectManager.CreateObject("UI_Card", cardParent);
 
@@ -47,18 +59,47 @@ public class UI_Hand : MonoBehaviour
         UI_Card uiCard = cardObject.GetComponent<UI_Card>();
 
         if (uiCard == null)
+        {
+            Debug.LogWarning(
+                "생성된 UI_Card 오브젝트에 " +
+                "UI_Card 컴포넌트가 없습니다.");
+
+            PooledObject pooled = cardObject.GetComponent<PooledObject>();
+
+            if (pooled != null)
+            {
+                pooled.OnEnqueue();
+            }
+            else
+            {
+                Destroy(cardObject);
+            }
+
             return;
+        }
 
-        uiCard.ClearClickListeners();
-        uiCard.SetCard(cardData);
+        CardClick cardClick = cardObject.GetComponent<CardClick>();
 
-        uiCard.OnClicked += HandleCardClicked;
+        if (cardClick == null)
+        {
+            Debug.LogWarning(
+                "생성된 UI_Card 오브젝트에 " +
+                "CardClick 컴포넌트가 없습니다.");
+
+            uiCard.OnEnqueue();
+            return;
+        }
+
+        cardClick.ClearClickListeners();
+        uiCard.SetCard(cardInstance);
+
+        cardClick.OnClicked += HandleCardClicked;
 
         cardUIs.Add(uiCard);
     }
 
     /// <summary>
-    /// 손패 UI 전체 초기화
+    /// 현재 생성된 손패 UI를 모두 풀로 반환합니다.
     /// </summary>
     public void ClearHand()
     {
@@ -67,33 +108,33 @@ public class UI_Hand : MonoBehaviour
             if (card == null)
                 continue;
 
-            card.OnClicked -= HandleCardClicked;
+            CardClick cardClick =
+                card.GetComponent<CardClick>();
 
-            card.ClearClickListeners();
-
-            PooledObject pooled = card.GetComponent<PooledObject>();
-
-            if (pooled != null)
+            if (cardClick != null)
             {
-                pooled.OnEnqueue();
+                cardClick.OnClicked -= HandleCardClicked;
+                cardClick.ClearClickListeners();
             }
-            else
-            {
-                Destroy(card.gameObject);
-            }
+
+            card.OnEnqueue();
         }
 
         cardUIs.Clear();
     }
 
-    private void HandleCardClicked(UI_Card clickedCard)
+    private void HandleCardClicked(CardInstance clickedCard)
     {
-        if (clickedCard == null || clickedCard.CardData == null)
-        {
+        if (clickedCard == null || clickedCard.Data == null)
             return;
-        }
 
-        OnCardSelected?.Invoke(clickedCard.CardData);
+        OnCardInstanceSelected?.Invoke(clickedCard);
+    }
 
+    private void OnDestroy()
+    {
+        ClearHand();
+
+        OnCardInstanceSelected = null;
     }
 }

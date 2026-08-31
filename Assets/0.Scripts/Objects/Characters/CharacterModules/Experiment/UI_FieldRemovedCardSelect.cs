@@ -16,9 +16,9 @@ public class UI_FieldRemovedCardSelect : MonoBehaviour
     private UI_FieldRemovedCardButton buttonTemplate;
 
     private readonly List<UI_FieldRemovedCardButton> buttonPool = new();
-    private readonly List<CardData> displayedCards = new();
+    private readonly List<CardInstance> displayedCards = new();
 
-    private Action<CardData> onCardSelected;
+    private Action<CardInstance> onCardSelected;
     private bool isSelecting;
 
     public bool IsSelecting => isSelecting;
@@ -37,7 +37,7 @@ public class UI_FieldRemovedCardSelect : MonoBehaviour
     /// 복귀 가능한 제거 카드 목록을 보여준다.
     /// 표시할 카드가 없으면 false를 반환한다.
     /// </summary>
-    public bool Open(IReadOnlyList<CardData> cards, Action<CardData> selectedCallback)
+    public bool Open(IReadOnlyList<CardInstance> cards, Action<CardInstance> selectedCallback)
     {
         CollectValidCards(cards);
 
@@ -89,20 +89,20 @@ public class UI_FieldRemovedCardSelect : MonoBehaviour
         }
     }
 
-    private void CollectValidCards(IReadOnlyList<CardData> cards)
+    private void CollectValidCards(IReadOnlyList<CardInstance> cards)
     {
         displayedCards.Clear();
 
         if (cards == null)
             return;
 
-        foreach (CardData card in cards)
+        foreach (CardInstance card in cards)
         {
-            if (card == null)
+            if (card == null || card.Data == null)
                 continue;
 
             // 무색 카드는 복귀 선택 대상이 아님
-            if (card.color == CardColorType.Colorless)
+            if (card.Data.color == CardColorType.Colorless)
                 continue;
 
             displayedCards.Add(card);
@@ -141,13 +141,13 @@ public class UI_FieldRemovedCardSelect : MonoBehaviour
         }
     }
 
-    private void HandleCardSelected(CardData selectedCard)
+    private void HandleCardSelected(CardInstance selectedCard)
     {
         if (!isSelecting || selectedCard == null)
             return;
 
         // 중복 클릭 방지를 위해 먼저 선택 상태 종료
-        Action<CardData> callback = onCardSelected;
+        Action<CardInstance> callback = onCardSelected;
 
         isSelecting = false;
         onCardSelected = null;

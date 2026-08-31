@@ -13,10 +13,10 @@ public class FieldEventContext
 
     public string ResultTextOverride { get; private set; }
 
-    private readonly List<CardData> removedCardRecoveryCandidates = new();
+    private readonly List<CardInstance> removedCardRecoveryCandidates = new();
     private readonly List<string> resultMessages = new();
 
-    public IReadOnlyList<CardData> RemovedCardRecoveryCandidates => removedCardRecoveryCandidates;
+    public IReadOnlyList<CardInstance> RemovedCardRecoveryCandidates => removedCardRecoveryCandidates;
 
 
     /// <summary>
@@ -99,20 +99,20 @@ public class FieldEventContext
         }
     }
 
-    public void RequestRemovedCardRecovery(IEnumerable<CardData> cards)
+    public void RequestRemovedCardRecovery(IEnumerable<CardInstance> cards)
     {
         removedCardRecoveryCandidates.Clear();
 
         if (cards == null)
             return;
 
-        foreach (CardData card in cards)
+        foreach (CardInstance card in cards)
         {
-            if (card == null)
+            if (card == null || card.Data == null)
                 continue;
 
             // 무색 카드는 복귀 선택지에 표시하지 않는다.
-            if (card.color == CardColorType.Colorless)
+            if (card.Data.color == CardColorType.Colorless)
                 continue;
 
             removedCardRecoveryCandidates.Add(card);

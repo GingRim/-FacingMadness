@@ -1,83 +1,179 @@
-using System;
 using TMPro;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
+
+/// <summary>
+/// CardInstance의 현재 정보를 카드 UI에 표시합니다.
+/// 클릭과 드래그 입력은 CardClick이 담당합니다.
+/// </summary>
 public class UI_Card : PooledObject
 {
+    [Header("카드 이미지")]
+    [SerializeField]
+    private Image illustrationImage;
 
-    [SerializeField] TextMeshProUGUI NameText;
+    [SerializeField]
+    private Image frameImage;
 
-    [SerializeField] TextMeshProUGUI descriptionText;
-    
-    [SerializeField] Image frameImage;
+    [Header("카드 텍스트")]
+    [SerializeField]
+    private TMP_Text nameText;
 
-    CardData cardData;
-    CanvasGroup canvasGroup;
+    [SerializeField]
+    private TMP_Text keywordText;
 
-    public event Action<UI_Card> OnClicked;
+    [SerializeField]
+    private TMP_Text durabilityText;
 
-    public CardData CardData => cardData;
+    private CardInstance cardInstance;
 
+
+    /// <summary>
+    /// 이 UI에 연결된 실제 카드 한 장입니다.
+    /// </summary>
+    public CardInstance CardInstance => cardInstance;
 
     private void Awake()
     {
-        EnsureCanvasGroup();
+        OnEnqueueEvent -= HandleEnqueue;
+        OnEnqueueEvent += HandleEnqueue;
+    }
+
+    private void OnDestroy()
+    {
+        UnsubscribeCardEvents();
+
+        OnEnqueueEvent -= HandleEnqueue;
+    }
+
+    private void HandleEnqueue(GameObject target)
+    {
+        UnsubscribeCardEvents();
+
+        cardInstance = null;
+
+        Clear();
     }
 
     /// <summary>
-    /// 카드 데이터를 받아 UI에 표시
+    /// 연결된 카드의 원본 데이터입니다.
     /// </summary>
-    public void SetCard(CardData newCard)
+    public CardData CardData => cardInstance != null ? cardInstance.Data : null;
+
+    private void OnEnable()
     {
-        cardData = newCard;
-        Refresh();
+        SubscribeCardEvents();
+        RefreshAll();
     }
 
-    void Refresh()
+    private void OnDisable()
     {
-        if (cardData == null) return;
-
-        if (NameText != null)
-            NameText.SetText(CardData.cardName);
-        
-        if (descriptionText != null)
-            descriptionText.SetText(cardData.description);
-       
-        if (frameImage != null)
-            frameImage.color = GetCardColor(cardData.color);
+        UnsubscribeCardEvents();
     }
 
     /// <summary>
-    /// 드래그 중 카드 UI가 마우스 아래 오브젝트 감지를 막지 않게 설정.
-    /// true = 카드가 Raycast를 막음.
-    /// false = 카드 뒤의 오브젝트를 감지할 수 있음.
+    /// 카드 인스턴스를 UI에 연결합니다.
     /// </summary>
-    public void SetRaycastBlock(bool value)
+    public void SetCard(CardInstance instance)
     {
-        EnsureCanvasGroup();
-
-        if (canvasGroup == null)
+        if (cardInstance == instance)
+        {
+            RefreshAll();
             return;
+        }
 
-        canvasGroup.blocksRaycasts = value;
+        UnsubscribeCardEvents();
+
+        cardInstance = instance;
+
+        SubscribeCardEvents();
+        RefreshAll();
     }
 
-    private void EnsureCanvasGroup()
+    /// <summary>
+    /// 현재 카드 정보를 다시 표시합니다.
+    /// </summary>
+    public void RefreshAll()
     {
-        if (canvasGroup != null)
+        if (cardInstance == null || cardInstance.Data == null)
+        {
+            Clear();
             return;
+        }
 
-        canvasGroup = GetComponent<CanvasGroup>();
-
-        if (canvasGroup == null)
-            canvasGroup = gameObject.AddComponent<CanvasGroup>();
+        RefreshName();
+        RefreshIllustration();
+        RefreshFrame();
+        RefreshKeywords();
+        RefreshDurability();
     }
 
-    Color GetCardColor(CardColorType type)
+    private void RefreshName()
     {
-        switch (type)
+        if (nameText == null)
+            return;
+
+        nameText.SetText(cardInstance.CardName);
+    }
+
+    private void RefreshIllustration()
+    {
+        if (illustrationImage == null)
+            return;
+
+        Sprite illustration = cardInstance.Data.Illustration;
+
+        illustrationImage.sprite = illustration;
+
+        illustrationImage.enabled = illustration != null;
+    }
+
+    private void RefreshFrame()
+    {
+        if (frameImage == null || cardInstance == null)
+            return;
+
+        frameImage.color = GetFrameColor(cardInstance.Color);
+        frameImage.enabled = true;
+    }
+
+    private void RefreshKeywords()
+    {
+        if (keywordText == null)
+            return;
+
+        string keywordDisplay = cardInstance.GetKeywordDisplayText();
+
+        keywordText.SetText(keywordDisplay);
+
+        keywordText.gameObject.SetActive(!string.IsNullOrEmpty(keywordDisplay));
+    }
+
+    private void RefreshDurability()
+    {
+        if (durabilityText == null)
+            return;
+
+        if (cardInstance == null || !cardInstance.HasDurability)
+        {
+            durabilityText.SetText(string.Empty);
+
+            durabilityText.gameObject.SetActive(false);
+
+            return;
+        }
+
+        durabilityText.gameObject.SetActive(true);
+
+        durabilityText.SetText(
+            $"{cardInstance.CurrentDurability} / " +
+            $"{cardInstance.MaximumDurability}");
+    }
+
+    private Color GetFrameColor(CardColorType color)
+    {
+        switch (color)
         {
             case CardColorType.Red:
                 return Color.red;
@@ -94,31 +190,87 @@ public class UI_Card : PooledObject
             case CardColorType.Purple:
                 return new Color(0.6f, 0.2f, 1f);
 
+            case CardColorType.Black:
+                return Color.black;
+
             case CardColorType.Colorless:
-                return Color.gray;
-
             default:
-                return Color.white;
+                return Color.gray;
         }
     }
 
-    public void OnPointerClick(PointerEventData eventData)
+    private void SubscribeCardEvents()
     {
-        if (eventData.button != PointerEventData.InputButton.Left)
+        if (cardInstance == null)
+            return;
+
+        UnsubscribeCardEvents();
+
+        cardInstance.OnKeywordChanged += HandleKeywordChanged;
+
+        cardInstance.OnDurabilityChanged += HandleDurabilityChanged;
+    }
+
+    private void UnsubscribeCardEvents()
+    {
+        if (cardInstance == null)
+            return;
+
+        cardInstance.OnKeywordChanged -= HandleKeywordChanged;
+
+        cardInstance.OnDurabilityChanged -= HandleDurabilityChanged;
+    }
+
+    private void HandleKeywordChanged(CardInstance changedCard)
+    {
+        if (changedCard != cardInstance)
+            return;
+
+        RefreshKeywords();
+        RefreshDurability();
+    }
+
+    private void HandleDurabilityChanged(CardInstance changedCard, int current, int maximum)
+    {
+        if (changedCard != cardInstance)
+            return;
+
+        RefreshDurability();
+    }
+
+    /// <summary>
+    /// UI에 표시된 카드 정보를 제거합니다.
+    /// </summary>
+    private void Clear()
+    {
+        if (nameText != null)
         {
-            return;
+            nameText.SetText(string.Empty);
         }
 
-        if (cardData == null)
-            return;
+        if (keywordText != null)
+        {
+            keywordText.SetText(string.Empty);
 
-        OnClicked?.Invoke(this);
+            keywordText.gameObject.SetActive(false);
+        }
+
+        if (durabilityText != null)
+        {
+            durabilityText.SetText(string.Empty);
+
+            durabilityText.gameObject.SetActive(false);
+        }
+
+        if (illustrationImage != null)
+        {
+            illustrationImage.sprite = null;
+            illustrationImage.enabled = false;
+        }
+
+        if (frameImage != null)
+        {
+            frameImage.enabled = false;
+        }
     }
-
-    public void ClearClickListeners()
-    {
-        OnClicked = null;
-    }
-
 }
-

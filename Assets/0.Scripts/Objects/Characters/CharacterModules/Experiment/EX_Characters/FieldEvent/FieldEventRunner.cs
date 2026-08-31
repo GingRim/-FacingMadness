@@ -14,6 +14,13 @@ public class FieldEventRunner : MonoBehaviour
 
     private readonly Stack<FieldEventPageData> pageHistory = new();
 
+    [Header("점화 판정")]
+    [SerializeField]
+    private CardIgnitionController ignitionController;
+
+    private CardInstance pendingIgnitionCard;
+
+
     private FieldEventData currentEvent;
     private FieldEventContext currentContext;
     private FieldEventPageData currentPage;
@@ -108,6 +115,55 @@ public class FieldEventRunner : MonoBehaviour
     public event Action OnEventClosed;
 
     /// <summary>
+    /// 선택지 결과 이미지가 설정되어 있을 때 발생합니다.
+    /// </summary>
+    public event Action<Sprite> OnResultImageChanged;
+
+    private void Awake()
+    {
+        if (ignitionController == null)
+        {
+            ignitionController = FindFirstObjectByType<CardIgnitionController>(FindObjectsInactive.Include);
+        }
+    }
+
+    private void OnEnable()
+    {
+        BindIgnitionController();
+    }
+
+    private void OnDisable()
+    {
+        UnbindIgnitionController();
+
+        ignitionController?.Cancel();
+        pendingIgnitionCard = null;
+    }
+
+    private void BindIgnitionController()
+    {
+        if (ignitionController == null)
+        {
+            ignitionController = FindFirstObjectByType<CardIgnitionController>(
+                FindObjectsInactive.Include);
+        }
+
+        if (ignitionController == null)
+            return;
+
+        ignitionController.OnIgnitionCheckRequested -= HandleIgnitionCheckRequested;
+        ignitionController.OnIgnitionCheckRequested += HandleIgnitionCheckRequested;
+    }
+
+    private void UnbindIgnitionController()
+    {
+        if (ignitionController == null)
+            return;
+
+        ignitionController.OnIgnitionCheckRequested -= HandleIgnitionCheckRequested;
+    }
+
+    /// <summary>
     /// 지정된 이벤트를 열고 시작 페이지를 준비한다.
     /// 시작 페이지가 없다면 기존 이벤트 선택지 배열을 사용한다.
     /// </summary>
@@ -192,7 +248,7 @@ public class FieldEventRunner : MonoBehaviour
 
         return !usedChoices.Contains(choice.ChoiceId);
     }
- 
+
     /// <summary>
     /// 현재 페이지에서 지정된 선택지를 선택한다.
     /// 페이지 이동 선택지는 다음 페이지를 열고,
@@ -323,9 +379,7 @@ public class FieldEventRunner : MonoBehaviour
     private void ResolveChoiceResult(FieldEventChoice choice, bool success)
     {
         if (choice == null || currentEvent == null || currentContext == null)
-        {
             return;
-        }
 
         FieldEventData resolvedEvent = currentEvent;
 
@@ -342,12 +396,14 @@ public class FieldEventRunner : MonoBehaviour
             choice.ExecuteFailure(currentContext);
         }
 
-        if (!resolvedEvent.Repeatable && !string.IsNullOrEmpty(resolvedEvent.EventId))
+        Sprite resultImage = choice.GetResultImage(success);
+
+        if (resultImage != null)
         {
-            completedEvents.Add(resolvedEvent.EventId);
+            OnResultImageChanged?.Invoke(resultImage);
         }
 
-        OnChoiceSelected?.Invoke(resolvedEvent, choice);
+        RegisterChoiceUse(choice);
     }
 
     /// <summary>
@@ -395,11 +451,12 @@ public class FieldEventRunner : MonoBehaviour
 
         isChoiceResolved = false;
 
-        pendingStatChoice = null;
-
         pageHistory.Clear();
 
         OnEventClosed?.Invoke();
+
+        ClearPendingStatCheck();
+
     }
 
     /// <summary>
@@ -448,12 +505,7 @@ public class FieldEventRunner : MonoBehaviour
             return;
         }
 
-        CharacterBase character = currentContext.Player;
-
-        if (character == null)
-        {
-            character = currentContext.Character;
-        }
+        CharacterBase character = GetCurrentCheckCharacter();
 
         if (character == null)
         {
@@ -466,16 +518,20 @@ public class FieldEventRunner : MonoBehaviour
 
         JudgeResult judgeResult = JudgeUtility.Roll(character, choice.RequiredStat, choice.Target);
 
+        lastJudgeResult = judgeResult;
         hasLastJudgeResult = true;
         lastUsedJudgeCard = null;
 
+        ResolvePendingIgnition(judgeResult.success);
         ResolveChoiceResult(choice, judgeResult.success);
 
-        Debug.Log($"이벤트 직접 판정: " + $"D10 {judgeResult.dice} + " + $"능력 보정 {judgeResult.statModifier} + " +
-                  $"상태 보정 {judgeResult.statusModifier} " + $"= {judgeResult.total} / " + $"목표 {judgeResult.target}");
-
-
-        ResolveChoiceResult(choice, judgeResult.success);
+        Debug.Log(
+            $"이벤트 직접 판정: " +
+            $"D10 {judgeResult.dice} + " +
+            $"능력 보정 {judgeResult.statModifier} + " +
+            $"상태 보정 {judgeResult.statusModifier} " +
+            $"= {judgeResult.total} / " +
+            $"목표 {judgeResult.target}");
     }
 
     /// <summary>
@@ -484,14 +540,15 @@ public class FieldEventRunner : MonoBehaviour
     /// </summary>
     /// <param name="usedCard">소비한 대응 색상 카드.</param>
     /// <returns>확정 성공 처리가 완료되면 true.</returns>
-    public void CompletePendingStatCheckByCard(CardData usedCard)
+    public void CompletePendingStatCheckByCard(CardInstance usedCard)
     {
         if (pendingStatChoice == null || currentContext == null || isChoiceResolved)
         {
             return;
         }
 
-        if (usedCard == null || !pendingStatChoice.CanUseCard(usedCard))
+        if (usedCard == null || usedCard.Data == null ||
+            !pendingStatChoice.CanUseCard(usedCard.Data))
         {
             OnChoiceFailed?.Invoke("이 판정에 대응하지 않는 카드입니다.");
 
@@ -500,11 +557,13 @@ public class FieldEventRunner : MonoBehaviour
 
         FieldEventChoice choice = pendingStatChoice;
 
-        Debug.Log($"이벤트 카드 자동 성공: " + $"{usedCard.cardName} / " + $"{choice.RequiredStat} 판정");
+        Debug.Log($"이벤트 카드 자동 성공: " + $"{usedCard.CardName} / " + $"{choice.RequiredStat} 판정");
 
         lastJudgeResult = default;
         hasLastJudgeResult = false;
-        lastUsedJudgeCard = usedCard;
+        lastUsedJudgeCard = usedCard.Data;
+
+        ResolvePendingIgnition(true);
 
         ResolveChoiceResult(choice, true);
     }
@@ -515,6 +574,9 @@ public class FieldEventRunner : MonoBehaviour
     public void ClearPendingStatCheck()
     {
         pendingStatChoice = null;
+        pendingIgnitionCard = null;
+
+        ignitionController?.Cancel();
     }
 
     /// <summary>
@@ -527,6 +589,102 @@ public class FieldEventRunner : MonoBehaviour
 
         lastChoiceSucceeded = false;
         lastUsedJudgeCard = null;
+    }
+
+    /// <summary>
+    /// 점화 전달
+    /// </summary>
+    /// <param name="checkSucceeded"></param>
+    private void ResolvePendingIgnition(bool checkSucceeded)
+    {
+        if (pendingIgnitionCard == null)
+            return;
+
+        if (ignitionController == null)
+        {
+            pendingIgnitionCard = null;
+            return;
+        }
+
+        ignitionController.ResolveIgnition(checkSucceeded);
+
+        pendingIgnitionCard = null;
+    }
+
+    private CharacterBase GetCurrentCheckCharacter()
+    {
+        if (currentContext == null)
+            return null;
+
+        if (currentContext.Player != null)
+            return currentContext.Player;
+
+        return currentContext.Character;
+    }
+
+    /// <summary>
+    /// 현재 대기 중인 능력치 판정을 점화 판정으로 사용합니다.
+    /// </summary>
+    public bool BeginPendingIgnitionSelection()
+    {
+        if (pendingStatChoice == null || currentContext == null || isChoiceResolved)
+        {
+            return false;
+        }
+
+        BindIgnitionController();
+
+        if (ignitionController == null)
+        {
+            OnChoiceFailed?.Invoke("점화 처리기를 찾지 못했습니다.");
+
+            return false;
+        }
+
+        CharacterBase character = GetCurrentCheckCharacter();
+
+        if (character == null)
+        {
+            OnChoiceFailed?.Invoke("점화를 진행할 캐릭터가 없습니다.");
+
+            return false;
+        }
+
+        return ignitionController.BeginSelection(character);
+    }
+
+    private void HandleIgnitionCheckRequested(CardInstance card, CharacterBase character)
+    {
+        if (pendingStatChoice == null || currentContext == null || isChoiceResolved)
+        {
+            ignitionController?.Cancel();
+            return;
+        }
+
+        CharacterBase checkCharacter = GetCurrentCheckCharacter();
+
+        if (character != checkCharacter)
+        {
+            OnChoiceFailed?.Invoke(
+                "현재 판정 캐릭터의 카드가 아닙니다.");
+
+            ignitionController?.Cancel();
+            return;
+        }
+
+        if (card == null || !card.CanIgnite)
+        {
+            OnChoiceFailed?.Invoke("점화할 수 없는 카드입니다.");
+
+            ignitionController?.Cancel();
+            return;
+        }
+
+        pendingIgnitionCard = card;
+
+        Debug.Log($"점화 판정 대상 확정: {card.CardName}");
+
+        OnStatCheckRequested?.Invoke(pendingStatChoice);
     }
 
 }

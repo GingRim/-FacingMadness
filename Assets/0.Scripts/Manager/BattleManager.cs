@@ -99,6 +99,8 @@ public class BattleManager : ManagerBase
         }
 
 
+        ProcessHandTurnDurability(character);
+
         DrawCardsByIntelligence(character);
     }
 
@@ -322,11 +324,15 @@ public class BattleManager : ManagerBase
 
     private void DrawCard(CharacterBase character)
     {
+        if (character == null)
+            return;
+
         StatusEffectModule status = character.GetModule<StatusEffectModule>();
 
         if (status != null && status.ConsumeDrawBlock())
         {
-            Debug.Log($"{character.name}: 드로우 제한으로 라운드 시작 드로우 취소");
+            Debug.Log($"{character.name}: " + "드로우 제한으로 드로우 취소");
+
             return;
         }
 
@@ -335,19 +341,22 @@ public class BattleManager : ManagerBase
         if (deck == null)
         {
             Debug.LogWarning($"{character.name}: DeckModule 없음");
+
             return;
         }
 
-        CardData drawCard = deck.Draw();
+        CardInstance drawCard = deck.DrawInstance();
 
-        if (drawCard == null)
+        if (drawCard == null || drawCard.Data == null)
         {
             Debug.LogWarning($"{character.name}: 드로우 실패");
+
             return;
         }
 
-        Debug.Log($"{character.name} 드로우: {drawCard.cardName}");
+        Debug.Log($"{character.name} 드로우: " + $"{drawCard.CardName}");
     }
+
 
     private void ResetCost(CharacterBase character)
     {
@@ -449,16 +458,16 @@ public class BattleManager : ManagerBase
 
         for (int i = 0; i < drawCount; i++)
         {
-            CardData drawCard = deck.Draw();
+            CardInstance drawCard = deck.DrawInstance();
 
             if (drawCard == null)
             {
                 break;
             }
 
+            Debug.Log($"{character.name} 드로우: " + $"{drawCard.CardName}");
         }
-
-        RefreshHandUI(deck);
+            RefreshHandUI(deck);
 
     }
 
@@ -1031,6 +1040,24 @@ public class BattleManager : ManagerBase
             return;
 
         OnBattleLog?.Invoke(message);
+    }
+
+    private void ProcessHandTurnDurability(CharacterBase character)
+    {
+        if (character == null)
+            return;
+
+        DeckModule deck = character.GetModule<DeckModule>();
+
+        if (deck == null)
+            return;
+
+        int removedCount = deck.ProcessHandTurnDurability();
+
+        if (removedCount > 0)
+        {
+            RefreshHandUI(deck);
+        }
     }
 
 }

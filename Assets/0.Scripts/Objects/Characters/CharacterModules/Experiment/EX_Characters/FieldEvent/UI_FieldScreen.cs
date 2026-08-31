@@ -39,7 +39,7 @@ public class UI_FieldScreen : UI_ScreenBase
 
     private ActionPointModule boundActionPoint;
 
-    public event Action<CardData, CharacterBase> OnFieldCardSelected;
+    public event Action<CardInstance, CharacterBase> OnFieldCardSelected;
 
     private void OnEnable()
     {
@@ -196,9 +196,9 @@ public class UI_FieldScreen : UI_ScreenBase
     /// 필드 카드 사용 영역에 놓인 손패 카드를
     /// FieldCardUseController에 전달합니다.
     /// </summary>
-    public bool TryUseDroppedCard(CardData selectedCard)
+    public bool TryUseDroppedCard(CardInstance selectedCard)
     {
-        if (selectedCard == null)
+        if (selectedCard == null || selectedCard.Data == null)
             return false;
 
         if (fieldManager == null || !fieldManager.IsFieldActive)
@@ -223,7 +223,7 @@ public class UI_FieldScreen : UI_ScreenBase
         if (deck == null ||
             !ContainsCard(deck, selectedCard))
         {
-            Debug.LogWarning($"{selectedCard.cardName}: 손패에 없는 카드입니다.");
+            Debug.LogWarning($"{selectedCard.CardName}: 손패에 없는 카드입니다.");
 
             return false;
         }
@@ -233,9 +233,9 @@ public class UI_FieldScreen : UI_ScreenBase
         return true;
     }
 
-    private bool ContainsCard(DeckModule deck, CardData card)
+    private bool ContainsCard(DeckModule deck, CardInstance card)
     {
-        foreach (CardData handCard in deck.Hand)
+        foreach (CardInstance handCard in deck.HandInstances)
         {
             if (handCard == card)
                 return true;

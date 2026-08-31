@@ -25,6 +25,11 @@ public class UI_FieldCardSelector : MonoBehaviour
     [SerializeField]
     private Button directRollButton;
 
+    [SerializeField]
+    private Button ignitionSelectButton;
+
+    private bool isSelectingIgnitionTarget;
+
     private FieldEventChoice pendingChoice;
 
     public bool IsSelectingCard => pendingChoice != null && eventRunner != null && eventRunner.IsWaitingStatCheck;
@@ -33,17 +38,30 @@ public class UI_FieldCardSelector : MonoBehaviour
     /// 유효한 대응 카드가 드롭되었을 때 발생합니다.
     /// 실제 카드 소멸과 무색 카드 추가는 FieldCardUseController가 담당합니다.
     /// </summary>
-    public event Action<FieldEventChoice, CardData> OnCardSelected;
+    public event Action<FieldEventChoice, CardInstance> OnCardSelected;
 
     /// <summary>
     /// 초기 UI와 직접 판정 버튼을 설정합니다.
     /// </summary>
     private void Awake()
     {
+        if (eventRunner == null)
+        {
+            eventRunner = FindFirstObjectByType<FieldEventRunner>(FindObjectsInactive.Include);
+        }
+
         if (directRollButton != null)
         {
             directRollButton.onClick.RemoveListener(HandleDirectRoll);
+
             directRollButton.onClick.AddListener(HandleDirectRoll);
+        }
+
+        if (ignitionSelectButton != null)
+        {
+            ignitionSelectButton.onClick.RemoveListener(HandleIgnitionSelection);
+
+            ignitionSelectButton.onClick.AddListener(HandleIgnitionSelection);
         }
 
         SetCheckPanelActive(false);
@@ -91,6 +109,7 @@ public class UI_FieldCardSelector : MonoBehaviour
             return;
 
         pendingChoice = choice;
+        isSelectingIgnitionTarget = false;
 
         if (guideText != null)
         {
@@ -115,15 +134,18 @@ public class UI_FieldCardSelector : MonoBehaviour
     /// 드롭한 카드가 현재 판정에 대응하는지 확인하고 전달합니다.
     /// 선택 대기 중이라면 잘못된 카드도 일반 카드 사용으로 넘기지 않습니다.
     /// </summary>
-    public bool TrySelectCard(CardData card)
+    public bool TrySelectCard(CardInstance card)
     {
+        if (isSelectingIgnitionTarget)
+            return true;
+
         if (!IsSelectingCard)
             return false;
 
-        if (card == null)
+        if (card == null || card.Data == null)
             return true;
 
-        if (!pendingChoice.CanUseCard(card))
+        if (!pendingChoice.CanUseCard(card.Data))
         {
             if (guideText != null)
             {
@@ -162,6 +184,8 @@ public class UI_FieldCardSelector : MonoBehaviour
     public void CancelSelection()
     {
         pendingChoice = null;
+        isSelectingIgnitionTarget = false;
+
         SetCheckPanelActive(false);
     }
 
@@ -202,4 +226,25 @@ public class UI_FieldCardSelector : MonoBehaviour
                 return CardColorType.None;
         }
     }
+
+    /// <summary>
+    /// 현재 판정을 사용하여 점화할 비점화 카드를 선택합니다.
+    /// </summary>
+    private void HandleIgnitionSelection()
+    {
+        if (eventRunner == null || !eventRunner.IsWaitingStatCheck)
+        {
+            return;
+        }
+
+        bool started = eventRunner.BeginPendingIgnitionSelection();
+
+        if (!started)
+            return;
+
+        isSelectingIgnitionTarget = true;
+
+        SetCheckPanelActive(false);
+    }
+
 }

@@ -6,88 +6,72 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// 캐릭터의 덱, 손패, 묘지, 제외, 소멸 영역을 관리합니다.
+/// 같은 CardData라도 각각 독립된 CardInstance로 저장합니다.
+/// </summary>
 public class DeckModule : CharacterModule
 {
-    public sealed override System.Type RegistrationType => typeof(DeckModule);
+    public sealed override System.Type RegistrationType =>
+        typeof(DeckModule);
 
+    [Header("카드 영역")]
+    [SerializeField] private List<CardInstance> deck = new();
+    [SerializeField] private List<CardInstance> hand = new();
+    [SerializeField] private List<CardInstance> graveyard = new();
+    [SerializeField] private List<CardInstance> exhaust = new();
+    [SerializeField] private List<CardInstance> remove = new();
 
-    /// <summary>
-    /// 메인 덱
-    /// 드로우 대상
-    /// </summary>
-    [SerializeField]
-    private List<CardData> deck = new();
-
-
-    /// <summary>
-    /// 현재 손패
-    /// </summary>
-    [SerializeField]
-    private List<CardData> hand = new();
-
-
-    /// <summary>
-    /// 사용된 카드
-    /// 일반적으로 여기로 이동
-    /// </summary>
-    [SerializeField]
-    private List<CardData> graveyard = new();
-
-
-    /// <summary>
-    /// 일시 제거
-    /// 전투 종료 시 복귀 가능
-    /// </summary>
-    [SerializeField]
-    private List<CardData> exhaust = new();
-
-
-    /// <summary>
-    /// 영구 제거
-    /// 다시 덱에 들어오지 않음
-    /// </summary>
-    [SerializeField]
-    private List<CardData> remove = new();
-
-   // 캐릭터 정보 가저 오기
     private CharacterBase owner;
+
+    public IReadOnlyList<CardInstance> DeckInstances => deck;
+    public IReadOnlyList<CardInstance> HandInstances => hand;
+    public IReadOnlyList<CardInstance> GraveyardInstances => graveyard;
+    public IReadOnlyList<CardInstance> ExhaustInstances => exhaust;
+    public IReadOnlyList<CardInstance> RemoveInstances => remove;
+
+    public int HandCount => hand.Count;
+
     /// <summary>
-    /// 캐릭터 정보 받아오기
+    /// 캐릭터에게 덱 모듈을 등록합니다.
     /// </summary>
-    /// <param name="owner"></param>
     public override void OnRegistration(CharacterBase owner)
     {
         base.OnRegistration(owner);
         this.owner = owner;
     }
 
-    // =========================
-    // Getter
-    // =========================
-
-    public IReadOnlyList<CardData> Deck => deck;
-    public IReadOnlyList<CardData> Hand => hand;
-    public IReadOnlyList<CardData> Graveyard => graveyard;
-    public IReadOnlyList<CardData> Exhaust => exhaust;
-    public IReadOnlyList<CardData> Remove => remove;
-
-
     /// <summary>
-    /// 특정 영역에 카드 추가
+    /// CardInstance를 지정한 카드 영역에 추가합니다.
     /// </summary>
-    public void AddCard(CardData card, CardZoneType zone)
+    public void AddCard(CardInstance card, CardZoneType zone)
     {
-        if (card == null)
+        if (card == null || card.Data == null)
             return;
 
         GetZone(zone).Add(card);
     }
 
+    /// <summary>
+    /// CardData로 새로운 카드 인스턴스를 생성하여
+    /// 지정한 카드 영역에 추가합니다.
+    /// </summary>
+    public CardInstance AddCard(CardData cardData, CardZoneType zone)
+    {
+        if (cardData == null)
+            return null;
+
+        CardInstance instance = cardData.CreateInstance();
+
+        AddCard(instance, zone);
+
+        return instance;
+    }
 
     /// <summary>
-    /// 특정 영역에서 카드 제거
+    /// 지정한 카드 인스턴스를 카드 영역에서 제거합니다.
     /// </summary>
-    public bool RemoveCard(CardData card, CardZoneType zone)
+    public bool RemoveCard(CardInstance card, CardZoneType zone)
     {
         if (card == null)
             return false;
@@ -95,11 +79,10 @@ public class DeckModule : CharacterModule
         return GetZone(zone).Remove(card);
     }
 
-
     /// <summary>
-    /// 카드 영역 이동
+    /// 카드 인스턴스를 한 영역에서 다른 영역으로 이동합니다.
     /// </summary>
-    public bool MoveCard(CardData card, CardZoneType from, CardZoneType to)
+    public bool MoveCard(CardInstance card, CardZoneType from, CardZoneType to)
     {
         if (!RemoveCard(card, from))
             return false;
@@ -109,163 +92,271 @@ public class DeckModule : CharacterModule
         return true;
     }
 
-
     /// <summary>
-    /// 덱에서 손패로 카드 드로우
+    /// 덱에서 카드 인스턴스 한 장을 드로우합니다.
+    /// 덱이 비어 있으면 묘지를 덱으로 복귀시킵니다.
     /// </summary>
-    public CardData Draw()
+    public CardInstance DrawInstance()
     {
-        // 1. 덱이 비었으면 묘지 회수
-        if (deck.Count <= 0)
+        if (deck.Count <= 0 && graveyard.Count > 0)
         {
-            if (graveyard.Count > 0)
-            {
-                ShuffleGraveyardIntoDeck();
-            }
+            ShuffleGraveyardIntoDeck();
         }
 
-        // 2. 회수 후에도 덱이 없으면 진짜 드로우 불가
         if (deck.Count <= 0)
         {
-            Debug.Log("덱과 묘지가 모두 비어 있습니다. 게임오버 조건 확인 필요");
+            Debug.Log("덱과 묘지가 모두 비어 있습니다.");
+
             return null;
         }
 
-        // 3. 드로우
-        CardData card = deck[0];
+        CardInstance card = deck[0];
 
         deck.RemoveAt(0);
         hand.Add(card);
+
+        CheckHandLimit();
 
         return card;
     }
 
     /// <summary>
-    /// 현재 손패 수
+    /// 손패 제한을 초과한 카드를 묘지로 이동합니다.
     /// </summary>
-    public int HandCount
-    {
-        get
-        {
-            return hand.Count;
-        }
-    }
-
     private void CheckHandLimit()
     {
         int maxHand = GetMaxHand();
 
         while (hand.Count > maxHand)
         {
-            CardData overflowCard = hand[hand.Count - 1];
+            CardInstance overflowCard = hand[hand.Count - 1];
 
             hand.RemoveAt(hand.Count - 1);
             graveyard.Add(overflowCard);
 
-            Debug.Log($"핸드 초과로 묘지 이동: {overflowCard.cardName}");
+            Debug.Log($"핸드 초과로 묘지 이동: " + $"{overflowCard.Data.cardName}");
         }
     }
 
-    // =========================
-    // 셔플
-    // =========================
-
     /// <summary>
-    /// 묘지를 덱으로 복귀 후 셔플
+    /// 묘지의 모든 카드를 덱으로 복귀시킨 뒤 셔플합니다.
     /// </summary>
     public void ShuffleGraveyardIntoDeck()
     {
         deck.AddRange(graveyard);
-
         graveyard.Clear();
 
         Shuffle(deck);
     }
 
     /// <summary>
-    /// 리스트 셔플
+    /// 카드 인스턴스 목록을 무작위로 섞습니다.
     /// </summary>
-    private void Shuffle(List<CardData> list)
+    private void Shuffle(List<CardInstance> list)
     {
         for (int i = 0; i < list.Count; i++)
         {
-            int randomIndex =
-                Random.Range(i, list.Count);
+            int randomIndex = Random.Range(i, list.Count);
 
-            (list[i], list[randomIndex]) =
-                (list[randomIndex], list[i]);
+            (list[i], list[randomIndex]) = (list[randomIndex], list[i]);
         }
     }
 
     /// <summary>
-    /// 게임 중 카드를 덱에 추가한 뒤 셔플
+    /// 새로운 카드를 덱에 추가합니다.
     /// </summary>
-    public void AddCardToDeckAndShuffle(CardData card)
+    public CardInstance AddCardToDeck(CardData cardData)
     {
-        if (card == null)
+        if (cardData == null)
         {
-            Debug.LogWarning("AddCardToDeckAndShuffle 실패: card가 null");
-            return;
+            Debug.LogWarning("AddCardToDeck 실패: CardData가 없습니다.");
+
+            return null;
         }
-        Debug.Log($"추가 전 덱 수: {deck.Count}");
 
-        AddCardToDeck(card);
-        Shuffle(deck);
+        CardInstance instance = cardData.CreateInstance();
 
-        Debug.Log($"덱에 추가됨: {card.cardName} / 추가 후 덱 수: {deck.Count}");
+        deck.Add(instance);
+
+        Debug.Log($"덱에 카드 추가: {cardData.cardName}");
+
+        return instance;
     }
 
     /// <summary>
-    /// 카드 사용 후 이동 처리
+    /// 이미 존재하는 카드 인스턴스를 덱에 추가합니다.
     /// </summary>
-    public void UseCard(CardData card, bool isExhaust = false, bool isRemove = false)
+    public void AddCardToDeck(CardInstance card)
     {
-        if (!hand.Contains(card))
+        if (card == null || card.Data == null)
             return;
-
-        hand.Remove(card);
-
-        // 영구 제거
-        if (isRemove)
-        {
-            remove.Add(card);
-            return;
-        }
-
-        // 일시 소멸
-        if (isExhaust)
-        {
-            exhaust.Add(card);
-            return;
-        }
-
-        // 일반 사용
-        graveyard.Add(card);
-    }
-    
-    /// <summary>
-    /// 게임 중 카드 추가
-    /// </summary>
-    /// <param name="card"></param>
-    public void AddCardToDeck(CardData card)
-    {
-        if (card == null)
-        {
-            Debug.LogWarning("AddCardToDeck 실패: card가 null");
-            return;
-        }
 
         deck.Add(card);
-        Debug.Log($"AddCardToDeck 실행: {card.cardName}");
     }
 
+    /// <summary>
+    /// 새로운 카드를 덱에 추가한 뒤 셔플합니다.
+    /// </summary>
+    public CardInstance AddCardToDeckAndShuffle(CardData cardData)
+    {
+        CardInstance instance = AddCardToDeck(cardData);
+
+        if (instance == null)
+            return null;
+
+        Shuffle(deck);
+
+        return instance;
+    }
 
     /// <summary>
-    /// 게임 중 카드 제거
+    /// 손패에서 사용한 카드를 지정한 카드 영역으로 이동합니다.
     /// </summary>
-    /// <param name="card"></param>
-    /// <returns></returns>
-    public bool RemoveCardFromDeck(CardData card)
+    public bool UseCard(CardInstance card, bool isExhaust = false, bool isRemove = false)
+    {
+        if (card == null || !hand.Contains(card))
+            return false;
+
+        CardZoneType targetZone = CardZoneType.Graveyard;
+
+        if (isRemove)
+        {
+            targetZone = CardZoneType.Remove;
+        }
+        else if (isExhaust)
+        {
+            targetZone = CardZoneType.Exhaust;
+        }
+
+        return MoveCard(card, CardZoneType.Hand, targetZone);
+    }
+
+    /// <summary>
+    /// 필드 판정 결과에 따라 사용한 카드를 이동합니다.
+    /// </summary>
+    public bool ResolveFieldCard(CardInstance card, FieldCardCheckResult result, bool forceRemove = false)
+    {
+        if (card == null || !hand.Contains(card))
+            return false;
+
+        CardZoneType targetZone;
+
+        if (forceRemove || result == FieldCardCheckResult.Fumble)
+        {
+            targetZone = CardZoneType.Remove;
+        }
+        else if (result ==
+                 FieldCardCheckResult.Failure)
+        {
+            targetZone = CardZoneType.Exhaust;
+        }
+        else
+        {
+            targetZone = CardZoneType.Graveyard;
+        }
+
+        return MoveCard(card, CardZoneType.Hand, targetZone);
+    }
+
+    /// <summary>
+    /// 이벤트 판정에 사용한 색상 카드를 소멸시키고
+    /// 새로운 무색 카드를 덱에 추가합니다.
+    /// </summary>
+    public bool ReplaceEventCardWithColorless(CardInstance usedCard, CardData colorlessCard)
+    {
+        if (usedCard == null || colorlessCard == null || !hand.Contains(usedCard))
+        {
+            return false;
+        }
+
+        if (usedCard.Data.color == CardColorType.Colorless)
+        {
+            return false;
+        }
+
+        if (!MoveCard(usedCard, CardZoneType.Hand, CardZoneType.Remove))
+        {
+            return false;
+        }
+
+        AddCardToDeck(colorlessCard);
+        Shuffle(deck);
+
+        return true;
+    }
+
+    /// <summary>
+    /// 제외 영역의 모든 카드를 덱으로 복귀시키고 셔플합니다.
+    /// </summary>
+    public void ReturnAllExhaustToDeck()
+    {
+        if (exhaust.Count <= 0)
+            return;
+
+        deck.AddRange(exhaust);
+        exhaust.Clear();
+
+        Shuffle(deck);
+    }
+
+    /// <summary>
+    /// 전투 종료 시 제외된 카드를 덱으로 복귀시킵니다.
+    /// </summary>
+    public void ReturnExhaustToDeck()
+    {
+        ReturnAllExhaustToDeck();
+    }
+
+    /// <summary>
+    /// 복귀 가능한 소멸 카드 인스턴스 목록을 반환합니다.
+    /// 무색 카드는 제외합니다.
+    /// </summary>
+    public List<CardInstance> GetRecoverableRemovedCardInstances()
+    {
+        List<CardInstance> result = new();
+
+        foreach (CardInstance card in remove)
+        {
+            if (card == null || card.Data == null)
+                continue;
+
+            if (card.Data.color == CardColorType.Colorless)
+            {
+                continue;
+            }
+
+            result.Add(card);
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    /// 소멸 카드 인스턴스를 덱으로 복귀시키고 셔플합니다.
+    /// </summary>
+    public bool ReturnRemovedCardToDeck(CardInstance card)
+    {
+        if (card == null || card.Data == null)
+            return false;
+
+        if (card.Data.color == CardColorType.Colorless)
+        {
+            return false;
+        }
+
+        if (!remove.Remove(card))
+            return false;
+
+        deck.Add(card);
+        Shuffle(deck);
+
+        return true;
+    }
+
+    /// <summary>
+    /// 덱에서 지정한 카드 인스턴스를 제거합니다.
+    /// </summary>
+    public bool RemoveCardFromDeck(CardInstance card)
     {
         if (card == null)
             return false;
@@ -274,79 +365,17 @@ public class DeckModule : CharacterModule
     }
 
     /// <summary>
-    /// 핸드 최대치
-    /// </summary>
-    /// <returns></returns>
-    public int GetMaxHand()
-    {
-        DerivedStatModule derived = Owner.GetModule<DerivedStatModule>();
-
-        if (derived == null)
-            return 5;
-
-        return derived.GetMaxHand();
-    }
-
-    // =========================
-    // 전투 종료 처리
-    // =========================
-
-    /// <summary>
-    /// 전투 종료 시
-    /// 소멸 카드 덱 복귀
-    /// </summary>
-    public void ReturnExhaustToDeck()
-    {
-        deck.AddRange(exhaust);
-
-        exhaust.Clear();
-
-        Shuffle(deck);
-
-        ReturnAllExhaustToDeck();
-    }
-
-    // =========================
-    // 영역 가져오기
-    // =========================
-
-    private List<CardData> GetZone(CardZoneType zone)
-    {
-        switch (zone)
-        {
-            case CardZoneType.Deck:
-                return deck;
-
-            case CardZoneType.Hand:
-                return hand;
-
-            case CardZoneType.Graveyard:
-                return graveyard;
-
-            case CardZoneType.Exhaust:
-                return exhaust;
-
-            case CardZoneType.Remove:
-                return remove;
-        }
-
-        return deck;
-    }
-
-
-    /// <summary>
-    /// 사용 가능한 카드가 완전히 없는지 확인한다.
-    /// 덱, 손패, 묘지가 모두 비었으면 true.
-    /// 소멸/제거 영역은 사용 가능한 카드로 보지 않는다.
+    /// 현재 사용할 수 있는 카드가 완전히 없는지 확인합니다.
     /// </summary>
     public bool IsCardEmpty()
     {
-        return deck.Count == 0 && hand.Count == 0 && graveyard.Count == 0;
+        return deck.Count == 0 &&
+               hand.Count == 0 &&
+               graveyard.Count == 0;
     }
 
     /// <summary>
-    /// 시작 덱 등록
-    /// 기존 카드 영역을 초기화하고 덱 데이터를 복사한다.
+    /// 시작 덱 데이터를 카드 인스턴스로 변환하여 등록합니다.
     /// </summary>
     public void RegisterDeck(DeckData deckData)
     {
@@ -359,49 +388,57 @@ public class DeckModule : CharacterModule
         exhaust.Clear();
         remove.Clear();
 
-        foreach (CardData card in deckData.cards)
+        foreach (CardData cardData in deckData.cards)
         {
-            if (card == null)
+            if (cardData == null)
                 continue;
 
-            deck.Add(card);
+            deck.Add(cardData.CreateInstance());
         }
 
         ApplyDeckColorLimit();
-
         Shuffle(deck);
     }
 
     /// <summary>
-    /// 능력치에 따른 색상별 덱 제한 적용.
-    /// 초과한 카드는 덱에서 제거하고 소멸 영역으로 보낸다.
+    /// 능력치에 따라 색상별 덱 제한을 적용합니다.
     /// </summary>
     private void ApplyDeckColorLimit()
     {
-        StatModules stat = owner.GetModule<StatModules>();
+        StatModules stat = owner?.GetModule<StatModules>();
 
         if (stat == null)
             return;
 
         ApplyColorLimit(CardColorType.Red, stat.GetStat(StatType.Strength));
+
         ApplyColorLimit(CardColorType.Yellow, stat.GetStat(StatType.Agility));
+
         ApplyColorLimit(CardColorType.Green, stat.GetStat(StatType.Health));
+
         ApplyColorLimit(CardColorType.Blue, stat.GetStat(StatType.Intelligence));
+
         ApplyColorLimit(CardColorType.Purple, stat.GetStat(StatType.Will));
     }
 
+    /// <summary>
+    /// 지정한 색상의 카드가 제한을 초과하면
+    /// 초과 카드를 소멸 영역으로 이동합니다.
+    /// </summary>
     private void ApplyColorLimit(CardColorType color, int maxCount)
     {
         int count = 0;
 
-        for (int i = deck.Count - 1; i >= 0; i--)
+        for (int i = deck.Count - 1;
+             i >= 0;
+             i--)
         {
-            CardData card = deck[i];
+            CardInstance card = deck[i];
 
-            if (card == null)
+            if (card == null || card.Data == null)
                 continue;
 
-            if (card.color != color)
+            if (card.Data.color != color)
                 continue;
 
             count++;
@@ -411,151 +448,91 @@ public class DeckModule : CharacterModule
 
             deck.RemoveAt(i);
             remove.Add(card);
-
-            Debug.Log($"덱 제한 초과: {card.cardName} → 제거");
         }
-    }
-
-
-    /// <summary>
-    /// 필드에서 사용한 카드를 판정 결과에 따라 이동한다.
-    /// forceRemove가 true면 결과와 관계없이 소멸 영역으로 이동한다.
-    /// </summary>
-    public bool ResolveFieldCard(CardData card, FieldCardCheckResult result, bool forceRemove = false)
-    {
-        if (card == null)
-            return false;
-
-        if (!hand.Contains(card))
-        {
-            Debug.LogWarning($"필드 카드 처리 실패: {card.cardName}이 손패에 없습니다.");
-
-            return false;
-        }
-
-        CardZoneType targetZone;
-
-        if (forceRemove || result == FieldCardCheckResult.Fumble)
-        {
-            targetZone = CardZoneType.Remove;
-        }
-        else if (result == FieldCardCheckResult.Failure)
-        {
-            targetZone = CardZoneType.Exhaust;
-        }
-        else
-        {
-            targetZone = CardZoneType.Graveyard;
-        }
-
-        bool moved = MoveCard(card, CardZoneType.Hand, targetZone);
-
-        if (moved)
-        {
-            Debug.Log($"필드 카드 이동: {card.cardName} → {targetZone}");
-        }
-
-        return moved;
     }
 
     /// <summary>
-    /// 제외 영역의 모든 카드를 덱으로 복귀시킨 뒤 셔플한다.
+    /// 캐릭터의 최대 손패 수를 반환합니다.
     /// </summary>
-    public void ReturnAllExhaustToDeck()
+    public int GetMaxHand()
     {
-        if (exhaust.Count <= 0)
-            return;
+        DerivedStatModule derived = Owner.GetModule<DerivedStatModule>();
 
-        deck.AddRange(exhaust);
-        exhaust.Clear();
-
-        Shuffle(deck);
-
-        Debug.Log("제외된 카드를 모두 덱으로 복귀했습니다.");
+        return derived != null
+            ? derived.GetMaxHand()
+            : 5;
     }
 
-    public List<CardData>
-    GetRecoverableRemovedCards()
+    /// <summary>
+    /// 지정한 카드 영역의 내부 목록을 반환합니다.
+    /// </summary>
+    private List<CardInstance> GetZone(CardZoneType zone)
     {
-        List<CardData> result = new List<CardData>();
-
-        foreach (CardData card in remove)
+        switch (zone)
         {
-            if (card == null)
+            case CardZoneType.Hand:
+                return hand;
+
+            case CardZoneType.Graveyard:
+                return graveyard;
+
+            case CardZoneType.Exhaust:
+                return exhaust;
+
+            case CardZoneType.Remove:
+                return remove;
+
+            case CardZoneType.Deck:
+            default:
+                return deck;
+        }
+    }
+
+    /// <summary>
+    /// 소유자의 턴 시작 시 손패에 있는 활성화된
+    /// 광원·점화 카드의 내구도를 1 감소시킵니다.
+    /// 내구도가 0이 된 카드는 소멸 영역으로 이동합니다.
+    /// </summary>
+    /// <returns>소멸한 카드 수</returns>
+    public int ProcessHandTurnDurability()
+    {
+        int removedCount = 0;
+
+        for (int i = hand.Count - 1; i >= 0; i--)
+        {
+            CardInstance card = hand[i];
+
+            if (card == null || card.Data == null)
+            {
+                continue;
+            }
+
+            int previousDurability = card.CurrentDurability;
+
+            bool consumed = card.ConsumeTurnDurability(true);
+
+            if (!consumed)
                 continue;
 
-            // 무색 카드는 복귀 대상에서 제외
-            if (card.color == CardColorType.Colorless)
+            Debug.Log(
+                $"{card.CardName} 내구도 감소: " +
+                $"{previousDurability} → " +
+                $"{card.CurrentDurability}");
+
+            if (!card.IsDepleted)
                 continue;
 
-            result.Add(card);
+            hand.RemoveAt(i);
+
+            card.SetKeywordActive(false);
+
+            remove.Add(card);
+            removedCount++;
+
+            Debug.Log($"{card.CardName}: " + "내구도가 0이 되어 소멸");
         }
 
-        return result;
-    }
-
-    public bool ReturnRemovedCardToDeck(CardData card)
-    {
-        if (card == null)
-            return false;
-
-        if (card.color == CardColorType.Colorless)
-            return false;
-
-        if (!remove.Remove(card))
-            return false;
-
-        deck.Add(card);
-        Shuffle(deck);
-
-        Debug.Log($"소멸 카드 복귀: {card.cardName}");
-
-        return true;
-    }
-
-    /// <summary>
-    /// 이벤트 판정을 대신한 색상 카드를 손패에서 소멸시키고
-    /// 무색 카드 1장을 덱에 추가한 뒤 덱을 섞습니다.
-    /// </summary>
-    public bool ReplaceEventCardWithColorless(CardData usedCard, CardData colorlessCard)
-    {
-        if (usedCard == null || colorlessCard == null)
-            return false;
-
-        if (usedCard.color == CardColorType.Colorless || usedCard.color == CardColorType.None)
-        {
-            Debug.LogWarning("이벤트 판정에는 색상 카드만 사용할 수 있습니다.");
-
-            return false;
-        }
-
-        if (colorlessCard.color != CardColorType.Colorless)
-        {
-            Debug.LogWarning("대체 카드가 무색 카드가 아닙니다.");
-
-            return false;
-        }
-
-        if (!hand.Remove(usedCard))
-        {
-            Debug.LogWarning($"{usedCard.cardName}: 현재 손패에 없습니다.");
-
-            return false;
-        }
-
-        // 사용한 색상 카드 소멸
-        remove.Add(usedCard);
-
-        // 힘을 잃은 무색 카드가 덱에 남음
-        deck.Add(colorlessCard);
-        Shuffle(deck);
-
-        Debug.Log(
-            $"이벤트 대응 카드 사용: {usedCard.cardName} 소멸 / " +
-            $"{colorlessCard.cardName} 덱 추가"
-        );
-
-        return true;
+        return removedCount;
     }
 
 }

@@ -1,33 +1,46 @@
 using System;
 using UnityEngine;
-using static UnityEngine.GraphicsBuffer;
 
 
 /// <summary>
-/// 카드 클릭 감지 담당.
-/// 카드를 클릭하면 사용 선택 팝업을 연다.
-/// 실제 카드 효과는 여기서 실행하지 않는다.
+/// 카드 클릭 선택과 드래그 입력을 처리합니다.
+/// 짧게 클릭하면 선택 이벤트를 보내고,
+/// 드래그하면 카드 사용 대상으로 전달합니다.
 /// </summary>
-public class CardCrkClick : MonoBehaviour
+public class CardClick : MonoBehaviour
 {
     [SerializeField] private UI_FieldCardSelector fieldCardSelector;
     [SerializeField] private UI_CardUseSelect useSelectUI;
     [SerializeField] private Canvas canvas;
     [SerializeField] private UI_FieldScreen fieldScreen;
 
+    [Header("드래그")]
+    [SerializeField] private CanvasGroup canvasGroup;
+
+    [SerializeField, Min(0f)]
+    private float dragThreshold = 10f;
+
     private UI_Card myCard;
     private RectTransform rectTransform;
 
     private Transform originalParent;
-    private Vector2 originalAnchoredPosition;
+    private Vector2 pressScreenPosition;
 
     private bool isDragging;
-    private GameObject currentHoverObject;
+    private bool hasMoved;
+
+    /// <summary>
+    /// 드래그하지 않고 카드를 클릭했을 때 발생합니다.
+    /// </summary>
+    public event Action<CardInstance> OnClicked;
 
     private void Awake()
     {
         myCard = GetComponent<UI_Card>();
         rectTransform = GetComponent<RectTransform>();
+
+        if (canvasGroup == null)
+            canvasGroup = GetComponent<CanvasGroup>();
 
         if (canvas == null)
             canvas = GetComponentInParent<Canvas>();
@@ -59,21 +72,20 @@ public class CardCrkClick : MonoBehaviour
 
         InputManager.OnMouseMove -= OnMouseMove;
         InputManager.OnMouseMove += OnMouseMove;
-
-        InputManager.OnMouseHover -= OnMouseHover;
-        InputManager.OnMouseHover += OnMouseHover;
     }
 
     private void OnDisable()
     {
         InputManager.OnMouseLeftButton -= OnMouseLeftButton;
         InputManager.OnMouseMove -= OnMouseMove;
-        InputManager.OnMouseHover -= OnMouseHover;
-    }
 
-    private void OnMouseHover(GameObject newTarget, GameObject oldTarget)
-    {
-        currentHoverObject = newTarget;
+        if (isDragging && hasMoved)
+        {
+            ReturnCard();
+        }
+
+        isDragging = false;
+        hasMoved = false;
     }
 
     private void OnMouseLeftButton(bool value, Vector2 screenPosition, Vector3 worldPosition)
@@ -94,7 +106,7 @@ public class CardCrkClick : MonoBehaviour
         if (isDragging)
             return;
 
-        if (myCard == null || myCard.CardData == null)
+        if (myCard == null || myCard.CardInstance == null || myCard.CardData == null)
         {
             return;
         }
@@ -110,7 +122,7 @@ public class CardCrkClick : MonoBehaviour
 
         UI_Card clickedCard = clickedObject != null ? clickedObject.GetComponentInParent<UI_Card>() : null;
 
-            
+
         // 중요:
         // 모든 카드가 InputManager 이벤트를 받기 때문에,
         // "내 카드가 클릭된 경우"만 드래그를 시작해야 함.
@@ -123,15 +135,10 @@ public class CardCrkClick : MonoBehaviour
         }
 
         isDragging = true;
+        hasMoved = false;
 
         originalParent = transform.parent;
-        originalAnchoredPosition = rectTransform.anchoredPosition;
-
-        myCard.SetRaycastBlock(false);
-
-        transform.SetAsLastSibling();
-
-        MoveCard(screenPosition);
+        pressScreenPosition = screenPosition;
 
     }
 
@@ -139,6 +146,19 @@ public class CardCrkClick : MonoBehaviour
     {
         if (!isDragging)
             return;
+
+        if (!hasMoved)
+        {
+            float distance = Vector2.Distance(pressScreenPosition, screenPosition);
+
+            if (distance < dragThreshold)
+                return;
+
+            hasMoved = true;
+
+            SetRaycastBlock(false);
+            transform.SetAsLastSibling();
+        }
 
         MoveCard(screenPosition);
     }
@@ -174,43 +194,45 @@ public class CardCrkClick : MonoBehaviour
         if (!isDragging)
             return;
 
-        CharacterBase target = FindDropTarget();
-
-        bool droppedOnFieldCheck = IsFieldStatCardDropTarget();
-
-        bool droppedOnFieldUse = IsFieldCardUseDropTarget();
-
-        ReturnCard();
+        bool wasDragged = hasMoved;
 
         isDragging = false;
+        hasMoved = false;
 
-        if (myCard == null || myCard.CardData == null)
+        if (!wasDragged)
         {
+            CardInstance clickedCard =
+                myCard != null
+                    ? myCard.CardInstance
+                    : null;
+
+            if (clickedCard != null)
+            {
+                OnClicked?.Invoke(clickedCard);
+            }
+
             return;
         }
 
-        CardData card = myCard.CardData;
+        CharacterBase target = FindDropTarget();
 
-        // 이벤트 판정이 대기 중이라면
-        // 다른 필드 카드 사용과 전투 사용을 모두 차단합니다.
-        if (TryHandleFieldCardSelection(card, droppedOnFieldCheck))
-        {
-            return;
-        }
-
-        // 일반 필드 카드 사용 영역
-        if (droppedOnFieldUse)
-        {
-            TryHandleFieldCardUse(card);
-            return;
-        }
+        ReturnCard();
 
         CharacterBase user = FindControlledCharacter();
 
         if (user == null)
             return;
 
-        CardDropDecision decision = GetDropDecision(card, user, target);
+        if (myCard == null || myCard.CardInstance == null || myCard.CardData == null)
+        {
+            return;
+        }
+
+        CardInstance cardInstance = myCard.CardInstance;
+
+        CardData cardData = cardInstance.Data;
+
+        CardDropDecision decision = GetDropDecision(cardData, user, target);
 
         switch (decision.result)
         {
@@ -218,47 +240,55 @@ public class CardCrkClick : MonoBehaviour
                 return;
 
             case CardDropResult.OpenPopup:
-                OpenPopup(card, user, target);
+                OpenPopup(cardInstance, user, target);
+
                 return;
 
             case CardDropResult.UseDirect:
-                TryUseCardDirect(card, user, target, decision.useCost);
+                TryUseCardDirect(cardInstance, user, target, decision.useCost);
+
                 return;
         }
     }
 
-    private bool TryUseCardDirect(CardData card, CharacterBase user, CharacterBase target, CardUseCost useCost)
+    private bool TryUseCardDirect(CardInstance cardInstance, CharacterBase user, CharacterBase target, CardUseCost useCost)
     {
-        if (card == null || user == null)
+        if (cardInstance == null || cardInstance.Data == null || user == null)
         {
             return false;
         }
 
+        CardData cardData = cardInstance.Data;
+
         CardResolver resolver = new CardResolver();
 
-        if (!resolver.CanUse(card, user, useCost))
+        if (!resolver.CanUse(cardData, user, useCost))
         {
             BattleManager.ClaimBattleLog("코스트가<br>부족합니다.");
+
             return false;
         }
 
         DeckModule deck = user.GetModule<DeckModule>();
 
         if (deck == null)
-        {
             return false;
-        }
 
-        bool success = resolver.UseWithoutCostCheck(card, user, target, useCost);
+        bool success = resolver.UseWithoutCostCheck(cardData, user, target, useCost);
 
         if (!success)
+            return false;
+
+        bool isExhaust = ShouldExhaustOnUse(cardData);
+
+        bool moved = deck.UseCard(cardInstance, isExhaust);
+
+        if (!moved)
         {
+            Debug.LogWarning($"{cardData.cardName}: " + "선택한 카드 인스턴스를 " + "손패에서 찾지 못했습니다.");
+
             return false;
         }
-
-        bool isExhaust = ShouldExhaustOnUse(card);
-
-        deck.UseCard(card, isExhaust);
 
         UI_Hand handUI = GetComponentInParent<UI_Hand>();
 
@@ -271,7 +301,6 @@ public class CardCrkClick : MonoBehaviour
         {
             handUI.RefreshFromDeck(deck);
         }
-
 
         return true;
     }
@@ -292,8 +321,13 @@ public class CardCrkClick : MonoBehaviour
         return false;
     }
 
-    private void OpenPopup(CardData card, CharacterBase user, CharacterBase target)
+    private void OpenPopup(CardInstance cardInstance, CharacterBase user, CharacterBase target)
     {
+        if (cardInstance == null || cardInstance.Data == null)
+        {
+            return;
+        }
+
         if (useSelectUI == null)
         {
             useSelectUI = FindFirstObjectByType<UI_CardUseSelect>(FindObjectsInactive.Include);
@@ -301,18 +335,17 @@ public class CardCrkClick : MonoBehaviour
 
         if (useSelectUI == null)
         {
-            Debug.LogWarning("팝업 열기 실패: UI_CardUseSelect 없음");
+            Debug.LogWarning("팝업 열기 실패: " + "UI_CardUseSelect 없음");
+
             return;
         }
 
-
-        useSelectUI.Open(card, user, target);
+        useSelectUI.Open(cardInstance, user, target);
     }
 
     private void ReturnCard()
     {
-        if (myCard != null)
-            myCard.SetRaycastBlock(true);
+        SetRaycastBlock(true);
 
         if (originalParent != null)
         {
@@ -335,13 +368,33 @@ public class CardCrkClick : MonoBehaviour
         ForceRefreshHandLayout();
     }
 
+    private void SetRaycastBlock(bool value)
+    {
+        if (canvasGroup == null)
+        {
+            canvasGroup = GetComponent<CanvasGroup>();
+        }
+
+        if (canvasGroup == null)
+        {
+            Debug.LogWarning($"{name}: CanvasGroup이 없습니다.");
+            return;
+        }
+
+        canvasGroup.blocksRaycasts = value;
+    }
+
+    public void ClearClickListeners()
+    {
+        OnClicked = null;
+    }
+
     private void ForceRefreshHandLayout()
     {
         if (originalParent == null)
             return;
 
-        RectTransform parentRect =
-            originalParent as RectTransform;
+        RectTransform parentRect = originalParent as RectTransform;
 
         if (parentRect == null)
             return;
@@ -439,7 +492,7 @@ public class CardCrkClick : MonoBehaviour
                 result = CardDropResult.UseDirect,
                 useCost = cost
             };
-        }   
+        }
     }
 
     private CardDropDecision GetDropDecision(CardData card, CharacterBase user, CharacterBase target)
@@ -525,7 +578,7 @@ public class CardCrkClick : MonoBehaviour
     {
         TeamType targetType = GetTargetTeamType(user, target);
 
-        if (targetType == TeamType.Enemy)   
+        if (targetType == TeamType.Enemy)
         {
             // 적색은 행동/보조 둘 다 공격이라 선택 필요
             return CardDropDecision.Popup();
@@ -548,7 +601,7 @@ public class CardCrkClick : MonoBehaviour
                 return CardDropDecision.Direct(CardUseCost.Auxiliary);
 
             default:
-                
+
                 return CardDropDecision.Invalid();
         }
     }
@@ -612,7 +665,7 @@ public class CardCrkClick : MonoBehaviour
     /// 현재 카드가 이벤트 판정 카드 선택으로 처리되어야 하는지 확인합니다.
     /// 선택 대기 중이면 드롭 위치가 잘못되어도 전투 카드 사용을 차단합니다.
     /// </summary>
-    private bool TryHandleFieldCardSelection(CardData card, bool droppedOnFieldCheck)
+    private bool TryHandleFieldCardSelection(CardInstance card, bool droppedOnFieldCheck)
     {
         if (fieldCardSelector == null)
         {
@@ -677,7 +730,7 @@ public class CardCrkClick : MonoBehaviour
     /// 일반 필드 카드 사용 영역에 놓인 카드를
     /// UI_FieldScreen으로 전달합니다.
     /// </summary>
-    private bool TryHandleFieldCardUse(CardData card)
+    private bool TryHandleFieldCardUse(CardInstance card)
     {
         if (card == null)
             return false;

@@ -439,6 +439,9 @@ public class UI_FieldEvent : UIBase
     {
         ClearChoiceButtons();
 
+
+        bool succeeded = eventRunner != null && eventRunner.LastChoiceSucceeded;
+
         string resultDescription = choice != null ? choice.GetResultText(eventRunner.LastChoiceSucceeded) : string.Empty;
 
         string checkDescription = CreateCheckResultText();
@@ -470,6 +473,14 @@ public class UI_FieldEvent : UIBase
         {
             descriptionText.SetText(displayText);
             descriptionText.gameObject.SetActive(true);
+        }
+
+        Sprite resultImage = choice != null ? choice.GetResultImage(succeeded) : null;
+
+        if (eventImage != null && resultImage != null)
+        {
+            eventImage.sprite = resultImage;
+            eventImage.enabled = true;
         }
 
         if (continueButton != null)
@@ -563,21 +574,25 @@ public class UI_FieldEvent : UIBase
 
         CardData usedCard = eventRunner.LastUsedJudgeCard;
 
-        if (usedCard != null)
-        {
-            return
-                $"{usedCard.cardName} 사용\n" +
-                "판정 자동 성공";
-        }
+        string cardUseText = usedCard != null ? $"{usedCard.cardName} 사용\n" : string.Empty;
 
         if (!eventRunner.HasLastJudgeResult)
-            return string.Empty;
+        {
+            if (usedCard == null)
+                return string.Empty;
+
+            return $"{cardUseText}" + "판정 자동 성공";
+        }
 
         JudgeResult result = eventRunner.LastJudgeResult;
 
         string resultName;
 
-        if (result.fumble)
+        if (!result.valid)
+        {
+            resultName = "판정 불가";
+        }
+        else if (result.fumble)
         {
             resultName = "펌블";
         }
@@ -587,10 +602,12 @@ public class UI_FieldEvent : UIBase
         }
 
         return
+            $"{cardUseText}" +
             $"D10 {result.dice} " +
             $"+ 능력 보정 {result.statModifier} " +
             $"+ 상태 보정 {result.statusModifier}\n" +
-            $"= {result.total} / 목표 {result.target}\n" +
+            $"= {result.total} / " +
+            $"목표 {result.target}\n" +
             $"{resultName}";
     }
 

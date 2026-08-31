@@ -16,10 +16,10 @@ public class UI_FieldRemovedCardButton : MonoBehaviour
     [SerializeField]
     private Image frameImage;
 
-    private CardData card;
-    private Action<CardData> onSelected;
+    private CardInstance card;
+    private Action<CardInstance> onSelected;
 
-    public CardData Card => card;
+    public CardInstance Card => card;
 
     private void Awake()
     {
@@ -43,19 +43,19 @@ public class UI_FieldRemovedCardButton : MonoBehaviour
         }
     }
 
-    public void SetCard(CardData newCard, Action<CardData> selectedCallback)
+    public void SetCard(CardInstance newCard, Action<CardInstance> selectedCallback)
     {
         card = newCard;
         onSelected = selectedCallback;
 
         if (cardNameText != null)
         {
-            cardNameText.SetText(card != null ? card.cardName : string.Empty);
+            cardNameText.SetText(card != null ? card.CardName : string.Empty);
         }
 
         if (frameImage != null)
         {
-            frameImage.color = card != null ? GetCardColor(card.color) : Color.white;
+            frameImage.color = card != null ? GetCardColor(card.Color) : Color.white;
         }
 
         gameObject.SetActive(card != null);

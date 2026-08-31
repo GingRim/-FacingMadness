@@ -97,9 +97,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 94aa1ef84cc051d45a2c4d35a5d0a82a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UI_Card
-  NameText: {fileID: 5263759375526891542}
-  descriptionText: {fileID: 4269697255691735253}
+  illustrationImage: {fileID: 0}
   frameImage: {fileID: 3452758229795362063}
+  nameText: {fileID: 5263759375526891542}
+  keywordText: {fileID: 4269697255691735253}
+  durabilityText: {fileID: 8710115186683731765}
+  frameEntries:
+  - color: 0
+    frameSprite: {fileID: 0}
+  canvasGroup: {fileID: 0}
 --- !u!61 &2519033003844175896
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -201,6 +207,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: da3b3249a58e0904eadf8b65cd831596, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FieldEventRunner
+  ignitionController: {fileID: 0}
 --- !u!1 &2947881873126989167
 GameObject:
   m_ObjectHideFlags: 0

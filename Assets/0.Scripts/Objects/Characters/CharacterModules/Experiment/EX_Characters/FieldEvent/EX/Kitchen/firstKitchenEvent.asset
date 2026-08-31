@@ -10,14 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: eda405cbcf5af0841a71b53f8add7b42, type: 3}
-  m_Name: KitchenEvent
+  m_Name: firstKitchenEvent
   m_EditorClassIdentifier: Assembly-CSharp::FieldEventData
-  eventId: kitchen_event
-  eventName: "\uC8FC\uBC29"
-  eventType: 1
-  rootPage: {fileID: 11400000, guid: 0e3cb3585a97a774d9a27d39d30ac213, type: 2}
-  description: "\uB2F9\uC2E0\uC740 \uC8FC\uBC29\uC744 \uD0D0\uC0AC\uD558\uACE0\uC790
+  eventId: KItchenDefaultEvent_0
+  eventName: "\uC9C4\uC785"
+  eventType: 2
+  rootPage: {fileID: 11400000, guid: 29165a65ebfb5bc459d5f84d6c2f84e8, type: 2}
+  description: "\uC0C8\uB85C\uC6B4 \uACF5\uAC04\uC5D0 \uC9C4\uC785\uD558\uACE0\uC790
     \uD55C\uB2E4."
-  repeatable: 1
+  repeatable: 0
   startingNodeId: 
   eventImage: {fileID: 0}

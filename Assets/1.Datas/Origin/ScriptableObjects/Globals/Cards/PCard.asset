@@ -13,11 +13,15 @@ MonoBehaviour:
   m_Name: PCard
   m_EditorClassIdentifier: Assembly-CSharp::CardData
   cardName: "\uC790\uC0C9 \uCE74\uB4DC"
+  description: 
+  illustration: {fileID: 0}
   color: 5
   isOneUse: 0
+  keywords: 
+  baseDurability: 0
+  fieldCheckTarget: 63
   magicCardType: 0
   forbiddenMagicCard: {fileID: 11400000, guid: 9b7d2395f77b7cb44bbc594259a6dcaa, type: 2}
   attackMagicCard: {fileID: 11400000, guid: 001ab1e115cd44f47a528d3f40dcf048, type: 2}
   defenseMagicCard: {fileID: 11400000, guid: acdc089dd330a614c83223c077067c35, type: 2}
   buffMagicCard: {fileID: 11400000, guid: 5a83997190b1de847848e9e64b3b61fc, type: 2}
-  description: 

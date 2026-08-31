@@ -37,7 +37,7 @@ public class FieldCardUseController : MonoBehaviour
 
     public event Action<CharacterBase> OnFieldCardResolved;
 
-    private CardData pendingUsedCard;
+    private CardInstance pendingUsedCard;
     private CharacterBase pendingUser;
     private DeckModule pendingDeck;
     private FieldEventContext pendingContext;
@@ -77,12 +77,12 @@ public class FieldCardUseController : MonoBehaviour
         isProcessingCard = false;
     }
 
-    private void HandleCardSelected(FieldEventChoice choice, CardData card)
+    private void HandleCardSelected(FieldEventChoice choice, CardInstance card)
     {
         if (isProcessingCard)
             return;
 
-        if (choice == null || card == null)
+        if (choice == null || card == null || card.Data == null)
             return;
 
         if (fieldManager == null || eventRunner == null || cardSelector == null)
@@ -99,7 +99,7 @@ public class FieldCardUseController : MonoBehaviour
             return;
         }
 
-        if (!choice.CanUseCard(card))
+        if (!choice.CanUseCard(card.Data))
         {
             Debug.Log("이 능력치 판정에 대응하지 않는 카드입니다.");
 
@@ -127,18 +127,26 @@ public class FieldCardUseController : MonoBehaviour
             return;
         }
 
+        if (!ContainsCard(deck, card))
+        {
+            Debug.LogWarning($"{card.CardName}: 현재 손패에 없는 카드입니다.");
+
+            return;
+        }
+
         isProcessingCard = true;
 
         bool replaced = deck.ReplaceEventCardWithColorless(card, colorlessReplacementCard);
-
-        // 이벤트 판정 자동 성공
-        eventRunner.CompletePendingStatCheckByCard(card);
 
         if (!replaced)
         {
             isProcessingCard = false;
             return;
         }
+
+        // 선택한 실제 카드의 소멸과 무색 카드 추가가 끝난 뒤
+        // 이벤트 판정을 확정 성공으로 처리합니다.
+        eventRunner.CompletePendingStatCheckByCard(card);
 
         if (handUI != null)
         {
@@ -234,7 +242,7 @@ public class FieldCardUseController : MonoBehaviour
             judgeResult.target,
             checkResult);
     }
-    
+
     /// <summary>
     /// 카드 색상에 대응하는 필드 판정 능력치를 반환합니다.
     /// 무색 카드는 캐릭터의 지정 능력치를 사용합니다.
@@ -271,12 +279,12 @@ public class FieldCardUseController : MonoBehaviour
         }
     }
 
-    private void HandleFieldCardSelected(CardData card, CharacterBase user)
+    private void HandleFieldCardSelected(CardInstance card, CharacterBase user)
     {
         if (isProcessingCard)
             return;
 
-        if (card == null || user == null)
+        if (card == null || card.Data == null || user == null)
             return;
 
         if (fieldManager == null || !fieldManager.IsFieldActive)
@@ -302,8 +310,13 @@ public class FieldCardUseController : MonoBehaviour
         TryProcessFieldCard(card, user, context);
     }
 
-    private bool TryProcessFieldCard(CardData card, CharacterBase user, FieldEventContext context)
+    private bool TryProcessFieldCard(CardInstance card, CharacterBase user, FieldEventContext context)
     {
+        if (card == null || card.Data == null)
+            return false;
+
+        CardData cardData = card.Data;
+
         DeckModule deck = user.GetModule<DeckModule>();
 
         ActionPointModule actionPoint = user.GetModule<ActionPointModule>();
@@ -317,7 +330,7 @@ public class FieldCardUseController : MonoBehaviour
 
         if (!ContainsCard(deck, card))
         {
-            Debug.LogWarning($"{card.cardName}: 현재 손패에 없는 카드입니다.");
+            Debug.LogWarning($"{card.CardName}: 현재 손패에 없는 카드입니다.");
 
             return false;
         }
@@ -330,7 +343,7 @@ public class FieldCardUseController : MonoBehaviour
 
         isProcessingCard = true;
 
-        FieldCardCheckData checkData = RollFieldCardCheck(user, card);
+        FieldCardCheckData checkData = RollFieldCardCheck(user, cardData);
 
         context.SetCardCheck(checkData);
 
@@ -341,17 +354,17 @@ public class FieldCardUseController : MonoBehaviour
 
         CardResolver resolver = new CardResolver();
 
-        bool effectApplied = resolver.UseField(card, user, context);
+        bool effectApplied = resolver.UseField(cardData, user, context);
 
         if (!effectApplied)
         {
-            Debug.LogWarning($"필드 카드 효과 실행 실패: {card.cardName}");
+            Debug.LogWarning($"필드 카드 효과 실행 실패: {card.CardName}");
 
             isProcessingCard = false;
             return false;
         }
 
-        bool forceRemove = card.color == CardColorType.Colorless;
+        bool forceRemove = cardData.color == CardColorType.Colorless;
 
         bool moved = deck.ResolveFieldCard(card, checkData.Result, forceRemove);
 
@@ -371,9 +384,9 @@ public class FieldCardUseController : MonoBehaviour
         return true;
     }
 
-    private bool ContainsCard(DeckModule deck, CardData card)
+    private bool ContainsCard(DeckModule deck, CardInstance card)
     {
-        foreach (CardData handCard in deck.Hand)
+        foreach (CardInstance handCard in deck.HandInstances)
         {
             if (handCard == card)
                 return true;
@@ -382,7 +395,7 @@ public class FieldCardUseController : MonoBehaviour
         return false;
     }
 
-    private bool BeginRemovedCardSelection(CardData usedCard, CharacterBase user, DeckModule deck, FieldEventContext context)
+    private bool BeginRemovedCardSelection(CardInstance usedCard, CharacterBase user, DeckModule deck, FieldEventContext context)
     {
         if (removedCardSelectUI == null)
         {
@@ -414,9 +427,9 @@ public class FieldCardUseController : MonoBehaviour
         return true;
     }
 
-    private void HandleRemovedCardSelected(CardData selectedCard)
+    private void HandleRemovedCardSelected(CardInstance selectedCard)
     {
-        CardData usedCard = pendingUsedCard;
+        CardInstance usedCard = pendingUsedCard;
 
         CharacterBase user = pendingUser;
 
@@ -432,11 +445,11 @@ public class FieldCardUseController : MonoBehaviour
 
             if (returned)
             {
-                Debug.Log($"제거 카드 복귀: {selectedCard.cardName}");
+                Debug.Log($"제거 카드 복귀: {selectedCard.CardName}");
             }
             else
             {
-                Debug.LogWarning($"제거 카드 복귀 실패: {selectedCard.cardName}");
+                Debug.LogWarning($"제거 카드 복귀 실패: {selectedCard.CardName}");
             }
         }
 
@@ -456,7 +469,7 @@ public class FieldCardUseController : MonoBehaviour
         pendingContext = null;
     }
 
-    private void CompleteCardUse(CardData usedCard, CharacterBase user)
+    private void CompleteCardUse(CardInstance usedCard, CharacterBase user)
     {
         isProcessingCard = false;
 

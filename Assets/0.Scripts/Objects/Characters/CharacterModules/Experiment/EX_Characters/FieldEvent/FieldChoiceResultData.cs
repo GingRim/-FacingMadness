@@ -18,6 +18,12 @@ public class FieldChoiceResultData
     [SerializeField]
     private FieldEventEffect[] effects;
 
+    [Header("결과 이미지")]
+    [SerializeField]
+    private Sprite resultImage;
+
+    public Sprite ResultImage => resultImage;
+
     /// <summary>
     /// 결과가 발생했을 때 플레이어에게 표시할 설명.
     /// </summary>

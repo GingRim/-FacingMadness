@@ -49,6 +49,11 @@ public class CardInstance
 
     public bool IsKeywordActive => isKeywordActive;
 
+    /// <summary>
+    /// 현재 점화할 수 있는 비점화 카드인지 확인합니다.
+    /// </summary>
+    public bool CanIgnite => HasKeyword(CardKeywordType.Unignited) && !HasKeyword(CardKeywordType.Ignition) && !IsDepleted;
+
     public event Action<CardInstance> OnKeywordChanged;
 
     public event Action<CardInstance, int, int> OnDurabilityChanged;
@@ -388,4 +393,30 @@ public class CardInstance
 
         instanceId = Guid.NewGuid().ToString();
     }
+
+    /// <summary>
+    /// 점화 판정 결과를 적용합니다.
+    /// 성공하면 비점화를 점화로 변경하고 활성화합니다.
+    /// 실패하면 아무것도 변경하지 않습니다.
+    /// </summary>
+    public bool ResolveIgnition(bool checkSucceeded)
+    {
+        if (!CanIgnite)
+            return false;
+
+        if (!checkSucceeded)
+            return false;
+
+        bool changed = ReplaceKeyword(CardKeywordType.Unignited, CardKeywordType.Ignition);
+
+        if (!changed)
+            return false;
+
+        SetKeywordActive(true);
+
+        Debug.Log($"{CardName}: 점화 성공 / " + "비점화 → 점화");
+
+        return true;
+    }
+
 }

@@ -26,6 +26,7 @@ public class FieldManager : ManagerBase
 
     private CharacterBase currentPlayer;
     private FieldNode currentNode;
+    private UI_Hand handUI;
 
     private int currentPlayerIndex;
     private int totalFieldTurn;
@@ -237,6 +238,11 @@ public class FieldManager : ManagerBase
 
         OnFieldTurnStarted?.Invoke(currentPlayer, totalFieldTurn);
 
+        SetCurrentPlayer(nextPlayer);
+
+        ProcessFieldHandDurability(currentPlayer);
+
+        currentNode = FindCharacterNode(currentPlayer);
     }
 
     private void SetCurrentPlayer(CharacterBase player)
@@ -1434,6 +1440,37 @@ public class FieldManager : ManagerBase
             "현재 실행할 수 있는 Core 이벤트가 없습니다.");
 
         return false;
+    }
+
+    /// <summary>
+    /// 필드에서 현재 플레이어의 턴이 시작될 때
+    /// 활성 광원·점화 카드의 내구도를 감소시킵니다.
+    /// </summary>
+    private void ProcessFieldHandDurability(CharacterBase player)
+    {
+        if (player == null)
+            return;
+
+        DeckModule deck = player.GetModule<DeckModule>();
+
+        if (deck == null)
+            return;
+
+        int removedCount = deck.ProcessHandTurnDurability();
+
+
+        if (removedCount <= 0)
+            return;
+
+        if (handUI == null)
+        {
+            handUI = UnityEngine.Object.FindFirstObjectByType<UI_Hand>(FindObjectsInactive.Include);
+        }
+
+        if (handUI != null)
+        {
+            handUI.RefreshFromDeck(deck);
+        }
     }
 
 }

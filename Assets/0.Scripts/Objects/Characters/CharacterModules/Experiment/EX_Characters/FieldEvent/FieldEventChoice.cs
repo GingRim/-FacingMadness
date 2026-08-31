@@ -48,6 +48,10 @@ public class FieldEventChoice
     [SerializeField]
     private FieldEventCondition[] conditions;
 
+    [Header("점화 판정")]
+    [SerializeField]
+    private bool allowsIgnition;
+
     [Header("성공 결과")]
     [SerializeField]
     private FieldChoiceResultData successResult = new();
@@ -165,6 +169,12 @@ public class FieldEventChoice
     /// 기존 카드 요구 여부를 항상 false로 처리한다.
     /// </summary>
     public bool RequiresCard => false;
+
+    /// <summary>
+    /// 이 능력치 판정을 비점화 카드의
+    /// 점화 판정으로 사용할 수 있는지 확인합니다.
+    /// </summary>
+    public bool AllowsIgnition => allowsIgnition;
 
     /// <summary>
     /// 선택지의 판정 설정과 추가 조건을 모두 만족하는지 확인한다.
@@ -327,6 +337,16 @@ public class FieldEventChoice
             return string.Empty;
 
         return resultData.Description;
+    }
+
+    /// <summary>
+    /// 성공 여부에 맞는 결과 이미지를 반환합니다.
+    /// </summary>
+    public Sprite GetResultImage(bool success)
+    {
+        FieldChoiceResultData result = success ? successResult : failureResult;
+
+        return result != null ? result.ResultImage : null;
     }
 
 }

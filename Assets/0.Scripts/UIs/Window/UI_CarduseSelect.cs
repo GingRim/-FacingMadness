@@ -8,12 +8,16 @@ using UnityEngine;
 /// </summary>
 public class UI_CardUseSelect : MonoBehaviour
 {
-
     private CardResolver cardResolver;
-    private CardData selectedCard;
+
+    private CardInstance selectedCardInstance;
+
     private CharacterBase user;
     private CharacterBase target;
+
     private UI_Hand handUI;
+
+    private CardData SelectedCardData => selectedCardInstance != null ? selectedCardInstance.Data : null;
 
     public bool IsOpened => gameObject.activeSelf;
 
@@ -32,70 +36,84 @@ public class UI_CardUseSelect : MonoBehaviour
     }
 
     /// <summary>
-    /// 타겟을 지정하는 카드인가?
+    /// 해당 카드 사용 방식에 대상이 필요한지 확인합니다.
     /// </summary>
-    /// <param name="card"></param>
-    /// <param name="useCost"></param>
-    /// <returns></returns>
     private bool NeedTarget(CardData card, CardUseCost useCost)
     {
         if (card == null)
             return false;
 
         if (card.magicCardType != MagicCardType.None)
+        {
             return true;
+        }
 
         switch (card.color)
         {
             case CardColorType.Red:
-                return useCost == CardUseCost.Action;
+                return
+                    useCost ==
+                    CardUseCost.Action;
 
             case CardColorType.Yellow:
-                return useCost == CardUseCost.Action;
+                return
+                    useCost ==
+                    CardUseCost.Action;
 
             case CardColorType.Blue:
-                return useCost == CardUseCost.Action;
+                return
+                    useCost ==
+                    CardUseCost.Action;
 
             case CardColorType.Black:
                 return true;
 
             case CardColorType.Purple:
-                return false;
-
             case CardColorType.Green:
                 return false;
 
             case CardColorType.Colorless:
-                return useCost == CardUseCost.Action;
-        }
+                return
+                    useCost ==
+                    CardUseCost.Action;
 
-        return false;
+            default:
+                return false;
+        }
     }
 
     /// <summary>
-    /// 카드 사용 선택 팝업 열기.
+    /// 카드 사용 선택 팝업을 엽니다.
     /// </summary>
-    public void Open(CardData card, CharacterBase newUser, CharacterBase newTarget)
+    public void Open(CardInstance cardInstance, CharacterBase newUser, CharacterBase newTarget)
     {
-        selectedCard = card;
+        if (cardInstance == null || cardInstance.Data == null || newUser == null)
+        {
+            return;
+        }
+
+        selectedCardInstance = cardInstance;
+
         user = newUser;
         target = newTarget;
 
         gameObject.SetActive(true);
+
         Debug.Log(
-       $"카드 사용 팝업 열림 / 카드 {(selectedCard != null ? selectedCard.cardName : "null")} / " +
-       $"사용자 {(user != null ? user.name : "null")} / " +
-       $"대상 {(target != null ? target.name : "null")}"
-   );
+            $"카드 사용 팝업 열림 / " +
+            $"카드 {SelectedCardData.cardName} / " +
+            $"사용자 {user.name} / " +
+            $"대상 " +
+            $"{(target != null ? target.name : "null")}");
     }
 
     /// <summary>
-    /// 팝업 닫기.
-    /// 취소 버튼 또는 나중에 특정 키 입력에 연결 가능.
+    /// 팝업을 닫고 선택 정보를 초기화합니다.
     /// </summary>
     public void Close()
     {
-        selectedCard = null;
+        selectedCardInstance = null;
+
         user = null;
         target = null;
 
@@ -103,8 +121,7 @@ public class UI_CardUseSelect : MonoBehaviour
     }
 
     /// <summary>
-    /// 행동 코스트로 카드 사용.
-    /// 버튼 OnClick에 연결한다.
+    /// 행동 코스트로 사용합니다.
     /// </summary>
     public void UseAction()
     {
@@ -112,8 +129,7 @@ public class UI_CardUseSelect : MonoBehaviour
     }
 
     /// <summary>
-    /// 보조 행동 코스트로 카드 사용.
-    /// 버튼 OnClick에 연결한다.
+    /// 보조 행동 코스트로 사용합니다.
     /// </summary>
     public void UseAuxiliary()
     {
@@ -121,26 +137,33 @@ public class UI_CardUseSelect : MonoBehaviour
     }
 
     /// <summary>
-    /// 선택한 코스트로 카드 사용 실행.
-    /// 성공하면 카드 이동과 팝업 닫기를 처리한다.
+    /// 선택한 코스트로 카드를 사용합니다.
     /// </summary>
     private void Use(CardUseCost useCost)
     {
-        if (selectedCard == null || user == null)
-            return;
-
-        if (cardResolver == null)
-            cardResolver = new CardResolver();
-
-        if (NeedTarget(selectedCard, useCost) && target == null)
+        if (selectedCardInstance == null || SelectedCardData == null || user == null)
         {
-            BattleManager.ClaimBattleLog("대상이 필요한 카드입니다. 먼저 대상을 선택하세요.");
             return;
         }
 
-        if (!cardResolver.CanUse(selectedCard, user, useCost))
+        CardData cardData = SelectedCardData;
+
+        if (cardResolver == null)
+        {
+            cardResolver = new CardResolver();
+        }
+
+        if (NeedTarget(cardData, useCost) && target == null)
+        {
+            BattleManager.ClaimBattleLog("대상이 필요한 카드입니다." + "<br>먼저 대상을 선택하세요.");
+
+            return;
+        }
+
+        if (!cardResolver.CanUse(cardData, user, useCost))
         {
             BattleManager.ClaimBattleLog("코스트가 부족합니다.");
+
             Close();
             return;
         }
@@ -150,24 +173,40 @@ public class UI_CardUseSelect : MonoBehaviour
         if (deck == null)
         {
             Debug.LogWarning($"{user.name}: DeckModule 없음");
+
             return;
         }
 
-        bool success = cardResolver.UseWithoutCostCheck(selectedCard, user, target, useCost);
+        bool success = cardResolver.UseWithoutCostCheck(cardData, user, target, useCost);
 
         if (!success)
         {
             BattleManager.ClaimBattleLog("카드 효과 처리 실패");
+
             return;
         }
 
-        deck.UseCard(selectedCard);
+        bool moved = deck.UseCard(selectedCardInstance);
+
+        if (!moved)
+        {
+            Debug.LogWarning(
+                $"{cardData.cardName}: " +
+                "선택한 카드 인스턴스가 " +
+                "손패에 없습니다.");
+
+            return;
+        }
 
         if (handUI == null)
+        {
             handUI = FindFirstObjectByType<UI_Hand>();
+        }
 
         if (handUI != null)
+        {
             handUI.RefreshFromDeck(deck);
+        }
 
         Close();
     }
@@ -178,7 +217,7 @@ public class UI_CardUseSelect : MonoBehaviour
 
         if (target != null)
         {
-            Debug.Log($"카드 대상 선택: {target.name}");
+            Debug.Log($"카드 대상 선택: " + $"{target.name}");
         }
     }
 }

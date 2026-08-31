@@ -20,61 +20,111 @@ MonoBehaviour:
   choices:
   - choiceId: DefaultEvent_1_0
     choiceText: "\uC77C\uB2E8 \uBAB8\uC744 \uC6C0\uC9C1\uC778\uB2E4."
-    resultText: 
+    choiceType: 1
     actionType: 0
     usageType: 0
     nextPage: {fileID: 11400000, guid: c4a55ab69d9611a449e151a134fc5c89, type: 2}
+    executionType: 0
+    requiredStat: 0
+    target: 5
     conditions: []
-    effects: []
-    cardRequirement:
+    successResult:
+      description: 
+      effects: []
+      resultImage: {fileID: 0}
+    failureResult:
+      description: 
+      effects: []
+      resultImage: {fileID: 0}
+    legacyCardRequirement:
       requiresCard: 0
       allowedColors: 
       checkStat: 0
   - choiceId: DefaultEvent_1_1
     choiceText: "\uAC10\uAC01\uC744 \uD1B5\uD574 \uC8FC\uBCC0\uC744 \uC0B4\uD3B4\uBCF8\uB2E4."
-    resultText: 
+    choiceType: 1
     actionType: 0
     usageType: 0
     nextPage: {fileID: 0}
+    executionType: 0
+    requiredStat: 0
+    target: 5
     conditions: []
-    effects: []
-    cardRequirement:
+    successResult:
+      description: 
+      effects: []
+      resultImage: {fileID: 0}
+    failureResult:
+      description: 
+      effects: []
+      resultImage: {fileID: 0}
+    legacyCardRequirement:
       requiresCard: 0
       allowedColors: 
       checkStat: 0
   - choiceId: DefaultEvent_1_2
     choiceText: "\uBAB8\uC0C1\uD0DC\uB97C \uD655\uC778\uD55C\uB2E4."
-    resultText: 
+    choiceType: 1
     actionType: 0
     usageType: 0
     nextPage: {fileID: 0}
+    executionType: 0
+    requiredStat: 0
+    target: 5
     conditions: []
-    effects: []
-    cardRequirement:
+    successResult:
+      description: 
+      effects: []
+      resultImage: {fileID: 0}
+    failureResult:
+      description: 
+      effects: []
+      resultImage: {fileID: 0}
+    legacyCardRequirement:
       requiresCard: 0
       allowedColors: 
       checkStat: 0
   - choiceId: DefaultEvent_1_3
     choiceText: "\uC8FC\uBCC0\uC744 \uC138\uBC00\uD558\uAC8C \uAD00\uCC30\uD55C\uB2E4."
-    resultText: 
+    choiceType: 1
     actionType: 0
     usageType: 0
     nextPage: {fileID: 0}
+    executionType: 0
+    requiredStat: 0
+    target: 5
     conditions: []
-    effects: []
-    cardRequirement:
+    successResult:
+      description: 
+      effects: []
+      resultImage: {fileID: 0}
+    failureResult:
+      description: 
+      effects: []
+      resultImage: {fileID: 0}
+    legacyCardRequirement:
       requiresCard: 0
       allowedColors: 
       checkStat: 0
   - choiceId: DefaultEvent_1_4
     choiceText: "\uC8FC\uC220\uC5D0 \uAD00\uB828\uB41C\uAC83\uC744 \uCC3E\uC544\uBCF8\uB2E4."
-    resultText: 
+    choiceType: 1
     actionType: 0
     usageType: 0
     nextPage: {fileID: 0}
+    executionType: 0
+    requiredStat: 0
+    target: 5
     conditions: []
-    effects: []
-    cardRequirement:
+    successResult:
+      description: 
+      effects: []
+      resultImage: {fileID: 0}
+    failureResult:
+      description: 
+      effects: []
+      resultImage: {fileID: 0}
+    legacyCardRequirement:
       requiresCard: 0
       allowedColors: 
       checkStat: 0
