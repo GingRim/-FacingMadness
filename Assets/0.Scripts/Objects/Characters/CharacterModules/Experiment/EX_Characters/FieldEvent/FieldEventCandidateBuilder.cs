@@ -13,14 +13,16 @@ public class FieldEventCandidateBuilder : MonoBehaviour
     private readonly List<FieldEventData> availableEvents = new();
     private readonly List<FieldEventData> candidates = new();
 
-    public IReadOnlyList<FieldEventData> BuildCandidates(FieldManager fieldManager, CharacterBase character, IReadOnlyList<FieldEventData> source)
+    public IReadOnlyList<FieldEventData> BuildCandidates(FieldManager fieldManager, CharacterBase character, IReadOnlyList<FieldEventData> source, FieldEventRunner eventRunner)
     {
         candidates.Clear();
-        CollectAvailableEvents(source);
+        CollectAvailableEvents(source, eventRunner);
 
         if (availableEvents.Count == 0)
         {
-            Debug.LogWarning("FieldEventCandidateBuilder: 사용할 이벤트가 없습니다.");
+            Debug.LogWarning(
+                "FieldEventCandidateBuilder: " +
+                "실행 가능한 이벤트가 없습니다.");
 
             return candidates;
         }
@@ -45,7 +47,9 @@ public class FieldEventCandidateBuilder : MonoBehaviour
             }
             else
             {
-                Debug.LogWarning("핵심 이벤트 예약이 있지만 이벤트 풀에 Core 이벤트가 없습니다.");
+                Debug.LogWarning(
+                    "핵심 이벤트 예약이 있지만 " +
+                    "실행 가능한 Core 이벤트가 없습니다.");
             }
         }
 
@@ -72,22 +76,25 @@ public class FieldEventCandidateBuilder : MonoBehaviour
 
         if (candidates.Count < 3)
         {
-            Debug.LogWarning($"이벤트 후보가 {candidates.Count}개뿐입니다. " + "MissionFieldRoot의 Event Pool에 이벤트를 추가해야 합니다.");
+            Debug.LogWarning(
+                $"실행 가능한 이벤트 후보가 " +
+                $"{candidates.Count}개뿐입니다. " +
+                "MissionFieldRoot의 Event Pool을 확인하세요.");
         }
 
         return candidates;
     }
 
-    private void CollectAvailableEvents(IReadOnlyList<FieldEventData> source)
+    private void CollectAvailableEvents(IReadOnlyList<FieldEventData> source, FieldEventRunner eventRunner)
     {
         availableEvents.Clear();
 
-        if (source == null)
+        if (source == null || eventRunner == null)
             return;
 
         foreach (FieldEventData eventData in source)
         {
-            if (eventData == null)
+            if (!eventRunner.CanOpenEvent(eventData))
                 continue;
 
             if (availableEvents.Contains(eventData))
@@ -99,7 +106,7 @@ public class FieldEventCandidateBuilder : MonoBehaviour
 
     private FieldEventData TakeRandomCoreEvent()
     {
-        List<FieldEventData> coreEvents = new List<FieldEventData>();
+        List<FieldEventData> coreEvents = new();
 
         foreach (FieldEventData eventData in availableEvents)
         {
@@ -115,7 +122,8 @@ public class FieldEventCandidateBuilder : MonoBehaviour
         if (coreEvents.Count == 0)
             return null;
 
-        FieldEventData selected = coreEvents[Random.Range(0, coreEvents.Count)];
+        FieldEventData selected =
+            coreEvents[Random.Range(0, coreEvents.Count)];
 
         availableEvents.Remove(selected);
 
@@ -128,7 +136,8 @@ public class FieldEventCandidateBuilder : MonoBehaviour
         {
             int randomIndex = Random.Range(i, list.Count);
 
-            (list[i], list[randomIndex]) = (list[randomIndex], list[i]);
+            (list[i], list[randomIndex]) =
+                (list[randomIndex], list[i]);
         }
     }
 }

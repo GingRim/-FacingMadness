@@ -113,6 +113,13 @@ public class CardInstance
 
             SetMaximumDurability(durability);
         }
+
+        // 이미 켜져 있는 광원 또는 점화 상태로 시작하는 카드는
+        // 손패 턴 경과 내구도 감소가 즉시 적용되도록 활성화합니다.
+        if (HasTurnDecayKeyword())
+        {
+            SetKeywordActive(true);
+        }
     }
 
     /// <summary>
@@ -162,6 +169,11 @@ public class CardInstance
             SetMaximumDurability(durability);
         }
 
+        if (CardKeywordRules.LosesDurabilityEachTurn(keyword))
+        {
+            SetKeywordActive(true);
+        }
+
         OnKeywordChanged?.Invoke(this);
 
         return true;
@@ -180,9 +192,13 @@ public class CardInstance
         {
             currentDurability = 0;
             maximumDurability = 0;
-            SetKeywordActive(false);
 
             OnDurabilityChanged?.Invoke(this, currentDurability, maximumDurability);
+        }
+
+        if (!HasTurnDecayKeyword())
+        {
+            SetKeywordActive(false);
         }
 
         OnKeywordChanged?.Invoke(this);
@@ -218,9 +234,13 @@ public class CardInstance
             SetMaximumDurability(durability);
         }
 
-        if (oldKeyword == CardKeywordType.Unignited && newKeyword == CardKeywordType.Ignition)
+        if (CardKeywordRules.LosesDurabilityEachTurn(newKeyword))
         {
             SetKeywordActive(true);
+        }
+        else if (!HasTurnDecayKeyword())
+        {
+            SetKeywordActive(false);
         }
 
         OnKeywordChanged?.Invoke(this);
@@ -247,16 +267,11 @@ public class CardInstance
     /// </summary>
     public void SetMaximumDurability(int value)
     {
-        maximumDurability =
-            Mathf.Max(0, value);
+        maximumDurability = Mathf.Max(0, value);
 
-        currentDurability =
-            maximumDurability;
+        currentDurability = maximumDurability;
 
-        OnDurabilityChanged?.Invoke(
-            this,
-            currentDurability,
-            maximumDurability);
+        OnDurabilityChanged?.Invoke(this, currentDurability, maximumDurability);
     }
 
     /// <summary>

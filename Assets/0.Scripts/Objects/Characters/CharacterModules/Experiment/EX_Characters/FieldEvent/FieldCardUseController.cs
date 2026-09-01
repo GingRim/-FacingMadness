@@ -231,16 +231,9 @@ public class FieldCardUseController : MonoBehaviour
             $"결과:{checkResult}"
         );
 
-        return new FieldCardCheckData(
-            card,
-            statType,
-            judgeResult.dice,
-            statValue,
-            judgeResult.statModifier,
-            judgeResult.statusModifier,
-            judgeResult.total,
-            judgeResult.target,
-            checkResult);
+        return new FieldCardCheckData(card, statType, judgeResult.dice, statValue,
+            judgeResult.statModifier, judgeResult.statusModifier, judgeResult.total,
+            judgeResult.target, checkResult);
     }
 
     /// <summary>
@@ -544,4 +537,8 @@ public class FieldCardUseController : MonoBehaviour
         return new FieldCardCheckData(card, StatType.None, 0, 0, 0, 0, 0, target, FieldCardCheckResult.Failure);
     }
 
+    internal bool TryUseDroppedCard(CardInstance card)
+    {
+        throw new NotImplementedException();
+    }
 }

@@ -1,26 +1,49 @@
 using TMPro;
 using UnityEngine;
 
-
 /// <summary>
-/// 일반 필드 카드를 놓는 드롭 영역이며,
+/// 일반 필드 카드를 사용하는 드롭 위치이며,
 /// 최근 필드 카드 판정 결과를 표시합니다.
 /// </summary>
-public class UI_FieldCardUseDropTarget : MonoBehaviour
+public class UI_FieldCardUseDropTarget : CardDropReceiver
 {
+    [Header("필드 카드 전달")]
+    [SerializeField]
+    private FieldCardUseController
+        cardUseController;
+
     [Header("결과 표시")]
     [SerializeField]
     private TextMeshProUGUI resultText;
 
     [SerializeField, TextArea(2, 4)]
-    private string idleMessage = "사용할 필드 카드를 놓으세요.";
+    private string idleMessage =
+        "사용할 필드 카드를 놓으세요.";
 
-    /// <summary>
-    /// 시작할 때 기본 안내 문구를 표시합니다.
-    /// </summary>
     private void Awake()
     {
         ResetDisplay();
+    }
+
+    public override bool TryReceiveCard(CardInstance card)
+    {
+        if (card == null || card.Data == null)
+            return false;
+
+        if (cardUseController == null)
+        {
+            cardUseController = GetComponentInParent<FieldCardUseController>(true);
+        }
+
+        if (cardUseController == null)
+        {
+            Debug.LogWarning("필드 카드 처리기가 연결되지 않았습니다.");
+
+            return false;
+        }
+
+        return
+            cardUseController.TryUseDroppedCard(card);
     }
 
     /// <summary>
@@ -29,7 +52,9 @@ public class UI_FieldCardUseDropTarget : MonoBehaviour
     public void ShowResult(FieldCardCheckData checkData)
     {
         if (resultText == null)
+        {
             return;
+        }
 
         string resultName = GetResultName(checkData.Result);
 
@@ -39,36 +64,25 @@ public class UI_FieldCardUseDropTarget : MonoBehaviour
             $"+ 상태 보정 {checkData.StatusModifier}\n" +
             $"= {checkData.JudgmentValue} / " +
             $"목표 {checkData.Target}\n" +
-            $"{resultName}"
-        );
+            $"{resultName}");
     }
 
-    /// <summary>
-    /// 필드 카드를 사용할 수 없을 때
-    /// 실패 원인을 표시합니다.
-    /// </summary>
     public void ShowMessage(string message)
     {
-        if (resultText == null)
-            return;
-
-        resultText.SetText(message);
+        if (resultText != null)
+        {
+            resultText.SetText(message);
+        }
     }
 
-    /// <summary>
-    /// 카드 사용 영역을 기본 안내 상태로 되돌립니다.
-    /// </summary>
     public void ResetDisplay()
     {
-        if (resultText == null)
-            return;
-
-        resultText.SetText(idleMessage);
+        if (resultText != null)
+        {
+            resultText.SetText(idleMessage);
+        }
     }
 
-    /// <summary>
-    /// 필드 판정 결과를 표시용 문자열로 변환합니다.
-    /// </summary>
     private string GetResultName(FieldCardCheckResult result)
     {
         switch (result)

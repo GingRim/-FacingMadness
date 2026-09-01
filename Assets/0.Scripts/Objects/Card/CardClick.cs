@@ -149,7 +149,10 @@ public class CardClick : MonoBehaviour
 
         if (!hasMoved)
         {
-            float distance = Vector2.Distance(pressScreenPosition, screenPosition);
+            float distance =
+                Vector2.Distance(
+                    pressScreenPosition,
+                    screenPosition);
 
             if (distance < dragThreshold)
                 return;
@@ -281,6 +284,10 @@ public class CardClick : MonoBehaviour
 
         bool isExhaust = ShouldExhaustOnUse(cardData);
 
+        /*
+         * CardData가 아니라 클릭한 실제 CardInstance를
+         * 손패에서 이동시킵니다.
+         */
         bool moved = deck.UseCard(cardInstance, isExhaust);
 
         if (!moved)
@@ -394,7 +401,8 @@ public class CardClick : MonoBehaviour
         if (originalParent == null)
             return;
 
-        RectTransform parentRect = originalParent as RectTransform;
+        RectTransform parentRect =
+            originalParent as RectTransform;
 
         if (parentRect == null)
             return;

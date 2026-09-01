@@ -57,17 +57,17 @@ public class UIManager : ManagerBase
     {
         GameObject instance = new GameObject(wantName);
         RectTransform result = instance.AddComponent<RectTransform>();
-        //���� ĵ������ �ְ�
+
         result.SetParent(MainCanvas.transform);
-        //�� ���� �÷��ֱ�!
+
         result.SetAsFirstSibling();
-        //anchor�� stretch - stretch�� ����� ������ 0,0,0,0
+
         result.anchorMin = Vector3.zero;
         result.anchorMax = Vector3.one;
-        //������ 0,0,0,0
+
         result.offsetMin = Vector3.zero;
         result.offsetMax = Vector3.zero;
-        // ũ�⸦ 1��
+
         result.localScale = Vector3.one;
 
         return result;

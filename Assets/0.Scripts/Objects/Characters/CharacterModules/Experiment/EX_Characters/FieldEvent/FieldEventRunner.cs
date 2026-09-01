@@ -687,4 +687,26 @@ public class FieldEventRunner : MonoBehaviour
         OnStatCheckRequested?.Invoke(pendingStatChoice);
     }
 
+    /// <summary>
+    /// 이벤트에 시작 페이지가 있고 현재 필드에서
+    /// 실행 가능한지 확인합니다.
+    /// </summary>
+    public bool CanOpenEvent(FieldEventData eventData)
+    {
+        if (eventData == null ||
+            eventData.RootPage == null)
+        {
+            return false;
+        }
+
+        if (eventData.Repeatable ||
+            string.IsNullOrWhiteSpace(eventData.EventId))
+        {
+            return true;
+        }
+
+        return !completedEvents.Contains(
+            eventData.EventId);
+    }
+
 }

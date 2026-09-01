@@ -442,16 +442,19 @@ public class UI_FieldEvent : UIBase
 
         bool succeeded = eventRunner != null && eventRunner.LastChoiceSucceeded;
 
-        string resultDescription = choice != null ? choice.GetResultText(eventRunner.LastChoiceSucceeded) : string.Empty;
+        string resultDescription =
+            choice != null
+                ? choice.GetResultText(succeeded)
+                : string.Empty;
 
         string checkDescription = CreateCheckResultText();
 
         FieldEventContext context = eventRunner != null ? eventRunner.CurrentContext : null;
 
-        // 효과가 별도의 결과 문장을 설정했다면 우선 사용
-        if (context != null && context.HasResultTextOverride)
+        if (context != null)
         {
-            resultDescription = context.ResultTextOverride;
+            resultDescription =
+                context.BuildResultText(resultDescription);
         }
 
         string displayText;
@@ -574,25 +577,21 @@ public class UI_FieldEvent : UIBase
 
         CardData usedCard = eventRunner.LastUsedJudgeCard;
 
-        string cardUseText = usedCard != null ? $"{usedCard.cardName} 사용\n" : string.Empty;
+        if (usedCard != null)
+        {
+            return
+                $"{usedCard.cardName} 사용\n" +
+                "판정 자동 성공";
+        }
 
         if (!eventRunner.HasLastJudgeResult)
-        {
-            if (usedCard == null)
-                return string.Empty;
-
-            return $"{cardUseText}" + "판정 자동 성공";
-        }
+            return string.Empty;
 
         JudgeResult result = eventRunner.LastJudgeResult;
 
         string resultName;
 
-        if (!result.valid)
-        {
-            resultName = "판정 불가";
-        }
-        else if (result.fumble)
+        if (result.fumble)
         {
             resultName = "펌블";
         }
@@ -602,12 +601,10 @@ public class UI_FieldEvent : UIBase
         }
 
         return
-            $"{cardUseText}" +
             $"D10 {result.dice} " +
             $"+ 능력 보정 {result.statModifier} " +
             $"+ 상태 보정 {result.statusModifier}\n" +
-            $"= {result.total} / " +
-            $"목표 {result.target}\n" +
+            $"= {result.total} / 목표 {result.target}\n" +
             $"{resultName}";
     }
 

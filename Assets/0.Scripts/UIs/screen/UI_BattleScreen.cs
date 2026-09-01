@@ -3,8 +3,8 @@ using UnityEngine;
 public class UI_BattleScreen : UI_ScreenBase
 {
     private UI_CardUseSelect cardUseSelect;
-    private CardCrkClick cardClick;
     private UI_Hand handUI;
+    private BattleCardUseController battleCardUseController;
 
     private UI_ReactionSelect reactionSelect;
     public UI_ReactionSelect ReactionSelect => reactionSelect;
@@ -14,8 +14,14 @@ public class UI_BattleScreen : UI_ScreenBase
 
     private void Awake()
     {
-        cardClick = GetComponentInChildren<CardCrkClick>(true);
         handUI = GetComponentInChildren<UI_Hand>(true);
+
+        battleCardUseController = GetComponent<BattleCardUseController>();
+
+        if (battleCardUseController == null)
+        {
+            battleCardUseController = gameObject.AddComponent<BattleCardUseController>();
+        }
 
         reactionSelect = GetComponentInChildren<UI_ReactionSelect>(true);
 
@@ -33,7 +39,16 @@ public class UI_BattleScreen : UI_ScreenBase
 
         GameObject popupObj = ObjectManager.CreateObject("Resolver", transform);
 
-        cardUseSelect = popupObj.GetComponent<UI_CardUseSelect>();
+        if (popupObj != null)
+        {
+            cardUseSelect = popupObj.GetComponent<UI_CardUseSelect>();
+        }
+        else
+        {
+            Debug.LogWarning(
+                "UI_BattleScreen: " +
+                "Resolver UI를 생성하지 못했습니다.");
+        }
 
         if (cardUseSelect != null)
         {
@@ -41,9 +56,9 @@ public class UI_BattleScreen : UI_ScreenBase
             cardUseSelect.Close();
         }
 
-        if (cardClick != null)
+        if (battleCardUseController != null)
         {
-            cardClick.SetUseSelectUI(cardUseSelect);
+            battleCardUseController.Configure(cardUseSelect, handUI);
         }
     }
 
@@ -64,9 +79,7 @@ public class UI_BattleScreen : UI_ScreenBase
         if (!value)
             return;
 
-        UI_KeywordHoverInfo encyclopedia =
-            UIManager.GetUIM2(UIType.ExperimentHoverInfp)
-            as UI_KeywordHoverInfo;
+        UI_KeywordHoverInfo encyclopedia = UIManager.GetUIM2(UIType.ExperimentHoverInfp) as UI_KeywordHoverInfo;
 
         // 도감이 열려 있으면 도감만 닫고
         // 일시정지 창은 열지 않음
@@ -76,9 +89,7 @@ public class UI_BattleScreen : UI_ScreenBase
             return;
         }
 
-        OpenableUIBase pauseUI =
-            UIManager.GetUIM2(UIType.Pause)
-            as OpenableUIBase;
+        OpenableUIBase pauseUI = UIManager.GetUIM2(UIType.Pause) as OpenableUIBase;
 
         if (pauseUI == null)
             return;

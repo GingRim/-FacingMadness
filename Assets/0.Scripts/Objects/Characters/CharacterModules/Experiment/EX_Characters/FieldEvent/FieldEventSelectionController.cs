@@ -21,7 +21,8 @@ public class FieldEventSelectionController : MonoBehaviour
 
     private FieldEventContext pendingContext;
 
-    public bool IsSelecting => candidateSelectUI != null && candidateSelectUI.IsOpen;
+    public bool IsSelecting =>
+        candidateSelectUI != null && candidateSelectUI.IsOpen;
 
     private void OnEnable()
     {
@@ -29,7 +30,6 @@ public class FieldEventSelectionController : MonoBehaviour
             return;
 
         candidateSelectUI.OnEventSelected -= HandleEventSelected;
-
         candidateSelectUI.OnEventSelected += HandleEventSelected;
     }
 
@@ -38,7 +38,6 @@ public class FieldEventSelectionController : MonoBehaviour
         if (candidateSelectUI != null)
         {
             candidateSelectUI.OnEventSelected -= HandleEventSelected;
-
             candidateSelectUI.Close();
         }
 
@@ -46,27 +45,37 @@ public class FieldEventSelectionController : MonoBehaviour
     }
 
     /// <summary>
-    /// 다음 이벤트 후보 3~5개를 생성하고 선택 UI를 연다.
+    /// 실행 가능한 다음 이벤트 후보 3~5개를 생성하고
+    /// 선택 UI를 엽니다.
     /// </summary>
     public bool OpenNextEventSelection(FieldEventContext context)
     {
         if (context == null)
         {
-            Debug.LogWarning("이벤트 후보 생성 실패: FieldEventContext가 없습니다.");
+            Debug.LogWarning(
+                "이벤트 후보 생성 실패: " +
+                "FieldEventContext가 없습니다.");
 
             return false;
         }
 
-        if (fieldManager == null || candidateBuilder == null || candidateSelectUI == null || eventRunner == null)
+        if (fieldManager == null ||
+            candidateBuilder == null ||
+            candidateSelectUI == null ||
+            eventRunner == null)
         {
-            Debug.LogWarning("FieldEventSelectionController: 필요한 참조가 연결되지 않았습니다.");
+            Debug.LogWarning(
+                "FieldEventSelectionController: " +
+                "필요한 참조가 연결되지 않았습니다.");
 
             return false;
         }
 
         if (fieldManager.CurrentFieldRoot == null)
         {
-            Debug.LogWarning("이벤트 후보 생성 실패: 현재 필드가 없습니다.");
+            Debug.LogWarning(
+                "이벤트 후보 생성 실패: " +
+                "현재 필드가 없습니다.");
 
             return false;
         }
@@ -78,7 +87,12 @@ public class FieldEventSelectionController : MonoBehaviour
             character = fieldManager.CurrentPlayer;
         }
 
-        IReadOnlyList<FieldEventData> candidates = candidateBuilder.BuildCandidates(fieldManager, character, fieldManager.CurrentFieldRoot.EventPool);
+        IReadOnlyList<FieldEventData> candidates =
+            candidateBuilder.BuildCandidates(
+                fieldManager,
+                character,
+                fieldManager.CurrentFieldRoot.EventPool,
+                eventRunner);
 
         pendingContext = context;
 
@@ -104,7 +118,9 @@ public class FieldEventSelectionController : MonoBehaviour
 
         if (context == null)
         {
-            Debug.LogWarning("이벤트 실행 실패: 대기 중인 Context가 없습니다.");
+            Debug.LogWarning(
+                "이벤트 실행 실패: " +
+                "대기 중인 Context가 없습니다.");
 
             return;
         }
@@ -112,6 +128,11 @@ public class FieldEventSelectionController : MonoBehaviour
         if (eventRunner == null)
             return;
 
-        eventRunner.OpenEvent(selectedEvent, context);
+        if (!eventRunner.OpenEvent(selectedEvent, context))
+        {
+            Debug.LogWarning(
+                $"이벤트 실행 실패: " +
+                $"{selectedEvent.EventName}");
+        }
     }
 }
