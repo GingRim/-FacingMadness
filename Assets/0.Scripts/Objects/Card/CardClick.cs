@@ -1,31 +1,27 @@
 using System;
 using UnityEngine;
-
+using UnityEngine.UI;
 
 /// <summary>
-/// 카드 클릭 선택과 드래그 입력을 처리합니다.
-/// 짧게 클릭하면 선택 이벤트를 보내고,
-/// 드래그하면 카드 사용 대상으로 전달합니다.
+/// 카드의 클릭과 드래그 표현만 담당합니다.
+/// 드롭 결과의 규칙은 드롭 위치의 CardDropReceiver가 처리합니다.
 /// </summary>
 public class CardClick : MonoBehaviour
 {
-    [SerializeField] private UI_FieldCardSelector fieldCardSelector;
-    [SerializeField] private UI_CardUseSelect useSelectUI;
-    [SerializeField] private Canvas canvas;
-    [SerializeField] private UI_FieldScreen fieldScreen;
-
     [Header("드래그")]
-    [SerializeField] private CanvasGroup canvasGroup;
+    [SerializeField]
+    private Canvas canvas;
+
+    [SerializeField]
+    private CanvasGroup canvasGroup;
 
     [SerializeField, Min(0f)]
     private float dragThreshold = 10f;
 
     private UI_Card myCard;
     private RectTransform rectTransform;
-
     private Transform originalParent;
     private Vector2 pressScreenPosition;
-
     private bool isDragging;
     private bool hasMoved;
 
@@ -40,29 +36,14 @@ public class CardClick : MonoBehaviour
         rectTransform = GetComponent<RectTransform>();
 
         if (canvasGroup == null)
+        {
             canvasGroup = GetComponent<CanvasGroup>();
+        }
 
         if (canvas == null)
+        {
             canvas = GetComponentInParent<Canvas>();
-
-        if (useSelectUI == null)
-            useSelectUI = FindFirstObjectByType<UI_CardUseSelect>(FindObjectsInactive.Include);
-
-        if (fieldScreen == null)
-        {
-            fieldScreen = FindFirstObjectByType<UI_FieldScreen>(FindObjectsInactive.Include);
         }
-
-        if (fieldCardSelector == null)
-        {
-            fieldCardSelector =
-                FindFirstObjectByType<UI_FieldCardSelector>(FindObjectsInactive.Include);
-        }
-    }
-
-    public void SetUseSelectUI(UI_CardUseSelect ui)
-    {
-        useSelectUI = ui;
     }
 
     private void OnEnable()
@@ -88,77 +69,68 @@ public class CardClick : MonoBehaviour
         hasMoved = false;
     }
 
-    private void OnMouseLeftButton(bool value, Vector2 screenPosition, Vector3 worldPosition)
+    private void OnMouseLeftButton(
+        bool pressed,
+        Vector2 screenPosition,
+        Vector3 worldPosition)
     {
-        if (value)
+        if (pressed)
         {
             BeginDrag(screenPosition);
         }
         else
         {
-            EndDrag(screenPosition);
+            EndDrag();
         }
     }
 
     private void BeginDrag(Vector2 screenPosition)
     {
-
-        if (isDragging)
-            return;
-
-        if (myCard == null || myCard.CardInstance == null || myCard.CardData == null)
+        if (isDragging ||
+            myCard == null ||
+            myCard.CardInstance == null ||
+            rectTransform == null ||
+            GameManager.Instance == null ||
+            GameManager.Instance.Input == null)
         {
             return;
         }
 
-        if (useSelectUI != null && useSelectUI.IsOpened)
-        {
-            return;
-        }
+        GameObject clickedObject =
+            GameManager.Instance.Input.GetGameObjectUnderCursor();
 
+        UI_Card clickedCard = clickedObject != null
+            ? clickedObject.GetComponentInParent<UI_Card>()
+            : null;
 
-        GameObject clickedObject = GameManager.Instance.Input.GetGameObjectUnderCursor();
-
-
-        UI_Card clickedCard = clickedObject != null ? clickedObject.GetComponentInParent<UI_Card>() : null;
-
-
-        // 중요:
-        // 모든 카드가 InputManager 이벤트를 받기 때문에,
-        // "내 카드가 클릭된 경우"만 드래그를 시작해야 함.
+        // 모든 카드가 공용 입력 이벤트를 받으므로
+        // 실제로 누른 카드만 드래그를 시작합니다.
         if (clickedCard != myCard)
             return;
 
-        if (rectTransform == null)
-        {
-            return;
-        }
-
         isDragging = true;
         hasMoved = false;
-
         originalParent = transform.parent;
         pressScreenPosition = screenPosition;
-
     }
 
-    private void OnMouseMove(Vector2 screenPosition, Vector3 worldPosition)
+    private void OnMouseMove(
+        Vector2 screenPosition,
+        Vector3 worldPosition)
     {
         if (!isDragging)
             return;
 
         if (!hasMoved)
         {
-            float distance =
-                Vector2.Distance(
-                    pressScreenPosition,
-                    screenPosition);
+            float distance = Vector2.Distance(
+                pressScreenPosition,
+                screenPosition);
 
             if (distance < dragThreshold)
                 return;
 
             hasMoved = true;
-
             SetRaycastBlock(false);
             transform.SetAsLastSibling();
         }
@@ -177,177 +149,74 @@ public class CardClick : MonoBehaviour
             return;
         }
 
-        RectTransform canvasRect = canvas.transform as RectTransform;
+        RectTransform canvasRect =
+            canvas.transform as RectTransform;
 
         if (canvasRect == null)
             return;
 
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRect, screenPosition, canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : canvas.worldCamera, out Vector2 localPoint);
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            canvasRect,
+            screenPosition,
+            canvas.renderMode == RenderMode.ScreenSpaceOverlay
+                ? null
+                : canvas.worldCamera,
+            out Vector2 localPoint);
 
         transform.SetParent(canvasRect, false);
         rectTransform.anchoredPosition = localPoint;
     }
 
-    /// <summary>
-    /// 카드 드래그 종료 위치를 확인하여
-    /// 이벤트 판정, 일반 필드 효과 또는 전투 사용으로 전달합니다.
-    /// </summary>
-    private void EndDrag(Vector2 screenPosition)
+    private void EndDrag()
     {
         if (!isDragging)
             return;
 
         bool wasDragged = hasMoved;
-
         isDragging = false;
         hasMoved = false;
 
+        CardInstance card =
+            myCard != null
+                ? myCard.CardInstance
+                : null;
+
         if (!wasDragged)
         {
-            CardInstance clickedCard =
-                myCard != null
-                    ? myCard.CardInstance
-                    : null;
-
-            if (clickedCard != null)
+            if (card != null)
             {
-                OnClicked?.Invoke(clickedCard);
+                OnClicked?.Invoke(card);
             }
 
             return;
         }
 
-        CharacterBase target = FindDropTarget();
+        CardDropReceiver receiver = FindDropReceiver();
 
         ReturnCard();
 
-        CharacterBase user = FindControlledCharacter();
-
-        if (user == null)
+        if (card == null || receiver == null)
             return;
 
-        if (myCard == null || myCard.CardInstance == null || myCard.CardData == null)
-        {
-            return;
-        }
-
-        CardInstance cardInstance = myCard.CardInstance;
-
-        CardData cardData = cardInstance.Data;
-
-        CardDropDecision decision = GetDropDecision(cardData, user, target);
-
-        switch (decision.result)
-        {
-            case CardDropResult.Invalid:
-                return;
-
-            case CardDropResult.OpenPopup:
-                OpenPopup(cardInstance, user, target);
-
-                return;
-
-            case CardDropResult.UseDirect:
-                TryUseCardDirect(cardInstance, user, target, decision.useCost);
-
-                return;
-        }
+        // 전투 대상, 이벤트 판정, 일반 필드 사용은
+        // 각 드롭 위치가 CardInstance를 받아 처리합니다.
+        receiver.TryReceiveCard(card);
     }
 
-    private bool TryUseCardDirect(CardInstance cardInstance, CharacterBase user, CharacterBase target, CardUseCost useCost)
+    private CardDropReceiver FindDropReceiver()
     {
-        if (cardInstance == null || cardInstance.Data == null || user == null)
+        if (GameManager.Instance == null ||
+            GameManager.Instance.Input == null)
         {
-            return false;
+            return null;
         }
 
-        CardData cardData = cardInstance.Data;
+        GameObject hoverObject =
+            GameManager.Instance.Input.GetGameObjectUnderCursor();
 
-        CardResolver resolver = new CardResolver();
-
-        if (!resolver.CanUse(cardData, user, useCost))
-        {
-            BattleManager.ClaimBattleLog("코스트가<br>부족합니다.");
-
-            return false;
-        }
-
-        DeckModule deck = user.GetModule<DeckModule>();
-
-        if (deck == null)
-            return false;
-
-        bool success = resolver.UseWithoutCostCheck(cardData, user, target, useCost);
-
-        if (!success)
-            return false;
-
-        bool isExhaust = ShouldExhaustOnUse(cardData);
-
-        /*
-         * CardData가 아니라 클릭한 실제 CardInstance를
-         * 손패에서 이동시킵니다.
-         */
-        bool moved = deck.UseCard(cardInstance, isExhaust);
-
-        if (!moved)
-        {
-            Debug.LogWarning($"{cardData.cardName}: " + "선택한 카드 인스턴스를 " + "손패에서 찾지 못했습니다.");
-
-            return false;
-        }
-
-        UI_Hand handUI = GetComponentInParent<UI_Hand>();
-
-        if (handUI == null)
-        {
-            handUI = FindFirstObjectByType<UI_Hand>();
-        }
-
-        if (handUI != null)
-        {
-            handUI.RefreshFromDeck(deck);
-        }
-
-        return true;
-    }
-
-    private bool ShouldExhaustOnUse(CardData card)
-    {
-        if (card == null)
-            return false;
-
-        // 기본 자색 카드
-        if (card.color == CardColorType.Purple && card.magicCardType == MagicCardType.None)
-            return true;
-
-        // 생성된 마법 카드도 사용 시 삭제/소멸 처리
-        if (card.magicCardType != MagicCardType.None)
-            return true;
-
-        return false;
-    }
-
-    private void OpenPopup(CardInstance cardInstance, CharacterBase user, CharacterBase target)
-    {
-        if (cardInstance == null || cardInstance.Data == null)
-        {
-            return;
-        }
-
-        if (useSelectUI == null)
-        {
-            useSelectUI = FindFirstObjectByType<UI_CardUseSelect>(FindObjectsInactive.Include);
-        }
-
-        if (useSelectUI == null)
-        {
-            Debug.LogWarning("팝업 열기 실패: " + "UI_CardUseSelect 없음");
-
-            return;
-        }
-
-        useSelectUI.Open(cardInstance, user, target);
+        return hoverObject != null
+            ? hoverObject.GetComponentInParent<CardDropReceiver>()
+            : null;
     }
 
     private void ReturnCard()
@@ -357,8 +226,6 @@ public class CardClick : MonoBehaviour
         if (originalParent != null)
         {
             transform.SetParent(originalParent, false);
-
-            // 원래 자리로 돌리지 않고 핸드의 맨 뒤로 보냄
             transform.SetAsLastSibling();
         }
 
@@ -366,10 +233,6 @@ public class CardClick : MonoBehaviour
         {
             rectTransform.localScale = Vector3.one;
             rectTransform.localRotation = Quaternion.identity;
-
-            // 중요:
-            // anchoredPosition을 원래 값으로 되돌리지 않음.
-            // LayoutGroup이 있으면 자동 정렬되게 둔다.
         }
 
         ForceRefreshHandLayout();
@@ -382,13 +245,10 @@ public class CardClick : MonoBehaviour
             canvasGroup = GetComponent<CanvasGroup>();
         }
 
-        if (canvasGroup == null)
+        if (canvasGroup != null)
         {
-            Debug.LogWarning($"{name}: CanvasGroup이 없습니다.");
-            return;
+            canvasGroup.blocksRaycasts = value;
         }
-
-        canvasGroup.blocksRaycasts = value;
     }
 
     public void ClearClickListeners()
@@ -398,364 +258,12 @@ public class CardClick : MonoBehaviour
 
     private void ForceRefreshHandLayout()
     {
-        if (originalParent == null)
-            return;
-
         RectTransform parentRect =
             originalParent as RectTransform;
 
-        if (parentRect == null)
-            return;
-
-        UnityEngine.UI.LayoutRebuilder.ForceRebuildLayoutImmediate(parentRect);
-    }
-
-    private CharacterBase FindDropTarget()
-    {
-        GameObject hoverObject = GameManager.Instance.Input.GetGameObjectUnderCursor();
-
-
-        if (hoverObject == null)
-            return null;
-
-        CardDropTarget dropTarget = hoverObject.GetComponentInParent<CardDropTarget>();
-
-        if (dropTarget == null)
+        if (parentRect != null)
         {
-            dropTarget = hoverObject.GetComponentInChildren<CardDropTarget>();
-        }
-
-        if (dropTarget == null)
-        {
-            return null;
-        }
-
-        CharacterBase character = dropTarget.Character;
-
-        if (character == null)
-        {
-            return null;
-        }
-
-        return character;
-    }
-
-    private CharacterBase FindControlledCharacter()
-    {
-        CharacterBase[] characters = FindObjectsByType<CharacterBase>(FindObjectsSortMode.None);
-
-        foreach (CharacterBase character in characters)
-        {
-            if (character.Controller != null)
-                return character;
-        }
-
-        return null;
-    }
-
-    private TeamType GetTargetTeamType(CharacterBase user, CharacterBase target)
-    {
-        if (user == null || target == null)
-            return TeamType.None;
-
-        if (user == target)
-            return TeamType.Self;
-
-        bool userIsPlayer = user.Controller != null;
-        bool targetIsPlayer = target.Controller != null;
-
-        if (userIsPlayer == targetIsPlayer)
-            return TeamType.Ally;
-
-        return TeamType.Enemy;
-    }
-
-    private struct CardDropDecision
-    {
-        public CardDropResult result;
-        public CardUseCost useCost;
-
-        public static CardDropDecision Invalid()
-        {
-            return new CardDropDecision
-            {
-                result = CardDropResult.Invalid,
-                useCost = CardUseCost.Action
-            };
-        }
-
-        public static CardDropDecision Popup()
-        {
-            return new CardDropDecision
-            {
-                result = CardDropResult.OpenPopup,
-                useCost = CardUseCost.Action
-            };
-        }
-
-        public static CardDropDecision Direct(CardUseCost cost)
-        {
-            return new CardDropDecision
-            {
-                result = CardDropResult.UseDirect,
-                useCost = cost
-            };
+            LayoutRebuilder.ForceRebuildLayoutImmediate(parentRect);
         }
     }
-
-    private CardDropDecision GetDropDecision(CardData card, CharacterBase user, CharacterBase target)
-    {
-        if (card == null || user == null)
-            return CardDropDecision.Invalid();
-
-        // 생성된 마법 카드는 magicCardType으로 먼저 분기
-        if (card.magicCardType != MagicCardType.None)
-        {
-            return GetMagicDropDecision(card, user, target);
-        }
-
-        switch (card.color)
-        {
-            case CardColorType.Red:
-                return GetRedDropDecision(user, target);
-
-            case CardColorType.Yellow:
-                return GetYellowDropDecision(user, target);
-
-            case CardColorType.Green:
-                return GetGreenDropDecision(user, target);
-
-            case CardColorType.Blue:
-                return GetBlueDropDecision(user, target);
-
-            case CardColorType.Purple:
-                return GetBasicPurpleDropDecision();
-
-            case CardColorType.Colorless:
-                return GatColorlessDecision(user, target);
-        }
-
-        Debug.Log($"{card.cardName}: 아직 드롭 조건이 연결되지 않은 카드 색상");
-        return CardDropDecision.Invalid();
-    }
-
-
-    private CardDropDecision GetMagicDropDecision(CardData card, CharacterBase user, CharacterBase target)
-    {
-        TeamType targetType = GetTargetTeamType(user, target);
-
-        switch (card.magicCardType)
-        {
-            case MagicCardType.Attack:
-                if (targetType == TeamType.Enemy)
-                    return CardDropDecision.Direct(CardUseCost.ActionAndAuxiliary);
-
-                BattleManager.ClaimBattleLog("공격 마법 사용 불가<br>적 대상만 가능");
-                return CardDropDecision.Invalid();
-
-            case MagicCardType.Defense:
-                if (targetType == TeamType.Self || targetType == TeamType.Ally)
-                    return CardDropDecision.Direct(CardUseCost.ActionAndAuxiliary);
-
-                BattleManager.ClaimBattleLog("방어 마법 사용 불가<br>자신 또는 아군 대상만 가능");
-                return CardDropDecision.Invalid();
-
-            case MagicCardType.Buff:
-                // 대상이 없어도 사용 가능.
-                // 사용 시 자신과 아군 전체에게 버프.
-                return CardDropDecision.Direct(CardUseCost.ActionAndAuxiliary);
-
-            case MagicCardType.Forbidden:
-                if (targetType == TeamType.Enemy)
-                    return CardDropDecision.Direct(CardUseCost.ActionAndAuxiliary);
-
-                BattleManager.ClaimBattleLog("금지된 마법 사용 불가<br>적 대상만 가능");
-                return CardDropDecision.Invalid();
-        }
-
-        return CardDropDecision.Invalid();
-    }
-
-    private CardDropDecision GetBasicPurpleDropDecision()
-    {
-        // 기본 자색 카드는 대상 지정 없이 사용
-        return CardDropDecision.Direct(CardUseCost.ActionAndAuxiliary);
-    }
-
-    private CardDropDecision GetRedDropDecision(CharacterBase user, CharacterBase target)
-    {
-        TeamType targetType = GetTargetTeamType(user, target);
-
-        if (targetType == TeamType.Enemy)
-        {
-            // 적색은 행동/보조 둘 다 공격이라 선택 필요
-            return CardDropDecision.Popup();
-        }
-        BattleManager.ClaimBattleLog("적색 카드 사용 불가<br>적 대상만 가능");
-        return CardDropDecision.Invalid();
-    }
-
-    private CardDropDecision GetYellowDropDecision(CharacterBase user, CharacterBase target)
-    {
-        TeamType targetType = GetTargetTeamType(user, target);
-
-        switch (targetType)
-        {
-            case TeamType.Enemy:
-                return CardDropDecision.Direct(CardUseCost.Action);
-
-            case TeamType.Self:
-            case TeamType.Ally:
-                return CardDropDecision.Direct(CardUseCost.Auxiliary);
-
-            default:
-
-                return CardDropDecision.Invalid();
-        }
-    }
-
-    private CardDropDecision GetGreenDropDecision(CharacterBase user, CharacterBase target)
-    {
-        TeamType targetType = GetTargetTeamType(user, target);
-
-        switch (targetType)
-        {
-            case TeamType.Self:
-                // 자신은 힐/장갑 선택
-                return CardDropDecision.Popup();
-
-            case TeamType.Ally:
-                // 아군은 장갑 자동
-                return CardDropDecision.Direct(CardUseCost.Auxiliary);
-
-            default:
-                BattleManager.ClaimBattleLog("녹색 카드 사용 불가<br>팀 대상만 가능");
-                return CardDropDecision.Invalid();
-        }
-    }
-
-    private CardDropDecision GetBlueDropDecision(CharacterBase user, CharacterBase target)
-    {
-        TeamType targetType = GetTargetTeamType(user, target);
-
-        switch (targetType)
-        {
-            case TeamType.Enemy:
-                return CardDropDecision.Direct(CardUseCost.Action);
-
-            case TeamType.Self:
-            case TeamType.Ally:
-                return CardDropDecision.Direct(CardUseCost.Auxiliary);
-
-            default:
-                return CardDropDecision.Invalid();
-        }
-    }
-    private CardDropDecision GatColorlessDecision(CharacterBase user, CharacterBase target)
-    {
-        TeamType targetType = GetTargetTeamType(user, target);
-
-        switch (targetType)
-        {
-            case TeamType.Enemy:
-                return CardDropDecision.Direct(CardUseCost.Action);
-
-            case TeamType.Self:
-            case TeamType.Ally:
-                return CardDropDecision.Direct(CardUseCost.Auxiliary);
-
-            default:
-                return CardDropDecision.Invalid();
-        }
-    }
-
-    /// <summary>
-    /// 현재 카드가 이벤트 판정 카드 선택으로 처리되어야 하는지 확인합니다.
-    /// 선택 대기 중이면 드롭 위치가 잘못되어도 전투 카드 사용을 차단합니다.
-    /// </summary>
-    private bool TryHandleFieldCardSelection(CardInstance card, bool droppedOnFieldCheck)
-    {
-        if (fieldCardSelector == null)
-        {
-            fieldCardSelector = FindFirstObjectByType<UI_FieldCardSelector>(FindObjectsInactive.Include);
-        }
-
-        if (fieldCardSelector == null || !fieldCardSelector.IsSelectingCard)
-        {
-            return false;
-        }
-
-        if (droppedOnFieldCheck)
-        {
-            fieldCardSelector.TrySelectCard(card);
-        }
-
-        // 선택 대기 중에는 일반 카드 사용으로 넘기지 않습니다.
-        return true;
-    }
-
-    /// <summary>
-    /// 카드가 능력치 판정 전용 드롭 영역 위에 놓였는지 확인합니다.
-    /// </summary>
-    private bool IsFieldStatCardDropTarget()
-    {
-        if (GameManager.Instance == null || GameManager.Instance.Input == null)
-        {
-            return false;
-        }
-
-        GameObject hoverObject = GameManager.Instance.Input.GetGameObjectUnderCursor();
-
-        if (hoverObject == null)
-            return false;
-
-        UI_FieldStatCardDropTarget dropTarget = hoverObject.GetComponentInParent<UI_FieldStatCardDropTarget>();
-
-        return dropTarget != null;
-    }
-
-    /// <summary>
-    /// 카드가 일반 필드 카드 사용 영역에 놓였는지 확인합니다.
-    /// </summary>
-    private bool IsFieldCardUseDropTarget()
-    {
-        if (GameManager.Instance == null || GameManager.Instance.Input == null)
-        {
-            return false;
-        }
-
-        GameObject hoverObject = GameManager.Instance.Input.GetGameObjectUnderCursor();
-
-        if (hoverObject == null)
-            return false;
-
-        UI_FieldCardUseDropTarget dropTarget = hoverObject.GetComponentInParent<UI_FieldCardUseDropTarget>();
-
-        return dropTarget != null;
-    }
-
-    /// <summary>
-    /// 일반 필드 카드 사용 영역에 놓인 카드를
-    /// UI_FieldScreen으로 전달합니다.
-    /// </summary>
-    private bool TryHandleFieldCardUse(CardInstance card)
-    {
-        if (card == null)
-            return false;
-
-        if (fieldScreen == null)
-        {
-            fieldScreen = FindFirstObjectByType<UI_FieldScreen>(FindObjectsInactive.Include);
-        }
-
-        if (fieldScreen == null)
-            return false;
-
-        fieldScreen.TryUseDroppedCard(card);
-
-        // 필드 카드 영역에 놓았다면
-        // 결과와 관계없이 전투 카드 사용으로 전달하지 않습니다.
-        return true;
-    }
-
 }

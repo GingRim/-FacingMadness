@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.TextCore.Text;
 
 public class BattleManager : ManagerBase
 {
@@ -26,6 +25,8 @@ public class BattleManager : ManagerBase
     public static event Action<string> OnBattleLog;
     public static event Action OnBattleLogClear;
     public static event Action<int> OnRoundChanged;
+    public static event Action OnBattleStarted;
+    public static event Action<bool> OnBattleEnded;
 
     public int Round => round;
 
@@ -121,7 +122,7 @@ public class BattleManager : ManagerBase
         BindBattleUI();
         participants.Clear();
         turnOrder.Clear();
-       
+
 
 
         if (characters != null)
@@ -132,7 +133,7 @@ public class BattleManager : ManagerBase
                     continue;
 
                 character.AddAllModuleFromObject(character.gameObject);
-                
+
                 PrepareParticipant(character);
                 participants.Add(character);
 
@@ -150,7 +151,9 @@ public class BattleManager : ManagerBase
 
         Debug.Log("전투 시작");
 
-        StartRound();   
+        OnBattleStarted?.Invoke();
+
+        StartRound();
     }
 
     private void StartRound()
@@ -168,12 +171,12 @@ public class BattleManager : ManagerBase
         Debug.Log($"라운드 시작: {round}");
 
         OnRoundChanged?.Invoke(round);
-        
+
         foreach (CharacterBase character in participants)
         {
             if (character == null)
                 continue;
-            
+
             if (!IsAlive(character))
                 continue;
 
@@ -467,7 +470,7 @@ public class BattleManager : ManagerBase
 
             Debug.Log($"{character.name} 드로우: " + $"{drawCard.CardName}");
         }
-            RefreshHandUI(deck);
+        RefreshHandUI(deck);
 
     }
 
@@ -852,7 +855,7 @@ public class BattleManager : ManagerBase
     {
         if (defender == null)
             return;
-        
+
         CombatModule combat = defender.GetModule<CombatModule>();
 
         if (combat == null)
@@ -917,6 +920,8 @@ public class BattleManager : ManagerBase
         UnbindHitPointEvents();
         ClearPendingReaction();
 
+        OnBattleEnded?.Invoke(victory);
+
         if (!victory)
         {
             OpenGameOver();
@@ -954,7 +959,7 @@ public class BattleManager : ManagerBase
 
             character.gameObject.SetActive(false);
         }
-    }   
+    }
 
     private void OpenGameOver()
     {

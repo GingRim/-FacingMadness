@@ -50,6 +50,8 @@ public class UI_FieldCardSelector : MonoBehaviour
             eventRunner = FindFirstObjectByType<FieldEventRunner>(FindObjectsInactive.Include);
         }
 
+        BindRunnerEvents();
+
         if (directRollButton != null)
         {
             directRollButton.onClick.RemoveListener(HandleDirectRoll);
@@ -72,6 +74,11 @@ public class UI_FieldCardSelector : MonoBehaviour
     /// </summary>
     private void OnEnable()
     {
+        BindRunnerEvents();
+    }
+
+    private void BindRunnerEvents()
+    {
         if (eventRunner == null)
             return;
 
@@ -88,7 +95,7 @@ public class UI_FieldCardSelector : MonoBehaviour
     /// <summary>
     /// FieldEventRunner 이벤트를 해제합니다.
     /// </summary>
-    private void OnDisable()
+    private void OnDestroy()
     {
         if (eventRunner != null)
         {
@@ -97,7 +104,18 @@ public class UI_FieldCardSelector : MonoBehaviour
             eventRunner.OnEventClosed -= HandleEventClosed;
         }
 
-        CancelSelection();
+        if (directRollButton != null)
+        {
+            directRollButton.onClick.RemoveListener(HandleDirectRoll);
+        }
+
+        if (ignitionSelectButton != null)
+        {
+            ignitionSelectButton.onClick.RemoveListener(HandleIgnitionSelection);
+        }
+
+        pendingChoice = null;
+        isSelectingIgnitionTarget = false;
     }
 
     /// <summary>

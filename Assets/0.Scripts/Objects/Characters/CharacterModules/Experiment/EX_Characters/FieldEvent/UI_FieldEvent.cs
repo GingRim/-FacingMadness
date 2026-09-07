@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -6,8 +7,8 @@ using UnityEngine.UI;
 
 
 /// <summary>
-/// 필드 이벤트의 이미지, 설명, 선택지 페이지,
-/// 카드 선택 및 결과 문장을 표시한다.
+/// 필드 이벤트의 이미지, 설명과 선택지 페이지를 표시합니다.
+/// 선택 결과는 UI_ChapterStory에 전달합니다.
 /// </summary>
 public class UI_FieldEvent : UIBase
 {
@@ -44,13 +45,19 @@ public class UI_FieldEvent : UIBase
     [SerializeField]
     private Button backButton;
 
-    [Header("결과 확인")]
+    [Header("이벤트 결과 화면")]
     [SerializeField]
-    private Button continueButton;
+    private UI_ChapterStory resultStoryUI;
+
+    [Header("이벤트 결과 전환")]
+    [SerializeField, Min(0f)]
+    private float resultDisplayDelay = 0.5f;
 
     private readonly Dictionary<int, FieldEventChoice> displayedChoices = new();
 
     private readonly List<int> availableChoiceIndices = new();
+
+    private Coroutine resultTransitionRoutine;
 
     /// <summary>
     /// 현재 이벤트를 진행하는 캐릭터다.
@@ -62,6 +69,19 @@ public class UI_FieldEvent : UIBase
     /// </summary>
     private void Awake()
     {
+        if (eventRunner == null)
+        {
+            eventRunner = FindFirstObjectByType<FieldEventRunner>(
+                FindObjectsInactive.Include);
+        }
+
+        if (resultStoryUI == null)
+        {
+            Debug.LogError(
+                "UI_FieldEvent: Result Story UI에 " +
+                "결과창의 UI_ChapterStory를 연결해야 합니다.");
+        }
+
         BindRunner();
 
         BindButtons();
@@ -71,11 +91,6 @@ public class UI_FieldEvent : UIBase
         if (backButton != null)
         {
             backButton.gameObject.SetActive(false);
-        }
-
-        if (continueButton != null)
-        {
-            continueButton.gameObject.SetActive(false);
         }
 
         if (panel != null)
@@ -89,6 +104,8 @@ public class UI_FieldEvent : UIBase
     /// </summary>
     private void OnDestroy()
     {
+        StopResultTransition();
+
         UnbindRunner();
 
         if (backButton != null)
@@ -96,10 +113,6 @@ public class UI_FieldEvent : UIBase
             backButton.onClick.RemoveListener(HandleBackButtonClicked);
         }
 
-        if (continueButton != null)
-        {
-            continueButton.onClick.RemoveListener(HandleContinue);
-        }
     }
 
     /// <summary>
@@ -151,7 +164,7 @@ public class UI_FieldEvent : UIBase
     }
 
     /// <summary>
-    /// 이전 페이지 버튼과 결과 확인 버튼을 등록한다.
+    /// 이전 페이지 버튼을 등록합니다.
     /// </summary>
     private void BindButtons()
     {
@@ -162,12 +175,6 @@ public class UI_FieldEvent : UIBase
             backButton.onClick.AddListener(HandleBackButtonClicked);
         }
 
-        if (continueButton != null)
-        {
-            continueButton.onClick.RemoveListener(HandleContinue);
-
-            continueButton.onClick.AddListener(HandleContinue);
-        }
     }
 
     /// <summary>
@@ -181,16 +188,17 @@ public class UI_FieldEvent : UIBase
         if (eventData == null)
             return;
 
-
         Character = context != null ? context.Character : null;
 
         if (eventNameText != null)
         {
+            eventNameText.gameObject.SetActive(true);
             eventNameText.SetText(eventData.EventName);
         }
 
         if (descriptionText != null)
         {
+            descriptionText.gameObject.SetActive(true);
             descriptionText.SetText(eventData.Description);
         }
 
@@ -205,11 +213,6 @@ public class UI_FieldEvent : UIBase
         if (choiceGroup != null)
         {
             choiceGroup.SetActive(true);
-        }
-
-        if (continueButton != null)
-        {
-            continueButton.gameObject.SetActive(false);
         }
 
         ClearChoiceButtons();
@@ -234,6 +237,8 @@ public class UI_FieldEvent : UIBase
 
         if (descriptionText != null)
         {
+            descriptionText.gameObject.SetActive(true);
+
             string pageDescription = !string.IsNullOrWhiteSpace(page.Description) ? page.Description : GetCurrentEventDescription();
 
             descriptionText.SetText(pageDescription);
@@ -242,11 +247,6 @@ public class UI_FieldEvent : UIBase
         if (choiceGroup != null)
         {
             choiceGroup.SetActive(true);
-        }
-
-        if (continueButton != null)
-        {
-            continueButton.gameObject.SetActive(false);
         }
 
         CreateChoiceButtons(page.Choices, page.DisplayType, page.MaximumVisibleChoices);
@@ -472,24 +472,106 @@ public class UI_FieldEvent : UIBase
             displayText = $"{checkDescription}\n\n{resultDescription}";
         }
 
-        if (descriptionText != null)
-        {
-            descriptionText.SetText(displayText);
-            descriptionText.gameObject.SetActive(true);
-        }
-
         Sprite resultImage = choice != null ? choice.GetResultImage(succeeded) : null;
 
-        if (eventImage != null && resultImage != null)
+        BeginResultTransition(
+            displayText,
+            resultImage);
+    }
+
+    /// <summary>
+    /// 결과가 확정된 뒤 지정된 시간만큼 기다리고 결과창을 엽니다.
+    /// 대기 중에는 이 오브젝트를 활성 상태로 유지합니다.
+    /// </summary>
+    private void BeginResultTransition(string displayText, Sprite resultImage)
+    {
+        StopResultTransition();
+
+        if (backButton != null)
         {
-            eventImage.sprite = resultImage;
-            eventImage.enabled = true;
+            backButton.gameObject.SetActive(false);
         }
 
-        if (continueButton != null)
+        if (resultDisplayDelay <= 0f)
         {
-            continueButton.gameObject.SetActive(true);
+            ShowResultStory(
+                displayText,
+                resultImage);
+
+            return;
         }
+
+        resultTransitionRoutine = StartCoroutine(
+            ShowResultAfterDelay(
+                displayText,
+                resultImage));
+    }
+
+    private IEnumerator ShowResultAfterDelay(string displayText, Sprite resultImage)
+    {
+        yield return new WaitForSecondsRealtime(
+            resultDisplayDelay);
+
+        resultTransitionRoutine = null;
+
+        ShowResultStory(
+            displayText,
+            resultImage);
+    }
+
+    private void StopResultTransition()
+    {
+        if (resultTransitionRoutine == null)
+            return;
+
+        StopCoroutine(resultTransitionRoutine);
+        resultTransitionRoutine = null;
+    }
+
+    /// <summary>
+    /// 기존 UI_ChapterStory에 이벤트 결과를 표시하고
+    /// 선택지 화면을 완전히 닫습니다.
+    /// </summary>
+    private void ShowResultStory(string displayText, Sprite resultImage)
+    {
+        if (resultStoryUI == null)
+        {
+            Debug.LogError(
+                "UI_FieldEvent: Result Story UI가 연결되지 않아 " +
+                "이벤트 결과를 표시할 수 없습니다.");
+
+            return;
+        }
+
+        if (resultStoryUI.OpenEventResult(
+            displayText,
+            resultImage,
+            HandleEventResultConfirmed))
+        {
+            if (panel != null)
+            {
+                panel.SetActive(false);
+            }
+
+            return;
+        }
+
+        Debug.LogError(
+            "UI_FieldEvent: 연결된 결과창을 활성화하지 못했습니다. " +
+            "result의 부모 오브젝트 활성 상태를 확인하세요.");
+    }
+
+
+    /// <summary>
+    /// 이벤트 결과 화면의 다음 버튼을 누르면
+    /// 현재 필드 이벤트를 최종 완료합니다.
+    /// </summary>
+    private void HandleEventResultConfirmed()
+    {
+        if (eventRunner == null)
+            return;
+
+        eventRunner.CompleteCurrentEvent();
     }
 
     /// <summary>
@@ -530,21 +612,17 @@ public class UI_FieldEvent : UIBase
     }
 
     /// <summary>
-    /// 결과 확인 버튼을 눌러 현재 이벤트를 종료한다.
-    /// </summary>
-    private void HandleContinue()
-    {
-        if (eventRunner == null)
-            return;
-
-        eventRunner.CompleteCurrentEvent();
-    }
-
-    /// <summary>
     /// 이벤트 종료 시 카드 대기 상태와 화면 표시를 초기화한다.
     /// </summary>
     private void HandleEventClosed()
     {
+        StopResultTransition();
+
+        if (resultStoryUI != null &&
+            resultStoryUI.IsShowingEventResult)
+        {
+            resultStoryUI.Close();
+        }
 
         ClearChoiceButtons();
 
@@ -553,11 +631,6 @@ public class UI_FieldEvent : UIBase
         if (backButton != null)
         {
             backButton.gameObject.SetActive(false);
-        }
-
-        if (continueButton != null)
-        {
-            continueButton.gameObject.SetActive(false);
         }
 
         if (panel != null)
@@ -581,7 +654,7 @@ public class UI_FieldEvent : UIBase
         {
             return
                 $"{usedCard.cardName} 사용\n" +
-                "판정 자동 성공";
+                "판정 성공";
         }
 
         if (!eventRunner.HasLastJudgeResult)
@@ -601,10 +674,7 @@ public class UI_FieldEvent : UIBase
         }
 
         return
-            $"D10 {result.dice} " +
-            $"+ 능력 보정 {result.statModifier} " +
-            $"+ 상태 보정 {result.statusModifier}\n" +
-            $"= {result.total} / 목표 {result.target}\n" +
+            $"결과 {result.total} / 목표 {result.target}\n" +
             $"{resultName}";
     }
 

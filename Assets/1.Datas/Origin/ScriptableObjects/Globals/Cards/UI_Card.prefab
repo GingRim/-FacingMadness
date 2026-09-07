@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 2519033003844175896}
   - component: {fileID: 5204643327949282232}
   - component: {fileID: 1534954332903207840}
+  - component: {fileID: 5400169104432609805}
   m_Layer: 5
   m_Name: UI_Card
   m_TagString: Untagged
@@ -186,12 +187,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b82c559bd7cb2a646bcb333df7219b45, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CardCrkClick
-  fieldCardSelector: {fileID: 0}
-  useSelectUI: {fileID: 0}
   canvas: {fileID: 0}
-  fieldScreen: {fileID: 0}
-  canvasGroup: {fileID: 0}
+  canvasGroup: {fileID: 5400169104432609805}
   dragThreshold: 10
+--- !u!225 &5400169104432609805
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2891088092043084667}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &2947881873126989167
 GameObject:
   m_ObjectHideFlags: 0

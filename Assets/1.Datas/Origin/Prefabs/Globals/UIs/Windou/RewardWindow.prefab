@@ -676,8 +676,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 76cece983e4a84743904983290edbd5b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UI_Button
-  wantType: 2
-  cgangeType: 0
+  wantType: 21
+  cgangeType: 2
 --- !u!114 &1512085741109134534
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -691,5 +691,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UI_Button_OpenUI
   wantType: 7
-  wantToggle: 0
-  ScreenChanger: 0
+  wantToggle: 1
+  ScreenChanger: 1

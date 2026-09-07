@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 
 
+
 public enum ScreenChangeType
 {
     None, ScreenChanger, SlideChanger,
@@ -25,6 +26,9 @@ public class UIManager : ManagerBase
         new (UIType.Creation, "CharacterCreationScreen"),
         new (UIType.Menu, "MenuScreen"),
     };
+
+    // FieldCanvas는 필드용 화면·팝업 보관 영역이며 UIBase 화면 프리팹이 아닙니다.
+    // 따라서 EX_TutorialField를 globalScreenArray에 등록하지 않습니다.
 
 
     Canvas _mainCanvas;

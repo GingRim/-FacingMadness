@@ -37,6 +37,13 @@ public class UI_FieldCardUseDropTarget : CardDropReceiver
 
         if (cardUseController == null)
         {
+            cardUseController =
+                FindFirstObjectByType<FieldCardUseController>(
+                    FindObjectsInactive.Include);
+        }
+
+        if (cardUseController == null)
+        {
             Debug.LogWarning("필드 카드 처리기가 연결되지 않았습니다.");
 
             return false;

@@ -1,0 +1,113 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e3f02e37dc0d4345ac9a45fe9d8e103, type: 3}
+  m_Name: CenterMainPage
+  m_EditorClassIdentifier: Assembly-CSharp::FieldEventPageData
+  pageId: CenterMainPage_0
+  description: "\uB208\uC744 \uB728\uC790 \uBCF4\uC774\uB294 \uAC83\uC740 \uCC98\uC74C
+    \uBCF4\uB294 \uACF5\uAC04\uC774\uB2E4."
+  displayType: 0
+  maximumVisibleChoices: 3
+  choices:
+  - choiceId: DefaultEvent_01
+    choiceText: "\uD6D1\uC5B4\uBCF4\uAE30"
+    choiceType: 2
+    actionType: 1
+    usageType: 0
+    nextPage: {fileID: 0}
+    executionType: 0
+    requiredStat: 0
+    target: 5
+    conditions: []
+    allowsIgnition: 0
+    successResult:
+      description: "\uC0AC\uBC29\uC744 \uB458\uB7EC\uBCF4\uC790 \uD770\uBCBD\uC73C\uB85C
+        \uC774\uB8E8\uC5B4\uC9C4 \uBC29\uC5D0 \uAC01 \uBCBD\uC5D0\uB294 \uBB38\uC774\uC788\uC2B5\uB2C8\uB2E4.<br><br>\uC911\uC559\uC5D0\uB294
+        \uD14C\uC774\uBE14\uC774 \uD558\uB098 \uC788\uC73C\uBA70 \uC758\uC790 \uD558\uB098\uAC00
+        \uC788\uC2B5\uB2C8\uB2E4. <br><br>\uD14C\uC774\uBE14\uC5D0\uB294 \uC2A4\uD504\uC640
+        \uB098\uBB34 \uC2A4\uD47C\uC774 \uD558\uB098 \uC788\uC2B5\uB2C8\uB2E4."
+      effects: []
+      resultImage: {fileID: -7186055740845857485, guid: 874c4ca1e5324ad46ab813d982b4597c, type: 3}
+    failureResult:
+      description: 
+      effects: []
+      resultImage: {fileID: 0}
+    legacyCardRequirement:
+      requiresCard: 0
+      allowedColors: 
+      checkStat: 0
+  - choiceId: DefaultEvent_02
+    choiceText: "\uD2B9\uC774\uC810\uC744 \uCC3E\uC544 \uBCF8\uB2E4."
+    choiceType: 1
+    actionType: 1
+    usageType: 0
+    nextPage: {fileID: 0}
+    executionType: 1
+    requiredStat: 4
+    target: 5
+    conditions: []
+    allowsIgnition: 0
+    successResult:
+      description: "\uC0AC\uBC29\uC744 \uB458\uB7EC\uBCF4\uC790 \uD770\uBCBD\uC73C\uB85C
+        \uC774\uB8E8\uC5B4\uC9C4 \uBC29\uC5D0 \uAC01 \uBCBD\uC5D0\uB294 \uBB38\uC774\uC788\uC5C8\uB2E4.<br><br>\uC911\uC559\uC5D0\uB294
+        \uD14C\uC774\uBE14\uC774 \uD558\uB098 \uC788\uC73C\uBA70 \uC758\uC790 \uD558\uB098\uAC00
+        \uC788\uC2B5\uB2C8\uB2E4. <br><br>\uD14C\uC774\uBE14\uC5D0\uB294 \uC2A4\uD504\uC640
+        \uB098\uBB34 \uC2A4\uD47C\uC774 \uD558\uB098 \uC788\uC2B5\uB2C8\uB2E4.<br><br>\uCC9C\uC7A5\uC744
+        \uBCF4\uC790 \uAC80\uC740\uC0C9 \uC804\uAD6C\uAC00 \uC774 \uBC29\uC744 \uBC1D\uD788\uACE0
+        \uC788\uB2E4\uACE0 \uC0DD\uAC01 \uB429\uB2C8\uB2E4."
+      effects: []
+      resultImage: {fileID: -7186055740845857485, guid: 874c4ca1e5324ad46ab813d982b4597c, type: 3}
+    failureResult:
+      description: "\uC0AC\uBC29\uC744 \uB458\uB7EC\uBCF4\uC790 \uD770\uBCBD\uC73C\uB85C
+        \uC774\uB8E8\uC5B4\uC9C4 \uBC29\uC5D0 \uAC01 \uBCBD\uC5D0\uB294 \uBB38\uC774\uC788\uC2B5\uB2C8\n\uB2E4.<br><br>\uC911\uC559\uC5D0\uB294
+        \uD14C\uC774\uBE14\uC774 \uD558\uB098 \uC788\uC73C\uBA70 \uC758\uC790 \uD558\uB098\uAC00
+        \uC788\uC2B5\uB2C8\uB2E4. <br><br>\uD14C\uC774\uBE14\uC5D0\uB294 \uC2A4\uD504\uC640
+        \uB098\uBB34 \uC2A4\uD47C\uC774 \uD558\uB098 \uC788\uC2B5\uB2C8\uB2E4."
+      effects: []
+      resultImage: {fileID: -7186055740845857485, guid: 874c4ca1e5324ad46ab813d982b4597c, type: 3}
+    legacyCardRequirement:
+      requiresCard: 0
+      allowedColors: 
+      checkStat: 0
+  - choiceId: DefaultEvent_03
+    choiceText: "\uC704\uD5D8\uC744 \uAC10\uC9C0\uD55C\uB2E4."
+    choiceType: 1
+    actionType: 1
+    usageType: 0
+    nextPage: {fileID: 0}
+    executionType: 1
+    requiredStat: 2
+    target: 5
+    conditions: []
+    allowsIgnition: 0
+    successResult:
+      description: "\uC0AC\uBC29\uC744 \uB458\uB7EC\uBCF4\uC790 \uD770\uBCBD\uC73C\uB85C
+        \uC774\uB8E8\uC5B4\uC9C4 \uBC29\uC5D0 \uAC01 \uBCBD\uC5D0\uB294 \uBB38\uC774\uC788\uC5C8\uB2E4.<br><br>\uC911\uC559\uC5D0\uB294
+        \uD14C\uC774\uBE14\uC774 \uD558\uB098 \uC788\uC73C\uBA70 \uC758\uC790 \uD558\uB098\uAC00
+        \uC788\uC2B5\uB2C8\uB2E4. <br><br>\uD14C\uC774\uBE14\uC5D0\uB294 \uBE44\uB9BF\uD55C
+        \uD5A5\uC758 \uC2A4\uD504\uC640 \uB098\uBB34 \uC2A4\uD47C\uC774 \uD558\uB098
+        \uC788\uC2B5\uB2C8\uB2E4."
+      effects: []
+      resultImage: {fileID: -7186055740845857485, guid: 874c4ca1e5324ad46ab813d982b4597c, type: 3}
+    failureResult:
+      description: "\uC0AC\uBC29\uC744 \uB458\uB7EC\uBCF4\uC790 \uD770\uBCBD\uC73C\uB85C
+        \uC774\uB8E8\uC5B4\uC9C4 \uBC29\uC5D0 \uAC01 \uBCBD\uC5D0\uB294 \uBB38\uC774\uC788\uC2B5\uB2C8\uB2E4.<br><br>\uC911\uC559\uC5D0\uB294
+        \uD14C\uC774\uBE14\uC774 \uD558\uB098 \uC788\uC73C\uBA70 \uC758\uC790 \uD558\uB098\uAC00
+        \uC788\uC2B5\uB2C8\uB2E4. <br><br>\uD14C\uC774\uBE14\uC5D0\uB294 \uC2A4\uD504\uC640
+        \uB098\uBB34 \uC2A4\uD47C\uC774 \uD558\uB098 \uC788\uC2B5\uB2C8\uB2E4."
+      effects: []
+      resultImage: {fileID: -7186055740845857485, guid: 874c4ca1e5324ad46ab813d982b4597c, type: 3}
+    legacyCardRequirement:
+      requiresCard: 0
+      allowedColors: 
+      checkStat: 0
+  resultImage: {fileID: -5192146429223839966, guid: 03af6b09aaac336479d4101e67236e4a, type: 3}

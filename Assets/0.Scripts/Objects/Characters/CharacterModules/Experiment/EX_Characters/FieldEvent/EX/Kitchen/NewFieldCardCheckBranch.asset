@@ -17,5 +17,4 @@ MonoBehaviour:
   failureText: 
   failureEffects: []
   fumbleText: 
-  fumbleEffects:
-  - {fileID: 0}
+  fumbleEffects: []

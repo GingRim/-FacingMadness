@@ -27,6 +27,10 @@ public class FieldEventPageData : ScriptableObject
     [SerializeField]
     private FieldEventChoice[] choices;
 
+    [Header("이미지")]
+    [SerializeField]
+    private Sprite resultImage;
+
     /// <summary>
     /// 페이지를 구분하는 고유 식별자다.
     /// </summary>

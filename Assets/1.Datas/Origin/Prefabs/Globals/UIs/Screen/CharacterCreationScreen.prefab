@@ -4122,7 +4122,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 8915100287410445083}
-        m_TargetAssemblyTypeName: UI_Button_OpenScreen, Assembly-CSharp
+        m_TargetAssemblyTypeName: UI_Button_StartTutorialField, Assembly-CSharp
         m_MethodName: Open
         m_Mode: 1
         m_Arguments:
@@ -4142,11 +4142,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 8754249690222916666}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 76cece983e4a84743904983290edbd5b, type: 3}
+  m_Script: {fileID: 11500000, guid: 6c889291abc84f0b9db2f7ef398d12e1, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UI_Button_OpenScreen
-  wantType: 6
-  cgangeType: 1
+  m_EditorClassIdentifier: Assembly-CSharp::UI_Button_StartTutorialField
 --- !u!1 &9037880641805047459
 GameObject:
   m_ObjectHideFlags: 0

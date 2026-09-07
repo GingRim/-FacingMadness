@@ -149,7 +149,7 @@ GameObject:
   - component: {fileID: 3148311339550279147}
   - component: {fileID: 7313461823232705155}
   - component: {fileID: 566205237170686052}
-  - component: {fileID: 2233296196349409176}
+  - component: {fileID: 6663887881490758259}
   m_Layer: 5
   m_Name: Button (3)
   m_TagString: Untagged
@@ -259,8 +259,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 2233296196349409176}
-        m_TargetAssemblyTypeName: UI_Button_OpenUI, Assembly-CSharp
+      - m_Target: {fileID: 6663887881490758259}
+        m_TargetAssemblyTypeName: UI_Button_OpenScreen, Assembly-CSharp
         m_MethodName: Open
         m_Mode: 1
         m_Arguments:
@@ -271,7 +271,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
---- !u!114 &2233296196349409176
+--- !u!114 &6663887881490758259
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -280,12 +280,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 451125145104945350}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 708d074502f47a1448ec9125edd43fca, type: 3}
+  m_Script: {fileID: 11500000, guid: 76cece983e4a84743904983290edbd5b, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UI_Button_OpenUI
-  wantType: 11
-  wantToggle: 0
-  ScreenChanger: 0
+  m_EditorClassIdentifier: Assembly-CSharp::UI_Button_OpenScreen
+  wantType: 6
+  cgangeType: 2
 --- !u!1 &1860642349670386058
 GameObject:
   m_ObjectHideFlags: 0
@@ -510,7 +509,7 @@ GameObject:
   - component: {fileID: 8421667670612515078}
   - component: {fileID: 3965122343640003867}
   - component: {fileID: 7297045295944170894}
-  - component: {fileID: 8188708558601912797}
+  - component: {fileID: 5488591535018721889}
   m_Layer: 5
   m_Name: Button (4)
   m_TagString: Untagged
@@ -620,8 +619,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 8188708558601912797}
-        m_TargetAssemblyTypeName: UI_Button_OpenUI, Assembly-CSharp
+      - m_Target: {fileID: 5488591535018721889}
+        m_TargetAssemblyTypeName: UI_Button_StartTutorialField, Assembly-CSharp
         m_MethodName: Open
         m_Mode: 1
         m_Arguments:
@@ -632,7 +631,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
---- !u!114 &8188708558601912797
+--- !u!114 &5488591535018721889
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -641,12 +640,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 3408160760520730996}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 708d074502f47a1448ec9125edd43fca, type: 3}
+  m_Script: {fileID: 11500000, guid: 6c889291abc84f0b9db2f7ef398d12e1, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UI_Button_OpenUI
-  wantType: 8
-  wantToggle: 1
-  ScreenChanger: 0
+  m_EditorClassIdentifier: Assembly-CSharp::UI_Button_StartTutorialField
 --- !u!1 &3438143281138988361
 GameObject:
   m_ObjectHideFlags: 0

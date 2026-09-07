@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
-public class FieldNode : MonoBehaviour
+public class FieldNode : MonoBehaviour, IPointerClickHandler
 {
 
     [Header("시작 지점")]
@@ -95,6 +96,21 @@ public class FieldNode : MonoBehaviour
     public void ClickNode()
     {
         OnClicked?.Invoke(this);
+    }
+
+    /// <summary>
+    /// UI Image로 구성된 노드를 왼쪽 클릭했을 때
+    /// 별도의 Button 컴포넌트 없이 노드 선택을 전달합니다.
+    /// </summary>
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if (eventData == null ||
+            eventData.button != PointerEventData.InputButton.Left)
+        {
+            return;
+        }
+
+        ClickNode();
     }
 
     public void Enter(CharacterBase character)

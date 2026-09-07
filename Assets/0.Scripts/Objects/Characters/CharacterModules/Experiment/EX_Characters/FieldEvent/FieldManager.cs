@@ -27,6 +27,7 @@ public class FieldManager : ManagerBase
     private CharacterBase currentPlayer;
     private FieldNode currentNode;
     private UI_Hand handUI;
+    private UI_FieldCharacterMarkers characterMarkers;
 
     private int currentPlayerIndex;
     private int totalFieldTurn;
@@ -37,6 +38,7 @@ public class FieldManager : ManagerBase
     private Transform fieldCore;
     private GameObject currentFieldObject;
     private MissionFieldRoot currentFieldRoot;
+    private bool ownsCurrentFieldObject;
 
     private readonly List<FieldNode> startingNodeCandidates = new();
     private readonly HashSet<CharacterBase> coreEventReservations = new();
@@ -86,6 +88,7 @@ public class FieldManager : ManagerBase
 
     protected override IEnumerator OnConnected(GameManager newManager)
     {
+        ResolveRuntimeReferences();
         RegisterNodes();
         RegisterEventRunner();
 
@@ -130,6 +133,26 @@ public class FieldManager : ManagerBase
         eventRunner.OnEventClosed += HandleEventClosed;
     }
 
+    /// <summary>
+    /// GameManager가 런타임에 FieldManager를 추가하므로
+    /// 프리팹에서 직접 연결할 수 없는 필드 시스템을 찾습니다.
+    /// </summary>
+    private void ResolveRuntimeReferences()
+    {
+        if (eventRunner == null)
+        {
+            eventRunner = FindFirstObjectByType<FieldEventRunner>(
+                FindObjectsInactive.Include);
+        }
+
+        if (fieldEventSelectionController == null)
+        {
+            fieldEventSelectionController =
+                FindFirstObjectByType<FieldEventSelectionController>(
+                    FindObjectsInactive.Include);
+        }
+    }
+
     private void UnregisterEventRunner()
     {
         if (eventRunner == null)
@@ -155,6 +178,7 @@ public class FieldManager : ManagerBase
         }
 
         ResetFieldState();
+        BindCharacterMarkers();
 
         foreach (CharacterBase player in players)
         {
@@ -184,6 +208,73 @@ public class FieldManager : ManagerBase
         }
     }
 
+    /// <summary>
+    /// 이미 FieldCanvas 안에 배치된 필드 프리팹을 등록하고
+    /// 지정된 플레이어들로 필드를 시작합니다.
+    /// </summary>
+    public bool StartExistingField(MissionFieldRoot fieldRoot, IReadOnlyList<CharacterBase> players)
+    {
+        if (IsFieldActive)
+        {
+            Debug.LogWarning("FieldManager: 이미 필드가 진행 중입니다.");
+            return false;
+        }
+
+        if (fieldRoot == null)
+        {
+            Debug.LogWarning("FieldManager: 튜토리얼 필드 루트가 없습니다.");
+            return false;
+        }
+
+        if (players == null || players.Count == 0)
+        {
+            Debug.LogWarning("FieldManager: 필드 참가자가 없습니다.");
+            return false;
+        }
+
+        ResolveRuntimeReferences();
+        RegisterEventRunner();
+
+        currentFieldObject = fieldRoot.gameObject;
+        currentFieldRoot = fieldRoot;
+        ownsCurrentFieldObject = false;
+        currentMission = null;
+        missionProgress.Clear();
+
+        RegisterMissionField(fieldRoot);
+
+        if (startingNode == null)
+        {
+            Debug.LogWarning("FieldManager: 시작 노드가 확정되지 않았습니다.");
+            currentFieldObject = null;
+            currentFieldRoot = null;
+            ownsCurrentFieldObject = false;
+            return false;
+        }
+
+        List<CharacterBase> playerList = new List<CharacterBase>();
+
+        foreach (CharacterBase player in players)
+        {
+            if (player != null && !playerList.Contains(player))
+            {
+                playerList.Add(player);
+            }
+        }
+
+        if (playerList.Count == 0)
+        {
+            currentFieldObject = null;
+            currentFieldRoot = null;
+            ownsCurrentFieldObject = false;
+            return false;
+        }
+
+        StartField(playerList);
+
+        return IsFieldActive;
+    }
+
     private void ResetFieldState()
     {
         foreach (FieldNode node in nodes)
@@ -208,6 +299,32 @@ public class FieldManager : ManagerBase
         forcedCoreEventReservations.Clear();
         IsFieldActive = false;
         TurnState = FieldTurnState.Inactive;
+    }
+
+    /// <summary>
+    /// 현재 필드에 캐릭터 위치 표시기를 연결합니다.
+    /// 프리팹에 표시기가 없으면 필드 루트에 런타임으로 추가합니다.
+    /// </summary>
+    private void BindCharacterMarkers()
+    {
+        if (currentFieldRoot == null)
+            return;
+
+        if (characterMarkers == null)
+        {
+            characterMarkers =
+                currentFieldRoot.GetComponentInChildren<UI_FieldCharacterMarkers>(
+                    true);
+        }
+
+        if (characterMarkers == null)
+        {
+            characterMarkers =
+                currentFieldRoot.gameObject
+                    .AddComponent<UI_FieldCharacterMarkers>();
+        }
+
+        characterMarkers.Bind(this);
     }
 
     private void StartFieldTurn()
@@ -441,6 +558,10 @@ public class FieldManager : ManagerBase
             return;
         }
 
+        // Enter()가 호출되면 FieldNode.IsVisited가 true로 변경되므로
+        // 진입 전에 최초 방문 여부를 먼저 보관한다.
+        bool isFirstVisit = !targetNode.IsVisited;
+
         if (currentNode != null)
         {
             currentNode.Exit(currentPlayer);
@@ -451,8 +572,9 @@ public class FieldManager : ManagerBase
 
         OnNodeChanged?.Invoke(currentNode);
 
-        // 이벤트 후보 3~5개 공개
-        if (TryOpenNodeEvent(currentNode))
+        // 최초 방문이면 고정 진입 이벤트,
+        // 재방문이면 재진입 이벤트를 실행한다.
+        if (TryOpenNodeEvent(currentNode, isFirstVisit))
         {
             return;
         }
@@ -474,7 +596,7 @@ public class FieldManager : ManagerBase
             return;
         }
 
-        if (TryOpenNodeEvent(currentNode))
+        if (TryOpenNodeEvent(currentNode, false))
         {
             return;
         }
@@ -638,12 +760,24 @@ public class FieldManager : ManagerBase
         }
     }
 
+    public bool TryEndFieldTurn()
+    {
+        if (!IsFieldActive ||
+            TurnState != FieldTurnState.PlayerAction)
+        {
+            return false;
+        }
+
+        EndFieldTurn();
+        return true;
+    }
+
     public void EndFieldTurn()
     {
         if (!IsFieldActive)
             return;
 
-        if (TurnState == FieldTurnState.Event || TurnState == FieldTurnState.MythTurn || TurnState == FieldTurnState.GameOver)
+        if (TurnState != FieldTurnState.PlayerAction)
         {
             return;
         }
@@ -654,7 +788,7 @@ public class FieldManager : ManagerBase
 
         Debug.Log($"필드 턴 종료 / 누적 턴:{totalFieldTurn}");
 
-        if (totalFieldTurn % 10 == 0)
+        if (totalFieldTurn % Mathf.Max(1, mythTurnInterval) == 0)
         {
             StartMythTurn();
             return;
@@ -763,6 +897,13 @@ public class FieldManager : ManagerBase
 
         pendingRedLine = null;
         pendingTargetNode = null;
+
+        if (characterMarkers != null)
+        {
+            characterMarkers.ClearMarkers();
+            characterMarkers.Unbind();
+            characterMarkers = null;
+        }
 
         eventRunner?.CloseEvent();
 
@@ -917,6 +1058,7 @@ public class FieldManager : ManagerBase
 
         currentFieldObject = fieldObject;
         currentFieldRoot = fieldRoot;
+        ownsCurrentFieldObject = true;
 
         currentMission = mission;
         missionProgress.Clear();
@@ -1072,7 +1214,7 @@ public class FieldManager : ManagerBase
     /// <param name="node">이벤트가 발생할 노드</param>
     /// <param name="isFirstVisit">최초 방문 여부</param>
     /// <returns>이벤트를 정상적으로 열었으면 true</returns>
-    public bool TryOpenNodeEvent(FieldNode node, bool isFirstVisit = false)
+    public bool TryOpenNodeEvent(FieldNode node, bool isFirstVisit)
     {
         if (!IsFieldActive)
             return false;
@@ -1310,23 +1452,28 @@ public class FieldManager : ManagerBase
         if (currentFieldObject == null)
         {
             currentFieldRoot = null;
+            ownsCurrentFieldObject = false;
             return;
         }
 
-        PooledObject pooled =
-            currentFieldObject.GetComponent<PooledObject>();
+        if (ownsCurrentFieldObject)
+        {
+            PooledObject pooled =
+                currentFieldObject.GetComponent<PooledObject>();
 
-        if (pooled != null)
-        {
-            pooled.OnEnqueue();
-        }
-        else
-        {
-            Destroy(currentFieldObject);
+            if (pooled != null)
+            {
+                pooled.OnEnqueue();
+            }
+            else
+            {
+                Destroy(currentFieldObject);
+            }
         }
 
         currentFieldObject = null;
         currentFieldRoot = null;
+        ownsCurrentFieldObject = false;
     }
 
     /// <summary>
@@ -1464,7 +1611,14 @@ public class FieldManager : ManagerBase
 
         if (handUI == null)
         {
-            handUI = UnityEngine.Object.FindFirstObjectByType<UI_Hand>(FindObjectsInactive.Include);
+            Canvas fieldCanvas = currentFieldRoot != null
+                ? currentFieldRoot.GetComponentInParent<Canvas>(true)
+                : null;
+
+            if (fieldCanvas != null)
+            {
+                handUI = fieldCanvas.GetComponentInChildren<UI_Hand>(true);
+            }
         }
 
         if (handUI != null)

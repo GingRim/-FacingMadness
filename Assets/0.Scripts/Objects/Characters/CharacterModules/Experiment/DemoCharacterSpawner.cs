@@ -92,6 +92,20 @@ public class DemoCharacterSpawner : MonoBehaviour
     }
 
     /// <summary>
+    /// 게임 시작 시 생성이 아직 완료되지 않았다면 다시 생성합니다.
+    /// GameManager의 ObjectManager 초기화가 끝난 뒤 튜토리얼 진입 시 사용합니다.
+    /// </summary>
+    public bool EnsureCharactersSpawned()
+    {
+        if (spawnedCharacters.Count > 0)
+            return true;
+
+        SpawnDemoCharacters();
+
+        return spawnedCharacters.Count > 0;
+    }
+
+    /// <summary>
     /// 캐릭터 순서에 대응하는 생성 위치를 반환한다.
     /// 지정된 위치가 없으면 원점 위치를 반환한다.
     /// </summary>

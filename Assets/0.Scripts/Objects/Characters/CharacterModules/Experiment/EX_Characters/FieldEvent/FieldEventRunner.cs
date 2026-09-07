@@ -378,8 +378,12 @@ public class FieldEventRunner : MonoBehaviour
     /// </summary>
     private void ResolveChoiceResult(FieldEventChoice choice, bool success)
     {
-        if (choice == null || currentEvent == null || currentContext == null)
+        if (choice == null ||
+            currentEvent == null ||
+            currentContext == null)
+        {
             return;
+        }
 
         FieldEventData resolvedEvent = currentEvent;
 
@@ -396,14 +400,20 @@ public class FieldEventRunner : MonoBehaviour
             choice.ExecuteFailure(currentContext);
         }
 
-        Sprite resultImage = choice.GetResultImage(success);
+        Sprite resultImage =
+            choice.GetResultImage(success);
 
         if (resultImage != null)
         {
-            OnResultImageChanged?.Invoke(resultImage);
+            OnResultImageChanged?.Invoke(
+                resultImage);
         }
 
         RegisterChoiceUse(choice);
+
+        OnChoiceSelected?.Invoke(
+            resolvedEvent,
+            choice);
     }
 
     /// <summary>
@@ -443,6 +453,14 @@ public class FieldEventRunner : MonoBehaviour
     /// </summary>
     public void CloseEvent()
     {
+        if (currentEvent != null &&
+            isChoiceResolved &&
+            !currentEvent.Repeatable &&
+            !string.IsNullOrWhiteSpace(currentEvent.EventId))
+        {
+            completedEvents.Add(currentEvent.EventId);
+        }
+
         currentEvent = null;
 
         currentContext = null;
@@ -530,7 +548,7 @@ public class FieldEventRunner : MonoBehaviour
             $"D10 {judgeResult.dice} + " +
             $"능력 보정 {judgeResult.statModifier} + " +
             $"상태 보정 {judgeResult.statusModifier} " +
-            $"= {judgeResult.total} / " +
+            $"결과 {judgeResult.total} / " +
             $"목표 {judgeResult.target}");
     }
 

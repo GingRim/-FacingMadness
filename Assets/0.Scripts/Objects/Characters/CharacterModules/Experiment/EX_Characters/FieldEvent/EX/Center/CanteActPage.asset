@@ -1,0 +1,98 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e3f02e37dc0d4345ac9a45fe9d8e103, type: 3}
+  m_Name: CanteActPage
+  m_EditorClassIdentifier: Assembly-CSharp::FieldEventPageData
+  pageId: Center_ActPage
+  description: "\uB2F9\uC2E0\uC740 \uD589\uB3D9\uC744 \uCDE8\uD569\uB2C8\uB2E4."
+  displayType: 1
+  maximumVisibleChoices: 5
+  choices:
+  - choiceId: Center_ActPage_0
+    choiceText: "\uC2A4\uD504\uB97C \uBA39\uB294\uB2E4."
+    choiceType: 2
+    actionType: 1
+    usageType: 1
+    nextPage: {fileID: 0}
+    executionType: 1
+    requiredStat: 3
+    target: 7
+    conditions: []
+    allowsIgnition: 0
+    successResult:
+      description: "\uACE0\uAE30\uC640 \uB0B4\uC7A5\uD2B9\uC720\uC758 \uC7A1\uB0C4\uC0C8\uB97C
+        \uCC38\uACE0<br><br>\uC5ED\uD55C \uB9DB\uC758 \uC2A4\uD504\uB97C \uC804\uBD80<br>\uBA39\uB294\uB370
+        \uC131\uACF5\uD588\uC2B5\uB2C8\uB2E4.<br><br>\uC815\uC2E0\uB825 1 \uAC10\uC18C"
+      effects:
+      - {fileID: 11400000, guid: ca6bfc39865a23b4981c14d81529f49a, type: 2}
+      resultImage: {fileID: 0}
+    failureResult:
+      description: "\uACE0\uAE30\uC640 \uB0B4\uC7A5 \uD2B9\uC720\uC758 \uC7A1\uB0C4\uC0C8
+        \uAC15\uD569\uB2C8\uB2E4.<br><br>\uADF8\uB807\uAE30\uB54C\uBB38\uC77C\uAE4C\uC694?
+        <br>\uC2A4\uD504\uB97C \uB2E4 \uBA39\uC9C0 \uBABB\uD558\uACE0 \uC18D\uC744
+        \uAC1C\uC6CC\uB0C8\uC2B5\uB2C8\uB2E4.<br><br>\uC0DD\uBA85\uB825 3\uAC10\uC18C<br>\uC815\uC2E0\uB825
+        1D4\uAC10\uC18C"
+      effects: []
+      resultImage: {fileID: 0}
+    legacyCardRequirement:
+      requiresCard: 0
+      allowedColors: 
+      checkStat: 0
+  - choiceId: Center_ActPage_1
+    choiceText: "\uD14C\uC774\uBE14\uC744 \uC0B4\uD3B4\uBCF8\uB2E4."
+    choiceType: 2
+    actionType: 0
+    usageType: 0
+    nextPage: {fileID: 11400000, guid: 9328d49990e6d86478f9f998b400ed97, type: 2}
+    executionType: 0
+    requiredStat: 0
+    target: 5
+    conditions: []
+    allowsIgnition: 0
+    successResult:
+      description: 
+      effects:
+      - {fileID: 11400000, guid: ca6bfc39865a23b4981c14d81529f49a, type: 2}
+      resultImage: {fileID: 0}
+    failureResult:
+      description: 
+      effects: []
+      resultImage: {fileID: 0}
+    legacyCardRequirement:
+      requiresCard: 0
+      allowedColors: 
+      checkStat: 0
+  - choiceId: Center_ActPage_1
+    choiceText: "\uACE0\uB515\uD55C \uD770\uC0C9\uC758 \uBB38\uC744 \uAD00\uCC30\uD55C\uB2E4."
+    choiceType: 1
+    actionType: 1
+    usageType: 1
+    nextPage: {fileID: 0}
+    executionType: 0
+    requiredStat: 0
+    target: 5
+    conditions: []
+    allowsIgnition: 0
+    successResult:
+      description: 
+      effects:
+      - {fileID: 11400000, guid: ca6bfc39865a23b4981c14d81529f49a, type: 2}
+      resultImage: {fileID: 0}
+    failureResult:
+      description: 
+      effects: []
+      resultImage: {fileID: 0}
+    legacyCardRequirement:
+      requiresCard: 0
+      allowedColors: 
+      checkStat: 0
+  resultImage: {fileID: 0}

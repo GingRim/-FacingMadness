@@ -10,6 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 2257842565119035984}
   - component: {fileID: 8626788619209473262}
+  - component: {fileID: 3357719084517624061}
+  - component: {fileID: 4468820195628735172}
   m_Layer: 0
   m_Name: FieldEventSystem
   m_TagString: Untagged
@@ -45,3 +47,39 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FieldEventRunner
   ignitionController: {fileID: 0}
+--- !u!114 &3357719084517624061
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7085341199211398032}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f1a0e930b8b4f04a8f31b76b4170b9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TutorialFieldFlowController
+  tutorialFieldRoot: {fileID: 0}
+  fieldCanvasRoot: {fileID: 0}
+  characterSpawner: {fileID: 0}
+  screenChangeType: 1
+--- !u!114 &4468820195628735172
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7085341199211398032}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 22cb612936af5a64abeed4b837eecea5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FieldCardUseController
+  fieldManager: {fileID: 0}
+  colorlessReplacementCard: {fileID: 11400000, guid: 5ed4f6429096afc42b0fa294ef3419c8, type: 2}
+  eventRunner: {fileID: 8626788619209473262}
+  cardSelector: {fileID: 0}
+  handUI: {fileID: 0}
+  removedCardSelectUI: {fileID: 0}
+  fieldScreen: {fileID: 0}
+  fieldCardUseArea: {fileID: 0}

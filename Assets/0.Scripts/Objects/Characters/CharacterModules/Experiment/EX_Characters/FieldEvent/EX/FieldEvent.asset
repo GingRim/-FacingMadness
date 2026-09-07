@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eda405cbcf5af0841a71b53f8add7b42, type: 3}
+  m_Name: FieldEvent
+  m_EditorClassIdentifier: Assembly-CSharp::FieldEventData
+  eventId: 00000312
+  eventName: "\uC2E4\uD5D8\uC6A9"
+  eventType: 0
+  rootPage: {fileID: 11400000, guid: 53598aaaefb36e84db1fe3d229ce1f0c, type: 2}
+  description: 
+  repeatable: 0
+  startingNodeId: 
+  eventImage: {fileID: 0}

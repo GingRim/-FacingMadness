@@ -25,10 +25,6 @@ public class FieldCardUseController : MonoBehaviour
     [SerializeField]
     private UI_FieldRemovedCardSelect removedCardSelectUI;
 
-    [Header("필드 카드 입력")]
-    [SerializeField]
-    private UI_FieldScreen fieldScreen;
-
     [Header("필드 카드 사용 공간")]
     [SerializeField]
     private UI_FieldCardUseDropTarget fieldCardUseArea;
@@ -42,8 +38,26 @@ public class FieldCardUseController : MonoBehaviour
     private DeckModule pendingDeck;
     private FieldEventContext pendingContext;
 
+    private void Awake()
+    {
+        ResolveRuntimeReferences();
+    }
 
     private void OnEnable()
+    {
+        ResolveRuntimeReferences();
+        BindInputEvents();
+    }
+
+    private void Start()
+    {
+        // FieldManager는 GameManager 초기화 과정에서 추가되므로
+        // 모든 Awake가 끝난 뒤 한 번 더 연결을 확인합니다.
+        ResolveRuntimeReferences();
+        BindInputEvents();
+    }
+
+    private void BindInputEvents()
     {
         // 이벤트 선택지에서 요구한 카드 선택
         if (cardSelector != null)
@@ -53,12 +67,45 @@ public class FieldCardUseController : MonoBehaviour
             cardSelector.OnCardSelected += HandleCardSelected;
         }
 
-        // 일반 필드 손패 카드 사용
-        if (fieldScreen != null)
-        {
-            fieldScreen.OnFieldCardSelected -= HandleFieldCardSelected;
+    }
 
-            fieldScreen.OnFieldCardSelected += HandleFieldCardSelected;
+    private void ResolveRuntimeReferences()
+    {
+        if (fieldManager == null && GameManager.Instance != null)
+        {
+            fieldManager = GameManager.Instance.Field;
+        }
+
+        if (eventRunner == null)
+        {
+            eventRunner = GetComponent<FieldEventRunner>();
+
+            if (eventRunner == null)
+            {
+                eventRunner = FindFirstObjectByType<FieldEventRunner>(
+                    FindObjectsInactive.Include);
+            }
+        }
+
+        if (cardSelector == null)
+        {
+            cardSelector = FindFirstObjectByType<UI_FieldCardSelector>(
+                FindObjectsInactive.Include);
+        }
+
+        Canvas fieldCanvas = cardSelector != null
+            ? cardSelector.GetComponentInParent<Canvas>(true)
+            : null;
+
+        if (handUI == null && fieldCanvas != null)
+        {
+            handUI = fieldCanvas.GetComponentInChildren<UI_Hand>(true);
+        }
+
+        if (fieldCardUseArea == null && fieldCanvas != null)
+        {
+            fieldCardUseArea =
+                fieldCanvas.GetComponentInChildren<UI_FieldCardUseDropTarget>(true);
         }
     }
 
@@ -67,11 +114,6 @@ public class FieldCardUseController : MonoBehaviour
         if (cardSelector != null)
         {
             cardSelector.OnCardSelected -= HandleCardSelected;
-        }
-
-        if (fieldScreen != null)
-        {
-            fieldScreen.OnFieldCardSelected -= HandleFieldCardSelected;
         }
 
         isProcessingCard = false;
@@ -270,37 +312,6 @@ public class FieldCardUseController : MonoBehaviour
             default:
                 return StatType.None;
         }
-    }
-
-    private void HandleFieldCardSelected(CardInstance card, CharacterBase user)
-    {
-        if (isProcessingCard)
-            return;
-
-        if (card == null || card.Data == null || user == null)
-            return;
-
-        if (fieldManager == null || !fieldManager.IsFieldActive)
-        {
-            return;
-        }
-
-        if (fieldManager.TurnState != FieldTurnState.PlayerAction)
-        {
-            return;
-        }
-
-        if (fieldManager.CurrentPlayer != user)
-            return;
-
-        FieldNode currentNode = fieldManager.CurrentNode;
-
-        if (currentNode == null)
-            return;
-
-        FieldEventContext context = new FieldEventContext(user, currentNode, fieldManager);
-
-        TryProcessFieldCard(card, user, context);
     }
 
     private bool TryProcessFieldCard(CardInstance card, CharacterBase user, FieldEventContext context)
@@ -537,8 +548,26 @@ public class FieldCardUseController : MonoBehaviour
         return new FieldCardCheckData(card, StatType.None, 0, 0, 0, 0, 0, target, FieldCardCheckResult.Failure);
     }
 
-    internal bool TryUseDroppedCard(CardInstance card)
+    public bool TryUseDroppedCard(CardInstance card)
     {
-        throw new NotImplementedException();
+        if (isProcessingCard || card == null || card.Data == null)
+            return false;
+
+        ResolveRuntimeReferences();
+
+        if (fieldManager == null || !fieldManager.IsFieldActive || fieldManager.TurnState != FieldTurnState.PlayerAction)
+        {
+            return false;
+        }
+
+        CharacterBase user = fieldManager.CurrentPlayer;
+        FieldNode currentNode = fieldManager.CurrentNode;
+
+        if (user == null || currentNode == null)
+            return false;
+
+        FieldEventContext context = new FieldEventContext(user, currentNode, fieldManager);
+
+        return TryProcessFieldCard(card, user, context);
     }
 }

@@ -28,6 +28,7 @@ MonoBehaviour:
     requiredStat: 0
     target: 5
     conditions: []
+    allowsIgnition: 0
     successResult:
       description: "\uC8FC\uBCC0\uC744 \uD6D1\uC5B4\uBCF4\uC790 \uBCF4\uC774\uB294
         \uAC83\uC740 \uBC14\uD14C\uC774\uBE14\uACFC \uC758\uC790 \uC548\uCABD\uC5D0\uB294
@@ -52,6 +53,7 @@ MonoBehaviour:
     requiredStat: 4
     target: 10
     conditions: []
+    allowsIgnition: 0
     successResult:
       description: "\uC8FC\uBCC0\uC744 \uD6D1\uC5B4\uBCF4\uC790 \uBCF4\uC774\uB294
         \uAC83\uC740 \uBC14\uD14C\uC774\uBE14\uACFC \uC758\uC790 \uC548\uCABD\uC5D0\uB294
@@ -80,6 +82,7 @@ MonoBehaviour:
     requiredStat: 0
     target: 5
     conditions: []
+    allowsIgnition: 0
     successResult:
       description: "\uC8FC\uBCC0\uC744 \uD6D1\uC5B4\uBCF4\uC790 \uBCF4\uC774\uB294
         \uAC83\uC740 \uBC14\uD14C\uC774\uBE14\uACFC \uC758\uC790 \uC548\uCABD\uC5D0\uB294
@@ -100,3 +103,4 @@ MonoBehaviour:
       requiresCard: 0
       allowedColors: 
       checkStat: 0
+  resultImage: {fileID: 0}

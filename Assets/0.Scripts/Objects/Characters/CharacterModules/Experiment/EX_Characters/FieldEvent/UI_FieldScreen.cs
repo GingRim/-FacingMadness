@@ -1,4 +1,3 @@
-using System;
 using TMPro;
 using UnityEngine;
 /// <summary>
@@ -37,8 +36,6 @@ public class UI_FieldScreen : UI_ScreenBase
     private CharacterBase boundPlayer;
 
     private ActionPointModule boundActionPoint;
-
-    public event Action<CardInstance, CharacterBase> OnFieldCardSelected;
 
     private void OnEnable()
     {
@@ -186,80 +183,6 @@ public class UI_FieldScreen : UI_ScreenBase
         RefreshActionPoint(0, 0);
 
         if (handUI != null)
-        {
-            handUI.ClearHand();
-        }
-    }
-
-    /// <summary>
-    /// 필드 카드 사용 영역에 놓인 손패 카드를
-    /// FieldCardUseController에 전달합니다.
-    /// </summary>
-    public bool TryUseDroppedCard(CardInstance selectedCard)
-    {
-        if (selectedCard == null || selectedCard.Data == null)
-            return false;
-
-        if (fieldManager == null || !fieldManager.IsFieldActive)
-        {
-            return false;
-        }
-
-        if (fieldManager.TurnState != FieldTurnState.PlayerAction)
-        {
-            Debug.Log("현재는 필드 카드를 사용할 수 없습니다.");
-
-            return false;
-        }
-
-        if (boundPlayer == null || boundPlayer != fieldManager.CurrentPlayer)
-        {
-            return false;
-        }
-
-        DeckModule deck = boundPlayer.GetModule<DeckModule>();
-
-        if (deck == null ||
-            !ContainsCard(deck, selectedCard))
-        {
-            Debug.LogWarning($"{selectedCard.CardName}: 손패에 없는 카드입니다.");
-
-            return false;
-        }
-
-        OnFieldCardSelected?.Invoke(selectedCard, boundPlayer);
-
-        return true;
-    }
-
-    private bool ContainsCard(DeckModule deck, CardInstance card)
-    {
-        foreach (CardInstance handCard in deck.HandInstances)
-        {
-            if (handCard == card)
-                return true;
-        }
-
-        return false;
-    }
-
-    private void HandleFieldCardResolved(CharacterBase user)
-    {
-        if (user == null || user != boundPlayer)
-        {
-            return;
-        }
-
-        DeckModule deck = user.GetModule<DeckModule>();
-
-        if (handUI == null)
-            return;
-
-        if (deck != null)
-        {
-            handUI.RefreshFromDeck(deck);
-        }
-        else
         {
             handUI.ClearHand();
         }

@@ -59,6 +59,7 @@ public class UI_FieldCharacterMarkers : MonoBehaviour
     private void HandleMissionFieldLoaded(MissionFieldRoot fieldRoot)
     {
         UnregisterNodes();
+        HideMarkers();
 
         if (fieldRoot == null)
             return;
@@ -77,6 +78,13 @@ public class UI_FieldCharacterMarkers : MonoBehaviour
             node.OnCharacterExited -= HandleCharacterExited;
 
             node.OnCharacterExited += HandleCharacterExited;
+
+            // 표시기가 필드 시작 이후 연결된 경우에도
+            // 이미 노드에 들어가 있는 캐릭터를 즉시 표시합니다.
+            foreach (CharacterBase character in node.Characters)
+            {
+                HandleCharacterEntered(node, character);
+            }
         }
     }
 
@@ -124,22 +132,23 @@ public class UI_FieldCharacterMarkers : MonoBehaviour
         marker.gameObject.SetActive(false);
     }
 
-    private UI_FieldCharacterMarker
-        GetOrCreateMarker(CharacterBase character)
+    private UI_FieldCharacterMarker GetOrCreateMarker(CharacterBase character)
     {
         if (markers.TryGetValue(character, out UI_FieldCharacterMarker existing))
         {
             return existing;
         }
 
+        UI_FieldCharacterMarker newMarker;
+
         if (markerTemplate == null)
         {
-            Debug.LogWarning("필드 캐릭터 마커 템플릿이 없습니다.");
-
-            return null;
+            newMarker = UI_FieldCharacterMarker.CreateRuntime(transform);
         }
-
-        UI_FieldCharacterMarker newMarker = Instantiate(markerTemplate, transform);
+        else
+        {
+            newMarker = Instantiate(markerTemplate, transform);
+        }
 
         newMarker.name = $"FieldMarker_{character.name}";
 
@@ -150,6 +159,17 @@ public class UI_FieldCharacterMarkers : MonoBehaviour
         return newMarker;
     }
 
+    private void HideMarkers()
+    {
+        foreach (UI_FieldCharacterMarker marker in markers.Values)
+        {
+            if (marker != null)
+            {
+                marker.gameObject.SetActive(false);
+            }
+        }
+    }
+
     public void ClearMarkers()
     {
         foreach (UI_FieldCharacterMarker marker in markers.Values)
@@ -157,6 +177,7 @@ public class UI_FieldCharacterMarkers : MonoBehaviour
             if (marker != null)
             {
                 marker.Clear();
+                Destroy(marker.gameObject);
             }
         }
 
