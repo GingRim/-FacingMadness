@@ -330,3 +330,22 @@ public enum CardKeywordType
 
     _Length
 }
+
+public enum FieldInformationVisibility
+{
+    Hidden,
+    Memo
+}
+
+public enum FieldRedLineResult
+{
+    None,
+    Open,
+    Locked
+}
+
+public enum FieldInformationLineRevealState
+{
+    Red,
+    Normal
+}

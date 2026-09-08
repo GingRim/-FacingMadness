@@ -11,6 +11,11 @@ public class FieldLine : MonoBehaviour
     [SerializeField]
     private FieldLineType lineType = FieldLineType.Normal;
 
+    [Header("적색 라인 고정 이벤트")]
+    [Tooltip("이 라인이 Red일 때 이동을 시도하면 바로 실행할 이벤트입니다.")]
+    [SerializeField]
+    private FieldEventData redLineEvent;
+
     [Header("표시 오브젝트")]
     [SerializeField] private GameObject visualObject;
 
@@ -30,6 +35,7 @@ public class FieldLine : MonoBehaviour
     public bool IsBlocked => lineType == FieldLineType.Red;
     public bool CanPass => lineType == FieldLineType.Normal;
     public string LineId => lineId;
+    public FieldEventData RedLineEvent => redLineEvent;
 
     public event Action<FieldLine> OnLineStateChanged;
 
@@ -157,6 +163,25 @@ public class FieldLine : MonoBehaviour
             return;
 
         ChangeType(FieldLineType.Normal);
+    }
+
+    /// <summary>
+    /// 정보로 숨겨진 경로를 공개하면서 지정된 상태로 변경합니다.
+    /// 이미 공개된 경로의 현재 상태는 덮어쓰지 않습니다.
+    /// </summary>
+    public bool RevealAs(FieldLineType revealedType)
+    {
+        if (lineType != FieldLineType.Hidden)
+            return false;
+
+        if (revealedType == FieldLineType.Hidden)
+        {
+            Debug.LogWarning($"{name}: 공개 상태로 Hidden을 사용할 수 없습니다.");
+            return false;
+        }
+
+        ChangeType(revealedType);
+        return true;
     }
 
     public void Hide()

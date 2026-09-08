@@ -16,8 +16,12 @@ MonoBehaviour:
   eventName: "\uC911\uC559\uBC29"
   eventType: 1
   rootPage: {fileID: 11400000, guid: 1f3ed312633b25947a4a281b2daeddf4, type: 2}
-  description: "\uB2F9\uC2E0\uC740 \uC8FC\uBC29\uC744 \uD0D0\uC0AC\uD558\uACE0\uC790
+  directChoices: []
+  directChoiceDisplayType: 0
+  maximumVisibleDirectChoices: 5
+  description: "\uB2F9\uC2E0\uC740 \uC2A4\uD504\uBC29\uC744 \uD0D0\uC0AC\uD558\uACE0\uC790
     \uD55C\uB2E4."
   repeatable: 1
+  openingConditions: []
   startingNodeId: 
   eventImage: {fileID: 0}

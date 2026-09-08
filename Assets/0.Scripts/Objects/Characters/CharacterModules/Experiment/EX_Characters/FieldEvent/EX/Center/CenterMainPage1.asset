@@ -1,0 +1,108 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e3f02e37dc0d4345ac9a45fe9d8e103, type: 3}
+  m_Name: CenterMainPage1
+  m_EditorClassIdentifier: Assembly-CSharp::FieldEventPageData
+  pageId: CenterMainPage_1
+  description: "\uACE0\uB515\uD558\uBA74\uC11C \uAE54\uB054\uD55C \uD770\uC0C9\uBB38\uC774
+    \uC788\uC2B5\uB2C8\uB2E4. "
+  displayType: 0
+  maximumVisibleChoices: 3
+  choices:
+  - choiceId: CenterMain1_0
+    choiceText: "\uD6D1\uC5B4\uBCF4\uAE30"
+    choiceType: 2
+    actionType: 1
+    usageType: 0
+    nextPage: {fileID: 0}
+    executionType: 0
+    requiredStat: 0
+    target: 5
+    conditions: []
+    allowsIgnition: 0
+    successResult:
+      description: "\uB531\uD788 \uD2B9\uBCC4\uD55C \uD2B9\uC774\uC810 \uC5C6\uB294
+        \uBB38\uC785\uB2C8\uB2E4."
+      effects: []
+      resultImage: {fileID: 5679270475143602093, guid: 4667dd8d835986a458f1e4309c524bf7, type: 3}
+      redLineResult: 0
+    failureResult:
+      description: 
+      effects: []
+      resultImage: {fileID: 0}
+      redLineResult: 0
+    legacyCardRequirement:
+      requiresCard: 0
+      allowedColors: 
+      checkStat: 0
+  - choiceId: CenterMain1_1
+    choiceText: "\uC190\uC7A1\uC774\uB97C \uB3CC\uB824 \uC7A0\uACA8 \uC788\uB294\uC9C0
+      \uD655\uC778\uD55C\uB2E4."
+    choiceType: 2
+    actionType: 1
+    usageType: 1
+    nextPage: {fileID: 0}
+    executionType: 0
+    requiredStat: 0
+    target: 5
+    conditions: []
+    allowsIgnition: 0
+    successResult:
+      description: "\uC190\uC7A1\uC774\uB97C \uB3CC\uB824 \uBCF4\uC790 [\uCCA0\uCEE5]
+        \uC18C\uB9AC\uC640 \uD568\uAED8<br>\uBB38\uC774 \uC0B4\uC9DD \uC5F4\uB9BD\uB2C8\uB2E4."
+      effects: []
+      resultImage: {fileID: 5679270475143602093, guid: 4667dd8d835986a458f1e4309c524bf7, type: 3}
+      redLineResult: 0
+    failureResult:
+      description: 
+      effects: []
+      resultImage: {fileID: 0}
+      redLineResult: 0
+    legacyCardRequirement:
+      requiresCard: 0
+      allowedColors: 
+      checkStat: 0
+  - choiceId: CenterMain1_2
+    choiceText: "\uBB38\uC744 \uBD80\uC2A4\uB824 \uD55C\uB2E4."
+    choiceType: 1
+    actionType: 1
+    usageType: 0
+    nextPage: {fileID: 0}
+    executionType: 1
+    requiredStat: 1
+    target: 5
+    conditions: []
+    allowsIgnition: 0
+    successResult:
+      description: "\uC0AC\uBC29\uC744 \uB458\uB7EC\uBCF4\uC790 \uD770\uBCBD\uC73C\uB85C
+        \uC774\uB8E8\uC5B4\uC9C4 \uBC29\uC5D0 \uAC01 \uBCBD\uC5D0\uB294 \uBB38\uC774\uC788\uC5C8\uB2E4.<br><br>\uC911\uC559\uC5D0\uB294
+        \uD14C\uC774\uBE14\uC774 \uD558\uB098 \uC788\uC73C\uBA70 \uC758\uC790 \uD558\uB098\uAC00
+        \uC788\uC2B5\uB2C8\uB2E4. <br><br>\uD14C\uC774\uBE14\uC5D0\uB294 \uBE44\uB9BF\uD55C
+        \uD5A5\uC758 \uC2A4\uD504\uC640 \uB098\uBB34 \uC2A4\uD47C\uC774 \uD558\uB098
+        \uC788\uC2B5\uB2C8\uB2E4."
+      effects: []
+      resultImage: {fileID: -7186055740845857485, guid: 874c4ca1e5324ad46ab813d982b4597c, type: 3}
+      redLineResult: 0
+    failureResult:
+      description: "\uC0AC\uBC29\uC744 \uB458\uB7EC\uBCF4\uC790 \uD770\uBCBD\uC73C\uB85C
+        \uC774\uB8E8\uC5B4\uC9C4 \uBC29\uC5D0 \uAC01 \uBCBD\uC5D0\uB294 \uBB38\uC774\uC788\uC2B5\uB2C8\uB2E4.<br><br>\uC911\uC559\uC5D0\uB294
+        \uD14C\uC774\uBE14\uC774 \uD558\uB098 \uC788\uC73C\uBA70 \uC758\uC790 \uD558\uB098\uAC00
+        \uC788\uC2B5\uB2C8\uB2E4. <br><br>\uD14C\uC774\uBE14\uC5D0\uB294 \uC2A4\uD504\uC640
+        \uB098\uBB34 \uC2A4\uD47C\uC774 \uD558\uB098 \uC788\uC2B5\uB2C8\uB2E4."
+      effects: []
+      resultImage: {fileID: -7186055740845857485, guid: 874c4ca1e5324ad46ab813d982b4597c, type: 3}
+      redLineResult: 0
+    legacyCardRequirement:
+      requiresCard: 0
+      allowedColors: 
+      checkStat: 0
+  resultImage: {fileID: 5679270475143602093, guid: 4667dd8d835986a458f1e4309c524bf7, type: 3}

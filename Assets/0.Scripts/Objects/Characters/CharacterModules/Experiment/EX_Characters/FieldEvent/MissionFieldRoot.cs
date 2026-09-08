@@ -85,4 +85,21 @@ public class MissionFieldRoot : MonoBehaviour
 
         return null;
     }
+
+    public FieldNode FindNode(string nodeId)
+    {
+        if (string.IsNullOrWhiteSpace(nodeId))
+            return null;
+
+        foreach (FieldNode node in nodes)
+        {
+            if (node == null)
+                continue;
+
+            if (node.NodeId == nodeId)
+                return node;
+        }
+
+        return null;
+    }
 }

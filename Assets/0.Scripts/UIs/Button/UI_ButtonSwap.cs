@@ -6,12 +6,18 @@ using UnityEngine.UI;
 // 용어 정리 한번해야 함 직업이 아니라 스텟으로 간소화 및 평균화 필요
 public class UI_ButtonSwap : MonoBehaviour
 {
+    private UI_CharacterCreationScreen creationScreen;
+
+    [Header("캐릭터 생성 데이터")]
+    [SerializeField]
+    private CharacterPresetData characterPreset;
+
     [SerializeField] TextMeshProUGUI SText;
     [SerializeField] TextMeshProUGUI DText;
     [SerializeField] TextMeshProUGUI HText;
     [SerializeField] TextMeshProUGUI IText;
     [SerializeField] TextMeshProUGUI EText;
-    
+
     [SerializeField] Image image;
     [SerializeField] Image hunterImage;
     [SerializeField] Image privateDetectiveImage;
@@ -31,36 +37,36 @@ public class UI_ButtonSwap : MonoBehaviour
     // �ٷ�, ��ø, �ǰ�, ����, ����(���ŷ�) ��
     public void Hunter()
     {
-        SetIngameMessage(": 6", ": 2", ": 5", ": 4", ": 4");
         ResetAllImages();
         SetImage(image, selectedSprite);
+        SelectConfiguredPreset();
     }
     public void Privatedetective()
     {
-        SetIngameMessage(": 4", ": 6", ": 4", ": 5", ": 2");
         ResetAllImages();
         SetImage(image, selectedSprite);
+        SelectConfiguredPreset();
 
     }
     public void Athlete()
     {
-        SetIngameMessage(": 5", ": 4", ": 6", ": 2", ": 4");
         ResetAllImages();
         SetImage(image, selectedSprite);
+        SelectConfiguredPreset();
 
     }
     public void Researcher()
     {
-        SetIngameMessage(": 2", ": 4", ": 4", ": 6", ": 5");
         ResetAllImages();
         SetImage(image, selectedSprite);
+        SelectConfiguredPreset();
 
     }
     public void Religiousfanatic()
     {
-        SetIngameMessage(": 5", ": 4", ": 2", ": 4", ": 6");
         ResetAllImages();
         SetImage(image, selectedSprite);
+        SelectConfiguredPreset();
 
     }
 
@@ -86,6 +92,42 @@ public class UI_ButtonSwap : MonoBehaviour
     {
         if (targetImage != null)
             targetImage.sprite = wantSprite;
+    }
+
+    /// <summary>
+    /// 버튼에 연결된 CharacterPresetData의 표시값과 생성값을 함께 적용합니다.
+    /// </summary>
+    private void SelectConfiguredPreset()
+    {
+        if (characterPreset == null)
+        {
+            Debug.LogWarning(
+                $"{gameObject.name}: Character Preset이 연결되지 않았습니다.");
+            return;
+        }
+
+        if (creationScreen == null)
+        {
+            creationScreen =
+                GetComponentInParent<UI_CharacterCreationScreen>();
+        }
+
+        if (creationScreen == null)
+        {
+            Debug.LogWarning(
+                "UI_ButtonSwap: 캐릭터 생성 화면을 찾지 못했습니다.");
+            return;
+        }
+
+        SetIngameMessage(
+            $": {characterPreset.strength}",
+            $": {characterPreset.agility}",
+            $": {characterPreset.health}",
+            $": {characterPreset.intelligence}",
+            $": {characterPreset.will}");
+
+        creationScreen.SelectBuildData(
+            characterPreset.ToBuildData());
     }
 
 }

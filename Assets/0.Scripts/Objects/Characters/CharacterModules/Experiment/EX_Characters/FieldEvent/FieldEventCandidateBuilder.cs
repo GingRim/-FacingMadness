@@ -16,7 +16,8 @@ public class FieldEventCandidateBuilder : MonoBehaviour
     public IReadOnlyList<FieldEventData> BuildCandidates(FieldManager fieldManager, CharacterBase character, IReadOnlyList<FieldEventData> source, FieldEventRunner eventRunner)
     {
         candidates.Clear();
-        CollectAvailableEvents(source, eventRunner);
+        FieldEventContext context = new FieldEventContext(character, null, fieldManager);
+        CollectAvailableEvents(source, eventRunner, context);
 
         if (availableEvents.Count == 0)
         {
@@ -85,7 +86,7 @@ public class FieldEventCandidateBuilder : MonoBehaviour
         return candidates;
     }
 
-    private void CollectAvailableEvents(IReadOnlyList<FieldEventData> source, FieldEventRunner eventRunner)
+    private void CollectAvailableEvents(IReadOnlyList<FieldEventData> source, FieldEventRunner eventRunner, FieldEventContext context)
     {
         availableEvents.Clear();
 
@@ -94,7 +95,7 @@ public class FieldEventCandidateBuilder : MonoBehaviour
 
         foreach (FieldEventData eventData in source)
         {
-            if (!eventRunner.CanOpenEvent(eventData))
+            if (!eventRunner.CanOpenEvent(eventData, context))
                 continue;
 
             if (availableEvents.Contains(eventData))

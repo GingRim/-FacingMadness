@@ -5,24 +5,30 @@ using UnityEngine;
 /// </summary>
 public class UI_Button_StartTutorialField : MonoBehaviour
 {
-    private TutorialFieldFlowController flowController;
+    private UI_CharacterCreationScreen creationScreen;
 
     public void Open()
     {
-        if (flowController == null)
+        if (creationScreen == null)
         {
-            flowController =
-                FindFirstObjectByType<TutorialFieldFlowController>(
+            creationScreen =
+                GetComponentInParent<UI_CharacterCreationScreen>();
+
+            if (creationScreen == null)
+            {
+                creationScreen =
+                    FindFirstObjectByType<UI_CharacterCreationScreen>(
                     FindObjectsInactive.Include);
+            }
         }
 
-        if (flowController == null)
+        if (creationScreen == null)
         {
             Debug.LogWarning(
-                "튜토리얼 필드 시작 처리기를 찾지 못했습니다.");
+                "캐릭터 생성 화면을 찾지 못했습니다.");
             return;
         }
 
-        flowController.StartTutorialField();
+        creationScreen.TryCreateAndStartTutorial();
     }
 }

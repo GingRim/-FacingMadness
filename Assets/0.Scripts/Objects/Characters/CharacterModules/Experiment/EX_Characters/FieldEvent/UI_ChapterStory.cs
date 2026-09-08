@@ -91,12 +91,17 @@ public class UI_ChapterStory : MonoBehaviour
         onEventResultConfirmed = null;
         isOpen = true;
 
+        BindSkipButton();
+
         SetContent(
             currentChapter.Description,
             currentChapter.ChapterImage);
 
         if (!ActivateWindow("챕터"))
+        {
+            Close();
             return false;
+        }
 
         return true;
     }
@@ -112,10 +117,15 @@ public class UI_ChapterStory : MonoBehaviour
         onEventResultConfirmed = onConfirmed;
         isOpen = true;
 
+        BindSkipButton();
+
         SetContent(resultText, resultImage);
 
         if (!ActivateWindow("이벤트 결과"))
+        {
+            Close();
             return false;
+        }
 
         return true;
     }
@@ -167,10 +177,16 @@ public class UI_ChapterStory : MonoBehaviour
 
     /// <summary>
     /// 화면과 현재 표시 정보를 초기화합니다.
-    /// 완료 이벤트는 발생시키지 않습니다.
+    /// 이벤트 결과를 표시 중이었다면 필드 이벤트 완료 콜백을
+    /// 화면을 닫은 뒤 정확히 한 번 실행합니다.
     /// </summary>
     public void Close()
     {
+        Action eventResultCompleted =
+            displayMode == StoryDisplayMode.EventResult
+                ? onEventResultConfirmed
+                : null;
+
         isOpen = false;
         currentChapter = null;
         displayMode = StoryDisplayMode.None;
@@ -188,6 +204,8 @@ public class UI_ChapterStory : MonoBehaviour
         }
 
         gameObject.SetActive(false);
+
+        eventResultCompleted?.Invoke();
     }
 
     private void HandleSkip()
@@ -219,11 +237,6 @@ public class UI_ChapterStory : MonoBehaviour
 
     private void CompleteEventResult()
     {
-        Action completed =
-            onEventResultConfirmed;
-
         Close();
-
-        completed?.Invoke();
     }
 }

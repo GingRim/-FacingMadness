@@ -632,6 +632,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 82ca5b391e024e24195ca61f5d1c7472, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UI_ButtonSwap
+  characterPreset: {fileID: 11400000, guid: f86a523332ee8754d9e9ceda2e0dd4a0, type: 2}
   SText: {fileID: 365907665050035299}
   DText: {fileID: 2677983362296077954}
   HText: {fileID: 4847542270462205509}
@@ -643,12 +644,12 @@ MonoBehaviour:
   athleteImage: {fileID: 3875012496557762608}
   researcherImage: {fileID: 1507270364297956030}
   religiousFanaticImage: {fileID: 1305049789890701121}
-  hunterdefaultSprite: {fileID: 381060796258283201, guid: 8b1d23acaf2676b4b90504e6d12271d4, type: 3}
-  privateDetectivedefaultSprite: {fileID: -74817810, guid: 8b1d23acaf2676b4b90504e6d12271d4, type: 3}
-  athletedefaultSprite: {fileID: 1475591713, guid: 8b1d23acaf2676b4b90504e6d12271d4, type: 3}
-  researcherdefaultSprite: {fileID: 1283685627, guid: 8b1d23acaf2676b4b90504e6d12271d4, type: 3}
-  religiousFanaticdefaultSprite: {fileID: 1887279000, guid: 8b1d23acaf2676b4b90504e6d12271d4, type: 3}
-  selectedSprite: {fileID: -366412305, guid: 7e124c089f6740c49a209a0a57a60d8e, type: 3}
+  hunterdefaultSprite: {fileID: 381060796258283201, guid: 3c17f7f9bab8f4c49a7bfffe75198878, type: 3}
+  privateDetectivedefaultSprite: {fileID: -74817810, guid: 3c17f7f9bab8f4c49a7bfffe75198878, type: 3}
+  athletedefaultSprite: {fileID: 1475591713, guid: 3c17f7f9bab8f4c49a7bfffe75198878, type: 3}
+  researcherdefaultSprite: {fileID: 6029268320646912477, guid: d6fe62154ec84f94c83f0ffada762663, type: 3}
+  religiousFanaticdefaultSprite: {fileID: 1887279000, guid: 3c17f7f9bab8f4c49a7bfffe75198878, type: 3}
+  selectedSprite: {fileID: -366412305, guid: 7c98d7c48e7733b4a9139b6229cb0fc4, type: 3}
 --- !u!1 &1804861962616925640
 GameObject:
   m_ObjectHideFlags: 0
@@ -1994,6 +1995,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 82ca5b391e024e24195ca61f5d1c7472, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UI_ButtonSwap
+  characterPreset: {fileID: 11400000, guid: 3921b04b3e4788245a2e3e49364e2e6e, type: 2}
   SText: {fileID: 365907665050035299}
   DText: {fileID: 2677983362296077954}
   HText: {fileID: 4847542270462205509}
@@ -2005,12 +2007,12 @@ MonoBehaviour:
   athleteImage: {fileID: 3875012496557762608}
   researcherImage: {fileID: 1507270364297956030}
   religiousFanaticImage: {fileID: 1305049789890701121}
-  hunterdefaultSprite: {fileID: 381060796258283201, guid: 8b1d23acaf2676b4b90504e6d12271d4, type: 3}
-  privateDetectivedefaultSprite: {fileID: -74817810, guid: 8b1d23acaf2676b4b90504e6d12271d4, type: 3}
-  athletedefaultSprite: {fileID: 1475591713, guid: 8b1d23acaf2676b4b90504e6d12271d4, type: 3}
-  researcherdefaultSprite: {fileID: 1283685627, guid: 8b1d23acaf2676b4b90504e6d12271d4, type: 3}
-  religiousFanaticdefaultSprite: {fileID: 1887279000, guid: 8b1d23acaf2676b4b90504e6d12271d4, type: 3}
-  selectedSprite: {fileID: 1291668607, guid: 7e124c089f6740c49a209a0a57a60d8e, type: 3}
+  hunterdefaultSprite: {fileID: 381060796258283201, guid: 3c17f7f9bab8f4c49a7bfffe75198878, type: 3}
+  privateDetectivedefaultSprite: {fileID: -74817810, guid: 3c17f7f9bab8f4c49a7bfffe75198878, type: 3}
+  athletedefaultSprite: {fileID: 2948816964973594876, guid: 34d8b24ab269df646ab6d3532ecca9cf, type: 3}
+  researcherdefaultSprite: {fileID: 1283685627, guid: 3c17f7f9bab8f4c49a7bfffe75198878, type: 3}
+  religiousFanaticdefaultSprite: {fileID: 1887279000, guid: 3c17f7f9bab8f4c49a7bfffe75198878, type: 3}
+  selectedSprite: {fileID: 1291668607, guid: 7c98d7c48e7733b4a9139b6229cb0fc4, type: 3}
 --- !u!1 &4135617004849872514
 GameObject:
   m_ObjectHideFlags: 0
@@ -2667,6 +2669,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 82ca5b391e024e24195ca61f5d1c7472, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UI_ButtonSwap
+  characterPreset: {fileID: 11400000, guid: e73d8f36914317b459bfc5167eac81ad, type: 2}
   SText: {fileID: 365907665050035299}
   DText: {fileID: 2677983362296077954}
   HText: {fileID: 4847542270462205509}
@@ -2678,12 +2681,12 @@ MonoBehaviour:
   athleteImage: {fileID: 3875012496557762608}
   researcherImage: {fileID: 1507270364297956030}
   religiousFanaticImage: {fileID: 1305049789890701121}
-  hunterdefaultSprite: {fileID: 381060796258283201, guid: 8b1d23acaf2676b4b90504e6d12271d4, type: 3}
-  privateDetectivedefaultSprite: {fileID: -74817810, guid: 8b1d23acaf2676b4b90504e6d12271d4, type: 3}
-  athletedefaultSprite: {fileID: 1475591713, guid: 8b1d23acaf2676b4b90504e6d12271d4, type: 3}
-  researcherdefaultSprite: {fileID: 1283685627, guid: 8b1d23acaf2676b4b90504e6d12271d4, type: 3}
-  religiousFanaticdefaultSprite: {fileID: 1887279000, guid: 8b1d23acaf2676b4b90504e6d12271d4, type: 3}
-  selectedSprite: {fileID: -7114508056241829067, guid: 7e124c089f6740c49a209a0a57a60d8e, type: 3}
+  hunterdefaultSprite: {fileID: -4886558643550801336, guid: 31fa72d7887d130429513e198f2d4feb, type: 3}
+  privateDetectivedefaultSprite: {fileID: -74817810, guid: 3c17f7f9bab8f4c49a7bfffe75198878, type: 3}
+  athletedefaultSprite: {fileID: 1475591713, guid: 3c17f7f9bab8f4c49a7bfffe75198878, type: 3}
+  researcherdefaultSprite: {fileID: 1283685627, guid: 3c17f7f9bab8f4c49a7bfffe75198878, type: 3}
+  religiousFanaticdefaultSprite: {fileID: 1887279000, guid: 3c17f7f9bab8f4c49a7bfffe75198878, type: 3}
+  selectedSprite: {fileID: -7114508056241829067, guid: 9e1a1504ece2420458e678f2ae8b0b55, type: 3}
 --- !u!1 &6004985237034640306
 GameObject:
   m_ObjectHideFlags: 0
@@ -3117,6 +3120,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 82ca5b391e024e24195ca61f5d1c7472, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UI_ButtonSwap
+  characterPreset: {fileID: 11400000, guid: 441d130368cd11f4dbe932ae548fe0b0, type: 2}
   SText: {fileID: 365907665050035299}
   DText: {fileID: 2677983362296077954}
   HText: {fileID: 4847542270462205509}
@@ -3128,12 +3132,12 @@ MonoBehaviour:
   athleteImage: {fileID: 3875012496557762608}
   researcherImage: {fileID: 1507270364297956030}
   religiousFanaticImage: {fileID: 1305049789890701121}
-  hunterdefaultSprite: {fileID: 381060796258283201, guid: 8b1d23acaf2676b4b90504e6d12271d4, type: 3}
-  privateDetectivedefaultSprite: {fileID: -74817810, guid: 8b1d23acaf2676b4b90504e6d12271d4, type: 3}
-  athletedefaultSprite: {fileID: 1475591713, guid: 8b1d23acaf2676b4b90504e6d12271d4, type: 3}
-  researcherdefaultSprite: {fileID: 1283685627, guid: 8b1d23acaf2676b4b90504e6d12271d4, type: 3}
-  religiousFanaticdefaultSprite: {fileID: 1887279000, guid: 8b1d23acaf2676b4b90504e6d12271d4, type: 3}
-  selectedSprite: {fileID: -238173548, guid: 7e124c089f6740c49a209a0a57a60d8e, type: 3}
+  hunterdefaultSprite: {fileID: 381060796258283201, guid: 3c17f7f9bab8f4c49a7bfffe75198878, type: 3}
+  privateDetectivedefaultSprite: {fileID: -5244834512796574130, guid: 80b3e582e6ee774499dd68bc7d3137c8, type: 3}
+  athletedefaultSprite: {fileID: 1475591713, guid: 3c17f7f9bab8f4c49a7bfffe75198878, type: 3}
+  researcherdefaultSprite: {fileID: 1283685627, guid: 3c17f7f9bab8f4c49a7bfffe75198878, type: 3}
+  religiousFanaticdefaultSprite: {fileID: 1887279000, guid: 3c17f7f9bab8f4c49a7bfffe75198878, type: 3}
+  selectedSprite: {fileID: -238173548, guid: 7c98d7c48e7733b4a9139b6229cb0fc4, type: 3}
 --- !u!1 &7299677933815072231
 GameObject:
   m_ObjectHideFlags: 0
@@ -4291,6 +4295,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 82ca5b391e024e24195ca61f5d1c7472, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UI_ButtonSwap
+  characterPreset: {fileID: 11400000, guid: 12c61e107ddb0a5468ceb8227d0e5bba, type: 2}
   SText: {fileID: 365907665050035299}
   DText: {fileID: 2677983362296077954}
   HText: {fileID: 4847542270462205509}
@@ -4302,9 +4307,9 @@ MonoBehaviour:
   athleteImage: {fileID: 3875012496557762608}
   researcherImage: {fileID: 1507270364297956030}
   religiousFanaticImage: {fileID: 1305049789890701121}
-  hunterdefaultSprite: {fileID: 381060796258283201, guid: 8b1d23acaf2676b4b90504e6d12271d4, type: 3}
-  privateDetectivedefaultSprite: {fileID: -74817810, guid: 8b1d23acaf2676b4b90504e6d12271d4, type: 3}
-  athletedefaultSprite: {fileID: 1475591713, guid: 8b1d23acaf2676b4b90504e6d12271d4, type: 3}
-  researcherdefaultSprite: {fileID: 1283685627, guid: 8b1d23acaf2676b4b90504e6d12271d4, type: 3}
-  religiousFanaticdefaultSprite: {fileID: 1887279000, guid: 8b1d23acaf2676b4b90504e6d12271d4, type: 3}
-  selectedSprite: {fileID: 315445069, guid: 7e124c089f6740c49a209a0a57a60d8e, type: 3}
+  hunterdefaultSprite: {fileID: 381060796258283201, guid: 3c17f7f9bab8f4c49a7bfffe75198878, type: 3}
+  privateDetectivedefaultSprite: {fileID: -74817810, guid: 3c17f7f9bab8f4c49a7bfffe75198878, type: 3}
+  athletedefaultSprite: {fileID: 1475591713, guid: 3c17f7f9bab8f4c49a7bfffe75198878, type: 3}
+  researcherdefaultSprite: {fileID: 1283685627, guid: 3c17f7f9bab8f4c49a7bfffe75198878, type: 3}
+  religiousFanaticdefaultSprite: {fileID: 8821791635549250771, guid: a35ed24b4d4d15c49856bf1de97ff8ff, type: 3}
+  selectedSprite: {fileID: 315445069, guid: 7c98d7c48e7733b4a9139b6229cb0fc4, type: 3}

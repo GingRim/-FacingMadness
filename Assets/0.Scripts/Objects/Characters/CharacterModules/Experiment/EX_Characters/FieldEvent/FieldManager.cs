@@ -34,6 +34,7 @@ public class FieldManager : ManagerBase
 
     private FieldLine pendingRedLine;
     private FieldNode pendingTargetNode;
+    private FieldRedLineResult pendingRedLineResult;
 
     private Transform fieldCore;
     private GameObject currentFieldObject;
@@ -293,6 +294,7 @@ public class FieldManager : ManagerBase
 
         pendingRedLine = null;
         pendingTargetNode = null;
+        pendingRedLineResult = FieldRedLineResult.None;
 
         eventRunner?.ResetCompletedEvents();
         coreEventReservations.Clear();
@@ -547,6 +549,9 @@ public class FieldManager : ManagerBase
         if (targetNode == currentNode)
             return false;
 
+        if (!targetNode.IsHiddenAreaDiscovered)
+            return false;
+
         return currentNode.IsConnectedTo(targetNode);
     }
 
@@ -604,7 +609,7 @@ public class FieldManager : ManagerBase
         CompleteFieldAction();
     }
 
-    private bool OpenFieldEvent(FieldEventData eventData, FieldNode node)
+    private bool OpenFieldEvent(FieldEventData eventData, FieldNode node, bool ignoreCompletionHistory)
     {
         if (eventData == null || node == null || currentPlayer == null || eventRunner == null)
         {
@@ -613,7 +618,7 @@ public class FieldManager : ManagerBase
 
         FieldEventContext context = new FieldEventContext(currentPlayer, node, this);
 
-        bool opened = eventRunner.OpenEvent(eventData, context);
+        bool opened = eventRunner.OpenEvent(eventData, context, ignoreCompletionHistory);
 
         if (opened)
         {
@@ -632,7 +637,20 @@ public class FieldManager : ManagerBase
             return;
 
         if (pendingRedLine != null)
+        {
+            bool opened =
+                pendingRedLineResult == FieldRedLineResult.Open;
+
+            if (pendingRedLineResult == FieldRedLineResult.None)
+            {
+                Debug.LogWarning(
+                    "적색 라인 이벤트 결과가 지정되지 않아 Locked로 처리합니다.");
+            }
+
+            StartCoroutine(
+                CompleteRedLineAfterEventClosed(opened));
             return;
+        }
 
         // 방금 끝난 이벤트 결과로
         // 미션 목표를 달성했는지 확인
@@ -649,11 +667,63 @@ public class FieldManager : ManagerBase
             return false;
         }
 
-        // 적색 라인 이벤트를 받을 UI가 없으면
-        // 행동력을 소비하지 않음
+        FieldEventData redLineEvent = line.RedLineEvent;
+
+        if (redLineEvent != null && eventRunner != null)
+        {
+            FieldEventContext context =
+                new FieldEventContext(currentPlayer, currentNode, this);
+
+            // 적색 라인은 현재 상태가 Red인 동안 다시 조사할 수 있으므로
+            // 일반 이벤트의 완료 기록은 무시합니다. 정보 조건은 그대로 검사합니다.
+            if (!eventRunner.CanOpenEvent(
+                    redLineEvent,
+                    context,
+                    true))
+            {
+                Debug.LogWarning(
+                    $"{line.LineId}: 적색 라인 이벤트의 발동 조건을 만족하지 못했습니다.");
+
+                return false;
+            }
+
+            if (!TryUseActionPoint(currentPlayer, 1))
+            {
+                Debug.Log("행동력이 부족합니다.");
+                return false;
+            }
+
+            pendingRedLine = line;
+            pendingTargetNode = targetNode;
+            pendingRedLineResult = FieldRedLineResult.None;
+
+            bool opened = eventRunner.OpenEvent(
+                redLineEvent,
+                context,
+                true);
+
+            if (!opened)
+            {
+                pendingRedLine = null;
+                pendingTargetNode = null;
+                pendingRedLineResult = FieldRedLineResult.None;
+
+                Debug.LogWarning(
+                    $"{line.LineId}: 적색 라인 이벤트를 열지 못했습니다.");
+
+                return false;
+            }
+
+            TurnState = FieldTurnState.Event;
+
+            return true;
+        }
+
+        // 기존 별도 적색 라인 UI를 사용하는 장면과의 호환 경로입니다.
         if (OnRedLineEventRequested == null)
         {
-            Debug.LogWarning("FieldManager: 적색 라인 이벤트가 연결되지 않았습니다.");
+            Debug.LogWarning(
+                $"{line.LineId}: Red Line Event가 등록되지 않았습니다.");
 
             return false;
         }
@@ -666,12 +736,36 @@ public class FieldManager : ManagerBase
 
         pendingRedLine = line;
         pendingTargetNode = targetNode;
+        pendingRedLineResult = FieldRedLineResult.None;
 
         TurnState = FieldTurnState.Event;
 
         OnRedLineEventRequested.Invoke(pendingRedLine, pendingTargetNode);
 
         return true;
+    }
+
+    /// <summary>
+    /// 선택지 결과가 현재 처리 중인 적색 라인의 상태를 결정합니다.
+    /// 실제 라인 변경과 이동은 결과창을 닫은 뒤 실행합니다.
+    /// </summary>
+    public void SetPendingRedLineResult(FieldRedLineResult result)
+    {
+        if (pendingRedLine == null || result == FieldRedLineResult.None)
+            return;
+
+        pendingRedLineResult = result;
+    }
+
+    private IEnumerator CompleteRedLineAfterEventClosed(bool opened)
+    {
+        // 모든 이벤트 UI의 닫기 콜백이 끝난 다음 프레임에 이동합니다.
+        yield return null;
+
+        if (!IsFieldActive || pendingRedLine == null)
+            yield break;
+
+        CompleteRedLineEvent(opened);
     }
 
     /// <summary>
@@ -688,6 +782,7 @@ public class FieldManager : ManagerBase
 
         pendingRedLine = null;
         pendingTargetNode = null;
+        pendingRedLineResult = FieldRedLineResult.None;
 
         // 적색 라인 이벤트가 끝났으므로
         // 일반 행동 상태로 먼저 복귀
@@ -897,6 +992,7 @@ public class FieldManager : ManagerBase
 
         pendingRedLine = null;
         pendingTargetNode = null;
+        pendingRedLineResult = FieldRedLineResult.None;
 
         if (characterMarkers != null)
         {
@@ -1247,7 +1343,10 @@ public class FieldManager : ManagerBase
 
         if (nodeEvent != null)
         {
-            if (OpenFieldEvent(nodeEvent, node))
+            if (OpenFieldEvent(
+                nodeEvent,
+                node,
+                isFirstVisit))
             {
                 Debug.Log(
                     $"노드 이벤트 실행: " +
@@ -1567,7 +1666,10 @@ public class FieldManager : ManagerBase
 
             coreEvents.RemoveAt(randomIndex);
 
-            if (!OpenFieldEvent(selectedEvent, node))
+            if (!OpenFieldEvent(
+                selectedEvent,
+                node,
+                false))
             {
                 continue;
             }

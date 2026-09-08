@@ -1,8 +1,10 @@
+using System.Collections;
 using TMPro;
 using UnityEngine;
-/// <summary>
 
-/// UIManager가 생성하는 필드 화면의 최상위 스크립트
+/// <summary>
+/// UIManager가 생성하는 필드 화면의 최상위 스크립트입니다.
+/// GameManager가 런타임에 생성한 FieldManager를 자동으로 연결합니다.
 /// </summary>
 public class UI_FieldScreen : UI_ScreenBase
 {
@@ -34,25 +36,83 @@ public class UI_FieldScreen : UI_ScreenBase
     private TextMeshProUGUI mythTurnText;
 
     private CharacterBase boundPlayer;
-
     private ActionPointModule boundActionPoint;
+    private Coroutine fieldManagerBindRoutine;
 
     private void OnEnable()
     {
+        ResolveRuntimeFieldManager();
         RegisterFieldManager();
+        RefreshCurrentFieldState();
 
-        if (fieldManager != null && fieldManager.CurrentPlayer != null)
+        if (!HasRuntimeFieldManager())
         {
-            BindPlayer(fieldManager.CurrentPlayer);
-
-            RefreshTurnTexts(fieldManager.TotalFieldTurn);
+            fieldManagerBindRoutine = StartCoroutine(WaitForRuntimeFieldManager());
         }
     }
 
     private void OnDisable()
     {
+        StopFieldManagerBindRoutine();
         UnregisterFieldManager();
         UnbindPlayer();
+    }
+
+    /// <summary>
+    /// GameManager가 생성해 보관 중인 FieldManager를 우선 사용합니다.
+    /// 인스펙터 참조는 독립 실행용 예비 연결로만 유지합니다.
+    /// </summary>
+    private void ResolveRuntimeFieldManager()
+    {
+        if (!HasRuntimeFieldManager())
+            return;
+
+        FieldManager runtimeFieldManager =
+            GameManager.Instance.Field;
+
+        if (fieldManager == runtimeFieldManager)
+            return;
+
+        UnregisterFieldManager();
+        UnbindPlayer();
+
+        fieldManager = runtimeFieldManager;
+    }
+
+    private bool HasRuntimeFieldManager()
+    {
+        return GameManager.Instance != null &&
+               GameManager.Instance.Field != null;
+    }
+
+    /// <summary>
+    /// 필드 화면이 GameManager보다 먼저 활성화된 경우
+    /// 런타임 FieldManager가 생성될 때까지 기다린 뒤 연결합니다.
+    /// </summary>
+    private IEnumerator WaitForRuntimeFieldManager()
+    {
+        while (isActiveAndEnabled && !HasRuntimeFieldManager())
+        {
+            yield return null;
+        }
+
+        fieldManagerBindRoutine = null;
+
+        if (!isActiveAndEnabled || !HasRuntimeFieldManager())
+            yield break;
+
+        ResolveRuntimeFieldManager();
+        RegisterFieldManager();
+        RefreshCurrentFieldState();
+    }
+
+    private void StopFieldManagerBindRoutine()
+    {
+        if (fieldManagerBindRoutine == null)
+            return;
+
+        StopCoroutine(fieldManagerBindRoutine);
+        fieldManagerBindRoutine = null;
     }
 
     private void RegisterFieldManager()
@@ -61,7 +121,6 @@ public class UI_FieldScreen : UI_ScreenBase
             return;
 
         fieldManager.OnFieldTurnStarted -= HandleFieldTurnStarted;
-
         fieldManager.OnFieldTurnStarted += HandleFieldTurnStarted;
     }
 
@@ -73,10 +132,22 @@ public class UI_FieldScreen : UI_ScreenBase
         fieldManager.OnFieldTurnStarted -= HandleFieldTurnStarted;
     }
 
+    private void RefreshCurrentFieldState()
+    {
+        if (fieldManager == null)
+        {
+            ClearScreen();
+            ClearTurnTexts();
+            return;
+        }
+
+        BindPlayer(fieldManager.CurrentPlayer);
+        RefreshTurnTexts(fieldManager.TotalFieldTurn);
+    }
+
     private void HandleFieldTurnStarted(CharacterBase player, int completedTurnCount)
     {
         BindPlayer(player);
-
         RefreshTurnTexts(completedTurnCount);
 
         if (fieldCardUseArea != null)
@@ -102,7 +173,8 @@ public class UI_FieldScreen : UI_ScreenBase
             playerNameText.SetText(boundPlayer.DisplayName);
         }
 
-        DeckModule deck = boundPlayer.GetModule<DeckModule>();
+        DeckModule deck =
+            boundPlayer.GetModule<DeckModule>();
 
         if (handUI != null)
         {
@@ -116,7 +188,8 @@ public class UI_FieldScreen : UI_ScreenBase
             }
         }
 
-        boundActionPoint = boundPlayer.GetModule<ActionPointModule>();
+        boundActionPoint =
+            boundPlayer.GetModule<ActionPointModule>();
 
         if (boundActionPoint == null)
         {
@@ -125,10 +198,11 @@ public class UI_FieldScreen : UI_ScreenBase
         }
 
         boundActionPoint.OnActionPointChanged -= RefreshActionPoint;
-
         boundActionPoint.OnActionPointChanged += RefreshActionPoint;
 
-        RefreshActionPoint(boundActionPoint.Current, boundActionPoint.Max);
+        RefreshActionPoint(
+            boundActionPoint.Current,
+            boundActionPoint.Max);
     }
 
     private void UnbindPlayer()
@@ -146,31 +220,31 @@ public class UI_FieldScreen : UI_ScreenBase
     {
         if (actionPointText != null)
         {
-            actionPointText.SetText($"행동력 {current}/{maximum}");
+            actionPointText.SetText($"{current}/{maximum}");
         }
     }
 
     private void RefreshTurnTexts(int completedTurnCount)
     {
         // totalFieldTurn은 끝난 턴의 개수이므로
-        // 현재 진행 중인 턴은 +1
+        // 현재 진행 중인 턴은 +1입니다.
         int currentTurn = completedTurnCount + 1;
 
         if (fieldTurnText != null)
         {
-            fieldTurnText.SetText($"필드 턴 {currentTurn}");
+            fieldTurnText.SetText($"{currentTurn}");
         }
 
         if (mythTurnText == null || fieldManager == null)
-        {
             return;
-        }
 
-        int interval = Mathf.Max(1, fieldManager.MythTurnInterval);
+        int interval =
+            Mathf.Max(1, fieldManager.MythTurnInterval);
 
-        int remaining = interval - completedTurnCount % interval;
+        int remaining =
+            interval - completedTurnCount % interval;
 
-        mythTurnText.SetText($"신화턴까지 {remaining}턴");
+        mythTurnText.SetText($"{remaining}");
     }
 
     private void ClearScreen()
@@ -188,4 +262,16 @@ public class UI_FieldScreen : UI_ScreenBase
         }
     }
 
+    private void ClearTurnTexts()
+    {
+        if (fieldTurnText != null)
+        {
+            fieldTurnText.SetText(string.Empty);
+        }
+
+        if (mythTurnText != null)
+        {
+            mythTurnText.SetText(string.Empty);
+        }
+    }
 }

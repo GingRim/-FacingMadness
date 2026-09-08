@@ -172,17 +172,37 @@ public class FieldEventRunner : MonoBehaviour
     /// <returns>이벤트가 정상적으로 열렸으면 true</returns>
     public bool OpenEvent(FieldEventData eventData, FieldEventContext context)
     {
+        return OpenEvent(
+            eventData,
+            context,
+            false);
+    }
+
+    /// <summary>
+    /// 지정된 이벤트를 열고 시작 페이지를 준비합니다.
+    /// 노드별 최초 방문 이벤트는 노드의 방문 기록이 반복 실행을
+    /// 막으므로, 같은 이벤트 데이터를 공유해도 완료 기록을 무시할 수 있습니다.
+    /// </summary>
+    public bool OpenEvent(FieldEventData eventData, FieldEventContext context, bool ignoreCompletionHistory)
+    {
         if (eventData == null || context == null)
             return false;
 
-        if (eventData.RootPage == null)
+        if (!eventData.CanOpen(context))
+            return false;
+
+        if (!eventData.HasPlayableContent)
         {
-            Debug.LogWarning($"{eventData.EventName}: 시작 페이지가 연결되지 않았습니다.");
+            Debug.LogWarning(
+                $"{eventData.EventName}: 시작 페이지 또는 단일 페이지 선택지가 없습니다.");
 
             return false;
         }
 
-        if (!eventData.Repeatable && !string.IsNullOrWhiteSpace(eventData.EventId) && completedEvents.Contains(eventData.EventId))
+        if (!ignoreCompletionHistory &&
+            !eventData.Repeatable &&
+            !string.IsNullOrWhiteSpace(eventData.EventId) &&
+            completedEvents.Contains(eventData.EventId))
         {
             return false;
         }
@@ -219,10 +239,13 @@ public class FieldEventRunner : MonoBehaviour
     /// <returns>현재 선택 가능한 원본 선택지 목록</returns>
     public FieldEventChoice[] GetCurrentChoices()
     {
-        if (currentPage == null)
+        if (currentPage != null)
+            return currentPage.Choices;
+
+        if (currentEvent == null)
             return null;
 
-        return currentPage.Choices;
+        return currentEvent.DirectChoices;
     }
 
     /// <summary>
@@ -258,7 +281,7 @@ public class FieldEventRunner : MonoBehaviour
     /// <param name="choiceIndex">현재 페이지의 선택지 번호.</param>
     public void SelectChoice(int choiceIndex)
     {
-        if (currentEvent == null || currentContext == null || currentPage == null)
+        if (currentEvent == null || currentContext == null)
         {
             return;
         }
@@ -268,7 +291,7 @@ public class FieldEventRunner : MonoBehaviour
             return;
         }
 
-        FieldEventChoice[] choices = currentPage.Choices;
+        FieldEventChoice[] choices = GetCurrentChoices();
 
         if (choices == null || choiceIndex < 0 || choiceIndex >= choices.Length)
         {
@@ -711,20 +734,33 @@ public class FieldEventRunner : MonoBehaviour
     /// </summary>
     public bool CanOpenEvent(FieldEventData eventData)
     {
+        return CanOpenEvent(eventData, null, false);
+    }
+
+    public bool CanOpenEvent(FieldEventData eventData, FieldEventContext context)
+    {
+        return CanOpenEvent(eventData, context, false);
+    }
+
+    public bool CanOpenEvent(FieldEventData eventData, FieldEventContext context, bool ignoreCompletionHistory)
+    {
         if (eventData == null ||
-            eventData.RootPage == null)
+            !eventData.HasPlayableContent)
         {
             return false;
         }
 
-        if (eventData.Repeatable ||
-            string.IsNullOrWhiteSpace(eventData.EventId))
+        if (context != null && !eventData.CanOpen(context))
+        {
+            return false;
+        }
+
+        if (ignoreCompletionHistory || eventData.Repeatable || string.IsNullOrWhiteSpace(eventData.EventId))
         {
             return true;
         }
 
-        return !completedEvents.Contains(
-            eventData.EventId);
+        return !completedEvents.Contains(eventData.EventId);
     }
 
 }

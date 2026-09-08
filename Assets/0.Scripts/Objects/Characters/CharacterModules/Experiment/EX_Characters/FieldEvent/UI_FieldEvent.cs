@@ -217,6 +217,15 @@ public class UI_FieldEvent : UIBase
 
         ClearChoiceButtons();
 
+        if (eventData.RootPage == null && eventData.HasDirectChoices)
+        {
+            CreateChoiceButtons(
+                eventData.DirectChoices,
+                eventData.DirectChoiceDisplayType,
+                eventData.MaximumVisibleDirectChoices);
+        }
+
+        RefreshBackButton();
 
         if (panel != null)
         {
@@ -344,6 +353,10 @@ public class UI_FieldEvent : UIBase
             FieldEventChoice choice = choices[i];
 
             if (!eventRunner.IsChoiceAvailable(choice))
+                continue;
+
+            // 조건을 충족하지 못한 선택지는 존재 자체를 공개하지 않는다.
+            if (!choice.CanSelect(eventRunner.CurrentContext))
                 continue;
 
             availableChoiceIndices.Add(i);

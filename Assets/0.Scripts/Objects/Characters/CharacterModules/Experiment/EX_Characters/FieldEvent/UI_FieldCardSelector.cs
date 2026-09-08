@@ -19,6 +19,10 @@ public class UI_FieldCardSelector : MonoBehaviour
     [SerializeField]
     private GameObject checkPanel;
 
+    [Header("필드 핸드")]
+    [SerializeField]
+    private UI_Hand handUI;
+
     [SerializeField]
     private TextMeshProUGUI guideText;
 
@@ -49,6 +53,8 @@ public class UI_FieldCardSelector : MonoBehaviour
         {
             eventRunner = FindFirstObjectByType<FieldEventRunner>(FindObjectsInactive.Include);
         }
+
+        ResolveHandUI();
 
         BindRunnerEvents();
 
@@ -85,6 +91,9 @@ public class UI_FieldCardSelector : MonoBehaviour
         eventRunner.OnStatCheckRequested -= BeginStatCheck;
         eventRunner.OnStatCheckRequested += BeginStatCheck;
 
+        eventRunner.OnEventOpened -= HandleEventOpened;
+        eventRunner.OnEventOpened += HandleEventOpened;
+
         eventRunner.OnChoiceSelected -= HandleChoiceResolved;
         eventRunner.OnChoiceSelected += HandleChoiceResolved;
 
@@ -100,6 +109,7 @@ public class UI_FieldCardSelector : MonoBehaviour
         if (eventRunner != null)
         {
             eventRunner.OnStatCheckRequested -= BeginStatCheck;
+            eventRunner.OnEventOpened -= HandleEventOpened;
             eventRunner.OnChoiceSelected -= HandleChoiceResolved;
             eventRunner.OnEventClosed -= HandleEventClosed;
         }
@@ -138,6 +148,16 @@ public class UI_FieldCardSelector : MonoBehaviour
     }
 
     /// <summary>
+    /// 일반 이벤트 화면이 열리면 판정 UI와 핸드를 숨깁니다.
+    /// </summary>
+    private void HandleEventOpened(FieldEventData eventData, FieldEventContext context)
+    {
+        pendingChoice = null;
+        isSelectingIgnitionTarget = false;
+        SetCheckPanelActive(false);
+    }
+
+    /// <summary>
     /// 직접 판정 버튼 입력을 처리합니다.
     /// </summary>
     private void HandleDirectRoll()
@@ -169,7 +189,7 @@ public class UI_FieldCardSelector : MonoBehaviour
             {
                 CardColorType requiredColor = GetRequiredColor(pendingChoice.RequiredStat);
 
-                guideText.SetText($"{requiredColor} 카드가 필요합니다.");
+                guideText.SetText($"{requiredColor}카드가<br><br>필요합니다.");
             }
 
             return true;
@@ -215,6 +235,43 @@ public class UI_FieldCardSelector : MonoBehaviour
         if (checkPanel != null)
         {
             checkPanel.SetActive(active);
+        }
+
+        RefreshHandVisibility(active);
+    }
+
+    /// <summary>
+    /// 이벤트가 없을 때는 일반 필드 핸드를 표시합니다.
+    /// 이벤트 중에는 실제 판정 Image가 열려 있을 때만 표시합니다.
+    /// </summary>
+    private void RefreshHandVisibility(bool checkPanelActive)
+    {
+        ResolveHandUI();
+
+        if (handUI == null)
+            return;
+
+        bool eventActive =
+            eventRunner != null && eventRunner.IsEventActive;
+
+        handUI.gameObject.SetActive(
+            !eventActive || checkPanelActive);
+    }
+
+    /// <summary>
+    /// 같은 필드 Canvas 안에 있는 핸드를 자동으로 찾습니다.
+    /// 전투 화면의 다른 핸드를 선택하지 않도록 현재 Canvas를 우선합니다.
+    /// </summary>
+    private void ResolveHandUI()
+    {
+        if (handUI != null)
+            return;
+
+        Canvas rootCanvas = GetComponentInParent<Canvas>();
+
+        if (rootCanvas != null)
+        {
+            handUI = rootCanvas.GetComponentInChildren<UI_Hand>(true);
         }
     }
 

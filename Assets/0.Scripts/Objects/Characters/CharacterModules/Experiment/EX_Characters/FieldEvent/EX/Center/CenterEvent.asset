@@ -16,8 +16,37 @@ MonoBehaviour:
   eventName: "\uC9C4\uC785"
   eventType: 2
   rootPage: {fileID: 11400000, guid: a51805d57cd729841963ca12e56e7a8d, type: 2}
+  directChoices:
+  - choiceId: 
+    choiceText: 
+    choiceType: 0
+    actionType: 0
+    usageType: 0
+    nextPage: {fileID: 0}
+    executionType: 0
+    requiredStat: 0
+    target: 0
+    conditions: []
+    allowsIgnition: 0
+    successResult:
+      description: 
+      effects: []
+      resultImage: {fileID: 0}
+      redLineResult: 0
+    failureResult:
+      description: 
+      effects: []
+      resultImage: {fileID: 0}
+      redLineResult: 0
+    legacyCardRequirement:
+      requiresCard: 0
+      allowedColors: 
+      checkStat: 0
+  directChoiceDisplayType: 0
+  maximumVisibleDirectChoices: 5
   description: "\uC0C8\uB85C\uC6B4 \uACF5\uAC04\uC5D0 \uC9C4\uC785\uD558\uACE0\uC790
     \uD55C\uB2E4."
   repeatable: 0
+  openingConditions: []
   startingNodeId: 
   eventImage: {fileID: -5192146429223839966, guid: 03af6b09aaac336479d4101e67236e4a, type: 3}

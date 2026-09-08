@@ -28,17 +28,30 @@ public class CharacterBase : MonoBehaviour
     protected Vector3 _lookRotation;
     public Vector3 LookRotation => _lookRotation;
 
-    public virtual string DisplayName => "Character";
+    [SerializeField]
+    private string displayName = "Character";
+
+    public virtual string DisplayName => string.IsNullOrWhiteSpace(displayName) ? "Character" : displayName;
     public Sprite Icon { get; private set; }
+
+    public void SetDisplayName(string newDisplayName)
+    {
+        displayName =
+            string.IsNullOrWhiteSpace(newDisplayName)
+                ? "Character"
+                : newDisplayName.Trim();
+
+        gameObject.name = displayName;
+    }
 
     // 모듈을 저장해놓기!
     // List :  추가/제거가 쉽다. <-> 메모리 효율이 낮고, 전체 순환이 느리다.
 
     Dictionary<System.Type, CharacterModule> moduleDictipnary = new();
-    
+
     public void AddModule(System.Type wantType, CharacterModule wantModule)
     {
-        if(moduleDictipnary.TryAdd(wantType, wantModule))
+        if (moduleDictipnary.TryAdd(wantType, wantModule))
         {
             wantModule.OnRegistration(this);
         }
@@ -67,11 +80,11 @@ public class CharacterBase : MonoBehaviour
     {
         if (moduleDictipnary.ContainsKey(wantType))
         {
-        
+
             moduleDictipnary[wantType].OnUnregistration(this);// 넌 해제 된거야
             moduleDictipnary.Remove(wantType);// 그 다음에 제거
-        
-        }    
+
+        }
     }
 
     public void RemoveAllModule()
@@ -98,13 +111,13 @@ public class CharacterBase : MonoBehaviour
         return Controller;
     }
 
-   
 
-    public virtual void OnPossessed(ControllerBase newController){ }
+
+    public virtual void OnPossessed(ControllerBase newController) { }
 
     public void UnPossessed()
     {
-        if(Controller)OnUnPossessed(Controller);
+        if (Controller) OnUnPossessed(Controller);
         _controller = null;
     }
 

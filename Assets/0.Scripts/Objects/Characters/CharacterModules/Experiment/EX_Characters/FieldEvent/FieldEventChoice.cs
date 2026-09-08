@@ -178,7 +178,7 @@ public class FieldEventChoice
 
     /// <summary>
     /// 선택지의 판정 설정과 추가 조건을 모두 만족하는지 확인한다.
-    /// 조건을 만족하지 못해도 선택지는 화면에 표시할 수 있다.
+    /// UI에서도 이 값을 사용하므로 조건 미충족 선택지는 공개되지 않는다.
     /// </summary>
     /// <param name="context">현재 이벤트 실행 정보.</param>
     /// <returns>선택지를 실행할 수 있으면 true.</returns>

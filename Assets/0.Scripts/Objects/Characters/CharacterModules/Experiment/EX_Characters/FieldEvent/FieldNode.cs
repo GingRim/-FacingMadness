@@ -95,6 +95,9 @@ public class FieldNode : MonoBehaviour, IPointerClickHandler
     /// </summary>
     public void ClickNode()
     {
+        if (!IsHiddenAreaDiscovered)
+            return;
+
         OnClicked?.Invoke(this);
     }
 

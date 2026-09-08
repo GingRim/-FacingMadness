@@ -28,15 +28,15 @@ public class CharacterFactory : MonoBehaviour
 
         GameObject characterObject = ObjectManager.CreateObject(characterPrefab, position);
 
-  
 
-        Debug.Log($"생성된 캐릭터 오브젝트: {characterObject.name}");
 
         if (characterObject == null)
         {
             Debug.LogError("캐릭터 오브젝트 생성 실패");
             return null;
         }
+
+        Debug.Log($"생성된 캐릭터 오브젝트: {characterObject.name}");
 
         CharacterBase character = characterObject.GetComponent<CharacterBase>();
 
@@ -46,14 +46,15 @@ public class CharacterFactory : MonoBehaviour
             return null;
         }
 
-        if (character != null)
-        {
-            character.SetIcon(data.Icon);
-        }
+        character.SetDisplayName(data.characterName);
+        character.SetIcon(data.Icon);
 
-        ApplyBuildData(character, data);
+        // 캐릭터 데이터를 적용하기 전에 모든 모듈을 먼저 등록한다.
+        character.AddAllModuleFromObject(character.gameObject);
 
+        // 플레이어 컨트롤러도 같은 캐릭터를 소유하도록 연결한다.
         AttachPlayerController(character);
+        ApplyBuildData(character, data);
 
         return character;
     }
@@ -66,7 +67,7 @@ public class CharacterFactory : MonoBehaviour
         ApplyLevel(character, data);
         ApplyStats(character, data);
         ApplyDeck(character, data);
-        
+
         ApplyCost(character);
         RefreshHP(character);
         RefreshSanity(character);

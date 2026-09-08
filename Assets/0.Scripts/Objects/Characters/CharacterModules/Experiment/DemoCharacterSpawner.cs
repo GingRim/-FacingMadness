@@ -4,17 +4,13 @@ using UnityEngine;
 
 
 /// <summary>
-/// 데모 캐릭터 생성 테스트
-/// 프리셋 캐릭터를 실제 캐릭터로 생성한다.
+/// 캐릭터 생성 화면과 CharacterFactory를 연결하고
+/// 생성된 플레이어 목록을 필드 흐름에 제공합니다.
 /// </summary>
 public class DemoCharacterSpawner : MonoBehaviour
 {
     [SerializeField]
     private CharacterFactory factory;
-
-    [Header("데모 캐릭터")]
-    [SerializeField]
-    private CharacterPresetData[] presets;
 
     [Header("생성 위치")]
     [SerializeField]
@@ -25,84 +21,68 @@ public class DemoCharacterSpawner : MonoBehaviour
     /// <summary>
     /// 현재 생성되어 있는 플레이어 캐릭터 목록이다.
     /// </summary>
-    public IReadOnlyList<CharacterBase> SpawnedCharacters =>
-        spawnedCharacters;
+    public IReadOnlyList<CharacterBase> SpawnedCharacters => spawnedCharacters;
 
     /// <summary>
     /// 모든 데모 캐릭터 생성이 완료되었을 때 발생한다.
     /// </summary>
-    public event Action<IReadOnlyList<CharacterBase>>
-        OnCharactersSpawned;
+    public event Action<IReadOnlyList<CharacterBase>> OnCharactersSpawned;
 
     /// <summary>
-    /// 게임 시작 시 데모 플레이어 캐릭터를 생성한다.
-    /// </summary>
-    private void Start()
-    {
-        SpawnDemoCharacters();
-    }
-
-    /// <summary>
-    /// 등록된 프리셋을 순서대로 생성하고 생성 결과를 보관한다.
-    /// </summary>
-    private void SpawnDemoCharacters()
-    {
-        spawnedCharacters.Clear();
-
-        if (factory == null)
-        {
-            Debug.LogWarning(
-                "DemoCharacterSpawner: CharacterFactory가 없습니다.");
-
-            return;
-        }
-
-        if (presets == null || presets.Length == 0)
-        {
-            Debug.LogWarning(
-                "DemoCharacterSpawner: 생성할 프리셋이 없습니다.");
-
-            return;
-        }
-
-        for (int i = 0; i < presets.Length; i++)
-        {
-            CharacterPresetData preset = presets[i];
-
-            if (preset == null)
-                continue;
-
-            Vector3 spawnPosition = GetSpawnPosition(i);
-
-            CharacterBase character =
-                factory.CreatePlayerCharacter(
-                    preset.ToBuildData(),
-                    spawnPosition);
-
-            if (character == null)
-                continue;
-
-            spawnedCharacters.Add(character);
-        }
-
-        OnCharactersSpawned?.Invoke(spawnedCharacters);
-
-        Debug.Log(
-            $"데모 플레이어 생성 완료: {spawnedCharacters.Count}명");
-    }
-
-    /// <summary>
-    /// 게임 시작 시 생성이 아직 완료되지 않았다면 다시 생성합니다.
-    /// GameManager의 ObjectManager 초기화가 끝난 뒤 튜토리얼 진입 시 사용합니다.
+    /// 캐릭터 생성 화면을 통해 실제 플레이어가 준비되었는지 확인합니다.
+    /// 더 이상 EX 프리셋을 자동 생성하지 않습니다.
     /// </summary>
     public bool EnsureCharactersSpawned()
     {
-        if (spawnedCharacters.Count > 0)
-            return true;
-
-        SpawnDemoCharacters();
-
         return spawnedCharacters.Count > 0;
+    }
+
+    /// <summary>
+    /// 캐릭터 생성 화면에서 확정한 데이터를 변경하지 않고
+    /// CharacterFactory에 전달하여 플레이어 한 명을 생성합니다.
+    /// </summary>
+    public CharacterBase SpawnPlayerCharacter(CharacterBuildData selectedData)
+    {
+        if (selectedData == null || factory == null)
+        {
+            Debug.LogWarning(
+                "DemoCharacterSpawner: 생성 데이터 또는 CharacterFactory가 없습니다.");
+            return null;
+        }
+
+        RemoveMissingCharacters();
+
+        if (spawnedCharacters.Count > 0)
+        {
+            Debug.LogWarning(
+                "이미 생성된 플레이어가 있어 중복 생성하지 않습니다.");
+            return spawnedCharacters[0];
+        }
+
+        CharacterBase character =
+            factory.CreatePlayerCharacter(
+                selectedData,
+                GetSpawnPosition(0));
+
+        if (character == null)
+            return null;
+
+        spawnedCharacters.Add(character);
+        OnCharactersSpawned?.Invoke(spawnedCharacters);
+
+        Debug.Log(
+            $"생성 화면 플레이어 생성 완료: {character.DisplayName}");
+
+        return character;
+    }
+
+    private void RemoveMissingCharacters()
+    {
+        for (int i = spawnedCharacters.Count - 1; i >= 0; i--)
+        {
+            if (spawnedCharacters[i] == null)
+                spawnedCharacters.RemoveAt(i);
+        }
     }
 
     /// <summary>

@@ -2,6 +2,10 @@ using UnityEngine;
 
 public class DummyF : MonoBehaviour
 {
+    [Header("더미 자동 생성")]
+    [SerializeField]
+    private bool spawnOnStart;
+
     [SerializeField] private DummyS Dummy;
 
     [Header("데모 캐릭터")]
@@ -12,7 +16,10 @@ public class DummyF : MonoBehaviour
 
     private void Start()
     {
-        SpawnDemoDummy();
+        if (spawnOnStart)
+        {
+            SpawnDemoDummy();
+        }
     }
 
 

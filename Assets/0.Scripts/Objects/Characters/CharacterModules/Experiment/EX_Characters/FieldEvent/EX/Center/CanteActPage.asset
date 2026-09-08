@@ -35,6 +35,7 @@ MonoBehaviour:
       effects:
       - {fileID: 11400000, guid: ca6bfc39865a23b4981c14d81529f49a, type: 2}
       resultImage: {fileID: 0}
+      redLineResult: 0
     failureResult:
       description: "\uACE0\uAE30\uC640 \uB0B4\uC7A5 \uD2B9\uC720\uC758 \uC7A1\uB0C4\uC0C8
         \uAC15\uD569\uB2C8\uB2E4.<br><br>\uADF8\uB807\uAE30\uB54C\uBB38\uC77C\uAE4C\uC694?
@@ -43,6 +44,7 @@ MonoBehaviour:
         1D4\uAC10\uC18C"
       effects: []
       resultImage: {fileID: 0}
+      redLineResult: 0
     legacyCardRequirement:
       requiresCard: 0
       allowedColors: 
@@ -63,20 +65,22 @@ MonoBehaviour:
       effects:
       - {fileID: 11400000, guid: ca6bfc39865a23b4981c14d81529f49a, type: 2}
       resultImage: {fileID: 0}
+      redLineResult: 0
     failureResult:
       description: 
       effects: []
       resultImage: {fileID: 0}
+      redLineResult: 0
     legacyCardRequirement:
       requiresCard: 0
       allowedColors: 
       checkStat: 0
-  - choiceId: Center_ActPage_1
+  - choiceId: Center_ActPage_2
     choiceText: "\uACE0\uB515\uD55C \uD770\uC0C9\uC758 \uBB38\uC744 \uAD00\uCC30\uD55C\uB2E4."
-    choiceType: 1
-    actionType: 1
-    usageType: 1
-    nextPage: {fileID: 0}
+    choiceType: 2
+    actionType: 0
+    usageType: 0
+    nextPage: {fileID: 11400000, guid: 14c626e07fc70154c8f5e87fe0e8ae44, type: 2}
     executionType: 0
     requiredStat: 0
     target: 5
@@ -87,10 +91,12 @@ MonoBehaviour:
       effects:
       - {fileID: 11400000, guid: ca6bfc39865a23b4981c14d81529f49a, type: 2}
       resultImage: {fileID: 0}
+      redLineResult: 0
     failureResult:
       description: 
       effects: []
       resultImage: {fileID: 0}
+      redLineResult: 0
     legacyCardRequirement:
       requiresCard: 0
       allowedColors: 

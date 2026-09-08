@@ -664,6 +664,7 @@ RectTransform:
   - {fileID: 5199432233234196226}
   - {fileID: 7715573807389164583}
   - {fileID: 7111500196691672147}
+  - {fileID: 1627383789856311599}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -716,7 +717,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 0
+  m_PresetInfoIsWorld: 1
 --- !u!114 &5959577924932528840
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5305,7 +5306,8 @@ MonoBehaviour:
   - {fileID: 90413104316482086}
   - {fileID: 956969145146642327}
   backButton: {fileID: 0}
-  continueButton: {fileID: 7116770204940048799}
+  resultStoryUI: {fileID: 0}
+  resultDisplayDelay: 0.5
 --- !u!1 &9042600545613519863
 GameObject:
   m_ObjectHideFlags: 0
@@ -5503,7 +5505,7 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 659261307938059057}
+    m_TransformParent: {fileID: 6213257723245795692}
     m_Modifications:
     - target: {fileID: 677590523079993038, guid: 62bbef7ef943c0e4f80a622b63b6943f, type: 3}
       propertyPath: m_Pivot.x
@@ -5555,15 +5557,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 677590523079993038, guid: 62bbef7ef943c0e4f80a622b63b6943f, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 677590523079993038, guid: 62bbef7ef943c0e4f80a622b63b6943f, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 677590523079993038, guid: 62bbef7ef943c0e4f80a622b63b6943f, type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 677590523079993038, guid: 62bbef7ef943c0e4f80a622b63b6943f, type: 3}
       propertyPath: m_AnchoredPosition.x
@@ -5729,10 +5731,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects:
-    - targetCorrespondingSourceObject: {fileID: 6844127794219278420, guid: 0014e4cb914c0aa45858b2cac738933c, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1627383789856311599}
+    m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0014e4cb914c0aa45858b2cac738933c, type: 3}
 --- !u!224 &659261307938059057 stripped

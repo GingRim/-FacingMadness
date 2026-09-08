@@ -22,7 +22,13 @@ public class FieldChoiceResultData
     [SerializeField]
     private Sprite resultImage;
 
+    [Header("적색 라인 결과")]
+    [Tooltip("일반 노드 이벤트는 None을 사용합니다. 적색 라인 이벤트에서만 Open 또는 Locked를 선택합니다.")]
+    [SerializeField]
+    private FieldRedLineResult redLineResult;
+
     public Sprite ResultImage => resultImage;
+    public FieldRedLineResult RedLineResult => redLineResult;
 
     /// <summary>
     /// 결과가 발생했을 때 플레이어에게 표시할 설명.
@@ -35,15 +41,24 @@ public class FieldChoiceResultData
     /// <param name="context">현재 이벤트의 실행 정보.</param>
     public void Execute(FieldEventContext context)
     {
-        if (context == null || effects == null)
+        if (context == null)
             return;
 
-        foreach (FieldEventEffect effect in effects)
+        if (effects != null)
         {
-            if (effect == null)
-                continue;
+            foreach (FieldEventEffect effect in effects)
+            {
+                if (effect == null)
+                    continue;
 
-            effect.Execute(context);
+                effect.Execute(context);
+            }
+        }
+
+        if (redLineResult != FieldRedLineResult.None &&
+            context.FieldManager != null)
+        {
+            context.FieldManager.SetPendingRedLineResult(redLineResult);
         }
     }
 }
