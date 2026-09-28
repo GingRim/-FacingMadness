@@ -1,8 +1,23 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class FieldLine : MonoBehaviour
 {
+    [Serializable]
+    public class RedLineAccessEventEntry
+    {
+        [SerializeField]
+        private FieldEventData eventData;
+
+        [SerializeField]
+        private int priority;
+
+        public FieldEventData EventData => eventData;
+        public int Priority => priority;
+    }
+
     [Header("연결 노드")]
     [SerializeField] private FieldNode nodeA;
     [SerializeField] private FieldNode nodeB;
@@ -11,13 +26,30 @@ public class FieldLine : MonoBehaviour
     [SerializeField]
     private FieldLineType lineType = FieldLineType.Normal;
 
-    [Header("적색 라인 고정 이벤트")]
-    [Tooltip("이 라인이 Red일 때 이동을 시도하면 바로 실행할 이벤트입니다.")]
+    [Header("적색 라인 이벤트")]
+    [Tooltip("이 Red 라인의 이동을 시도할 때 검사할 이벤트입니다. 조건 충족 항목 중 Priority가 가장 높은 이벤트를 사용합니다.")]
     [SerializeField]
-    private FieldEventData redLineEvent;
+    private RedLineAccessEventEntry[] redLineAccessEvents;
+
+    [Header("적색 라인 체력")]
+    [Tooltip("Red 상태일 때 사용하는 최대 체력입니다.")]
+    [SerializeField, Min(1)]
+    private int maximumHitpoint = 1;
+
+    private int currentHitpoint;
 
     [Header("표시 오브젝트")]
     [SerializeField] private GameObject visualObject;
+
+    [Header("라인 상태별 이미지")]
+    [Tooltip("상태별 스프라이트를 표시할 UI Image입니다. 비워 두면 표시 오브젝트 또는 이 오브젝트에서 찾습니다.")]
+    [SerializeField] private Image lineImage;
+
+    [SerializeField] private Sprite normalSprite;
+    [SerializeField] private Sprite redSprite;
+
+    [Tooltip("Hidden 상태의 스프라이트입니다. Hidden 상태에서는 이미지를 숨깁니다.")]
+    [SerializeField] private Sprite hiddenSprite;
 
     [Header("라인 식별")]
     [SerializeField]
@@ -35,14 +67,20 @@ public class FieldLine : MonoBehaviour
     public bool IsBlocked => lineType == FieldLineType.Red;
     public bool CanPass => lineType == FieldLineType.Normal;
     public string LineId => lineId;
-    public FieldEventData RedLineEvent => redLineEvent;
+    public int MaximumHitpoint => Mathf.Max(1, maximumHitpoint);
+    public int CurrentHitpoint => currentHitpoint;
+    public IReadOnlyList<RedLineAccessEventEntry> RedLineAccessEvents =>
+        redLineAccessEvents;
 
     public event Action<FieldLine> OnLineStateChanged;
+    public event Action<FieldLine, int, int> OnLineHitpointChanged;
 
 
     private void Awake()
     {
         initialLineType = lineType;
+
+        ResetHitpointForCurrentType();
 
         RegisterToNodes();
         RefreshVisual();
@@ -129,7 +167,21 @@ public class FieldLine : MonoBehaviour
         if (lineType == newType)
             return;
 
+        FieldLineType previousType = lineType;
+
         lineType = newType;
+
+        if (newType == FieldLineType.Red &&
+            previousType != FieldLineType.Red)
+        {
+            currentHitpoint = MaximumHitpoint;
+            NotifyHitpointChanged();
+        }
+        else if (newType != FieldLineType.Red)
+        {
+            currentHitpoint = 0;
+            NotifyHitpointChanged();
+        }
 
         RefreshVisual();
         OnLineStateChanged?.Invoke(this);
@@ -155,6 +207,32 @@ public class FieldLine : MonoBehaviour
     }
 
     /// <summary>
+    /// Red 상태의 라인에 피해를 적용합니다.
+    /// 체력이 0이 되면 즉시 Normal 라인으로 변경합니다.
+    /// </summary>
+    /// <returns>실제로 감소한 체력</returns>
+    public int TakeDamage(int amount)
+    {
+        if (lineType != FieldLineType.Red || amount <= 0)
+            return 0;
+
+        int previousHitpoint = currentHitpoint;
+
+        currentHitpoint = Mathf.Max(0, currentHitpoint - amount);
+
+        int appliedDamage = previousHitpoint - currentHitpoint;
+
+        NotifyHitpointChanged();
+
+        if (currentHitpoint <= 0)
+        {
+            ChangeType(FieldLineType.Normal);
+        }
+
+        return appliedDamage;
+    }
+
+    /// <summary>
     /// 청색 카드 등으로 비밀 경로 발견
     /// </summary>
     public void Discover()
@@ -166,19 +244,19 @@ public class FieldLine : MonoBehaviour
     }
 
     /// <summary>
-    /// 정보로 숨겨진 경로를 공개하면서 지정된 상태로 변경합니다.
-    /// 이미 공개된 경로의 현재 상태는 덮어쓰지 않습니다.
+    /// 정보로 경로를 공개하거나 새로운 경로 상태를 반영합니다.
+    /// 현재 상태와 관계없이 Red 또는 Normal 상태를 적용할 수 있습니다.
     /// </summary>
     public bool RevealAs(FieldLineType revealedType)
     {
-        if (lineType != FieldLineType.Hidden)
-            return false;
-
         if (revealedType == FieldLineType.Hidden)
         {
             Debug.LogWarning($"{name}: 공개 상태로 Hidden을 사용할 수 없습니다.");
             return false;
         }
+
+        if (lineType == revealedType)
+            return true;
 
         ChangeType(revealedType);
         return true;
@@ -191,25 +269,107 @@ public class FieldLine : MonoBehaviour
 
     private void RefreshVisual()
     {
-        if (visualObject == null)
-            return;
+        Image image = ResolveVisualImage();
 
-        // 비밀 라인은 발견 전까지 보이지 않음
-        visualObject.SetActive(lineType != FieldLineType.Hidden);
+        if (image != null)
+        {
+            Sprite stateSprite = GetStateSprite();
+
+            if (stateSprite != null)
+                image.sprite = stateSprite;
+        }
+
+        bool visible = lineType != FieldLineType.Hidden;
+
+        // FieldLine 루트 자체를 비활성화하면 이후 상태 변경을 받을 수 없으므로
+        // 별도의 표시 오브젝트일 때만 GameObject 활성 상태를 변경합니다.
+        if (visualObject != null && visualObject != gameObject)
+        {
+            visualObject.SetActive(visible);
+        }
+
+        if (image != null)
+        {
+            image.enabled = visible;
+        }
+    }
+
+    private Image ResolveVisualImage()
+    {
+        if (lineImage != null)
+            return lineImage;
+
+        if (visualObject != null)
+        {
+            lineImage = visualObject.GetComponent<Image>();
+
+            if (lineImage == null)
+                lineImage = visualObject.GetComponentInChildren<Image>(true);
+        }
+
+        if (lineImage == null)
+        {
+            lineImage = GetComponent<Image>();
+
+            if (lineImage == null)
+                lineImage = GetComponentInChildren<Image>(true);
+        }
+
+        return lineImage;
+    }
+
+    private Sprite GetStateSprite()
+    {
+        switch (lineType)
+        {
+            case FieldLineType.Normal:
+                return normalSprite;
+
+            case FieldLineType.Red:
+                return redSprite;
+
+            case FieldLineType.Hidden:
+                return hiddenSprite;
+
+            default:
+                return null;
+        }
     }
 
     public void ResetRuntimeState()
     {
         lineType = initialLineType;
 
+        ResetHitpointForCurrentType();
+
         RefreshVisual();
         OnLineStateChanged?.Invoke(this);
+    }
+
+    private void ResetHitpointForCurrentType()
+    {
+        currentHitpoint =
+            lineType == FieldLineType.Red
+                ? MaximumHitpoint
+                : 0;
+
+        NotifyHitpointChanged();
+    }
+
+    private void NotifyHitpointChanged()
+    {
+        OnLineHitpointChanged?.Invoke(
+            this,
+            currentHitpoint,
+            MaximumHitpoint);
     }
 
 
 #if UNITY_EDITOR
     private void OnValidate()
     {
+        maximumHitpoint = Mathf.Max(1, maximumHitpoint);
+
         if (nodeA == nodeB)
         {
             nodeB = null;

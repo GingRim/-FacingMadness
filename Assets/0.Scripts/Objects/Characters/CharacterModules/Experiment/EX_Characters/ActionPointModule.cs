@@ -7,6 +7,7 @@ public class ActionPointModule : CharacterModule
 
     private int temporaryBonusCurrent;
     private int temporaryBonusMax;
+    private bool isConfigured;
 
     public sealed override Type RegistrationType => typeof(ActionPointModule);
 
@@ -26,8 +27,31 @@ public class ActionPointModule : CharacterModule
 
         actionPoint.SetMax(maxActionPoint);
         actionPoint.SetCurrent(maxActionPoint);
+        isConfigured = true;
 
         NotifyChanged();
+    }
+
+    public void PrepareTurn(int baseValue, int level)
+    {
+        baseValue = Mathf.Max(0, baseValue);
+        level = Mathf.Max(1, level);
+
+        temporaryBonusCurrent = 0;
+        temporaryBonusMax = 0;
+
+        int maximum = Mathf.Max(1, baseValue + GetLevelDiceMaximum(level));
+
+        if (!isConfigured || actionPoint.Max != maximum)
+        {
+            actionPoint.SetMax(maximum);
+            actionPoint.SetCurrent(maximum);
+            isConfigured = true;
+            NotifyChanged();
+            return;
+        }
+
+        Restore(baseValue + RollLevelActionPoint(level));
     }
 
     public bool CanUse(int amount = 1)
@@ -103,6 +127,17 @@ public class ActionPointModule : CharacterModule
         }
 
         return Dice.RollD4();
+    }
+
+    private int GetLevelDiceMaximum(int level)
+    {
+        if (level >= 10)
+            return 8;
+
+        if (level >= 5)
+            return 6;
+
+        return 4;
     }
 
     public void AddTemporaryActionPoint(int amount)

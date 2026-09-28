@@ -21,12 +21,14 @@ public class DemoCharacterSpawner : MonoBehaviour
     /// <summary>
     /// 현재 생성되어 있는 플레이어 캐릭터 목록이다.
     /// </summary>
-    public IReadOnlyList<CharacterBase> SpawnedCharacters => spawnedCharacters;
+    public IReadOnlyList<CharacterBase> SpawnedCharacters =>
+        spawnedCharacters;
 
     /// <summary>
     /// 모든 데모 캐릭터 생성이 완료되었을 때 발생한다.
     /// </summary>
-    public event Action<IReadOnlyList<CharacterBase>> OnCharactersSpawned;
+    public event Action<IReadOnlyList<CharacterBase>>
+        OnCharactersSpawned;
 
     /// <summary>
     /// 캐릭터 생성 화면을 통해 실제 플레이어가 준비되었는지 확인합니다.
@@ -43,10 +45,19 @@ public class DemoCharacterSpawner : MonoBehaviour
     /// </summary>
     public CharacterBase SpawnPlayerCharacter(CharacterBuildData selectedData)
     {
-        if (selectedData == null || factory == null)
+        if (selectedData == null)
         {
             Debug.LogWarning(
-                "DemoCharacterSpawner: 생성 데이터 또는 CharacterFactory가 없습니다.");
+                "DemoCharacterSpawner: 생성 데이터가 없습니다.");
+            return null;
+        }
+
+        ResolveFactory();
+
+        if (factory == null)
+        {
+            Debug.LogWarning(
+                "DemoCharacterSpawner: CharacterFactory를 찾지 못했습니다.");
             return null;
         }
 
@@ -59,13 +70,26 @@ public class DemoCharacterSpawner : MonoBehaviour
             return spawnedCharacters[0];
         }
 
+        Transform spawnPoint = GetSpawnPoint(0);
+
         CharacterBase character =
             factory.CreatePlayerCharacter(
                 selectedData,
-                GetSpawnPosition(0));
+                spawnPoint != null
+                    ? spawnPoint.position
+                    : Vector3.zero);
 
         if (character == null)
             return null;
+
+        // 생성 과정의 다른 초기화가 Transform을 변경하더라도
+        // 최종 생성 위치는 인스펙터에서 지정한 스폰 지점으로 확정합니다.
+        if (spawnPoint != null)
+        {
+            character.transform.SetPositionAndRotation(
+                spawnPoint.position,
+                spawnPoint.rotation);
+        }
 
         spawnedCharacters.Add(character);
         OnCharactersSpawned?.Invoke(spawnedCharacters);
@@ -74,6 +98,24 @@ public class DemoCharacterSpawner : MonoBehaviour
             $"생성 화면 플레이어 생성 완료: {character.DisplayName}");
 
         return character;
+    }
+
+    /// <summary>
+    /// 인스펙터 연결이 비어 있으면 같은 오브젝트와 현재 장면에서
+    /// CharacterFactory를 찾아 연결합니다.
+    /// </summary>
+    private void ResolveFactory()
+    {
+        if (factory != null)
+            return;
+
+        factory = GetComponent<CharacterFactory>();
+
+        if (factory != null)
+            return;
+
+        factory = FindFirstObjectByType<CharacterFactory>(
+            FindObjectsInactive.Include);
     }
 
     private void RemoveMissingCharacters()
@@ -85,22 +127,31 @@ public class DemoCharacterSpawner : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 캐릭터 순서에 대응하는 생성 위치를 반환한다.
-    /// 지정된 위치가 없으면 원점 위치를 반환한다.
-    /// </summary>
-    /// <param name="index">생성할 캐릭터의 순서</param>
-    /// <returns>캐릭터를 생성할 월드 위치</returns>
-    private Vector3 GetSpawnPosition(int index)
+    private Transform GetSpawnPoint(int index)
     {
         if (spawnPoints == null ||
             index < 0 ||
-            index >= spawnPoints.Length ||
-            spawnPoints[index] == null)
+            index >= spawnPoints.Length)
         {
-            return Vector3.zero;
+            return null;
         }
 
-        return spawnPoints[index].position;
+        return spawnPoints[index];
+    }
+
+    /// <summary>
+    /// 세션 종료 뒤 생성 캐릭터를 제거해 새 게임에서 다시 생성할 수 있게 합니다.
+    /// </summary>
+    public void ResetSpawnedCharacters()
+    {
+        for (int i = spawnedCharacters.Count - 1; i >= 0; i--)
+        {
+            CharacterBase character = spawnedCharacters[i];
+
+            if (character != null)
+                Destroy(character.gameObject);
+        }
+
+        spawnedCharacters.Clear();
     }
 }

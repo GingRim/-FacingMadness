@@ -16,15 +16,27 @@ public class UI_Card : PooledObject
     [SerializeField]
     private Image frameImage;
 
+    [Tooltip("카드 우측 상단의 작은 아이콘 이미지입니다.")]
+    [SerializeField]
+    private Image iconImage;
+
     [Header("카드 텍스트")]
     [SerializeField]
     private TMP_Text nameText;
+
+    [Tooltip("카드 효과 설명을 표시합니다.")]
+    [SerializeField]
+    private TMP_Text descriptionText;
 
     [SerializeField]
     private TMP_Text keywordText;
 
     [SerializeField]
     private TMP_Text durabilityText;
+
+    [Tooltip("능력치 카드의 현재 등급을 표시합니다.")]
+    [SerializeField]
+    private TMP_Text gradeText;
 
     private CardInstance cardInstance;
 
@@ -104,9 +116,12 @@ public class UI_Card : PooledObject
 
         RefreshName();
         RefreshIllustration();
+        RefreshIcon();
         RefreshFrame();
         RefreshKeywords();
+        RefreshDescription();
         RefreshDurability();
+        RefreshGrade();
     }
 
     private void RefreshName()
@@ -127,6 +142,25 @@ public class UI_Card : PooledObject
         illustrationImage.sprite = illustration;
 
         illustrationImage.enabled = illustration != null;
+    }
+
+    private void RefreshIcon()
+    {
+        if (iconImage == null)
+            return;
+
+        Sprite icon = cardInstance.Data.Icon;
+
+        iconImage.sprite = icon;
+        iconImage.enabled = icon != null;
+    }
+
+    private void RefreshDescription()
+    {
+        if (descriptionText == null)
+            return;
+
+        descriptionText.SetText(cardInstance.Data.description ?? string.Empty);
     }
 
     private void RefreshFrame()
@@ -171,6 +205,19 @@ public class UI_Card : PooledObject
             $"{cardInstance.MaximumDurability}");
     }
 
+    private void RefreshGrade()
+    {
+        if (gradeText == null)
+            return;
+
+        bool shouldShow = cardInstance != null &&
+                          cardInstance.Data != null &&
+                          cardInstance.Data.IsAbilityCard;
+
+        gradeText.gameObject.SetActive(shouldShow);
+        gradeText.SetText(shouldShow ? cardInstance.CurrentGrade.ToString() : string.Empty);
+    }
+
     private Color GetFrameColor(CardColorType color)
     {
         switch (color)
@@ -209,6 +256,7 @@ public class UI_Card : PooledObject
         cardInstance.OnKeywordChanged += HandleKeywordChanged;
 
         cardInstance.OnDurabilityChanged += HandleDurabilityChanged;
+        cardInstance.OnGradeChanged += HandleGradeChanged;
     }
 
     private void UnsubscribeCardEvents()
@@ -219,6 +267,7 @@ public class UI_Card : PooledObject
         cardInstance.OnKeywordChanged -= HandleKeywordChanged;
 
         cardInstance.OnDurabilityChanged -= HandleDurabilityChanged;
+        cardInstance.OnGradeChanged -= HandleGradeChanged;
     }
 
     private void HandleKeywordChanged(CardInstance changedCard)
@@ -236,6 +285,14 @@ public class UI_Card : PooledObject
             return;
 
         RefreshDurability();
+    }
+
+    private void HandleGradeChanged(CardInstance changedCard, int grade)
+    {
+        if (changedCard != cardInstance)
+            return;
+
+        RefreshGrade();
     }
 
     /// <summary>
@@ -262,10 +319,27 @@ public class UI_Card : PooledObject
             durabilityText.gameObject.SetActive(false);
         }
 
+        if (gradeText != null)
+        {
+            gradeText.SetText(string.Empty);
+            gradeText.gameObject.SetActive(false);
+        }
+
+        if (descriptionText != null)
+        {
+            descriptionText.SetText(string.Empty);
+        }
+
         if (illustrationImage != null)
         {
             illustrationImage.sprite = null;
             illustrationImage.enabled = false;
+        }
+
+        if (iconImage != null)
+        {
+            iconImage.sprite = null;
+            iconImage.enabled = false;
         }
 
         if (frameImage != null)

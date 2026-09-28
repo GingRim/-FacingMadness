@@ -5,7 +5,6 @@ using UnityEngine.EventSystems;
 
 public class FieldNode : MonoBehaviour, IPointerClickHandler
 {
-
     [Header("시작 지점")]
     [SerializeField]
     private bool canBeStartingNode;
@@ -24,7 +23,7 @@ public class FieldNode : MonoBehaviour, IPointerClickHandler
 
     [Header("최초 진입 이벤트")]
     [SerializeField]
-    private FieldEventData firstVisitEvent;
+    private FieldEventData[] firstVisitEvents;
 
     [Header("재진입 이벤트")]
     [SerializeField]
@@ -58,8 +57,8 @@ public class FieldNode : MonoBehaviour, IPointerClickHandler
 
     public Transform MarkerRoot => markerRoot != null ? markerRoot : transform;
 
-    public FieldEventData FirstVisitEvent => firstVisitEvent;
-
+    public IReadOnlyList<FieldEventData> FirstVisitEvents => firstVisitEvents;
+    public IReadOnlyList<FieldEventData> RepeatEvents => repeatEvents;
     private readonly List<CharacterBase> characters = new();
 
     public event Action<FieldNode> OnHiddenAreaDiscovered;

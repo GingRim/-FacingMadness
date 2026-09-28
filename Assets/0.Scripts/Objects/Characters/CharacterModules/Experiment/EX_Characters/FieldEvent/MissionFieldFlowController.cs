@@ -34,6 +34,8 @@ public class MissionFieldFlowController : MonoBehaviour
     /// </summary>
     private void OnEnable()
     {
+        ResolveRuntimeFieldManager();
+
         if (progressController != null)
         {
             progressController.OnMissionConfirmed -=
@@ -81,6 +83,8 @@ public class MissionFieldFlowController : MonoBehaviour
     {
         if (mission == null)
             return;
+
+        ResolveRuntimeFieldManager();
 
         if (fieldManager == null)
         {
@@ -147,32 +151,82 @@ public class MissionFieldFlowController : MonoBehaviour
     {
         pendingPlayers.Clear();
 
-        if (characterSpawner == null)
-        {
-            Debug.LogWarning(
-                "MissionFieldFlowController: DemoCharacterSpawner가 없습니다.");
+        IReadOnlyList<CharacterBase> spawnedCharacters =
+            characterSpawner != null
+                ? characterSpawner.SpawnedCharacters
+                : null;
 
-            return false;
+        if (spawnedCharacters != null)
+        {
+            foreach (CharacterBase character in spawnedCharacters)
+            {
+                AddPlayerIfValid(character);
+            }
         }
 
-        IReadOnlyList<CharacterBase> spawnedCharacters =
-            characterSpawner.SpawnedCharacters;
+        if (pendingPlayers.Count > 0)
+            return true;
 
-        if (spawnedCharacters == null)
-            return false;
+        CharacterBase[] sceneCharacters =
+            FindObjectsByType<CharacterBase>(
+                FindObjectsInactive.Include,
+                FindObjectsSortMode.None);
 
-        foreach (CharacterBase character in spawnedCharacters)
+        foreach (CharacterBase character in sceneCharacters)
         {
-            if (character == null)
+            if (character == null ||
+                !(character.Controller is PlauerController))
+            {
                 continue;
+            }
 
-            if (pendingPlayers.Contains(character))
-                continue;
-
-            pendingPlayers.Add(character);
+            AddPlayerIfValid(character);
         }
 
         return pendingPlayers.Count > 0;
+    }
+
+    private void AddPlayerIfValid(CharacterBase character)
+    {
+        if (character == null || pendingPlayers.Contains(character))
+            return;
+
+        pendingPlayers.Add(character);
+    }
+
+    /// <summary>
+    /// GameManager가 런타임에 만든 FieldManager를 사용합니다.
+    /// 인스펙터 참조는 독립 실행을 위한 예비 연결로만 유지합니다.
+    /// </summary>
+    private void ResolveRuntimeFieldManager()
+    {
+        FieldManager runtimeFieldManager =
+            GameManager.Instance != null
+                ? GameManager.Instance.Field
+                : null;
+
+        if (runtimeFieldManager == null ||
+            runtimeFieldManager == fieldManager)
+        {
+            return;
+        }
+
+        if (fieldManager != null)
+        {
+            fieldManager.OnStartingNodeConfirmed -=
+                HandleStartingNodeConfirmed;
+        }
+
+        fieldManager = runtimeFieldManager;
+
+        if (isActiveAndEnabled)
+        {
+            fieldManager.OnStartingNodeConfirmed -=
+                HandleStartingNodeConfirmed;
+
+            fieldManager.OnStartingNodeConfirmed +=
+                HandleStartingNodeConfirmed;
+        }
     }
 
     /// <summary>

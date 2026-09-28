@@ -19,12 +19,14 @@ public class UI_ButtonSwap : MonoBehaviour
     [SerializeField] TextMeshProUGUI EText;
 
     [SerializeField] Image image;
+    [SerializeField] Image Cimage;
     [SerializeField] Image hunterImage;
     [SerializeField] Image privateDetectiveImage;
     [SerializeField] Image athleteImage;
     [SerializeField] Image researcherImage;
     [SerializeField] Image religiousFanaticImage;
 
+    [SerializeField] Sprite CSprite;
     [SerializeField] Sprite hunterdefaultSprite;
     [SerializeField] Sprite privateDetectivedefaultSprite;
     [SerializeField] Sprite athletedefaultSprite;
@@ -87,6 +89,7 @@ public class UI_ButtonSwap : MonoBehaviour
         SetImage(athleteImage, athletedefaultSprite);
         SetImage(researcherImage, researcherdefaultSprite);
         SetImage(religiousFanaticImage, religiousFanaticdefaultSprite);
+        SetImage(Cimage, CSprite);
     }
     public void SetImage(Image targetImage, Sprite wantSprite)
     {

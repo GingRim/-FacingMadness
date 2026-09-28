@@ -15,9 +15,88 @@ MonoBehaviour:
   eventId: DefaultEvent_0
   eventName: "\uC9C4\uC785"
   eventType: 2
-  rootPage: {fileID: 11400000, guid: 8c98fb5575aedc14f8eb4ed64e266944, type: 2}
-  description: "\uC0C8\uB85C\uC6B4 \uACF5\uAC04\uC5D0 \uC9C4\uC785\uD558\uACE0\uC790
-    \uD55C\uB2E4."
-  repeatable: 0
+  description: "\uCC98\uC74C\uBCF4\uB294 \uACF5\uAC04\uC5D0 \uC9C4\uC785\uB2C8\uB2E4."
+  eventImage: {fileID: -5192146429223839966, guid: 03af6b09aaac336479d4101e67236e4a, type: 3}
+  displayType: 0
+  maximumVisibleChoices: 5
+  choices:
+  - choiceId: DefaultMainPage_0
+    choiceText: "\uD6D1\uC5B4\uBCF4\uAE30"
+    choiceType: 2
+    actionType: 1
+    usageType: 0
+    nextPage: {fileID: 0}
+    executionType: 0
+    requiredStat: 0
+    target: 0
+    conditions: []
+    allowsIgnition: 0
+    successResult:
+      description: 
+      effects: []
+      resultImage: {fileID: -7186055740845857485, guid: 874c4ca1e5324ad46ab813d982b4597c, type: 3}
+      redLineResult: 0
+    failureResult:
+      description: 
+      effects: []
+      resultImage: {fileID: 0}
+      redLineResult: 0
+    legacyCardRequirement:
+      requiresCard: 0
+      allowedColors: 
+      checkStat: 0
+  - choiceId: DefaultMainPage_1
+    choiceText: "\uD2B9\uC774\uC810\uC744 \uCC3E\uC544 \uBCF8\uB2E4."
+    choiceType: 2
+    actionType: 1
+    usageType: 0
+    nextPage: {fileID: 11400000, guid: bfed4d7b18279c94bb0263f58e105380, type: 2}
+    executionType: 0
+    requiredStat: 0
+    target: 0
+    conditions: []
+    allowsIgnition: 0
+    successResult:
+      description: 
+      effects: []
+      resultImage: {fileID: -7186055740845857485, guid: 874c4ca1e5324ad46ab813d982b4597c, type: 3}
+      redLineResult: 0
+    failureResult:
+      description: 
+      effects: []
+      resultImage: {fileID: 0}
+      redLineResult: 0
+    legacyCardRequirement:
+      requiresCard: 0
+      allowedColors: 
+      checkStat: 0
+  - choiceId: DefaultMainPage_2
+    choiceText: "\uC704\uD5D8\uC744 \uAC10\uC9C0\uD55C\uB2E4."
+    choiceType: 2
+    actionType: 1
+    usageType: 0
+    nextPage: {fileID: 0}
+    executionType: 0
+    requiredStat: 0
+    target: 0
+    conditions: []
+    allowsIgnition: 0
+    successResult:
+      description: 
+      effects: []
+      resultImage: {fileID: -7186055740845857485, guid: 874c4ca1e5324ad46ab813d982b4597c, type: 3}
+      redLineResult: 0
+    failureResult:
+      description: 
+      effects: []
+      resultImage: {fileID: 0}
+      redLineResult: 0
+    legacyCardRequirement:
+      requiresCard: 0
+      allowedColors: 
+      checkStat: 0
+  showOwnedMemos: 0
+  usageType: 0
+  openingConditions: []
   startingNodeId: 
-  eventImage: {fileID: 0}
+  legacyEntryData: {fileID: 11400000, guid: 8c98fb5575aedc14f8eb4ed64e266944, type: 2}

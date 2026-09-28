@@ -19,6 +19,7 @@ public class BattleManager : ManagerBase
     private bool waitingReaction;
     private bool endTurnAfterReaction;
     private bool isBattleActive;
+    private Action pendingAttackResolved;
 
     private UI_ReactionSelect reactionSelectUI;
 
@@ -61,9 +62,6 @@ public class BattleManager : ManagerBase
 
     private void OnRoundStart(CharacterBase character)
     {
-        if (!IsPlayer(character))
-            return;
-
         ResetCost(character);
     }
 
@@ -315,9 +313,9 @@ public class BattleManager : ManagerBase
         if (character == null)
             return false;
 
-        ControllerBase controller = character.GetComponent<ControllerBase>();
-
-        return controller != null;
+        // 컨트롤러가 캐릭터와 다른 오브젝트에 있어도
+        // 실제 Possess 결과를 기준으로 플레이어를 판별한다.
+        return character.Controller is PlauerController;
     }
 
     private bool IsMonster(CharacterBase character)
@@ -363,15 +361,17 @@ public class BattleManager : ManagerBase
 
     private void ResetCost(CharacterBase character)
     {
-        CostModule cost = character.GetModule<CostModule>();
+        ActionPointModule actionPoint = character.GetModule<ActionPointModule>();
+        DerivedStatModule derived = character.GetModule<DerivedStatModule>();
+        LVModules level = character.GetModule<LVModules>();
 
-        if (cost == null)
+        if (actionPoint == null || derived == null || level == null)
         {
-            Debug.LogWarning($"{character.name}: CostModule 없음");
+            Debug.LogWarning($"{character.name}: 행동력 계산 모듈 없음");
             return;
         }
 
-        cost.RefillAll();
+        actionPoint.PrepareTurn(derived.GetAgilityModifier(), level.Level);
 
     }
 
@@ -509,6 +509,14 @@ public class BattleManager : ManagerBase
             hp.OnEmpty += CheckBattleEnd;
         }
 
+        SanityModule sanity = character.GetModule<SanityModule>();
+
+        if (sanity != null)
+        {
+            sanity.OnEmpty -= CheckBattleEnd;
+            sanity.OnEmpty += CheckBattleEnd;
+        }
+
         ControllerBase controller =
             character.GetComponent<ControllerBase>();
 
@@ -599,11 +607,10 @@ public class BattleManager : ManagerBase
             return false;
 
         HitpointModules hp = character.GetModule<HitpointModules>();
+        SanityModule sanity = character.GetModule<SanityModule>();
 
-        if (hp == null)
-            return true;
-
-        return !hp.IsEmpty;
+        return (hp == null || !hp.IsEmpty) &&
+               (sanity == null || !sanity.IsEmpty);
     }
 
     internal void EndCurrentTurn()
@@ -627,7 +634,12 @@ public class BattleManager : ManagerBase
         }
     }
 
-    public void RequestAttack(CharacterBase attacker, CharacterBase defender, DamageStruct damageInfo, bool endTurnAfterResolve = false)
+    public void RequestAttack(
+        CharacterBase attacker,
+        CharacterBase defender,
+        DamageStruct damageInfo,
+        bool endTurnAfterResolve = false,
+        Action onResolved = null)
     {
         if (attacker == null || defender == null)
             return;
@@ -641,6 +653,10 @@ public class BattleManager : ManagerBase
         pendingDefender = defender;
         pendingDamageInfo = damageInfo;
         endTurnAfterReaction = endTurnAfterResolve;
+        pendingAttackResolved = onResolved;
+
+        ResolveMonsterReaction(attacker, defender, ref damageInfo);
+        pendingDamageInfo = damageInfo;
 
         if (CanOpenReactionPopup(defender, damageInfo))
         {
@@ -662,12 +678,47 @@ public class BattleManager : ManagerBase
         );
 
         if (State == BattleTurnState.BattleEnd)
+        {
+            pendingAttackResolved = null;
             return;
+        }
+
+        Action resolved = pendingAttackResolved;
+        pendingAttackResolved = null;
+        resolved?.Invoke();
 
         if (endTurnAfterResolve)
         {
             EndTurn();
         }
+    }
+
+    /// <summary>
+    /// 공격받은 몬스터의 AI 프로필에서 대응 행동을 결정합니다.
+    /// 프로필이 없으면 기존 지능 방어 판정을 사용합니다.
+    /// </summary>
+    private void ResolveMonsterReaction(
+        CharacterBase attacker,
+        CharacterBase defender,
+        ref DamageStruct damageInfo)
+    {
+        if (defender == null ||
+            defender.GetModule<MonsterAIModule>() == null)
+        {
+            return;
+        }
+
+        MonsterAIModule ai = defender.GetModule<MonsterAIModule>();
+
+        if (ai == null ||
+            !ai.TryChooseReaction(
+                this,
+                attacker,
+                damageInfo.canCounter,
+                out ActionType reactionType))
+            return;
+
+        damageInfo.reactionType = reactionType;
     }
 
 
@@ -678,6 +729,10 @@ public class BattleManager : ManagerBase
             Debug.Log("대응 팝업 불가: defender null");
             return false;
         }
+
+        // 공격 처리 전에 대응이 이미 결정된 경우 선택창을 다시 열지 않습니다.
+        if (damageInfo.reactionType != ActionType.None)
+            return false;
 
         // 플레이어만 대응 팝업 사용
         if (defender.Controller == null)
@@ -703,7 +758,7 @@ public class BattleManager : ManagerBase
 
         if (!reaction.CanUseAnyReaction())
         {
-            Debug.Log($"대응 팝업 불가: {defender.name} 대응 코스트 부족");
+            Debug.Log($"대응 팝업 불가: {defender.name} 행동력 부족");
             return false;
         }
 
@@ -822,15 +877,18 @@ public class BattleManager : ManagerBase
             damageInfo
         );
 
-        ApplyDamageToTarget(defender, damageInfo);
-
         if (State == BattleTurnState.BattleEnd)
         {
+            pendingAttackResolved = null;
             ClearPendingReaction();
             return;
         }
 
         State = BattleTurnState.WaitingAction;
+
+        Action resolved = pendingAttackResolved;
+        pendingAttackResolved = null;
+        resolved?.Invoke();
 
         if (shouldEndTurn)
         {
@@ -844,6 +902,7 @@ public class BattleManager : ManagerBase
         pendingAttacker = null;
         pendingDefender = null;
         endTurnAfterReaction = false;
+        pendingAttackResolved = null;
 
         if (reactionSelectUI != null)
         {
@@ -924,7 +983,18 @@ public class BattleManager : ManagerBase
 
         if (!victory)
         {
-            OpenGameOver();
+            FieldManager fieldManager =
+                GameManager.Instance != null
+                    ? GameManager.Instance.Field
+                    : null;
+
+            // 필드 세션에서 사망한 경우 필드의 확정 사망 엔딩이
+            // 이미 처리되므로 일반 전투 게임 오버를 겹쳐 열지 않습니다.
+            if (fieldManager == null || !fieldManager.HasEndedByDeath)
+            {
+                OpenGameOver();
+            }
+
             return;
         }
 
@@ -1023,6 +1093,11 @@ public class BattleManager : ManagerBase
             {
                 hp.OnEmpty -= CheckBattleEnd;
             }
+
+            SanityModule sanity = character.GetModule<SanityModule>();
+
+            if (sanity != null)
+                sanity.OnEmpty -= CheckBattleEnd;
         }
     }
 

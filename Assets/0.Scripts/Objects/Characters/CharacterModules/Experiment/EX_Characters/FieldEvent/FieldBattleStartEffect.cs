@@ -101,34 +101,52 @@ public class FieldBattleStartEffect : FieldEventEffect
         int playerLevel =
             GetPlayerLevel(levelReference);
 
+        // 선택 결과창이 닫히기 전에 전투 화면으로 전환하면
+        // 복귀 시 선택지 UI가 다시 활성화된다. 이벤트 종료 뒤 생성·전투를 시작한다.
+        context.AddEventClosedAction(
+            () => StartBattleAfterEventClosed(
+                battleManager,
+                monsterSpawner,
+                battleParticipants,
+                playerLevel));
+    }
+
+    private void StartBattleAfterEventClosed(
+        BattleManager battleManager,
+        MonsterSpawner monsterSpawner,
+        List<CharacterBase> battleParticipants,
+        int playerLevel)
+    {
+        if (battleManager == null ||
+            monsterSpawner == null ||
+            battleParticipants == null ||
+            battleParticipants.Count == 0)
+        {
+            Debug.LogWarning("필드 이벤트 종료 후 전투 시작에 필요한 연결이 없습니다.");
+            return;
+        }
+
         List<CharacterBase> monsters =
             monsterSpawner.SpawnMonsters(
                 monsterDatas,
                 playerLevel);
 
-        if (monsters == null ||
-            monsters.Count == 0)
+        if (monsters == null || monsters.Count == 0)
         {
             Debug.LogWarning(
-                "필드 전투 시작 실패: " +
-                "생성된 몬스터가 없습니다.");
-
+                "필드 전투 시작 실패: 생성된 몬스터가 없습니다.");
             return;
         }
 
+        monsterSpawner.PositionPlayers(battleParticipants);
         battleParticipants.AddRange(monsters);
 
-        context.AddResultMessage(
-            $"전투 발생: 몬스터 {monsters.Count}마리");
-
         Debug.Log(
-            $"필드 이벤트 전투 시작: " +
-            $"플레이어 " +
-            $"{battleParticipants.Count - monsters.Count}명 / " +
+            $"필드 이벤트 종료 후 전투 시작: " +
+            $"플레이어 {battleParticipants.Count - monsters.Count}명 / " +
             $"몬스터 {monsters.Count}명");
 
-        battleManager.StartBattle(
-            battleParticipants);
+        battleManager.StartBattle(battleParticipants);
     }
 
     private int GetPlayerLevel(

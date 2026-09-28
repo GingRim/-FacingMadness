@@ -8,6 +8,7 @@ public class FieldCardRewardEffect : FieldEventEffect
 {
     [Header("지급 카드")]
     [SerializeField]
+    [Tooltip("덱에 추가할 카드 데이터입니다. 무색 카드는 Colorless로 설정한 CardData를 연결합니다.")]
     private CardData rewardCard;
 
     [Header("지급 수량")]
@@ -37,13 +38,7 @@ public class FieldCardRewardEffect : FieldEventEffect
             return;
         }
 
-        CharacterBase receiver = context.Player;
-
-        if (receiver == null &&
-            context.FieldManager != null)
-        {
-            receiver = context.FieldManager.CurrentPlayer;
-        }
+        CharacterBase receiver = context.Character;
 
         if (receiver == null)
         {
@@ -71,26 +66,11 @@ public class FieldCardRewardEffect : FieldEventEffect
 
         deck.AddCardToDeckAndShuffle(rewardCard);
 
-        AppendResultText(context, rewardAmount == 1 ? $"카드 획득: {rewardCard.cardName}" : $"카드 획득: {rewardCard.cardName} × {rewardAmount}");
+        context.AddResultMessage(rewardAmount == 1 ? $"카드 획득: {rewardCard.cardName}" : $"카드 획득: {rewardCard.cardName} × {rewardAmount}");
 
         Debug.Log(
             $"필드 카드 보상: {receiver.name}이(가) " +
             $"{rewardCard.cardName} 카드를 {rewardAmount}장 획득했습니다.");
     }
 
-    /// <summary>
-    /// 기존 이벤트 결과를 지우지 않고 카드 획득 결과를 추가한다.
-    /// </summary>
-    /// <param name="context">현재 필드 이벤트 실행 정보.</param>
-    /// <param name="message">추가할 결과 문구.</param>
-    private void AppendResultText(FieldEventContext context, string message)
-    {
-        if (string.IsNullOrWhiteSpace(context.ResultTextOverride))
-        {
-            context.SetResultText(message);
-            return;
-        }
-
-        context.SetResultText($"{context.ResultTextOverride}\n{message}");
-    }
 }

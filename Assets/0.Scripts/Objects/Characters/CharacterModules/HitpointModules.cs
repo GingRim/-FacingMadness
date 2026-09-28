@@ -59,6 +59,18 @@ public abstract class HitpointModules : CharacterModule
     /// </summary>
     public event Action OnEmpty;
 
+    /// <summary>
+    /// 현재 또는 최대 생명력이 변경되면 발생합니다.
+    /// </summary>
+    public event Action<int, int> OnHitpointChanged;
+
+    /// <summary>
+    /// 생명력이 남아 있던 대상이 피해로 0이 되었을 때
+    /// 마지막 피해 정보를 함께 전달한다.
+    /// 직접 처치자를 판정하는 미션 목표에서 사용한다.
+    /// </summary>
+    public event Action<DamageStruct> OnKilled;
+
 
     public int TakeDamage(in DamageStruct damageInfo)
     {
@@ -68,8 +80,12 @@ public abstract class HitpointModules : CharacterModule
 
         int actualDamage = before - fill.Current;
 
+        if (actualDamage > 0)
+            OnHitpointChanged?.Invoke(fill.Current, fill.Max);
+
         if (before > fill.Min && fill.Current <= fill.Min)
         {
+            OnKilled?.Invoke(damageInfo);
             OnEmpty?.Invoke();
         }
 
@@ -82,12 +98,18 @@ public abstract class HitpointModules : CharacterModule
 
         fill.IncreaseCurrent(restoreInfo.restoreAmount);
 
-        return fill.Current - before;
+        int actualRestore = fill.Current - before;
+
+        if (actualRestore > 0)
+            OnHitpointChanged?.Invoke(fill.Current, fill.Max);
+
+        return actualRestore;
     }
 
     public void InitializeHP(int maxHp)
     {
         fill.SetMax(maxHp);
         fill.SetCurrent(maxHp);
+        OnHitpointChanged?.Invoke(fill.Current, fill.Max);
     }
 }

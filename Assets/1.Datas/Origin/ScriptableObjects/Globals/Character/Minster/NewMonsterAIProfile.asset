@@ -1,0 +1,46 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aaba68d7f6427e344aa7c4050b5dc757, type: 3}
+  m_Name: NewMonsterAIProfile
+  m_EditorClassIdentifier: Assembly-CSharp::MonsterAIProfile
+  maxActionsPerTurn: 1
+  actions:
+  - actionId: 
+    displayName: 
+    actionType: 0
+    targetType: 0
+    priority: 0
+    weight: 0
+    actionPointCost: 0
+    maxUsesPerTurn: 0
+    maxUsesPerBattle: 0
+    cooldownRounds: 0
+    conditions: []
+    fixedValue: 0
+    diceCount: 0
+    diceType: 0
+    modifierStat: 0
+    statusType: 0
+    damageType: 0
+    canCounter: 0
+    allowCritical: 0
+  reactions:
+  - reactionId: 
+    reactionType: 0
+    priority: 0
+    weight: 0
+    chancePercent: 0
+    actionPointCost: 0
+    maxUsesPerRound: 0
+    requiresStatRoll: 0
+    rollUnderStat: 0
+    conditions: []

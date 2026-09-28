@@ -1,0 +1,288 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eda405cbcf5af0841a71b53f8add7b42, type: 3}
+  m_Name: CenterEvent_0_02
+  m_EditorClassIdentifier: Assembly-CSharp::FieldEventData
+  eventId: Center_event_0_02
+  eventName: "\uC911\uC559\uBC29\uC744 \uAD00\uCC30\uD55C\uB2E4."
+  eventType: 2
+  description: "\uB2F9\uC2E0\uC740 \uBC29\uC744 \uAD00\uCC30\uD558\uACE0\uC790 \uD569\uB2C8\uB2E4."
+  eventImage: {fileID: -7186055740845857485, guid: 874c4ca1e5324ad46ab813d982b4597c, type: 3}
+  displayType: 1
+  maximumVisibleChoices: 5
+  choices:
+  - choiceId: Center_event_0_02_0
+    choiceText: "\uC2A4\uD504\uB97C \uAD00\uCC30\uD55C\uB2E4."
+    choiceType: 0
+    actionType: 1
+    usageType: 0
+    nextPage: {fileID: 0}
+    executionType: 1
+    requiredStat: 4
+    requiredCardKeyword: 0
+    target: 4
+    conditions:
+    - {fileID: 11400000, guid: c137344ff40d4a4469fba1e027cfa86e, type: 2}
+    allowsIgnition: 0
+    showKnownMemoryTitlesOnSuccess: 0
+    successResult:
+      description: 
+      effects:
+      - {fileID: 11400000, guid: 3f2c3cebb69a2264e8040f30ffbca5d9, type: 2}
+      - {fileID: 11400000, guid: b6cd0259c31f48044a695483dc6620b6, type: 2}
+      - {fileID: 11400000, guid: 058f3a4b179763245909c9a3c962f007, type: 2}
+      - {fileID: 11400000, guid: 649b835f28e7b1746b99b3840bb56e01, type: 2}
+      - {fileID: 11400000, guid: e6d5ffce81869cf4cb54720fbb4f219c, type: 2}
+      - {fileID: 11400000, guid: 3271e6e7247faee4297e0b68183c550a, type: 2}
+      resultImage: {fileID: 0}
+      redLineResult: 0
+    failureResult:
+      description: "\uBB34\uC5B8\uAC00 \uD2B9\uBCC4\uD55C \uC810\uC744 \uCC3E\uC9C0
+        \uBABB\uD588\uC2B5\uB2C8\uB2E4."
+      effects: []
+      resultImage: {fileID: 0}
+      redLineResult: 0
+    legacyCardRequirement:
+      requiresCard: 0
+      allowedColors: 
+      checkStat: 0
+  - choiceId: Center_event_0_02_1
+    choiceText: "\uC758\uC790\uB97C \uAD00\uCC30\uD55C\uB2E4."
+    choiceType: 2
+    actionType: 1
+    usageType: 0
+    nextPage: {fileID: 0}
+    executionType: 1
+    requiredStat: 4
+    requiredCardKeyword: 0
+    target: 5
+    conditions:
+    - {fileID: 11400000, guid: b857f1794eac6224085058848a6a952b, type: 2}
+    allowsIgnition: 0
+    showKnownMemoryTitlesOnSuccess: 0
+    successResult:
+      description: 
+      effects:
+      - {fileID: 11400000, guid: 8e58d5a13a4f92641838c4f1ae98218d, type: 2}
+      - {fileID: 11400000, guid: 4540f10dac5c91144aac2f9aa2aa6f89, type: 2}
+      resultImage: {fileID: 0}
+      redLineResult: 0
+    failureResult:
+      description: "\uD2B9\uBCC4\uD55C \uC810\uC744 \uCC3E\uC9C0 \uBABB\uD588\uB2E4."
+      effects: []
+      resultImage: {fileID: 0}
+      redLineResult: 0
+    legacyCardRequirement:
+      requiresCard: 0
+      allowedColors: 
+      checkStat: 0
+  - choiceId: Center_event_0_02_2
+    choiceText: "\uD770\uC0C9 \uBB38\uC744 \uC870\uC0AC\uD55C\uB2E4."
+    choiceType: 1
+    actionType: 0
+    usageType: 0
+    nextPage: {fileID: 11400000, guid: 34d82745dc1972f42a9a122aa1820adf, type: 2}
+    executionType: 0
+    requiredStat: 0
+    requiredCardKeyword: 0
+    target: 0
+    conditions:
+    - {fileID: 11400000, guid: 71e890b7b2d94b24b87d3c79b5156327, type: 2}
+    allowsIgnition: 0
+    showKnownMemoryTitlesOnSuccess: 0
+    successResult:
+      description: 
+      effects: []
+      resultImage: {fileID: 0}
+      redLineResult: 0
+    failureResult:
+      description: 
+      effects: []
+      resultImage: {fileID: 0}
+      redLineResult: 0
+    legacyCardRequirement:
+      requiresCard: 0
+      allowedColors: 
+      checkStat: 0
+  - choiceId: Center_event_0_02_3
+    choiceText: "\uD770\uC0C9 \uAC00\uC815\uC6A9\uBB38\uC744 \uC870\uC0AC\uD55C\uB2E4."
+    choiceType: 1
+    actionType: 0
+    usageType: 0
+    nextPage: {fileID: 11400000, guid: 6ede0bd074d404e4caabfcdc88bcc46b, type: 2}
+    executionType: 0
+    requiredStat: 0
+    requiredCardKeyword: 0
+    target: 0
+    conditions:
+    - {fileID: 11400000, guid: 5216e4fbd427dd64d900155a40ba9d6a, type: 2}
+    allowsIgnition: 0
+    showKnownMemoryTitlesOnSuccess: 0
+    successResult:
+      description: 
+      effects: []
+      resultImage: {fileID: 0}
+      redLineResult: 0
+    failureResult:
+      description: 
+      effects: []
+      resultImage: {fileID: 0}
+      redLineResult: 0
+    legacyCardRequirement:
+      requiresCard: 0
+      allowedColors: 
+      checkStat: 0
+  - choiceId: Center_event_0_02_4
+    choiceText: "\uAC08\uC0C9 \uBB38\uC744 \uC870\uC0AC\uD55C\uB2E4."
+    choiceType: 1
+    actionType: 0
+    usageType: 0
+    nextPage: {fileID: 11400000, guid: 01c00827e91aa414fb62f39ee05d57f5, type: 2}
+    executionType: 0
+    requiredStat: 0
+    requiredCardKeyword: 0
+    target: 0
+    conditions:
+    - {fileID: 11400000, guid: 261634a3f9464247ad764da7b1c6a65a, type: 2}
+    allowsIgnition: 0
+    showKnownMemoryTitlesOnSuccess: 0
+    successResult:
+      description: 
+      effects: []
+      resultImage: {fileID: 0}
+      redLineResult: 0
+    failureResult:
+      description: 
+      effects: []
+      resultImage: {fileID: 0}
+      redLineResult: 0
+    legacyCardRequirement:
+      requiresCard: 0
+      allowedColors: 
+      checkStat: 0
+  - choiceId: Center_event_0_02_5
+    choiceText: "\uAC08\uC0C9\uC758 \uACE0\uB515\uD55C \uBB38\uC744 \uC870\uC0AC\uD55C\uB2E4."
+    choiceType: 1
+    actionType: 0
+    usageType: 0
+    nextPage: {fileID: 11400000, guid: de2c18c795cd47e19ba46d1cbf4726ef, type: 2}
+    executionType: 0
+    requiredStat: 0
+    requiredCardKeyword: 0
+    target: 0
+    conditions:
+    - {fileID: 11400000, guid: ba4c4a002b8c4f78bb252ce3637573bb, type: 2}
+    allowsIgnition: 0
+    showKnownMemoryTitlesOnSuccess: 0
+    successResult:
+      description: 
+      effects: []
+      resultImage: {fileID: 0}
+      redLineResult: 0
+    failureResult:
+      description: 
+      effects: []
+      resultImage: {fileID: 0}
+      redLineResult: 0
+    legacyCardRequirement:
+      requiresCard: 0
+      allowedColors: 
+      checkStat: 0
+  - choiceId: Center_event_0_02_6
+    choiceText: "\uC774\uC0C1\uD55C \uBB38\uC744 \uC870\uC0AC\uD55C\uB2E4."
+    choiceType: 1
+    actionType: 0
+    usageType: 0
+    nextPage: {fileID: 11400000, guid: c1000000000000000000000000000001, type: 2}
+    executionType: 0
+    requiredStat: 0
+    requiredCardKeyword: 0
+    target: 0
+    conditions:
+    - {fileID: 11400000, guid: b1000000000000000000000000000002, type: 2}
+    allowsIgnition: 0
+    showKnownMemoryTitlesOnSuccess: 0
+    successResult:
+      description: 
+      effects: []
+      resultImage: {fileID: 0}
+      redLineResult: 0
+    failureResult:
+      description: 
+      effects: []
+      resultImage: {fileID: 0}
+      redLineResult: 0
+    legacyCardRequirement:
+      requiresCard: 0
+      allowedColors: 
+      checkStat: 0
+  - choiceId: Center_event_0_02_7
+    choiceText: "\uBE44\uD2C0\uB9B0 \uBB38\uC744 \uC870\uC0AC\uD55C\uB2E4."
+    choiceType: 1
+    actionType: 0
+    usageType: 0
+    nextPage: {fileID: 11400000, guid: c1000000000000000000000000000002, type: 2}
+    executionType: 0
+    requiredStat: 0
+    requiredCardKeyword: 0
+    target: 0
+    conditions:
+    - {fileID: 11400000, guid: b1000000000000000000000000000003, type: 2}
+    allowsIgnition: 0
+    showKnownMemoryTitlesOnSuccess: 0
+    successResult:
+      description: 
+      effects: []
+      resultImage: {fileID: 0}
+      redLineResult: 0
+    failureResult:
+      description: 
+      effects: []
+      resultImage: {fileID: 0}
+      redLineResult: 0
+    legacyCardRequirement:
+      requiresCard: 0
+      allowedColors: 
+      checkStat: 0
+  - choiceId: Center_event_0_02_8
+    choiceText: "\uCCA0\uBB38\uC744 \uC870\uC0AC\uD55C\uB2E4."
+    choiceType: 1
+    actionType: 0
+    usageType: 0
+    nextPage: {fileID: 11400000, guid: c1000000000000000000000000000003, type: 2}
+    executionType: 0
+    requiredStat: 0
+    requiredCardKeyword: 0
+    target: 0
+    conditions: []
+    allowsIgnition: 0
+    showKnownMemoryTitlesOnSuccess: 0
+    successResult:
+      description: 
+      effects: []
+      resultImage: {fileID: 0}
+      redLineResult: 0
+    failureResult:
+      description: 
+      effects: []
+      resultImage: {fileID: 0}
+      redLineResult: 0
+    legacyCardRequirement:
+      requiresCard: 0
+      allowedColors: 
+      checkStat: 0
+  showOwnedMemos: 0
+  usageType: 1
+  openingConditions:
+  - {fileID: 11400000, guid: 12e549e6debbdd843bd00f5a69733f89, type: 2}
+  startingNodeId: 
+  legacyEntryData: {fileID: 11400000, guid: 1f3ed312633b25947a4a281b2daeddf4, type: 2}

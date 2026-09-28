@@ -160,9 +160,9 @@ public class UI_CardUseSelect : MonoBehaviour
             return;
         }
 
-        if (!cardResolver.CanUse(cardData, user, useCost))
+        if (!cardResolver.CanUse(selectedCardInstance, user, useCost))
         {
-            BattleManager.ClaimBattleLog("코스트가 부족합니다.");
+            BattleManager.ClaimBattleLog("행동력이 부족합니다.");
 
             Close();
             return;
@@ -177,7 +177,11 @@ public class UI_CardUseSelect : MonoBehaviour
             return;
         }
 
-        bool success = cardResolver.UseWithoutCostCheck(cardData, user, target, useCost);
+        bool success = cardResolver.UseWithoutCostCheck(
+            selectedCardInstance,
+            user,
+            target,
+            useCost);
 
         if (!success)
         {
@@ -186,7 +190,20 @@ public class UI_CardUseSelect : MonoBehaviour
             return;
         }
 
-        bool moved = deck.UseCard(selectedCardInstance);
+        bool isRemove = false;
+
+        if (selectedCardInstance.Color == CardColorType.Colorless)
+        {
+            if (!selectedCardInstance.ConsumeDurability(1))
+                return;
+
+            isRemove = selectedCardInstance.IsDepleted;
+        }
+
+        bool moved = deck.UseCard(
+            selectedCardInstance,
+            false,
+            isRemove);
 
         if (!moved)
         {

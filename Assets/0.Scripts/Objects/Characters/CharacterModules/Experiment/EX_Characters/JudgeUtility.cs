@@ -14,6 +14,11 @@ public static class JudgeUtility
     /// </summary>
     public static JudgeResult Roll(CharacterBase user, StatType statType, int target)
     {
+        return Roll(user, statType, target, 0);
+    }
+
+    public static JudgeResult Roll(CharacterBase user, StatType statType, int target, int cardGradeBonus)
+    {
         if (user == null || statType == StatType.None)
         {
             Debug.LogWarning("판정 실패: 사용자 또는 요구 능력치가 없습니다.");
@@ -46,6 +51,8 @@ public static class JudgeUtility
 
             status.ConsumeJudgeStatus();
         }
+
+        statusModifier += Mathf.Max(0, cardGradeBonus);
 
         JudgeResult result = new JudgeResult(dice, statModifier, statusModifier, target);
 

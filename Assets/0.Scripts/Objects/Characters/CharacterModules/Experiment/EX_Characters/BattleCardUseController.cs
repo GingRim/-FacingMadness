@@ -41,7 +41,13 @@ public class BattleCardUseController : MonoBehaviour
             return false;
         }
 
-        CardDropDecision decision = GetDropDecision(card.Data, user, target);
+        if (card.IsDepleted)
+        {
+            BattleManager.ClaimBattleLog("내구도가 없는 카드입니다.");
+            return false;
+        }
+
+        CardDropDecision decision = GetDropDecision(card, user, target);
 
         switch (decision.Result)
         {
@@ -65,9 +71,9 @@ public class BattleCardUseController : MonoBehaviour
 
         CardData cardData = card.Data;
 
-        if (!resolver.CanUse(cardData, user, useCost))
+        if (!resolver.CanUse(card, user, useCost))
         {
-            BattleManager.ClaimBattleLog("코스트가<br>부족합니다.");
+            BattleManager.ClaimBattleLog("행동력이<br>부족합니다.");
 
             return false;
         }
@@ -77,14 +83,23 @@ public class BattleCardUseController : MonoBehaviour
         if (deck == null)
             return false;
 
-        bool effectApplied = resolver.UseWithoutCostCheck(cardData, user, target, useCost);
+        bool effectApplied = resolver.UseWithoutCostCheck(card, user, target, useCost);
 
         if (!effectApplied)
             return false;
 
         bool isExhaust = ShouldExhaustOnUse(cardData);
+        bool isRemove = false;
 
-        bool moved = deck.UseCard(card, isExhaust);
+        if (card.Color == CardColorType.Colorless)
+        {
+            if (!card.ConsumeDurability(1))
+                return false;
+
+            isRemove = card.IsDepleted;
+        }
+
+        bool moved = deck.UseCard(card, isExhaust, isRemove);
 
         if (!moved)
         {
@@ -164,11 +179,6 @@ public class BattleCardUseController : MonoBehaviour
         if (card == null)
             return false;
 
-        if (card.color == CardColorType.Purple && card.magicCardType == MagicCardType.None)
-        {
-            return true;
-        }
-
         return
             card.magicCardType != MagicCardType.None;
     }
@@ -189,40 +199,34 @@ public class BattleCardUseController : MonoBehaviour
             userIsPlayer == targetIsPlayer ? TeamType.Ally : TeamType.Enemy;
     }
 
-    private CardDropDecision GetDropDecision(CardData card, CharacterBase user, CharacterBase target)
+    private CardDropDecision GetDropDecision(CardInstance card, CharacterBase user, CharacterBase target)
     {
-        if (card == null || user == null)
+        if (card == null || card.Data == null || user == null)
         {
             return CardDropDecision.Invalid();
         }
 
-        if (card.magicCardType != MagicCardType.None)
+        CardData cardData = card.Data;
+
+        if (cardData.magicCardType != MagicCardType.None)
         {
-            return GetMagicDropDecision(card, user, target);
+            return GetMagicDropDecision(cardData, user, target);
         }
 
-        switch (card.color)
+        if (card.Color == CardColorType.Colorless)
         {
-            case CardColorType.Red:
-                return GetRedDropDecision(user, target);
+            return GetColorlessDropDecision(card, user, target);
+        }
 
-            case CardColorType.Yellow:
-                return GetYellowDropDecision(user, target);
+        if (cardData.IsAbilityCard)
+        {
+            return GetAbilityCardDropDecision(user, target);
+        }
 
-            case CardColorType.Green:
-                return GetGreenDropDecision(user, target);
-
-            case CardColorType.Blue:
-                return GetBlueDropDecision(user, target);
-
-            case CardColorType.Purple:
-                return CardDropDecision.Direct(CardUseCost.ActionAndAuxiliary);
-
-            case CardColorType.Colorless:
-                return GetColorlessDropDecision(user, target);
-
+        switch (card.Color)
+        {
             default:
-                Debug.Log($"{card.cardName}: " + "전투 드롭 규칙이 없는 카드 색상입니다.");
+                Debug.Log($"{card.CardName}: " + "전투 드롭 규칙이 없는 카드 색상입니다.");
 
                 return CardDropDecision.Invalid();
         }
@@ -333,9 +337,39 @@ public class BattleCardUseController : MonoBehaviour
         }
     }
 
-    private CardDropDecision GetColorlessDropDecision(CharacterBase user, CharacterBase target)
+    private CardDropDecision GetColorlessDropDecision(
+        CardInstance card,
+        CharacterBase user,
+        CharacterBase target)
     {
-        switch (GetTargetTeamType(user, target))
+        if (card == null || card.IsDepleted)
+            return CardDropDecision.Invalid();
+
+        if (HasNoCombatKeyword(card))
+        {
+            BattleManager.ClaimBattleLog(
+                "이 키워드 카드는<br>전투 효과가 없습니다.");
+            return CardDropDecision.Invalid();
+        }
+
+        TeamType targetType = GetTargetTeamType(user, target);
+
+        // 키워드 무색 카드는 행동 코스트만 사용합니다.
+        if (card.HasKeywords)
+        {
+            if (card.HasKeyword(CardKeywordType.Medicine))
+            {
+                return targetType == TeamType.Self || targetType == TeamType.Ally
+                    ? CardDropDecision.Direct(CardUseCost.Action)
+                    : CardDropDecision.Invalid();
+            }
+
+            return targetType == TeamType.Enemy
+                ? CardDropDecision.Direct(CardUseCost.Action)
+                : CardDropDecision.Invalid();
+        }
+
+        switch (targetType)
         {
             case TeamType.Enemy:
                 return CardDropDecision.Direct(CardUseCost.Action);
@@ -347,6 +381,32 @@ public class BattleCardUseController : MonoBehaviour
             default:
                 return CardDropDecision.Invalid();
         }
+    }
+
+    private CardDropDecision GetAbilityCardDropDecision(
+        CharacterBase user,
+        CharacterBase target)
+    {
+        switch (GetTargetTeamType(user, target))
+        {
+            case TeamType.Enemy:
+                return CardDropDecision.Direct(CardUseCost.Action);
+
+            case TeamType.Self:
+                return CardDropDecision.Direct(CardUseCost.Auxiliary);
+
+            default:
+                BattleManager.ClaimBattleLog(
+                    "능력치 카드는 적 공격 또는 자기 능력으로 사용합니다.");
+                return CardDropDecision.Invalid();
+        }
+    }
+
+    private bool HasNoCombatKeyword(CardInstance card)
+    {
+        return card.HasKeyword(CardKeywordType.Tool) ||
+               card.HasKeyword(CardKeywordType.Key) ||
+               card.HasKeyword(CardKeywordType.Record);
     }
 
     private readonly struct CardDropDecision

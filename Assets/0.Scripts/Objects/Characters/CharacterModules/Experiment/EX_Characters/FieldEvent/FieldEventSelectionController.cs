@@ -26,11 +26,8 @@ public class FieldEventSelectionController : MonoBehaviour
 
     private void OnEnable()
     {
-        if (candidateSelectUI == null)
-            return;
-
-        candidateSelectUI.OnEventSelected -= HandleEventSelected;
-        candidateSelectUI.OnEventSelected += HandleEventSelected;
+        ResolveRuntimeReferences();
+        BindCandidateSelectUI();
     }
 
     private void OnDisable()
@@ -50,6 +47,9 @@ public class FieldEventSelectionController : MonoBehaviour
     /// </summary>
     public bool OpenNextEventSelection(FieldEventContext context)
     {
+        ResolveRuntimeReferences();
+        BindCandidateSelectUI();
+
         if (context == null)
         {
             Debug.LogWarning(
@@ -105,6 +105,56 @@ public class FieldEventSelectionController : MonoBehaviour
         }
 
         return true;
+    }
+
+    /// <summary>
+    /// GameManager가 생성한 FieldManager와 필드 이벤트 구성 요소를
+    /// 실행 시점에 찾아 연결합니다.
+    /// </summary>
+    private void ResolveRuntimeReferences()
+    {
+        if (GameManager.Instance != null &&
+            GameManager.Instance.Field != null)
+        {
+            fieldManager = GameManager.Instance.Field;
+
+            // 후보 검사와 실제 이벤트 실행이 반드시 FieldManager와
+            // 같은 Runner에서 처리되도록 런타임 참조를 통일합니다.
+            if (fieldManager.EventRunner != null)
+            {
+                eventRunner = fieldManager.EventRunner;
+            }
+        }
+
+        if (candidateBuilder == null)
+        {
+            candidateBuilder =
+                FindFirstObjectByType<FieldEventCandidateBuilder>(
+                    FindObjectsInactive.Include);
+        }
+
+        if (candidateSelectUI == null)
+        {
+            candidateSelectUI =
+                FindFirstObjectByType<UI_FieldEventCandidateSelect>(
+                    FindObjectsInactive.Include);
+        }
+
+        if (eventRunner == null)
+        {
+            eventRunner =
+                FindFirstObjectByType<FieldEventRunner>(
+                    FindObjectsInactive.Include);
+        }
+    }
+
+    private void BindCandidateSelectUI()
+    {
+        if (candidateSelectUI == null)
+            return;
+
+        candidateSelectUI.OnEventSelected -= HandleEventSelected;
+        candidateSelectUI.OnEventSelected += HandleEventSelected;
     }
 
     private void HandleEventSelected(FieldEventData selectedEvent)

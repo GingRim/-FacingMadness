@@ -19,6 +19,6 @@ MonoBehaviour:
   health: 4
   intelligence: 5
   will: 5
-  startDeck: {fileID: 0}
+  startDeck: {fileID: 11400000, guid: 6c366c56bd8b2df429695b367c5dc5b6, type: 2}
   Icon: {fileID: 6029268320646912477, guid: d6fe62154ec84f94c83f0ffada762663, type: 3}
   designatedStatType: 4

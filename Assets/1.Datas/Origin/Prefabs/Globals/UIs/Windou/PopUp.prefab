@@ -32,10 +32,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 8774647330194314024}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0.0000076294, y: 48.1161}
-  m_SizeDelta: {x: 501.54, y: 221.1479}
+  m_AnchorMin: {x: 0, y: 0.34500003}
+  m_AnchorMax: {x: 1, y: 0.89712554}
+  m_AnchoredPosition: {x: -0.49998474, y: -0.38389587}
+  m_SizeDelta: {x: 0.54000854, y: 0.14790344}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4838982557371149636
 CanvasRenderer:
@@ -308,8 +308,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UI_PopUp
   titleText: {fileID: 3994623080010691012}
-  contextText: {fileID: 4653568613957547286}
-  confirmText: {fileID: 5386283348062906745}
+  contextText: {fileID: 5386283348062906745}
+  confirmText: {fileID: 4653568613957547286}
   confirmButton: {fileID: 2600779925661539025}
 --- !u!114 &-4157420165035753210
 MonoBehaviour:

@@ -28,6 +28,9 @@ public class CardInstance
     [SerializeField]
     private bool isKeywordActive;
 
+    [SerializeField, Range(1, 5)]
+    private int currentGrade = 1;
+
     public string InstanceId => instanceId;
     public CardData Data => data;
 
@@ -35,9 +38,16 @@ public class CardInstance
 
     public string Description => data != null ? data.description : string.Empty;
 
-    public CardColorType Color => data != null ? data.color : CardColorType.None;
+    public CardColorType Color =>
+        HasKeywords
+            ? CardColorType.Colorless
+            : data != null
+                ? data.color
+                : CardColorType.None;
 
     public IReadOnlyList<CardKeywordType> Keywords => keywords;
+
+    public bool HasKeywords => keywords != null && keywords.Count > 0;
 
     public int CurrentDurability => currentDurability;
 
@@ -49,6 +59,12 @@ public class CardInstance
 
     public bool IsKeywordActive => isKeywordActive;
 
+    public int CurrentGrade => data != null && data.IsAbilityCard
+        ? Mathf.Clamp(currentGrade, 1, 5)
+        : 0;
+
+    public int GradeBonus => CurrentGrade * 2;
+
     /// <summary>
     /// 현재 점화할 수 있는 비점화 카드인지 확인합니다.
     /// </summary>
@@ -59,6 +75,8 @@ public class CardInstance
     public event Action<CardInstance, int, int> OnDurabilityChanged;
 
     public event Action<CardInstance, bool> OnKeywordActiveChanged;
+
+    public event Action<CardInstance, int> OnGradeChanged;
 
     /// <summary>
     /// 저장 데이터 복원 등을 위한 기본 생성자입니다.
@@ -90,6 +108,7 @@ public class CardInstance
         currentDurability = 0;
         maximumDurability = 0;
         isKeywordActive = false;
+        currentGrade = data != null ? data.CardGrade : 1;
 
         if (data == null)
             return;
@@ -107,9 +126,9 @@ public class CardInstance
             }
         }
 
-        if (data.UsesDurability)
+        if (data.UsesDurability || HasKeywords)
         {
-            int durability = initialDurability >= 0 ? initialDurability : data.BaseDurability;
+            int durability = initialDurability >= 0 ? initialDurability : 3;
 
             SetMaximumDurability(durability);
         }
@@ -120,6 +139,16 @@ public class CardInstance
         {
             SetKeywordActive(true);
         }
+    }
+
+    public bool TryDecreaseGrade()
+    {
+        if (data == null || !data.IsAbilityCard || currentGrade <= 1)
+            return false;
+
+        currentGrade--;
+        OnGradeChanged?.Invoke(this, currentGrade);
+        return true;
     }
 
     /// <summary>
@@ -135,7 +164,7 @@ public class CardInstance
 
     /// <summary>
     /// 기존 카드에 키워드를 추가합니다.
-    /// 내구도 키워드가 처음 추가되면 기본적으로 1+1D10 내구도를 생성합니다.
+    /// 첫 키워드가 추가되면 무색 키워드 카드 규칙에 따라 내구도 3을 생성합니다.
     /// </summary>
     public bool AddKeyword(CardKeywordType keyword, bool rollEngravedDurability = true)
     {
@@ -149,24 +178,10 @@ public class CardInstance
 
         keywords.Add(keyword);
 
-        if (CardKeywordRules.UsesDurability(keyword) && !HasDurability)
+        if (!HasDurability)
         {
-            int durability;
-
-            if (rollEngravedDurability)
-            {
-                durability = 1 + Dice.RollD10();
-            }
-            else if (data != null)
-            {
-                durability = data.BaseDurability;
-            }
-            else
-            {
-                durability = 1;
-            }
-
-            SetMaximumDurability(durability);
+            _ = rollEngravedDurability;
+            SetMaximumDurability(3);
         }
 
         if (CardKeywordRules.LosesDurabilityEachTurn(keyword))
@@ -188,7 +203,8 @@ public class CardInstance
         if (!keywords.Remove(keyword))
             return false;
 
-        if (!ContainsDurabilityKeyword())
+        if (!HasKeywords &&
+            (data == null || data.color != CardColorType.Colorless))
         {
             currentDurability = 0;
             maximumDurability = 0;
@@ -227,11 +243,9 @@ public class CardInstance
             keywords.Add(newKeyword);
         }
 
-        if (CardKeywordRules.UsesDurability(newKeyword) && !HasDurability)
+        if (!HasDurability)
         {
-            int durability = data != null && data.BaseDurability > 0 ? data.BaseDurability : 1 + Dice.RollD10();
-
-            SetMaximumDurability(durability);
+            SetMaximumDurability(3);
         }
 
         if (CardKeywordRules.LosesDurabilityEachTurn(newKeyword))

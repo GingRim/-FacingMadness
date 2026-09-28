@@ -3,6 +3,7 @@
 // 캐릭터의 카드 영역 관리
 // =========================
 
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -33,6 +34,12 @@ public class DeckModule : CharacterModule
     public int HandCount => hand.Count;
 
     /// <summary>
+    /// 덱, 손패, 묘지, 제외, 소멸 영역 중 하나가 변경되면 발생합니다.
+    /// UI는 이 이벤트를 구독하여 실제 카드 상태를 즉시 다시 표시합니다.
+    /// </summary>
+    public event Action OnCardZonesChanged;
+
+    /// <summary>
     /// 캐릭터에게 덱 모듈을 등록합니다.
     /// </summary>
     public override void OnRegistration(CharacterBase owner)
@@ -50,6 +57,7 @@ public class DeckModule : CharacterModule
             return;
 
         GetZone(zone).Add(card);
+        NotifyCardZonesChanged();
     }
 
     /// <summary>
@@ -76,7 +84,12 @@ public class DeckModule : CharacterModule
         if (card == null)
             return false;
 
-        return GetZone(zone).Remove(card);
+        bool removed = GetZone(zone).Remove(card);
+
+        if (removed)
+            NotifyCardZonesChanged();
+
+        return removed;
     }
 
     /// <summary>
@@ -84,10 +97,16 @@ public class DeckModule : CharacterModule
     /// </summary>
     public bool MoveCard(CardInstance card, CardZoneType from, CardZoneType to)
     {
-        if (!RemoveCard(card, from))
+        if (card == null)
             return false;
 
-        AddCard(card, to);
+        List<CardInstance> fromZone = GetZone(from);
+
+        if (!fromZone.Remove(card))
+            return false;
+
+        GetZone(to).Add(card);
+        NotifyCardZonesChanged();
 
         return true;
     }
@@ -116,6 +135,7 @@ public class DeckModule : CharacterModule
         hand.Add(card);
 
         CheckHandLimit();
+        NotifyCardZonesChanged();
 
         return card;
     }
@@ -147,6 +167,7 @@ public class DeckModule : CharacterModule
         graveyard.Clear();
 
         Shuffle(deck);
+        NotifyCardZonesChanged();
     }
 
     /// <summary>
@@ -156,7 +177,7 @@ public class DeckModule : CharacterModule
     {
         for (int i = 0; i < list.Count; i++)
         {
-            int randomIndex = Random.Range(i, list.Count);
+            int randomIndex = UnityEngine.Random.Range(i, list.Count);
 
             (list[i], list[randomIndex]) = (list[randomIndex], list[i]);
         }
@@ -177,6 +198,7 @@ public class DeckModule : CharacterModule
         CardInstance instance = cardData.CreateInstance();
 
         deck.Add(instance);
+        NotifyCardZonesChanged();
 
         Debug.Log($"덱에 카드 추가: {cardData.cardName}");
 
@@ -192,6 +214,7 @@ public class DeckModule : CharacterModule
             return;
 
         deck.Add(card);
+        NotifyCardZonesChanged();
     }
 
     /// <summary>
@@ -232,7 +255,8 @@ public class DeckModule : CharacterModule
     }
 
     /// <summary>
-    /// 필드 판정 결과에 따라 사용한 카드를 이동합니다.
+    /// 필드 판정 카드는 성공과 실패 모두 묘지로 이동합니다.
+    /// 1등급 실패처럼 forceRemove가 지정된 경우에만 소멸합니다.
     /// </summary>
     public bool ResolveFieldCard(CardInstance card, FieldCardCheckResult result, bool forceRemove = false)
     {
@@ -241,14 +265,9 @@ public class DeckModule : CharacterModule
 
         CardZoneType targetZone;
 
-        if (forceRemove || result == FieldCardCheckResult.Fumble)
+        if (forceRemove)
         {
             targetZone = CardZoneType.Remove;
-        }
-        else if (result ==
-                 FieldCardCheckResult.Failure)
-        {
-            targetZone = CardZoneType.Exhaust;
         }
         else
         {
@@ -297,6 +316,7 @@ public class DeckModule : CharacterModule
         exhaust.Clear();
 
         Shuffle(deck);
+        NotifyCardZonesChanged();
     }
 
     /// <summary>
@@ -349,6 +369,7 @@ public class DeckModule : CharacterModule
 
         deck.Add(card);
         Shuffle(deck);
+        NotifyCardZonesChanged();
 
         return true;
     }
@@ -361,7 +382,12 @@ public class DeckModule : CharacterModule
         if (card == null)
             return false;
 
-        return deck.Remove(card);
+        bool removed = deck.Remove(card);
+
+        if (removed)
+            NotifyCardZonesChanged();
+
+        return removed;
     }
 
     /// <summary>
@@ -396,36 +422,34 @@ public class DeckModule : CharacterModule
             deck.Add(cardData.CreateInstance());
         }
 
-        ApplyDeckColorLimit();
+        ApplyDeckStatLimit();
         Shuffle(deck);
+        NotifyCardZonesChanged();
     }
 
     /// <summary>
-    /// 능력치에 따라 색상별 덱 제한을 적용합니다.
+    /// 능력치에 따라 카드 한도를 적용합니다.
+    /// 색상 카드와 같은 능력치 아이콘을 가진 무색 아이템 카드를 함께 계산합니다.
     /// </summary>
-    private void ApplyDeckColorLimit()
+    private void ApplyDeckStatLimit()
     {
         StatModules stat = owner?.GetModule<StatModules>();
 
         if (stat == null)
             return;
 
-        ApplyColorLimit(CardColorType.Red, stat.GetStat(StatType.Strength));
-
-        ApplyColorLimit(CardColorType.Yellow, stat.GetStat(StatType.Agility));
-
-        ApplyColorLimit(CardColorType.Green, stat.GetStat(StatType.Health));
-
-        ApplyColorLimit(CardColorType.Blue, stat.GetStat(StatType.Intelligence));
-
-        ApplyColorLimit(CardColorType.Purple, stat.GetStat(StatType.Will));
+        ApplyStatLimit(StatType.Strength, stat.GetStat(StatType.Strength));
+        ApplyStatLimit(StatType.Agility, stat.GetStat(StatType.Agility));
+        ApplyStatLimit(StatType.Health, stat.GetStat(StatType.Health));
+        ApplyStatLimit(StatType.Intelligence, stat.GetStat(StatType.Intelligence));
+        ApplyStatLimit(StatType.Will, stat.GetStat(StatType.Will));
     }
 
     /// <summary>
-    /// 지정한 색상의 카드가 제한을 초과하면
+    /// 지정한 능력치 한도를 사용하는 카드가 제한을 초과하면
     /// 초과 카드를 소멸 영역으로 이동합니다.
     /// </summary>
-    private void ApplyColorLimit(CardColorType color, int maxCount)
+    private void ApplyStatLimit(StatType statType, int maxCount)
     {
         int count = 0;
 
@@ -438,7 +462,7 @@ public class DeckModule : CharacterModule
             if (card == null || card.Data == null)
                 continue;
 
-            if (card.Data.color != color)
+            if (card.Data.DeckCapacityStat != statType)
                 continue;
 
             count++;
@@ -497,6 +521,7 @@ public class DeckModule : CharacterModule
     public int ProcessHandTurnDurability()
     {
         int removedCount = 0;
+        bool changed = false;
 
         for (int i = hand.Count - 1; i >= 0; i--)
         {
@@ -513,6 +538,8 @@ public class DeckModule : CharacterModule
 
             if (!consumed)
                 continue;
+
+            changed = true;
 
             Debug.Log(
                 $"{card.CardName} 내구도 감소: " +
@@ -532,7 +559,15 @@ public class DeckModule : CharacterModule
             Debug.Log($"{card.CardName}: " + "내구도가 0이 되어 소멸");
         }
 
+        if (changed)
+            NotifyCardZonesChanged();
+
         return removedCount;
+    }
+
+    private void NotifyCardZonesChanged()
+    {
+        OnCardZonesChanged?.Invoke();
     }
 
 }

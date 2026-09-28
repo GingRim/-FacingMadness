@@ -89,6 +89,26 @@ public class UI_FieldEventChoiceButton : MonoBehaviour
     }
 
     /// <summary>
+    /// ScriptableObject 선택지 없이 런타임 문장을 버튼에 연결합니다.
+    /// 메모 목록과 페이지 이동 버튼에서 사용합니다.
+    /// </summary>
+    public void SetText(int index, string text, Action<int> selectedCallback)
+    {
+        BindButton();
+
+        choiceIndex = index;
+        onSelected = selectedCallback;
+
+        if (choiceText != null)
+            choiceText.SetText(text ?? string.Empty);
+
+        if (button != null)
+            button.interactable = !string.IsNullOrWhiteSpace(text);
+
+        gameObject.SetActive(!string.IsNullOrWhiteSpace(text));
+    }
+
+    /// <summary>
     /// 버튼에 연결된 선택지와 클릭 정보를 초기화한다.
     /// </summary>
     public void Clear()

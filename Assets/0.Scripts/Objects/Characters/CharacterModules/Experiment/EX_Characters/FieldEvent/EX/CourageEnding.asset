@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a42739187f74d74a087d9c8e4c7e181, type: 3}
+  m_Name: CourageEnding
+  m_EditorClassIdentifier: Assembly-CSharp::FieldSessionEndingData
+  endingId: Tutorial_ProofOfCourage
+  endingRank: 
+  endingTitle: "\uC6A9\uAE30\uC758 \uC99D\uBA85"
+  description: "\uB3C5\uC774 \uB4E4\uC5B4 \uC788\uC74C\uC744 \uC54C\uACE0\uB3C4 \uC2A4\uD504\uB97C
+    \uB9C8\uC168\uACE0, \uADF8 \uB3C5\uC744 \uACAC\uB38C\uC2B5\uB2C8\uB2E4. \uB2F9\uC2E0\uC740
+    \uC6A9\uAE30\uB97C \uC99D\uBA85\uD588\uC2B5\uB2C8\uB2E4."
+  minimumScore: 2
+  maximumScore: 3

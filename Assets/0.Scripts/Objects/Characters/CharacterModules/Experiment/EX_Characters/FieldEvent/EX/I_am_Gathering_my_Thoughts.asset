@@ -1,0 +1,140 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eda405cbcf5af0841a71b53f8add7b42, type: 3}
+  m_Name: I_am_Gathering_my_Thoughts
+  m_EditorClassIdentifier: Assembly-CSharp::FieldEventData
+  eventId: I_am_Gathering_my_Thoughts
+  eventName: "\uC0DD\uAC01\uC744 \uC815\uB9AC\uD55C\uB2E4."
+  eventType: 2
+  description: "\uB2F9\uC2E0\uC740 \uC7A0\uC2DC \uC0DD\uAC01\uC744 \uC815\uB9AC \uD569\uB2C8\uB2E4."
+  eventImage: {fileID: -5192146429223839966, guid: 03af6b09aaac336479d4101e67236e4a, type: 3}
+  displayType: 0
+  maximumVisibleChoices: 5
+  choices:
+  - choiceId: I_am_Gathering_my_Thoughts_0
+    choiceText: "\uBA54\uBAA8\uB97C \uB2E4\uC2DC \uD655\uC778\uD55C\uB2E4."
+    choiceType: 2
+    actionType: 0
+    usageType: 0
+    nextPage: {fileID: 11400000, guid: c69c00d076d7206498ec77725df009be, type: 2}
+    executionType: 0
+    requiredStat: 0
+    requiredCardKeyword: 0
+    target: 0
+    conditions: []
+    allowsIgnition: 0
+    showKnownMemoryTitlesOnSuccess: 0
+    successResult:
+      description: 
+      effects: []
+      resultImage: {fileID: 0}
+      redLineResult: 0
+    failureResult:
+      description: 
+      effects: []
+      resultImage: {fileID: 0}
+      redLineResult: 0
+    legacyCardRequirement:
+      requiresCard: 0
+      allowedColors: 
+      checkStat: 0
+  - choiceId: I_am_Gathering_my_Thoughts_1
+    choiceText: "\uAE30\uC5B5\uC744 \uB5A0\uC62C\uB9B0\uB2E4."
+    choiceType: 2
+    actionType: 1
+    usageType: 0
+    nextPage: {fileID: 11400000, guid: e06032da330f5f44eb2530b7fce45468, type: 2}
+    executionType: 1
+    requiredStat: 4
+    requiredCardKeyword: 0
+    target: 6
+    conditions: []
+    allowsIgnition: 0
+    showKnownMemoryTitlesOnSuccess: 1
+    successResult:
+      description: 
+      effects:
+      - {fileID: 0}
+      resultImage: {fileID: 0}
+      redLineResult: 0
+    failureResult:
+      description: "\uAE30\uC5B5\uC744 \uB5A0\uC62C\uB9AC\uC9C0 \uBABB\uD588\uB2E4."
+      effects: []
+      resultImage: {fileID: 0}
+      redLineResult: 0
+    legacyCardRequirement:
+      requiresCard: 0
+      allowedColors: 
+      checkStat: 0
+  - choiceId: I_am_Gathering_my_Thoughts_2
+    choiceText: "\uC81C\uC791 \uD55C\uB2E4."
+    choiceType: 2
+    actionType: 0
+    usageType: 0
+    nextPage: {fileID: 11400000, guid: b02d83403f9a03544b2560968e08a40d, type: 2}
+    executionType: 0
+    requiredStat: 0
+    requiredCardKeyword: 0
+    target: 0
+    conditions: []
+    allowsIgnition: 0
+    showKnownMemoryTitlesOnSuccess: 0
+    successResult:
+      description: 
+      effects: []
+      resultImage: {fileID: 0}
+      redLineResult: 0
+    failureResult:
+      description: 
+      effects: []
+      resultImage: {fileID: 0}
+      redLineResult: 0
+    legacyCardRequirement:
+      requiresCard: 0
+      allowedColors: 
+      checkStat: 0
+  - choiceId: I_am_Gathering_my_Thoughts_3
+    choiceText: "\uBB3C\uD488\uC744 \uB354 \uC138\uBC00\uD558\uAC8C \uAD00\uCC30\uD55C\uB2E4."
+    choiceType: 2
+    actionType: 0
+    usageType: 0
+    nextPage: {fileID: 11400000, guid: 9c900262694c4d541bf16d0c60d2d38a, type: 2}
+    executionType: 0
+    requiredStat: 0
+    requiredCardKeyword: 0
+    target: 0
+    conditions: []
+    allowsIgnition: 0
+    showKnownMemoryTitlesOnSuccess: 0
+    successResult:
+      description: "\uB2F9\uC2E0\uC740 \uC778\uAC04\uC758 \uAC83\uC73C\uB85C \uB9CC\uB4DC\uB7EC\uC9C4
+        \uC2A4\uD504\uB97C \uBA39\uC5C8\uB2E4\uB294 \uAC83\uC5D0 \uBA38\uB9AC\uAC00
+        \uC5B4\uC9C0\uB7EC\uC6CC \uC9D1\uB2C8\uB2E4."
+      effects:
+      - {fileID: 11400000, guid: 2f3f1cd67c41d884ea08bdba269cd4d5, type: 2}
+      - {fileID: 11400000, guid: b82541c53b4b5c84a85c066f4e57ccbf, type: 2}
+      resultImage: {fileID: 0}
+      redLineResult: 0
+    failureResult:
+      description: 
+      effects: []
+      resultImage: {fileID: 0}
+      redLineResult: 0
+    legacyCardRequirement:
+      requiresCard: 0
+      allowedColors: 
+      checkStat: 0
+  showOwnedMemos: 0
+  usageType: 1
+  openingConditions: []
+  startingNodeId: 
+  legacyEntryData: {fileID: 11400000, guid: 1f3ed312633b25947a4a281b2daeddf4, type: 2}

@@ -12,6 +12,9 @@ public class TutorialFieldFlowController : MonoBehaviour
     private MissionFieldRoot tutorialFieldRoot;
 
     [SerializeField]
+    private FieldMissionData tutorialMission;
+
+    [SerializeField]
     private GameObject fieldCanvasRoot;
 
     [Header("플레이어")]
@@ -29,6 +32,7 @@ public class TutorialFieldFlowController : MonoBehaviour
 
     private void Awake()
     {
+        BindFlowEvents();
         ResolveReferences();
 
         if (fieldCanvasRoot == null)
@@ -44,6 +48,11 @@ public class TutorialFieldFlowController : MonoBehaviour
     }
 
     private void OnEnable()
+    {
+        BindFlowEvents();
+    }
+
+    private void BindFlowEvents()
     {
         BattleManager.OnBattleStarted -=
             HandleBattleStarted;
@@ -64,7 +73,7 @@ public class TutorialFieldFlowController : MonoBehaviour
             HandleRewardClosed;
     }
 
-    private void OnDisable()
+    private void OnDestroy()
     {
         BattleManager.OnBattleStarted -=
             HandleBattleStarted;
@@ -110,14 +119,15 @@ public class TutorialFieldFlowController : MonoBehaviour
             return false;
         }
 
-        if (characterSpawner == null ||
-            !characterSpawner.EnsureCharactersSpawned() ||
-            characterSpawner.SpawnedCharacters == null ||
-            characterSpawner.SpawnedCharacters.Count == 0)
+        List<CharacterBase> players = new();
+
+        CollectCreatedPlayers(players);
+
+        if (players.Count == 0)
         {
             Debug.LogWarning(
                 "TutorialFieldFlowController: " +
-                "생성된 EX 플레이어가 없습니다.");
+                "캐릭터 생성 화면에서 만든 플레이어가 없습니다.");
 
             return false;
         }
@@ -125,21 +135,10 @@ public class TutorialFieldFlowController : MonoBehaviour
         SetFieldCanvasActive(true);
         InitializeInactiveFieldUI();
 
-        List<CharacterBase> players = new();
-
-        foreach (CharacterBase character in
-                 characterSpawner.SpawnedCharacters)
-        {
-            if (character != null &&
-                !players.Contains(character))
-            {
-                players.Add(character);
-            }
-        }
-
         if (!fieldManager.StartExistingField(
                 tutorialFieldRoot,
-                players))
+                players,
+                tutorialMission))
         {
             SetFieldCanvasActive(false);
 
@@ -156,6 +155,15 @@ public class TutorialFieldFlowController : MonoBehaviour
             screenChangeType);
 
         return true;
+    }
+
+    public void ResetTutorialSession()
+    {
+        HasStarted = false;
+        isWaitingForBattleReturn = false;
+        shouldStartFieldAfterBattle = false;
+        preparedPlayers.Clear();
+        SetFieldCanvasActive(false);
     }
 
     /// <summary>
@@ -224,7 +232,16 @@ public class TutorialFieldFlowController : MonoBehaviour
         if (!victory)
         {
             shouldStartFieldAfterBattle = false;
-            SetFieldCanvasActive(false);
+
+            FieldManager fieldManager =
+                GameManager.Instance != null
+                    ? GameManager.Instance.Field
+                    : null;
+
+            // 필드 진행 중 사망했다면 일반 전투 게임 오버 대신
+            // 필드의 확정 사망 엔딩 결과창을 보여 줍니다.
+            SetFieldCanvasActive(
+                fieldManager != null && fieldManager.HasEndedByDeath);
         }
     }
 
@@ -272,6 +289,8 @@ public class TutorialFieldFlowController : MonoBehaviour
 
         if (fieldManager != null)
         {
+            RestoreInformationReveals(fieldManager);
+
             RefreshFieldHand(
                 fieldManager.CurrentPlayer);
         }
@@ -279,6 +298,57 @@ public class TutorialFieldFlowController : MonoBehaviour
         UIManager.OpenScreenM2(
             UIType.Field,
             screenChangeType);
+    }
+
+    /// <summary>
+    /// 전투 화면에서 필드 화면으로 돌아올 때 현재 플레이어가 이미 가진 정보를
+    /// 다시 적용해 히든 라인과 노드가 초기 상태로 보이는 문제를 복구합니다.
+    /// 공개 이후 변경된 Normal·Red 상태는 RevealAs가 덮어쓰지 않습니다.
+    /// </summary>
+    private void RestoreInformationReveals(FieldManager fieldManager)
+    {
+        if (fieldManager == null ||
+            fieldManager.CurrentPlayer == null ||
+            fieldManager.CurrentFieldRoot == null)
+        {
+            return;
+        }
+
+        FieldInformationInventory inventory =
+            FieldInformationInventory.Get(fieldManager.CurrentPlayer);
+
+        if (inventory == null)
+            return;
+
+        MissionFieldRoot fieldRoot = fieldManager.CurrentFieldRoot;
+
+        foreach (FieldInformationData information in inventory.AcquiredInformation)
+        {
+            if (information == null)
+                continue;
+
+            foreach (string lineId in information.RevealLineIds)
+            {
+                if (string.IsNullOrWhiteSpace(lineId))
+                    continue;
+
+                FieldLine line = fieldRoot.FindLine(lineId);
+
+                if (line != null)
+                    line.RevealAs(information.RevealedLineType);
+            }
+
+            foreach (string nodeId in information.RevealNodeIds)
+            {
+                if (string.IsNullOrWhiteSpace(nodeId))
+                    continue;
+
+                FieldNode node = fieldRoot.FindNode(nodeId);
+
+                if (node != null)
+                    node.DiscoverHiddenArea();
+            }
+        }
     }
 
     private void SetFieldCanvasActive(
@@ -318,6 +388,65 @@ public class TutorialFieldFlowController : MonoBehaviour
         {
             handUI.ClearHand();
         }
+    }
+
+    /// <summary>
+    /// 캐릭터 생성기가 보관 중인 실제 생성 결과를 우선 사용합니다.
+    /// 장면 참조가 비어 있어도 플레이어 컨트롤러가 소유한 캐릭터를
+    /// 찾아 필드 참가자로 사용할 수 있게 합니다.
+    /// </summary>
+    private void CollectCreatedPlayers(List<CharacterBase> destination)
+    {
+        if (destination == null)
+            return;
+
+        destination.Clear();
+
+        IReadOnlyList<CharacterBase> spawnedCharacters =
+            characterSpawner != null
+                ? characterSpawner.SpawnedCharacters
+                : null;
+
+        if (spawnedCharacters != null)
+        {
+            foreach (CharacterBase character in spawnedCharacters)
+            {
+                AddPlayerIfValid(destination, character);
+            }
+        }
+
+        if (destination.Count > 0)
+            return;
+
+        CharacterBase[] sceneCharacters =
+            FindObjectsByType<CharacterBase>(
+                FindObjectsInactive.Include,
+                FindObjectsSortMode.None);
+
+        foreach (CharacterBase character in sceneCharacters)
+        {
+            if (character == null ||
+                !(character.Controller is PlauerController))
+            {
+                continue;
+            }
+
+            AddPlayerIfValid(destination, character);
+        }
+    }
+
+    private static void AddPlayerIfValid(
+        List<CharacterBase> destination,
+        CharacterBase character)
+    {
+        if (destination == null ||
+            character == null ||
+            destination.Contains(character))
+        {
+            return;
+        }
+
+        destination.Add(character);
     }
 
     private void ResolveReferences()

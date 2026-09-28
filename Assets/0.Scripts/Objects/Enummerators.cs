@@ -333,19 +333,27 @@ public enum CardKeywordType
 
 public enum FieldInformationVisibility
 {
-    Hidden,
-    Memo
+    Hidden, Memory, Memo
 }
 
 public enum FieldRedLineResult
 {
-    None,
-    Open,
-    Locked
+    None, Open, Locked
 }
 
 public enum FieldInformationLineRevealState
 {
-    Red,
-    Normal
+    Red, Normal
+}
+
+public enum FieldEventUsageType
+{
+    OncePerField = 0,
+    Repeatable = 1
+}
+
+public enum FieldInformationKnowledgeRequirement
+{
+    DoesNotKnow = 0,
+    Knows = 1
 }

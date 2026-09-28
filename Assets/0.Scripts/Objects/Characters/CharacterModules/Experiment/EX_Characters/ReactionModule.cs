@@ -14,12 +14,12 @@ public class ReactionModule : CharacterModule
         if (Owner == null)
             return false;
 
-        CostModule cost = Owner.GetModule<CostModule>();
+        ActionPointModule actionPoint = Owner.GetModule<ActionPointModule>();
 
-        if (cost == null)
+        if (actionPoint == null)
             return false;
 
-        return cost.CanUse(CostType.Reaction, 1);
+        return actionPoint.CanUse(1);
     }
 
 
@@ -34,12 +34,12 @@ public class ReactionModule : CharacterModule
         if (!IsReactionAction(actionType))
             return false;
 
-        CostModule cost = Owner.GetModule<CostModule>();
+        ActionPointModule actionPoint = Owner.GetModule<ActionPointModule>();
 
-        if (cost == null)
+        if (actionPoint == null)
             return false;
 
-        return cost.CanUse(CostType.Reaction, 1);
+        return actionPoint.CanUse(1);
     }
 
 
@@ -62,14 +62,12 @@ public class ReactionModule : CharacterModule
         if (!CanUse(actionType))
             return false;
 
-        CostModule cost =
-            Owner.GetModule<CostModule>();
+        ActionPointModule actionPoint = Owner.GetModule<ActionPointModule>();
 
-        if (cost == null)
+        if (actionPoint == null)
             return false;
 
-
-        if (!cost.Use(CostType.Reaction, 1))
+        if (!actionPoint.TryUse(1))
             return false;
 
 

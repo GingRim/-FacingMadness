@@ -13,6 +13,9 @@ using UnityEngine.UI;
 public class UI_FieldEvent : UIBase
 {
     private const int MaximumChoiceButtonCount = 5;
+    private const int MemoPageSize = 3;
+    private const int MemoPreviousButtonId = 1000000;
+    private const int MemoNextButtonId = 1000001;
 
     [Header("이벤트 실행기")]
     [SerializeField]
@@ -57,6 +60,12 @@ public class UI_FieldEvent : UIBase
 
     private readonly List<int> availableChoiceIndices = new();
 
+    private readonly List<FieldInformationData> memoInformation = new();
+
+    private int memoPageIndex;
+
+    private bool isShowingMemoContent;
+
     private Coroutine resultTransitionRoutine;
 
     /// <summary>
@@ -69,11 +78,7 @@ public class UI_FieldEvent : UIBase
     /// </summary>
     private void Awake()
     {
-        if (eventRunner == null)
-        {
-            eventRunner = FindFirstObjectByType<FieldEventRunner>(
-                FindObjectsInactive.Include);
-        }
+        ResolveEventRunner();
 
         if (resultStoryUI == null)
         {
@@ -99,6 +104,48 @@ public class UI_FieldEvent : UIBase
         }
     }
 
+    private void OnEnable()
+    {
+        ResolveEventRunner();
+        BindRunner();
+
+        // 후보 선택창이 닫히는 동안 이 UI가 비활성화됐더라도
+        // 이미 열린 이벤트의 현재 화면을 즉시 복구합니다.
+        if (eventRunner != null && eventRunner.IsEventActive)
+        {
+            HandleEventOpened(
+                eventRunner.CurrentEvent,
+                eventRunner.CurrentContext);
+
+            HandleEventDataChanged(eventRunner.CurrentData);
+        }
+    }
+
+    private void ResolveEventRunner()
+    {
+        FieldManager runtimeField =
+            GameManager.Instance != null
+                ? GameManager.Instance.Field
+                : null;
+
+        if (runtimeField != null && runtimeField.EventRunner != null)
+        {
+            if (eventRunner != runtimeField.EventRunner)
+            {
+                UnbindRunner();
+                eventRunner = runtimeField.EventRunner;
+            }
+
+            return;
+        }
+
+        if (eventRunner == null)
+        {
+            eventRunner = FindFirstObjectByType<FieldEventRunner>(
+                FindObjectsInactive.Include);
+        }
+    }
+
     /// <summary>
     /// 이벤트 실행기와 버튼에 연결한 콜백을 해제한다.
     /// </summary>
@@ -116,7 +163,7 @@ public class UI_FieldEvent : UIBase
     }
 
     /// <summary>
-    /// 이벤트 시작, 페이지 변경, 선택 결과,
+    /// 이벤트 시작, 표시 데이터 변경, 선택 결과,
     /// 실패 및 종료 이벤트를 등록한다.
     /// </summary>
     private void BindRunner()
@@ -131,8 +178,8 @@ public class UI_FieldEvent : UIBase
         eventRunner.OnEventOpened -= HandleEventOpened;
         eventRunner.OnEventOpened += HandleEventOpened;
 
-        eventRunner.OnPageChanged -= HandlePageChanged;
-        eventRunner.OnPageChanged += HandlePageChanged;
+        eventRunner.OnEventDataChanged -= HandleEventDataChanged;
+        eventRunner.OnEventDataChanged += HandleEventDataChanged;
 
         eventRunner.OnChoiceSelected -= HandleChoiceSelected;
         eventRunner.OnChoiceSelected += HandleChoiceSelected;
@@ -154,7 +201,7 @@ public class UI_FieldEvent : UIBase
 
         eventRunner.OnEventOpened -= HandleEventOpened;
 
-        eventRunner.OnPageChanged -= HandlePageChanged;
+        eventRunner.OnEventDataChanged -= HandleEventDataChanged;
 
         eventRunner.OnChoiceSelected -= HandleChoiceSelected;
 
@@ -178,8 +225,7 @@ public class UI_FieldEvent : UIBase
     }
 
     /// <summary>
-    /// 이벤트의 기본 정보와 분위기 이미지를 표시한다.
-    /// 시작 페이지가 없는 기존 이벤트는 기존 선택지 배열을 사용한다.
+    /// 이벤트 화면을 열고 실행 캐릭터를 연결합니다.
     /// </summary>
     /// <param name="eventData">표시할 이벤트 데이터</param>
     /// <param name="context">현재 이벤트 실행 정보</param>
@@ -190,25 +236,8 @@ public class UI_FieldEvent : UIBase
 
         Character = context != null ? context.Character : null;
 
-        if (eventNameText != null)
-        {
-            eventNameText.gameObject.SetActive(true);
-            eventNameText.SetText(eventData.EventName);
-        }
-
-        if (descriptionText != null)
-        {
-            descriptionText.gameObject.SetActive(true);
-            descriptionText.SetText(eventData.Description);
-        }
-
-        if (eventImage != null)
-        {
-            eventImage.sprite = eventData.EventImage;
-
-            // 이미지를 숨기더라도 자식 텍스트는 유지한다.
-            eventImage.enabled = eventData.EventImage != null;
-        }
+        memoPageIndex = 0;
+        isShowingMemoContent = false;
 
         if (choiceGroup != null)
         {
@@ -216,14 +245,6 @@ public class UI_FieldEvent : UIBase
         }
 
         ClearChoiceButtons();
-
-        if (eventData.RootPage == null && eventData.HasDirectChoices)
-        {
-            CreateChoiceButtons(
-                eventData.DirectChoices,
-                eventData.DirectChoiceDisplayType,
-                eventData.MaximumVisibleDirectChoices);
-        }
 
         RefreshBackButton();
 
@@ -234,23 +255,59 @@ public class UI_FieldEvent : UIBase
     }
 
     /// <summary>
-    /// 현재 페이지의 설명과 선택지를 새로 표시한다.
-    /// 고정 페이지는 순서대로 표시하고
-    /// 무작위 페이지는 후보를 섞어 표시한다.
+    /// 현재 FieldEventData의 설명, 이미지와 선택지를 표시합니다.
+    /// 기존 페이지 호환 데이터에 비어 있는 값은 루트 이벤트 값을 사용합니다.
     /// </summary>
-    /// <param name="page">새로 표시할 이벤트 페이지</param>
-    private void HandlePageChanged(FieldEventPageData page)
+    /// <param name="data">새로 표시할 통합 이벤트 데이터</param>
+    private void HandleEventDataChanged(FieldEventData data)
     {
-        if (page == null)
+        if (data == null)
             return;
+
+        isShowingMemoContent = false;
+
+        FieldEventData rootEvent =
+            eventRunner != null
+                ? eventRunner.CurrentEvent
+                : null;
+
+        string displayName =
+            !string.IsNullOrWhiteSpace(data.EventName)
+                ? data.EventName
+                : rootEvent != null
+                    ? rootEvent.EventName
+                    : string.Empty;
+
+        string displayDescription =
+            !string.IsNullOrWhiteSpace(data.Description)
+                ? data.Description
+                : rootEvent != null
+                    ? rootEvent.Description
+                    : string.Empty;
+
+        Sprite displayImage =
+            data.EventImage != null
+                ? data.EventImage
+                : rootEvent != null
+                    ? rootEvent.EventImage
+                    : null;
+
+        if (eventNameText != null)
+        {
+            eventNameText.gameObject.SetActive(true);
+            eventNameText.SetText(displayName);
+        }
 
         if (descriptionText != null)
         {
             descriptionText.gameObject.SetActive(true);
+            descriptionText.SetText(displayDescription);
+        }
 
-            string pageDescription = !string.IsNullOrWhiteSpace(page.Description) ? page.Description : GetCurrentEventDescription();
-
-            descriptionText.SetText(pageDescription);
+        if (eventImage != null)
+        {
+            eventImage.sprite = displayImage;
+            eventImage.enabled = displayImage != null;
         }
 
         if (choiceGroup != null)
@@ -258,23 +315,166 @@ public class UI_FieldEvent : UIBase
             choiceGroup.SetActive(true);
         }
 
-        CreateChoiceButtons(page.Choices, page.DisplayType, page.MaximumVisibleChoices);
+        if (data.ShowOwnedMemos)
+        {
+            CreateMemoButtons();
+        }
+        else
+        {
+            memoPageIndex = 0;
+
+            CreateChoiceButtons(
+                data.Choices,
+                data.DisplayType,
+                data.MaximumVisibleChoices);
+        }
 
         RefreshBackButton();
     }
 
     /// <summary>
-    /// 현재 이벤트의 기본 설명 문장을 반환한다.
+    /// 현재 캐릭터가 보유한 메모를 기존 선택지 버튼에 자동으로 표시합니다.
+    /// 메모가 5개를 넘으면 이전/다음 버튼을 포함해 페이지 단위로 표시합니다.
     /// </summary>
-    /// <returns>현재 이벤트 설명</returns>
-    private string GetCurrentEventDescription()
+    private void CreateMemoButtons()
     {
-        if (eventRunner == null || eventRunner.CurrentEvent == null)
+        ClearChoiceButtons();
+        memoInformation.Clear();
+
+        FieldInformationInventory inventory =
+            FieldInformationInventory.Get(Character);
+
+        if (inventory != null)
         {
-            return string.Empty;
+            foreach (FieldInformationData information in inventory.AcquiredInformation)
+            {
+                if (information != null && information.IsMemo)
+                {
+                    memoInformation.Add(information);
+                }
+            }
         }
 
-        return eventRunner.CurrentEvent.Description;
+        if (memoInformation.Count == 0)
+        {
+            if (descriptionText != null)
+                descriptionText.SetText("보유한 메모가 없습니다.");
+
+            if (choiceGroup != null)
+                choiceGroup.SetActive(false);
+
+            return;
+        }
+
+        if (choiceGroup != null)
+            choiceGroup.SetActive(true);
+
+        int buttonSlot = 0;
+
+        if (memoInformation.Count <= MaximumChoiceButtonCount)
+        {
+            for (int i = 0; i < memoInformation.Count; i++)
+            {
+                SetMemoButton(
+                    ref buttonSlot,
+                    i,
+                    GetMemoButtonText(memoInformation[i]));
+            }
+
+            return;
+        }
+
+        int pageCount =
+            Mathf.CeilToInt(
+                memoInformation.Count / (float)MemoPageSize);
+
+        memoPageIndex =
+            Mathf.Clamp(memoPageIndex, 0, pageCount - 1);
+
+        if (memoPageIndex > 0)
+        {
+            SetMemoButton(
+                ref buttonSlot,
+                MemoPreviousButtonId,
+                "이전 정보 목록");
+        }
+
+        int startIndex = memoPageIndex * MemoPageSize;
+        int endIndex =
+            Mathf.Min(startIndex + MemoPageSize, memoInformation.Count);
+
+        for (int i = startIndex; i < endIndex; i++)
+        {
+            SetMemoButton(
+                ref buttonSlot,
+                i,
+                GetMemoButtonText(memoInformation[i]));
+        }
+
+        if (memoPageIndex < pageCount - 1)
+        {
+            SetMemoButton(
+                ref buttonSlot,
+                MemoNextButtonId,
+                "다음 정보 목록");
+        }
+    }
+
+    private void SetMemoButton(ref int buttonSlot, int id, string text)
+    {
+        if (choiceButtons == null)
+            return;
+
+        while (buttonSlot < choiceButtons.Length &&
+               choiceButtons[buttonSlot] == null)
+        {
+            buttonSlot++;
+        }
+
+        if (buttonSlot >= choiceButtons.Length)
+            return;
+
+        choiceButtons[buttonSlot].SetText(
+            id,
+            text,
+            HandleMemoButtonSelected);
+
+        buttonSlot++;
+    }
+
+    private static string GetMemoButtonText(FieldInformationData information)
+    {
+        if (information == null)
+            return string.Empty;
+
+        return string.IsNullOrWhiteSpace(information.Title)
+            ? "이름 없는 메모"
+            : information.Title;
+    }
+
+    private void HandleMemoButtonSelected(int id)
+    {
+        if (id == MemoPreviousButtonId)
+        {
+            memoPageIndex = Mathf.Max(0, memoPageIndex - 1);
+            CreateMemoButtons();
+            return;
+        }
+
+        if (id == MemoNextButtonId)
+        {
+            memoPageIndex++;
+            CreateMemoButtons();
+            return;
+        }
+
+        if (id < 0 || id >= memoInformation.Count)
+            return;
+
+        if (!eventRunner.ResolveInformationSelection(memoInformation[id]))
+        {
+            HandleChoiceFailed("선택한 정보를 확인할 수 없습니다.");
+        }
     }
 
     /// <summary>
@@ -608,7 +808,9 @@ public class UI_FieldEvent : UIBase
         if (backButton == null)
             return;
 
-        bool canReturn = eventRunner != null && eventRunner.CanReturnToPreviousPage;
+        bool canReturn =
+            isShowingMemoContent ||
+            (eventRunner != null && eventRunner.CanReturnToPreviousPage);
 
         backButton.gameObject.SetActive(canReturn);
     }
@@ -620,6 +822,13 @@ public class UI_FieldEvent : UIBase
     {
         if (eventRunner == null)
             return;
+
+        if (isShowingMemoContent)
+        {
+            isShowingMemoContent = false;
+            HandleEventDataChanged(eventRunner.CurrentData);
+            return;
+        }
 
         eventRunner.TryReturnToPreviousPage();
     }
@@ -640,6 +849,10 @@ public class UI_FieldEvent : UIBase
         ClearChoiceButtons();
 
         Character = null;
+
+        memoInformation.Clear();
+        memoPageIndex = 0;
+        isShowingMemoContent = false;
 
         if (backButton != null)
         {

@@ -23,7 +23,24 @@ public class FieldMissionData : ScriptableObject
     [SerializeField]
     private List<FieldMissionObjectiveRequirement> objectives = new();
 
+    [Header("세션 엔딩")]
+    [Tooltip("정상적인 세션 종료 시 점수 범위에 따라 선택할 엔딩입니다.")]
+    [SerializeField]
+    private List<FieldSessionEndingData> sessionEndings = new();
+
+    [Tooltip("플레이어가 사망했을 때 점수와 관계없이 강제로 사용할 엔딩입니다.")]
+    [SerializeField]
+    private FieldSessionEndingData deathEnding;
+
+    [Header("조건 엔딩")]
+    [Tooltip("이벤트 결과 종료 시 정보 조건과 생존 조건을 만족하면 즉시 확정할 엔딩입니다.")]
+    [SerializeField]
+    private List<FieldSessionEndingRequirement> conditionalEndings = new();
+
     public IReadOnlyList<FieldMissionObjectiveRequirement> Objectives => objectives;
+    public IReadOnlyList<FieldSessionEndingData> SessionEndings => sessionEndings;
+    public FieldSessionEndingData DeathEnding => deathEnding;
+    public IReadOnlyList<FieldSessionEndingRequirement> ConditionalEndings => conditionalEndings;
 
     public string FieldObjectName => fieldObjectName;
 

@@ -30,7 +30,5 @@ public class FieldForceNextCoreEventEffect : FieldEventEffect
         }
 
         context.FieldManager.ReserveCoreEventForNextEvent(character);
-
-        context.AddResultMessage("다음 이벤트에서 핵심 사건이 발생합니다.");
     }
 }

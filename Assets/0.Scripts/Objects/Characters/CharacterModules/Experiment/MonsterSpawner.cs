@@ -5,6 +5,12 @@ public class MonsterSpawner : MonoBehaviour
 {
     [SerializeField] private Transform monsterParent;
 
+    [Header("전투 플레이어 위치")]
+    [SerializeField] private Transform[] playerSpawnPoints;
+
+    [Header("전투 몬스터 위치")]
+    [SerializeField] private Transform[] monsterSpawnPoints;
+
     public CharacterBase SpawnMonster(MonsterData data, int playerLevel, Vector3 position)
     {
         if (data == null)
@@ -21,17 +27,30 @@ public class MonsterSpawner : MonoBehaviour
 
         CharacterBase monster = Instantiate(data.monsterPrefab, position, Quaternion.identity, monsterParent);
 
-        monster.AddAllModuleFromObject(monster.gameObject);
+        if (monster == null)
+        {
+            Debug.LogError($"몬스터 생성 실패: {data.monsterName}");
+            return null;
+        }
+
+        // 프리팹의 기본 이름과 아이콘 대신 MonsterData의 정보를 사용합니다.
+        monster.SetDisplayName(data.monsterName);
+        monster.SetIcon(data.Icon);
+
+        if (monster.GetComponentInChildren<ActionPointModule>(true) == null)
+        {
+            monster.gameObject.AddComponent<ActionPointModule>();
+        }
 
         // 중요: 몬스터는 Possessed를 안 하므로 여기서 직접 모듈 등록
         monster.AddAllModuleFromObject(monster.gameObject);
 
-        int difficultyModifier = 0;
+        int difficultyModifier = data.difficultyModifier;
         int monsterLevel = Mathf.Max(1, playerLevel + difficultyModifier);
 
         ApplyMonsterData(monster, data, monsterLevel);
 
-        Debug.Log($"몬스터 생성: {monster.name} / LV {monsterLevel}");
+        Debug.Log($"몬스터 생성: {monster.DisplayName} / LV {monsterLevel}");
 
         return monster;
 
@@ -48,13 +67,24 @@ public class MonsterSpawner : MonoBehaviour
         {
             MonsterData data = monsterDatas[i];
 
-            Vector3 position = new Vector3(i * 2f, 0f, 0f);
+            Transform spawnPoint = GetSpawnPoint(monsterSpawnPoints, i);
+
+            Vector3 position = spawnPoint != null
+                ? spawnPoint.position
+                : new Vector3(i * 2f, 0f, 0f);
 
             CharacterBase monster =
                 SpawnMonster(data, playerLevel, position);
 
             if (monster != null)
             {
+                if (spawnPoint != null)
+                {
+                    monster.transform.SetPositionAndRotation(
+                        spawnPoint.position,
+                        spawnPoint.rotation);
+                }
+
                 monsters.Add(monster);
             }
         }
@@ -62,12 +92,60 @@ public class MonsterSpawner : MonoBehaviour
         return monsters;
     }
 
+    /// <summary>
+    /// 이미 생성된 플레이어를 전투 화면의 플레이어 스폰 지점에 배치합니다.
+    /// 스폰 지점이 비어 있는 플레이어의 현재 위치는 유지합니다.
+    /// </summary>
+    public void PositionPlayers(IReadOnlyList<CharacterBase> players)
+    {
+        if (players == null)
+            return;
+
+        for (int i = 0; i < players.Count; i++)
+        {
+            CharacterBase player = players[i];
+            Transform spawnPoint = GetSpawnPoint(playerSpawnPoints, i);
+
+            if (player == null || spawnPoint == null)
+                continue;
+
+            player.transform.SetPositionAndRotation(
+                spawnPoint.position,
+                spawnPoint.rotation);
+        }
+    }
+
+    private static Transform GetSpawnPoint(
+        Transform[] spawnPoints,
+        int index)
+    {
+        if (spawnPoints == null ||
+            index < 0 ||
+            index >= spawnPoints.Length)
+        {
+            return null;
+        }
+
+        return spawnPoints[index];
+    }
+
     private void ApplyMonsterData(CharacterBase monster, MonsterData data, int monsterLevel)
     {
         ApplyLevel(monster, monsterLevel);
         ApplyStats(monster, data);
         ApplyArmor(monster, data);
+        ApplyAI(monster, data);
         RefreshDerivedValues(monster);
+    }
+
+    private void ApplyAI(CharacterBase monster, MonsterData data)
+    {
+        MonsterAIModule ai = monster.GetModule<MonsterAIModule>();
+
+        if (ai != null)
+        {
+            ai.SetProfile(data.aiProfile);
+        }
     }
 
     private void ApplyLevel(CharacterBase monster, int monsterLevel)

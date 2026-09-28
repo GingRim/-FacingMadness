@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a24738a1c47ff72438910078cb8c9222, type: 3}
+  m_Name: HH
+  m_EditorClassIdentifier: Assembly-CSharp::MonsterData
+  monsterName: "\uD5CC\uD305\uD638\uB7EC"
+  monsterPrefab: {fileID: -8322668605473903493, guid: c70a950890ce3564d95b4cae0dcf38dc, type: 3}
+  strength: 6
+  agility: 9
+  health: 8
+  intelligence: 7
+  will: 9
+  baseArmor: 3
+  difficultyModifier: 5
+  Icon: {fileID: -6829165948154904987, guid: 030b5140f18bb1944ae9adef46748a52, type: 3}

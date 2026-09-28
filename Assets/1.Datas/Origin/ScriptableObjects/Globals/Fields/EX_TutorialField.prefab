@@ -91,8 +91,18 @@ MonoBehaviour:
   nodeA: {fileID: 8130024267572856249}
   nodeB: {fileID: 5411245644419324860}
   lineType: 0
+  redLineAccessEvents:
+  - eventData: {fileID: 11400000, guid: 01c00827e91aa414fb62f39ee05d57f5, type: 2}
+    priority: 10
+  - eventData: {fileID: 11400000, guid: de2c18c795cd47e19ba46d1cbf4726ef, type: 2}
+    priority: 20
+  maximumHitpoint: 1
   visualObject: {fileID: 0}
-  lineId: Image
+  lineImage: {fileID: 9199614810788357559}
+  normalSprite: {fileID: 0}
+  redSprite: {fileID: 0}
+  hiddenSprite: {fileID: 0}
+  lineId: BookStorage_Line
 --- !u!1 &1063035094308946573
 GameObject:
   m_ObjectHideFlags: 0
@@ -384,8 +394,18 @@ MonoBehaviour:
   nodeA: {fileID: 8130024267572856249}
   nodeB: {fileID: 4515180962470942862}
   lineType: 0
+  redLineAccessEvents:
+  - eventData: {fileID: 11400000, guid: 34d82745dc1972f42a9a122aa1820adf, type: 2}
+    priority: 10
+  - eventData: {fileID: 11400000, guid: 53894ffe320e2e241bb8a500b94efece, type: 2}
+    priority: 20
+  maximumHitpoint: 1
   visualObject: {fileID: 0}
-  lineId: Image
+  lineImage: {fileID: 1218707270736016718}
+  normalSprite: {fileID: 0}
+  redSprite: {fileID: 0}
+  hiddenSprite: {fileID: 0}
+  lineId: Kitchen_Line
 --- !u!1 &2261541739185485656
 GameObject:
   m_ObjectHideFlags: 0
@@ -517,15 +537,15 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 3844294903919829932}
+  - {fileID: 7976789795093588742}
+  - {fileID: 4250401338158528236}
+  - {fileID: 564762314283511204}
   - {fileID: 4935855577956564966}
   - {fileID: 6895428133619575960}
   - {fileID: 5033661515374978023}
   - {fileID: 6990484251733500996}
   - {fileID: 715490000757247384}
-  - {fileID: 3844294903919829932}
-  - {fileID: 7976789795093588742}
-  - {fileID: 4250401338158528236}
-  - {fileID: 564762314283511204}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -877,8 +897,14 @@ MonoBehaviour:
   nodeA: {fileID: 8130024267572856249}
   nodeB: {fileID: 3742725408087659443}
   lineType: 1
+  redLineAccessEvents: []
+  maximumHitpoint: 1
   visualObject: {fileID: 0}
-  lineId: Image
+  lineImage: {fileID: 4612363428661680419}
+  normalSprite: {fileID: 0}
+  redSprite: {fileID: 0}
+  hiddenSprite: {fileID: 0}
+  lineId: ServantRoom_Line
 --- !u!1 &8980251634279527742
 GameObject:
   m_ObjectHideFlags: 0
@@ -932,7 +958,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8980251634279527742}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
@@ -970,5 +996,11 @@ MonoBehaviour:
   nodeA: {fileID: 8130024267572856249}
   nodeB: {fileID: 3380603261235316568}
   lineType: 2
+  redLineAccessEvents: []
+  maximumHitpoint: 1
   visualObject: {fileID: 0}
-  lineId: Image
+  lineImage: {fileID: 1210894097511592500}
+  normalSprite: {fileID: 0}
+  redSprite: {fileID: 0}
+  hiddenSprite: {fileID: 0}
+  lineId: Shrine_Line

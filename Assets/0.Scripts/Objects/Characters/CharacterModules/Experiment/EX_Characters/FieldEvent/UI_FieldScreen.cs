@@ -32,11 +32,13 @@ public class UI_FieldScreen : UI_ScreenBase
     [SerializeField]
     private UI_FieldCardUseDropTarget fieldCardUseArea;
 
+    [Header("필드 로그")]
     [SerializeField]
-    private TextMeshProUGUI mythTurnText;
+    private UI_FieldLog fieldLog;
 
     private CharacterBase boundPlayer;
     private ActionPointModule boundActionPoint;
+    private DeckModule boundDeck;
     private Coroutine fieldManagerBindRoutine;
 
     private void OnEnable()
@@ -47,7 +49,8 @@ public class UI_FieldScreen : UI_ScreenBase
 
         if (!HasRuntimeFieldManager())
         {
-            fieldManagerBindRoutine = StartCoroutine(WaitForRuntimeFieldManager());
+            fieldManagerBindRoutine =
+                StartCoroutine(WaitForRuntimeFieldManager());
         }
     }
 
@@ -122,6 +125,12 @@ public class UI_FieldScreen : UI_ScreenBase
 
         fieldManager.OnFieldTurnStarted -= HandleFieldTurnStarted;
         fieldManager.OnFieldTurnStarted += HandleFieldTurnStarted;
+
+        fieldManager.OnCurrentPlayerChanged -= HandleCurrentPlayerChanged;
+        fieldManager.OnCurrentPlayerChanged += HandleCurrentPlayerChanged;
+
+        fieldManager.OnFieldLog -= HandleFieldLog;
+        fieldManager.OnFieldLog += HandleFieldLog;
     }
 
     private void UnregisterFieldManager()
@@ -130,6 +139,8 @@ public class UI_FieldScreen : UI_ScreenBase
             return;
 
         fieldManager.OnFieldTurnStarted -= HandleFieldTurnStarted;
+        fieldManager.OnCurrentPlayerChanged -= HandleCurrentPlayerChanged;
+        fieldManager.OnFieldLog -= HandleFieldLog;
     }
 
     private void RefreshCurrentFieldState()
@@ -145,7 +156,9 @@ public class UI_FieldScreen : UI_ScreenBase
         RefreshTurnTexts(fieldManager.TotalFieldTurn);
     }
 
-    private void HandleFieldTurnStarted(CharacterBase player, int completedTurnCount)
+    private void HandleFieldTurnStarted(
+        CharacterBase player,
+        int completedTurnCount)
     {
         BindPlayer(player);
         RefreshTurnTexts(completedTurnCount);
@@ -154,6 +167,21 @@ public class UI_FieldScreen : UI_ScreenBase
         {
             fieldCardUseArea.ResetDisplay();
         }
+    }
+
+    private void HandleCurrentPlayerChanged(CharacterBase player)
+    {
+        BindPlayer(player);
+    }
+
+    private void HandleFieldLog(string message)
+    {
+        if (fieldLog == null)
+        {
+            fieldLog = GetComponentInChildren<UI_FieldLog>(true);
+        }
+
+        fieldLog?.AddLog(message);
     }
 
     private void BindPlayer(CharacterBase player)
@@ -173,14 +201,20 @@ public class UI_FieldScreen : UI_ScreenBase
             playerNameText.SetText(boundPlayer.DisplayName);
         }
 
-        DeckModule deck =
+        boundDeck =
             boundPlayer.GetModule<DeckModule>();
+
+        if (boundDeck != null)
+        {
+            boundDeck.OnCardZonesChanged -= RefreshHand;
+            boundDeck.OnCardZonesChanged += RefreshHand;
+        }
 
         if (handUI != null)
         {
-            if (deck != null)
+            if (boundDeck != null)
             {
-                handUI.RefreshFromDeck(deck);
+                handUI.RefreshFromDeck(boundDeck);
             }
             else
             {
@@ -207,20 +241,42 @@ public class UI_FieldScreen : UI_ScreenBase
 
     private void UnbindPlayer()
     {
+        if (boundDeck != null)
+        {
+            boundDeck.OnCardZonesChanged -= RefreshHand;
+        }
+
         if (boundActionPoint != null)
         {
             boundActionPoint.OnActionPointChanged -= RefreshActionPoint;
         }
 
+        boundDeck = null;
         boundActionPoint = null;
         boundPlayer = null;
+    }
+
+    private void RefreshHand()
+    {
+        if (handUI == null)
+            return;
+
+        if (boundDeck != null)
+        {
+            handUI.RefreshFromDeck(boundDeck);
+        }
+        else
+        {
+            handUI.ClearHand();
+        }
     }
 
     private void RefreshActionPoint(int current, int maximum)
     {
         if (actionPointText != null)
         {
-            actionPointText.SetText($"{current}/{maximum}");
+            actionPointText.SetText(
+                $"행동력 {current}/{maximum}");
         }
     }
 
@@ -232,19 +288,10 @@ public class UI_FieldScreen : UI_ScreenBase
 
         if (fieldTurnText != null)
         {
-            fieldTurnText.SetText($"{currentTurn}");
+            fieldTurnText.SetText(
+                $"필드 턴 {currentTurn}");
         }
 
-        if (mythTurnText == null || fieldManager == null)
-            return;
-
-        int interval =
-            Mathf.Max(1, fieldManager.MythTurnInterval);
-
-        int remaining =
-            interval - completedTurnCount % interval;
-
-        mythTurnText.SetText($"{remaining}");
     }
 
     private void ClearScreen()
@@ -269,9 +316,5 @@ public class UI_FieldScreen : UI_ScreenBase
             fieldTurnText.SetText(string.Empty);
         }
 
-        if (mythTurnText != null)
-        {
-            mythTurnText.SetText(string.Empty);
-        }
     }
 }

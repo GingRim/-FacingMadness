@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb2ea0c23290feb4bbd259ac5d20b14f, type: 3}
+  m_Name: Soup_in_a_Bowl
+  m_EditorClassIdentifier: Assembly-CSharp::FieldInformationData
+  informationId: Soup_in_a_bowl
+  title: "\uADF8\uB987\uC5D0 \uB2F4\uACA8\uC9C4 \uC2A4\uD504"
+  description: "\uC2A4\uD504\uAC00 \uADF8\uB987\uC5D0 \uB0A8\uACA8 \uC800\uC778\uB294\uAC00\uB97C
+    \uD310\uB2E8 \uD558\uB294 \uC815\uBCF4"
+  visibility: 0
+  revealLineIds: []
+  revealLineState: 0
+  revealNodeIds: []

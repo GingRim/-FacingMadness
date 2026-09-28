@@ -1,0 +1,92 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eda405cbcf5af0841a71b53f8add7b42, type: 3}
+  m_Name: ShowOwnedMemos_0
+  m_EditorClassIdentifier: Assembly-CSharp::FieldEventData
+  eventId: ShowOwnedMemos_0
+  eventName: "\uBA54\uBAA8\uB97C \uD655\uC778\uD55C\uB2E4."
+  eventType: 2
+  description: "\uB2F9\uC2E0\uC740 \uBA54\uBAA8\uB97C \uB2E4\uC2DC \uD655\uC778\uD569\uB2C8\uB2E4."
+  eventImage: {fileID: 0}
+  displayType: 0
+  maximumVisibleChoices: 5
+  choices:
+  - choiceId: ShowOwnedMemos_0
+    choiceText: "\uC758\uC790\uC758 \uCABD\uC9C0\uB97C \uB4A4\uC9D1\uB294\uB2E4."
+    choiceType: 2
+    actionType: 1
+    usageType: 0
+    nextPage: {fileID: 0}
+    executionType: 0
+    requiredStat: 0
+    requiredCardKeyword: 0
+    target: 0
+    conditions:
+    - {fileID: 11400000, guid: 6d2145a7172606a41bdae591f23bbee8, type: 2}
+    allowsIgnition: 0
+    showKnownMemoryTitlesOnSuccess: 0
+    successResult:
+      description: "\uCABD\uC9C0\uB97C \uB4A4\uC9D1\uC5C8\uC73C\uB098 \uB4B7\uBA74\uC5D0\uB294
+        \uBB34\uC5C8\uB3C4 \uC5C6\uC5C8\uB2E4."
+      effects: []
+      resultImage: {fileID: 0}
+      redLineResult: 0
+    failureResult:
+      description: 
+      effects: []
+      resultImage: {fileID: 0}
+      redLineResult: 0
+    legacyCardRequirement:
+      requiresCard: 0
+      allowedColors: 
+      checkStat: 0
+  - choiceId: ShowOwnedMemos_1
+    choiceText: "\uC2A4\uD504\uC758 \uCABD\uC9C0\uB97C \uB4A4\uC9D1\uB294\uB2E4."
+    choiceType: 2
+    actionType: 1
+    usageType: 0
+    nextPage: {fileID: 0}
+    executionType: 1
+    requiredStat: 5
+    requiredCardKeyword: 0
+    target: 6
+    conditions:
+    - {fileID: 11400000, guid: d3a3009bbdaf40c4984fb912910c35bd, type: 2}
+    allowsIgnition: 0
+    showKnownMemoryTitlesOnSuccess: 0
+    successResult:
+      description: "<size=94>\uB2F9\uC2E0\uC740 \uC774 \uCABD\uC9C0 \uB0B4\uC6A9\uC744
+        \uC790\uC2E0\uC744 \uB180\uB9AC\uB294 \uAC83\uC774\uB77C\uACE0 \uD310\uB2E8
+        \uD569\uB2C8\uB2E4."
+      effects:
+      - {fileID: 11400000, guid: 58c721fc4ba6efb46bcb7b9945b8b6e3, type: 2}
+      - {fileID: 11400000, guid: b9a4cc7873f1a6e45935fc08465b80b2, type: 2}
+      resultImage: {fileID: 0}
+      redLineResult: 0
+    failureResult:
+      description: "\uC2A4\uD504\uC5D0\uC11C \uB098\uC624\uB294<br>\uBE44\uB9BF\uD55C
+        \uD5A5\uACFC \uCABD\uC9C0\uC758 \uB0B4\uC6A9\uC5D0 \uB2F9\uC2E0\uC740  \uC7A0\uC2DC
+        <br><size=95>\uB450\uB824\uC6C0\uC774 \uB290\uB07C\uC9D1\uB2C8\uB2E4."
+      effects:
+      - {fileID: 11400000, guid: 58c721fc4ba6efb46bcb7b9945b8b6e3, type: 2}
+      - {fileID: 11400000, guid: f571ede06f95cb9489f601e584180b9b, type: 2}
+      resultImage: {fileID: 0}
+      redLineResult: 0
+    legacyCardRequirement:
+      requiresCard: 0
+      allowedColors: 
+      checkStat: 0
+  showOwnedMemos: 1
+  usageType: 1
+  openingConditions: []
+  startingNodeId: 
+  legacyEntryData: {fileID: 0}

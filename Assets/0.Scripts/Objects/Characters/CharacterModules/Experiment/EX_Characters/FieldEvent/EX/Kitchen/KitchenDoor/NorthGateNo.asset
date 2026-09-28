@@ -1,0 +1,146 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eda405cbcf5af0841a71b53f8add7b42, type: 3}
+  m_Name: NorthGateNo
+  m_EditorClassIdentifier: Assembly-CSharp::FieldEventData
+  eventId: NorthGateNo
+  eventName: "\uD770\uC0C9\uC758 \uBB38"
+  eventType: 1
+  description: "\uD770\uC0C9\uC73C\uB85C \uBCF4\uC774\uB294 \uBB38\uC744 \uAD00\uCC30\uD569\uB2C8\uB2E4."
+  eventImage: {fileID: -5192146429223839966, guid: 03af6b09aaac336479d4101e67236e4a, type: 3}
+  displayType: 0
+  maximumVisibleChoices: 5
+  choices:
+  - choiceId: NorthGateNo_01
+    choiceText: "\uBB38\uC744 \uC790\uC138\uD788 \uC0B4\uD3B4\uBCF8\uB2E4."
+    choiceType: 2
+    actionType: 1
+    usageType: 0
+    nextPage: {fileID: 0}
+    executionType: 0
+    requiredStat: 0
+    target: 5
+    conditions: []
+    allowsIgnition: 0
+    successResult:
+      description: "\uBB38\uC744 \uC790\uC138\uD788 \uC0B4\uD3B4\uBCF4\uBA70 \uD2B9\uC9D5\uC744
+        \uAE30\uC5B5\uD574 \uB454\uB2E4."
+      effects:
+      - {fileID: 11400000, guid: 487a86b6ed43f69409b936e2b209178b, type: 2}
+      resultImage: {fileID: 5679270475143602093, guid: 4667dd8d835986a458f1e4309c524bf7, type: 3}
+      redLineResult: 0
+    failureResult:
+      description: 
+      effects: []
+      resultImage: {fileID: 0}
+      redLineResult: 0
+    legacyCardRequirement:
+      requiresCard: 0
+      allowedColors: 
+      checkStat: 0
+  - choiceId: NorthGateNo_02
+    choiceText: "\uBB38\uC774 \uC5F4\uB824 \uC788\uB294\uC9C0 \uD655\uC778\uD55C\uB2E4."
+    choiceType: 2
+    actionType: 1
+    usageType: 0
+    nextPage: {fileID: 0}
+    executionType: 0
+    requiredStat: 0
+    target: 5
+    conditions:
+    - {fileID: 11400000, guid: fd43a849a5290044888ee8338f043247, type: 2}
+    allowsIgnition: 0
+    successResult:
+      description: "<size=95>\uC190\uC7A1\uC774\uB97C \uC7A1\uACE0 \uB0B4\uB9AC\uC790
+        \uBB38\uC740 \uC5F4\uC5EC\uC788\uC2B5\uB2C8\uB2E4."
+      effects:
+      - {fileID: 11400000, guid: 5c2f7ddf7d7af8e41b30afc2039c4873, type: 2}
+      resultImage: {fileID: 6701247662884773300, guid: 551d8e08baddd744cbdebef532793a33, type: 3}
+      redLineResult: 1
+    failureResult:
+      description: 
+      effects: []
+      resultImage: {fileID: 0}
+      redLineResult: 0
+    legacyCardRequirement:
+      requiresCard: 0
+      allowedColors: 
+      checkStat: 0
+  - choiceId: NorthGateNo_03
+    choiceText: "\uBB38\uC744 \uC8FC\uBA39\uC73C\uB85C \uB0B4\uB824\uCE5C\uB2E4."
+    choiceType: 2
+    actionType: 1
+    usageType: 0
+    nextPage: {fileID: 0}
+    executionType: 1
+    requiredStat: 1
+    target: 5
+    conditions:
+    - {fileID: 11400000, guid: 9cb78b76d77453d4cbdd18bc8ed3add7, type: 2}
+    allowsIgnition: 0
+    successResult:
+      description: "\uBB38\uC744 \uC8FC\uBA39\uC73C\uB85C \uB0B4\uB824 \uCE58\uC790
+        \uCFF5\uD558\uB294 \uC18C\uB9AC\uC640 \uD568\uAED8 \uCDA9\uACA9\uC774 \uC804\uD574
+        \uC814\uC2B5\uB2C8\uB2E4."
+      effects:
+      - {fileID: 11400000, guid: e6a9519c01953ca448431938e2d4cf62, type: 2}
+      resultImage: {fileID: 5679270475143602093, guid: 4667dd8d835986a458f1e4309c524bf7, type: 3}
+      redLineResult: 1
+    failureResult:
+      description: "\uC798 \uBABB \uB0B4\uB824\uCCD0 \uC8FC\uBA39\uC774 \uC544\uD30C
+        \uC635\uB2C8\uB2E4."
+      effects:
+      - {fileID: 11400000, guid: d57e57ccf8e025f40b9947e52fba1c20, type: 2}
+      resultImage: {fileID: 0}
+      redLineResult: 0
+    legacyCardRequirement:
+      requiresCard: 0
+      allowedColors: 
+      checkStat: 0
+  - choiceId: NorthGateNo_04
+    choiceText: "\uBB38\uC744 \uB0A0\uBD99\uC774\uB85C \uB0B4\uB824 \uCC0D\uB294\uB2E4."
+    choiceType: 2
+    actionType: 1
+    usageType: 0
+    nextPage: {fileID: 0}
+    executionType: 0
+    requiredStat: 0
+    target: 5
+    conditions:
+    - {fileID: 11400000, guid: fd43a849a5290044888ee8338f043247, type: 2}
+    - {fileID: 11400000, guid: ba78a8cc98304493801365526ae395ea, type: 2}
+    allowsIgnition: 0
+    successResult:
+      description: "\uB0A0\uBD99\uC774\uB85C \uC815\uD655\uD788 \uB0B4\uB824 \uCC0D\uC5C8\uB2E4."
+      effects:
+      - {fileID: 11400000, guid: 98b66980124a444c9b5b81ab84b10eb2, type: 2}
+      - {fileID: 11400000, guid: 30f91b7fa00f4ad2ac56286ad1f022fb, type: 2}
+      resultImage: {fileID: 6701247662884773300, guid: 551d8e08baddd744cbdebef532793a33, type: 3}
+      redLineResult: 1
+    failureResult:
+      description: "\uC798\uBABB \uB0B4\uB824\uCCD0 \uB0A0\uBD99\uC774\uAC00 \uC190\uC0C1\uB42C\uB2E4."
+      effects:
+      - {fileID: 11400000, guid: 2a65ab55327440dd98272d41cd13de67, type: 2}
+      - {fileID: 11400000, guid: 1bce5abb27e74dd28fc78d67fe2fa667, type: 2}
+      resultImage: {fileID: 0}
+      redLineResult: 0
+    legacyCardRequirement:
+      requiresCard: 0
+      allowedColors: 
+      checkStat: 0
+  showOwnedMemos: 0
+  usageType: 1
+  openingConditions:
+  - {fileID: 11400000, guid: 71e890b7b2d94b24b87d3c79b5156327, type: 2}
+  - {fileID: 11400000, guid: 9cb78b76d77453d4cbdd18bc8ed3add7, type: 2}
+  startingNodeId: 
+  legacyEntryData: {fileID: 0}

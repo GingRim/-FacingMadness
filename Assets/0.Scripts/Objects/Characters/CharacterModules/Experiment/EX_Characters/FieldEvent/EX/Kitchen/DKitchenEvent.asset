@@ -1,0 +1,142 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eda405cbcf5af0841a71b53f8add7b42, type: 3}
+  m_Name: DKitchenEvent
+  m_EditorClassIdentifier: Assembly-CSharp::FieldEventData
+  eventId: KItchenDefaultEvent_0
+  eventName: "\uC9C4\uC785"
+  eventType: 2
+  description: "\uC0C8\uB85C\uC6B4 \uACF5\uAC04\uC5D0 \uC9C4\uC785\uD558\uACE0\uC790
+    \uD55C\uB2E4."
+  eventImage: {fileID: -5192146429223839966, guid: 03af6b09aaac336479d4101e67236e4a, type: 3}
+  displayType: 0
+  maximumVisibleChoices: 5
+  choices:
+  - choiceId: KitchenMain_0_0
+    choiceText: "\uD6D1\uC5B4\uBCF4\uAE30"
+    choiceType: 2
+    actionType: 1
+    usageType: 0
+    nextPage: {fileID: 0}
+    executionType: 0
+    requiredStat: 0
+    requiredCardKeyword: 0
+    target: 0
+    conditions:
+    - {fileID: 11400000, guid: 961609a1ce4af0e4696472c61100dc0e, type: 2}
+    allowsIgnition: 0
+    showKnownMemoryTitlesOnSuccess: 0
+    successResult:
+      description: "<size=65>\uBB38\uC744 \uC5F4\uACE0 \uB4E4\uC5B4\uAC00\uC790 \uBCF4\uC774\uB294
+        \uAC83\uC740 \uC8FC\uBC29\uC73C\uB85C \uBCF4\uC774\uB294 \uACF5\uAC04\uC785\uB2C8\uB2E4.<br><br>\uC624\uD508
+        \uD0A4\uCE5C \uD615\uC2DD\uC73C\uB85C \uD14C\uC774\uBE14\uACFC<br>\uC758\uC790\uAC00
+        \uB178\uC5EC \uC788\uACE0 \uC120\uBC18\uACFC \uC2F1\uD06C\uB370\uAC00 \uBCF4\uC785\uB2C8\uB2E4."
+      effects:
+      - {fileID: 11400000, guid: 649b835f28e7b1746b99b3840bb56e01, type: 2}
+      - {fileID: 11400000, guid: 70212d51a7134bdc9454d240a9a86d12, type: 2}
+      resultImage: {fileID: 0}
+      redLineResult: 0
+    failureResult:
+      description: 
+      effects: []
+      resultImage: {fileID: 2383729432973304853, guid: 697a7767307dcfc448dbfec79c359749, type: 3}
+      redLineResult: 0
+    legacyCardRequirement:
+      requiresCard: 0
+      allowedColors: 
+      checkStat: 0
+  - choiceId: KitchenMain_0_1
+    choiceText: "\uD2B9\uC774\uC810\uC744 \uCC3E\uC544 \uBCF8\uB2E4."
+    choiceType: 2
+    actionType: 1
+    usageType: 0
+    nextPage: {fileID: 0}
+    executionType: 1
+    requiredStat: 4
+    requiredCardKeyword: 0
+    target: 3
+    conditions: []
+    allowsIgnition: 0
+    showKnownMemoryTitlesOnSuccess: 0
+    successResult:
+      description: "<size=65>\uBB38\uC744 \uC5F4\uACE0 \uB4E4\uC5B4\uAC00\uC790 \uBCF4\uC774\uB294
+        \uAC83\uC740 \uC8FC\uBC29\uC73C\uB85C \uBCF4\uC774\uB294 \uACF5\uAC04\uC785\uB2C8\uB2E4.<br><br>\uC624\uD508
+        \uD0A4\uCE5C \uD615\uC2DD\uC73C\uB85C \uD14C\uC774\uBE14\uACFC<br>\uC758\uC790\uAC00
+        \uB178\uC5EC \uC788\uACE0 \uC120\uBC18\uACFC \uC2F1\uD06C\uB370\uAC00 \uBCF4\uC785\uB2C8\uB2E4.<br><br>\uAC00\uC2A4\uB808\uC778\uC9C0
+        \uBD80\uBD84\uC5D0\uB294 \uB0A8\uC790\uC544\uC774 \uD06C\uAE30\uC758 \uD070
+        \uC1A5\uC774 \uC788\uC2B5\uB2C8\uB2E4."
+      effects:
+      - {fileID: 11400000, guid: 649b835f28e7b1746b99b3840bb56e01, type: 2}
+      - {fileID: 11400000, guid: 70212d51a7134bdc9454d240a9a86d12, type: 2}
+      resultImage: {fileID: 0}
+      redLineResult: 0
+    failureResult:
+      description: "<size=65>\uBB38\uC744 \uC5F4\uACE0 \uB4E4\uC5B4\uAC00\uC790 \uBCF4\uC774\uB294
+        \uAC83\uC740 \uC8FC\uBC29\uC73C\uB85C \uBCF4\uC774\uB294 \uACF5\uAC04\uC785\uB2C8\uB2E4.<br><br>\uC624\uD508
+        \uD0A4\uCE5C \uD615\uC2DD\uC73C\uB85C \uD14C\uC774\uBE14\uACFC<br>\uC758\uC790\uAC00
+        \uB178\uC5EC \uC788\uACE0 \uC120\uBC18\uACFC \uC2F1\uD06C\uB370\uAC00 \uBCF4\uC785\uB2C8\uB2E4."
+      effects:
+      - {fileID: 11400000, guid: 649b835f28e7b1746b99b3840bb56e01, type: 2}
+      - {fileID: 11400000, guid: 70212d51a7134bdc9454d240a9a86d12, type: 2}
+      resultImage: {fileID: 0}
+      redLineResult: 0
+    legacyCardRequirement:
+      requiresCard: 0
+      allowedColors: 
+      checkStat: 0
+  - choiceId: KitchenMain_0_2
+    choiceText: "\uC704\uD5D8\uC744 \uAC10\uC9C0\uD55C\uB2E4."
+    choiceType: 2
+    actionType: 1
+    usageType: 0
+    nextPage: {fileID: 0}
+    executionType: 1
+    requiredStat: 2
+    requiredCardKeyword: 0
+    target: 8
+    conditions: []
+    allowsIgnition: 0
+    showKnownMemoryTitlesOnSuccess: 0
+    successResult:
+      description: "\uBB38\uC744 \uC5F4\uACE0 \uB4E4\uC5B4\uAC00\uC790 \uBCF4\uC774\uB294
+        \uAC83\uC740 \uC8FC\uBC29\uC73C\uB85C \uBCF4\uC774\uB294 \uACF5\uAC04\uC785\uB2C8\uB2E4.<br><br>\uC624\uD508
+        \uD0A4\uCE5C \uD615\uC2DD\uC73C\uB85C \uD14C\uC774\uBE14\uACFC\uC758\uC790\uAC00
+        \uB178\uC5EC \uC788\uACE0 \uC120\uBC18\uACFC \uC2F1\uD06C\uB370\uAC00 \uBCF4\uC785\uB2C8\uB2E4.<br><br>\uAC00\uC2A4\uB808\uC778\uC9C0
+        \uBD80\uBD84\uC5D0\uB294 \uB0A8\uC790\uC544\uC774<br>\uD06C\uAE30\uC758 \uD070
+        \uC1A5\uC548\uC5D0\uC11C\uB294 \uC65C\uC778\uC9C0<br>\uADF8\uB987\uC5D0 \uB2F4\uACA8\uC9C4
+        \uC2A4\uD504\uC640 \uAC19\uC740<size=65>\uBE44\uB9BF\uD55C \uB0C4\uC0C8\uAC00
+        \uB290\uAEF4\uC9D1\uB2C8\uB2E4."
+      effects:
+      - {fileID: 11400000, guid: 649b835f28e7b1746b99b3840bb56e01, type: 2}
+      - {fileID: 11400000, guid: 70212d51a7134bdc9454d240a9a86d12, type: 2}
+      resultImage: {fileID: 0}
+      redLineResult: 0
+    failureResult:
+      description: "<size=65>\uBB38\uC744 \uC5F4\uACE0 \uB4E4\uC5B4\uAC00\uC790 \uBCF4\uC774\uB294
+        \uAC83\uC740 \uC8FC\uBC29\uC73C\uB85C \uBCF4\uC774\uB294 \uACF5\uAC04\uC785\uB2C8\uB2E4.<br><br>\uC624\uD508
+        \uD0A4\uCE5C \uD615\uC2DD\uC73C\uB85C \uD14C\uC774\uBE14\uACFC<br>\uC758\uC790\uAC00
+        \uB178\uC5EC \uC788\uACE0 \uC120\uBC18\uACFC \uC2F1\uD06C\uB370\uAC00 \uBCF4\uC785\uB2C8\uB2E4."
+      effects:
+      - {fileID: 11400000, guid: 649b835f28e7b1746b99b3840bb56e01, type: 2}
+      - {fileID: 11400000, guid: 70212d51a7134bdc9454d240a9a86d12, type: 2}
+      resultImage: {fileID: 0}
+      redLineResult: 0
+    legacyCardRequirement:
+      requiresCard: 0
+      allowedColors: 
+      checkStat: 0
+  showOwnedMemos: 0
+  usageType: 0
+  openingConditions:
+  - {fileID: 11400000, guid: 961609a1ce4af0e4696472c61100dc0e, type: 2}
+  startingNodeId: 
+  legacyEntryData: {fileID: 11400000, guid: 29165a65ebfb5bc459d5f84d6c2f84e8, type: 2}

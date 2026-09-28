@@ -13,12 +13,15 @@ MonoBehaviour:
   m_Name: BuffMagicCard
   m_EditorClassIdentifier: Assembly-CSharp::CardData
   cardName: "\uB9C8\uBC95 : \uBC84\uD504"
+  description: "\uC544\uAD70 \uC804\uCCB4\uC5D0\uAC8C \uCD95\uBCF5 \uBD80\uC5EC<br>\uC544\uAD70
+    \uC804\uCCB4\uC5D0\uAC8C \uC758\uC9C0 \uBD80\uC5EC"
+  illustration: {fileID: 0}
   color: 5
   isOneUse: 1
+  keywords: 
+  baseDurability: 0
   magicCardType: 4
   forbiddenMagicCard: {fileID: 0}
   attackMagicCard: {fileID: 0}
   defenseMagicCard: {fileID: 0}
   buffMagicCard: {fileID: 0}
-  description: "\uC544\uAD70 \uC804\uCCB4\uC5D0\uAC8C \uCD95\uBCF5 \uBD80\uC5EC\n\uC544\uAD70
-    \uC804\uCCB4\uC5D0\uAC8C \uC758\uC9C0 \uBD80\uC5EC"

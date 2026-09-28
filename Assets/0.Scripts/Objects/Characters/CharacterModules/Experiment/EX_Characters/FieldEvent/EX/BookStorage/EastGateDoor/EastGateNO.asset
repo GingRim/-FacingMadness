@@ -1,0 +1,145 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eda405cbcf5af0841a71b53f8add7b42, type: 3}
+  m_Name: EastGateNO
+  m_EditorClassIdentifier: Assembly-CSharp::FieldEventData
+  eventId: EastGateNO
+  eventName: "\uAC08\uC0C9 \uBB38\uC744 \uC870\uC0AC\uD55C\uB2E4."
+  eventType: 1
+  description: "\uAC08\uC0C9 \uBB38\uC744 \uC870\uC0AC\uD569\uB2C8\uB2E4."
+  eventImage: {fileID: 0}
+  displayType: 0
+  maximumVisibleChoices: 3
+  choices:
+  - choiceId: EastGateNO_01
+    choiceText: "\uBB38\uC744 \uC0B4\uD3B4\uBCF8\uB2E4."
+    choiceType: 2
+    actionType: 1
+    usageType: 0
+    nextPage: {fileID: 0}
+    executionType: 0
+    requiredStat: 0
+    target: 5
+    conditions:
+    - {fileID: 11400000, guid: 261634a3f9464247ad764da7b1c6a65a, type: 2}
+    allowsIgnition: 0
+    successResult:
+      description: "\uAC08\uC0C9\uC758 \uACE0\uB515\uD55C \uBB38\uC774 \uBCF4\uC785\uB2C8\uB2E4.<br><br>\uD3C9\uBC94\uD55C
+        \uBB38 \uAC19\uC2B5\uB2C8\uB2E4."
+      effects:
+      - {fileID: 11400000, guid: f09e51934b17430d86cc2c0caaf9368e, type: 2}
+      resultImage: {fileID: -1146484851036413672, guid: f7d5f6667fab8144cba4a4bfbcd56282, type: 3}
+      redLineResult: 0
+    failureResult:
+      description: 
+      effects: []
+      resultImage: {fileID: 0}
+      redLineResult: 0
+    legacyCardRequirement:
+      requiresCard: 0
+      allowedColors: 
+      checkStat: 0
+  - choiceId: EastGateNO_02
+    choiceText: "\uBB38\uC774 \uC5F4\uB824 \uC788\uB294\uC9C0 \uD655\uC778\uD55C\uB2E4."
+    choiceType: 2
+    actionType: 1
+    usageType: 1
+    nextPage: {fileID: 0}
+    executionType: 0
+    requiredStat: 0
+    target: 5
+    conditions:
+    - {fileID: 11400000, guid: bb482b0203a4a694aaddb7e361972180, type: 2}
+    allowsIgnition: 0
+    successResult:
+      description: "<size=95>\uC190\uC7A1\uC774\uB97C \uC7A1\uACE0 \uB0B4\uB9AC\uC790
+        \uBB38\uC740 \uC5F4\uC5EC\uC788\uC2B5\uB2C8\uB2E4."
+      effects:
+      - {fileID: 11400000, guid: 05c29dfe9d368a847b8fd8118f33cf76, type: 2}
+      resultImage: {fileID: 6160939077549693017, guid: bf3eba1187bfa8542a8b8e7dd92a6ad0, type: 3}
+      redLineResult: 1
+    failureResult:
+      description: 
+      effects: []
+      resultImage: {fileID: 0}
+      redLineResult: 0
+    legacyCardRequirement:
+      requiresCard: 0
+      allowedColors: 
+      checkStat: 0
+  - choiceId: EastGateNO_03
+    choiceText: "\uBB38\uC744 \uBD80\uC21C\uB2E4."
+    choiceType: 1
+    actionType: 1
+    usageType: 0
+    nextPage: {fileID: 0}
+    executionType: 1
+    requiredStat: 1
+    target: 5
+    conditions: []
+    allowsIgnition: 0
+    successResult:
+      description: "<size=85>\uBB38\uC744 \uBD80\uC2A4\uACE0\uC790 \uD798\uC744 \uC8FC\uC5B4
+        \uB0B4\uB824 \uCC0D\uB294\uB300 \uC131\uACF5\uD588\uB2E4."
+      effects:
+      - {fileID: 11400000, guid: e6a9519c01953ca448431938e2d4cf62, type: 2}
+      resultImage: {fileID: 0}
+      redLineResult: 0
+    failureResult:
+      description: "\uBB38\uC744 \uC798\uBABB \uD0C0\uACA9\uD574\uC11C \uC190\uC774
+        \uC544\uD30C \uC628\uB2E4."
+      effects:
+      - {fileID: 11400000, guid: 67e0e0e069cc94a41b5aab82fa32861d, type: 2}
+      resultImage: {fileID: 0}
+      redLineResult: 0
+    legacyCardRequirement:
+      requiresCard: 0
+      allowedColors: 
+      checkStat: 0
+  - choiceId: EastGateNO_04
+    choiceText: "\uBB38\uC744 \uB0A0\uBD99\uC774\uB85C \uCC0D\uC5B4 \uBCF8\uB2E4."
+    choiceType: 2
+    actionType: 1
+    usageType: 0
+    nextPage: {fileID: 0}
+    executionType: 1
+    requiredStat: 1
+    target: 4
+    conditions:
+    - {fileID: 11400000, guid: ba78a8cc98304493801365526ae395ea, type: 2}
+    allowsIgnition: 0
+    successResult:
+      description: "\uB0A0\uBD99\uC774\uB97C \uBB38\uC5D0 \uAE4A\uC774 \uBC15\uC544
+        \uB123\uC5B4 \uBB38\uC744 \uD06C\uAC8C \uD30C\uC190\uD588\uB2E4."
+      effects:
+      - {fileID: 11400000, guid: 98b66980124a444c9b5b81ab84b10eb2, type: 2}
+      - {fileID: 11400000, guid: 30f91b7fa00f4ad2ac56286ad1f022fb, type: 2}
+      resultImage: {fileID: 0}
+      redLineResult: 0
+    failureResult:
+      description: "\uB0A0\uBD99\uC774\uAC00 \uBB38\uC744 \uC81C\uB300\uB85C \uD30C\uACE0\uB4E4\uC9C0
+        \uBABB\uD558\uACE0 \uD06C\uAC8C \uC190\uC0C1\uB418\uC5C8\uB2E4."
+      effects:
+      - {fileID: 11400000, guid: 1bce5abb27e74dd28fc78d67fe2fa667, type: 2}
+      - {fileID: 11400000, guid: 2a65ab55327440dd98272d41cd13de67, type: 2}
+      resultImage: {fileID: 0}
+      redLineResult: 0
+    legacyCardRequirement:
+      requiresCard: 0
+      allowedColors: 
+      checkStat: 0
+  showOwnedMemos: 0
+  usageType: 1
+  openingConditions:
+  - {fileID: 11400000, guid: 261634a3f9464247ad764da7b1c6a65a, type: 2}
+  startingNodeId: 
+  legacyEntryData: {fileID: 0}

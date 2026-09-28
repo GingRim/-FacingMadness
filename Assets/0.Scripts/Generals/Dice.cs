@@ -2,6 +2,11 @@ using UnityEngine;
 
 public static class Dice
 {
+    public static int RollD100()
+    {
+        return Random.Range(1, 101);
+    }
+
     public static int RollD10()
     {
         return Random.Range(1, 11);

@@ -35,6 +35,7 @@ public class FieldManager : ManagerBase
     private FieldLine pendingRedLine;
     private FieldNode pendingTargetNode;
     private FieldRedLineResult pendingRedLineResult;
+    private bool pendingRedLineDestroyed;
 
     private Transform fieldCore;
     private GameObject currentFieldObject;
@@ -53,12 +54,19 @@ public class FieldManager : ManagerBase
     private FieldMissionData currentMission;
 
     private readonly Dictionary<string, int> missionProgress = new();
+    private int sessionScore;
+    private FieldSessionResult currentSessionResult;
 
     public FieldMissionData CurrentMission => currentMission;
+    public int SessionScore => sessionScore;
+    public FieldSessionResult CurrentSessionResult => currentSessionResult;
+    public bool HasEndedByDeath =>
+        currentSessionResult != null && currentSessionResult.IsDeath;
     public GameObject CurrentFieldObject => currentFieldObject;
     public CharacterBase CurrentPlayer => currentPlayer;
     public FieldNode CurrentNode => currentNode;
     public MissionFieldRoot CurrentFieldRoot => currentFieldRoot;
+    public FieldEventRunner EventRunner => eventRunner;
     public bool HasStartingNode => startingNode != null;
 
     public IReadOnlyList<FieldNode> Nodes => nodes;
@@ -76,7 +84,6 @@ public class FieldManager : ManagerBase
 
     public event Action<CharacterBase> OnCurrentPlayerChanged;
     public event Action<FieldNode> OnNodeChanged;
-    public event Action<FieldLine, FieldNode> OnRedLineEventRequested;
     public event Action<int> OnMythTurnRequested;
     public event Action OnFieldGameOver;
     public event Action<MissionFieldRoot> OnMissionFieldLoaded;
@@ -84,8 +91,11 @@ public class FieldManager : ManagerBase
     public event Action OnMadnessEntered;
     public event Action<string, int, int> OnMissionProgressChanged;
     public event Action<FieldMissionData> OnMissionCleared;
+    public event Action<int> OnSessionScoreChanged;
+    public event Action<FieldSessionResult> OnSessionEnded;
     public event Action<FieldNode> OnStartingNodeConfirmed;
     public event Action<CharacterBase, int> OnFieldTurnStarted;
+    public event Action<string> OnFieldLog;
 
     protected override IEnumerator OnConnected(GameManager newManager)
     {
@@ -196,6 +206,8 @@ public class FieldManager : ManagerBase
         if (participants.Count == 0)
             return;
 
+        DrawInitialFieldHands();
+
         IsFieldActive = true;
         currentPlayerIndex = 0;
         totalFieldTurn = 0;
@@ -213,7 +225,10 @@ public class FieldManager : ManagerBase
     /// 이미 FieldCanvas 안에 배치된 필드 프리팹을 등록하고
     /// 지정된 플레이어들로 필드를 시작합니다.
     /// </summary>
-    public bool StartExistingField(MissionFieldRoot fieldRoot, IReadOnlyList<CharacterBase> players)
+    public bool StartExistingField(
+        MissionFieldRoot fieldRoot,
+        IReadOnlyList<CharacterBase> players,
+        FieldMissionData mission = null)
     {
         if (IsFieldActive)
         {
@@ -239,8 +254,10 @@ public class FieldManager : ManagerBase
         currentFieldObject = fieldRoot.gameObject;
         currentFieldRoot = fieldRoot;
         ownsCurrentFieldObject = false;
-        currentMission = null;
+        currentMission = mission;
         missionProgress.Clear();
+        sessionScore = 0;
+        currentSessionResult = null;
 
         RegisterMissionField(fieldRoot);
 
@@ -295,6 +312,7 @@ public class FieldManager : ManagerBase
         pendingRedLine = null;
         pendingTargetNode = null;
         pendingRedLineResult = FieldRedLineResult.None;
+        pendingRedLineDestroyed = false;
 
         eventRunner?.ResetCompletedEvents();
         coreEventReservations.Clear();
@@ -351,9 +369,35 @@ public class FieldManager : ManagerBase
 
         InitializeActionPoint(currentPlayer);
 
+        // 필드 진입 직후에는 이미 1D4장의 초기 손패를 받았으므로
+        // 두 번째 턴부터 전투와 같은 드로우 수 계산식을 사용한다.
+        if (totalFieldTurn > 0)
+        {
+            DerivedStatModule derived =
+                currentPlayer.GetModule<DerivedStatModule>();
+
+            if (derived != null)
+            {
+                int requestedCount = 1 + derived.GetDrawBonus();
+                int drawnCount = DrawFieldCards(currentPlayer, requestedCount);
+
+                Debug.Log(
+                    $"{currentPlayer.DisplayName} 필드 턴 드로우: " +
+                    $"요청 {requestedCount}장, 실제 {drawnCount}장");
+            }
+            else
+            {
+                Debug.LogWarning(
+                    $"{currentPlayer.name}: 필드 드로우에 필요한 " +
+                    "DerivedStatModule이 없습니다.");
+            }
+        }
+
         TurnState = FieldTurnState.PlayerAction;
 
         Debug.Log($"필드 턴 시작: {currentPlayer.DisplayName}");
+
+        WriteFieldLog("턴 시작");
 
         OnFieldTurnStarted?.Invoke(currentPlayer, totalFieldTurn);
 
@@ -362,6 +406,63 @@ public class FieldManager : ManagerBase
         ProcessFieldHandDurability(currentPlayer);
 
         currentNode = FindCharacterNode(currentPlayer);
+    }
+
+    /// <summary>
+    /// 필드에 처음 진입할 때 모든 참가자가
+    /// 자신의 덱에서 1D4장의 초기 손패를 뽑습니다.
+    /// 이후 턴에는 StartFieldTurn에서 전투와 같은
+    /// 1 + 지능 드로우 보너스만큼 현재 플레이어가 뽑습니다.
+    /// </summary>
+    private void DrawInitialFieldHands()
+    {
+        foreach (CharacterBase player in participants)
+        {
+            if (player == null)
+                continue;
+
+            int requestedCount = Dice.RollD4();
+            int actualCount = DrawFieldCards(player, requestedCount);
+
+            Debug.Log(
+                $"{player.DisplayName} 필드 초기 드로우: " +
+                $"1D4={requestedCount}, 실제 {actualCount}장");
+        }
+    }
+
+    /// <summary>
+    /// DeckModule의 기존 드로우 처리를 사용하므로
+    /// 최대 손패와 덱 소진 규칙도 그대로 적용됩니다.
+    /// </summary>
+    private int DrawFieldCards(CharacterBase player, int drawCount)
+    {
+        if (player == null || drawCount <= 0)
+            return 0;
+
+        DeckModule deck = player.GetModule<DeckModule>();
+
+        if (deck == null)
+        {
+            Debug.LogWarning(
+                $"{player.name}: 필드 초기 드로우에 필요한 " +
+                "DeckModule이 없습니다.");
+
+            return 0;
+        }
+
+        int actualCount = 0;
+
+        for (int i = 0; i < drawCount; i++)
+        {
+            CardInstance drawnCard = deck.DrawInstance();
+
+            if (drawnCard == null)
+                break;
+
+            actualCount++;
+        }
+
+        return actualCount;
     }
 
     private void SetCurrentPlayer(CharacterBase player)
@@ -416,24 +517,7 @@ public class FieldManager : ManagerBase
             return;
         }
 
-        int levelDice;
-
-        if (level.Level >= 10)
-        {
-            levelDice = Dice.RollD4() + Dice.RollD4();
-        }
-        else if (level.Level >= 5)
-        {
-            levelDice = Dice.RollD6();
-        }
-        else
-        {
-            levelDice = Dice.RollD4();
-        }
-
-        int maximum = derived.GetAgilityModifier() + levelDice;
-
-        actionPoint.Initialize(Mathf.Max(1, maximum));
+        actionPoint.PrepareTurn(derived.GetAgilityModifier(), level.Level);
     }
 
     private void HandleNodeClicked(FieldNode clickedNode)
@@ -595,21 +679,38 @@ public class FieldManager : ManagerBase
             return;
         }
 
-        if (!TryUseActionPoint(currentPlayer, 1))
+        ActionPointModule actionPoint =
+            currentPlayer.GetModule<ActionPointModule>();
+
+        if (actionPoint == null || !actionPoint.CanUse(1))
         {
             Debug.Log("행동력이 부족합니다.");
             return;
         }
 
-        if (TryOpenNodeEvent(currentNode, false))
+        // 완료된 1회용 이벤트처럼 실행할 수 없는 이벤트가 선택된 경우에는
+        // UI도 열리지 않으므로 행동력을 소비하지 않는다.
+        if (!TryOpenNodeEvent(currentNode, false))
         {
+            Debug.Log(
+                $"{currentNode.DisplayName}: " +
+                "현재 실행 가능한 재방문 이벤트가 없습니다.");
+
             return;
         }
 
-        CompleteFieldAction();
+        // 재방문 이벤트 또는 이벤트 후보 UI가 실제로 열린 뒤에만 소비한다.
+        if (!TryUseActionPoint(currentPlayer, 1))
+        {
+            Debug.LogWarning(
+                "재방문 이벤트가 열린 뒤 행동력 소비에 실패했습니다.");
+        }
     }
 
-    private bool OpenFieldEvent(FieldEventData eventData, FieldNode node, bool ignoreCompletionHistory)
+    private bool OpenFieldEvent(
+        FieldEventData eventData,
+        FieldNode node,
+        bool ignoreCompletionHistory)
     {
         if (eventData == null || node == null || currentPlayer == null || eventRunner == null)
         {
@@ -618,7 +719,10 @@ public class FieldManager : ManagerBase
 
         FieldEventContext context = new FieldEventContext(currentPlayer, node, this);
 
-        bool opened = eventRunner.OpenEvent(eventData, context, ignoreCompletionHistory);
+        bool opened = eventRunner.OpenEvent(
+            eventData,
+            context,
+            ignoreCompletionHistory);
 
         if (opened)
         {
@@ -636,12 +740,16 @@ public class FieldManager : ManagerBase
         if (TurnState != FieldTurnState.Event)
             return;
 
+        if (TryCompleteConditionalEnding())
+            return;
+
         if (pendingRedLine != null)
         {
             bool opened =
                 pendingRedLineResult == FieldRedLineResult.Open;
 
-            if (pendingRedLineResult == FieldRedLineResult.None)
+            if (!pendingRedLineDestroyed &&
+                pendingRedLineResult == FieldRedLineResult.None)
             {
                 Debug.LogWarning(
                     "적색 라인 이벤트 결과가 지정되지 않아 Locked로 처리합니다.");
@@ -651,11 +759,6 @@ public class FieldManager : ManagerBase
                 CompleteRedLineAfterEventClosed(opened));
             return;
         }
-
-        // 방금 끝난 이벤트 결과로
-        // 미션 목표를 달성했는지 확인
-        if (TryCompleteCurrentMission())
-            return;
 
         CompleteFieldAction();
     }
@@ -667,63 +770,23 @@ public class FieldManager : ManagerBase
             return false;
         }
 
-        FieldEventData redLineEvent = line.RedLineEvent;
-
-        if (redLineEvent != null && eventRunner != null)
+        if (eventRunner == null)
         {
-            FieldEventContext context =
-                new FieldEventContext(currentPlayer, currentNode, this);
-
-            // 적색 라인은 현재 상태가 Red인 동안 다시 조사할 수 있으므로
-            // 일반 이벤트의 완료 기록은 무시합니다. 정보 조건은 그대로 검사합니다.
-            if (!eventRunner.CanOpenEvent(
-                    redLineEvent,
-                    context,
-                    true))
-            {
-                Debug.LogWarning(
-                    $"{line.LineId}: 적색 라인 이벤트의 발동 조건을 만족하지 못했습니다.");
-
-                return false;
-            }
-
-            if (!TryUseActionPoint(currentPlayer, 1))
-            {
-                Debug.Log("행동력이 부족합니다.");
-                return false;
-            }
-
-            pendingRedLine = line;
-            pendingTargetNode = targetNode;
-            pendingRedLineResult = FieldRedLineResult.None;
-
-            bool opened = eventRunner.OpenEvent(
-                redLineEvent,
-                context,
-                true);
-
-            if (!opened)
-            {
-                pendingRedLine = null;
-                pendingTargetNode = null;
-                pendingRedLineResult = FieldRedLineResult.None;
-
-                Debug.LogWarning(
-                    $"{line.LineId}: 적색 라인 이벤트를 열지 못했습니다.");
-
-                return false;
-            }
-
-            TurnState = FieldTurnState.Event;
-
-            return true;
+            Debug.LogWarning("적색 라인 접근 이벤트를 실행할 FieldEventRunner가 없습니다.");
+            return false;
         }
 
-        // 기존 별도 적색 라인 UI를 사용하는 장면과의 호환 경로입니다.
-        if (OnRedLineEventRequested == null)
+        // 접근 이벤트는 실제로 클릭한 Red 라인에 등록된 후보를 사용합니다.
+        FieldEventContext context =
+            new FieldEventContext(currentPlayer, targetNode, this);
+
+        FieldEventData redLineEvent =
+            SelectRedLineAccessEvent(line, context);
+
+        if (redLineEvent == null)
         {
             Debug.LogWarning(
-                $"{line.LineId}: Red Line Event가 등록되지 않았습니다.");
+                $"{line.LineId}: 조건을 만족하는 적색 라인 이벤트가 없습니다.");
 
             return false;
         }
@@ -737,12 +800,72 @@ public class FieldManager : ManagerBase
         pendingRedLine = line;
         pendingTargetNode = targetNode;
         pendingRedLineResult = FieldRedLineResult.None;
+        pendingRedLineDestroyed = false;
+
+        bool opened = eventRunner.OpenEvent(
+            redLineEvent,
+            context,
+            false);
+
+        if (!opened)
+        {
+            pendingRedLine = null;
+            pendingTargetNode = null;
+            pendingRedLineResult = FieldRedLineResult.None;
+            pendingRedLineDestroyed = false;
+
+            Debug.LogWarning(
+                $"{targetNode.DisplayName}: 적색 라인 접근 이벤트를 열지 못했습니다.");
+
+            return false;
+        }
 
         TurnState = FieldTurnState.Event;
 
-        OnRedLineEventRequested.Invoke(pendingRedLine, pendingTargetNode);
-
         return true;
+    }
+
+    private FieldEventData SelectRedLineAccessEvent(
+        FieldLine line,
+        FieldEventContext context)
+    {
+        if (line == null || eventRunner == null)
+            return null;
+
+        IReadOnlyList<FieldLine.RedLineAccessEventEntry> entries =
+            line.RedLineAccessEvents;
+
+        if (entries == null)
+            return null;
+
+        FieldEventData selectedEvent = null;
+        int selectedPriority = int.MinValue;
+
+        // 같은 우선순위에서는 먼저 등록된 항목을 유지합니다.
+        foreach (FieldLine.RedLineAccessEventEntry entry in entries)
+        {
+            if (entry == null || entry.EventData == null)
+                continue;
+
+            if (!eventRunner.CanOpenEvent(
+                    entry.EventData,
+                    context,
+                    false))
+            {
+                continue;
+            }
+
+            if (selectedEvent != null &&
+                entry.Priority <= selectedPriority)
+            {
+                continue;
+            }
+
+            selectedEvent = entry.EventData;
+            selectedPriority = entry.Priority;
+        }
+
+        return selectedEvent;
     }
 
     /// <summary>
@@ -754,7 +877,40 @@ public class FieldManager : ManagerBase
         if (pendingRedLine == null || result == FieldRedLineResult.None)
             return;
 
+        // 파괴된 라인은 이번 행동에서 이동하지 않는 규칙이 우선합니다.
+        if (pendingRedLineDestroyed)
+            return;
+
         pendingRedLineResult = result;
+    }
+
+    /// <summary>
+    /// 현재 진행 중인 적색 라인 이벤트의 라인에 피해를 줍니다.
+    /// 체력이 0이 되면 라인은 Normal이 되지만 이번 이동은 완료하지 않습니다.
+    /// </summary>
+    public bool TryDamagePendingRedLine(
+        int amount,
+        out FieldLine damagedLine,
+        out int appliedDamage)
+    {
+        damagedLine = pendingRedLine;
+        appliedDamage = 0;
+
+        if (damagedLine == null || amount <= 0 || !damagedLine.IsBlocked)
+            return false;
+
+        appliedDamage = damagedLine.TakeDamage(amount);
+
+        if (appliedDamage <= 0)
+            return false;
+
+        if (!damagedLine.IsBlocked)
+        {
+            pendingRedLineDestroyed = true;
+            pendingRedLineResult = FieldRedLineResult.None;
+        }
+
+        return true;
     }
 
     private IEnumerator CompleteRedLineAfterEventClosed(bool opened)
@@ -783,12 +939,14 @@ public class FieldManager : ManagerBase
         pendingRedLine = null;
         pendingTargetNode = null;
         pendingRedLineResult = FieldRedLineResult.None;
+        bool wasDestroyed = pendingRedLineDestroyed;
+        pendingRedLineDestroyed = false;
 
         // 적색 라인 이벤트가 끝났으므로
         // 일반 행동 상태로 먼저 복귀
         TurnState = FieldTurnState.PlayerAction;
 
-        if (passed)
+        if (passed && !wasDestroyed)
         {
             resolvedLine.ClearBlock();
 
@@ -883,7 +1041,17 @@ public class FieldManager : ManagerBase
 
         Debug.Log($"필드 턴 종료 / 누적 턴:{totalFieldTurn}");
 
-        if (totalFieldTurn % Mathf.Max(1, mythTurnInterval) == 0)
+        WriteFieldLog("턴 종료");
+
+        int interval = Mathf.Max(1, mythTurnInterval);
+
+        if (totalFieldTurn % interval != 0)
+        {
+            int remaining = interval - totalFieldTurn % interval;
+            WriteFieldLog($"신화 턴까지 {remaining}턴 남았습니다.");
+        }
+
+        if (totalFieldTurn % interval == 0)
         {
             StartMythTurn();
             return;
@@ -897,6 +1065,7 @@ public class FieldManager : ManagerBase
         TurnState = FieldTurnState.MythTurn;
 
         Debug.Log($"신화 턴 발생: {totalFieldTurn}");
+        WriteFieldLog("신화 턴 시작");
 
         if (OnMythTurnRequested != null)
         {
@@ -946,6 +1115,11 @@ public class FieldManager : ManagerBase
 
             if (hp != null && hp.IsEmpty)
                 return true;
+
+            SanityModule sanity = player.GetModule<SanityModule>();
+
+            if (sanity != null && sanity.IsEmpty)
+                return true;
         }
 
         return false;
@@ -971,13 +1145,7 @@ public class FieldManager : ManagerBase
             return;
         }
 
-        TurnState = FieldTurnState.GameOver;
-
-        IsFieldActive = false;
-
-        Debug.Log("필드 게임 오버");
-
-        OnFieldGameOver?.Invoke();
+        CompleteSession(true);
     }
 
     public void EndField()
@@ -993,6 +1161,7 @@ public class FieldManager : ManagerBase
         pendingRedLine = null;
         pendingTargetNode = null;
         pendingRedLineResult = FieldRedLineResult.None;
+        pendingRedLineDestroyed = false;
 
         if (characterMarkers != null)
         {
@@ -1023,6 +1192,8 @@ public class FieldManager : ManagerBase
         coreEventReservations.Clear();
         forcedCoreEventReservations.Clear();
         missionProgress.Clear();
+        sessionScore = 0;
+        currentSessionResult = null;
 
         ReleaseCurrentFieldObject();
 
@@ -1158,6 +1329,8 @@ public class FieldManager : ManagerBase
 
         currentMission = mission;
         missionProgress.Clear();
+        sessionScore = 0;
+        currentSessionResult = null;
 
         RegisterMissionField(fieldRoot);
 
@@ -1330,16 +1503,9 @@ public class FieldManager : ManagerBase
             return true;
         }
 
-        FieldEventData nodeEvent;
-
-        if (isFirstVisit)
-        {
-            nodeEvent = node.FirstVisitEvent;
-        }
-        else
-        {
-            nodeEvent = node.GetRandomRepeatEvent();
-        }
+        FieldEventData nodeEvent = isFirstVisit
+            ? GetRandomAvailableFirstVisitEvent(node)
+            : GetRandomAvailableRepeatEvent(node);
 
         if (nodeEvent != null)
         {
@@ -1369,7 +1535,8 @@ public class FieldManager : ManagerBase
         if (fieldEventSelectionController.IsSelecting)
             return false;
 
-        FieldEventContext context = new FieldEventContext(this, node);
+        FieldEventContext context =
+            new FieldEventContext(currentPlayer, node, this);
 
         bool opened = fieldEventSelectionController.OpenNextEventSelection(context);
 
@@ -1385,15 +1552,83 @@ public class FieldManager : ManagerBase
         return true;
     }
 
+    public void WriteFieldLog(string message)
+    {
+        if (string.IsNullOrWhiteSpace(message))
+            return;
+
+        OnFieldLog?.Invoke(message);
+    }
+
+    /// <summary>
+    /// 최초 진입 이벤트 중 발동 조건을 만족하고 아직 사용할 수 있는 이벤트만
+    /// 추린 뒤 하나를 무작위로 반환합니다.
+    /// </summary>
+    private FieldEventData GetRandomAvailableFirstVisitEvent(FieldNode node)
+    {
+        if (node == null)
+            return null;
+
+        return GetRandomAvailableNodeEvent(
+            node,
+            node.FirstVisitEvents);
+    }
+
+    /// <summary>
+    /// 재방문 이벤트 중 발동 조건을 만족하고 아직 사용할 수 있는 이벤트만
+    /// 추린 뒤 하나를 무작위로 반환합니다. 완료된 Once Per Field 이벤트는
+    /// 재방문 배열에 남아 있어도 다시 추첨되지 않습니다.
+    /// </summary>
+    private FieldEventData GetRandomAvailableRepeatEvent(FieldNode node)
+    {
+        if (node == null)
+            return null;
+
+        return GetRandomAvailableNodeEvent(
+            node,
+            node.RepeatEvents);
+    }
+
+    private FieldEventData GetRandomAvailableNodeEvent(
+        FieldNode node,
+        IReadOnlyList<FieldEventData> eventCandidates)
+    {
+        if (node == null || currentPlayer == null || eventRunner == null)
+            return null;
+
+        if (eventCandidates == null || eventCandidates.Count == 0)
+            return null;
+
+        FieldEventContext context =
+            new FieldEventContext(currentPlayer, node, this);
+
+        List<FieldEventData> availableEvents = new List<FieldEventData>();
+
+        foreach (FieldEventData eventData in eventCandidates)
+        {
+            if (eventData == null || availableEvents.Contains(eventData))
+                continue;
+
+            if (!eventRunner.CanOpenEvent(eventData, context))
+                continue;
+
+            availableEvents.Add(eventData);
+        }
+
+        if (availableEvents.Count == 0)
+            return null;
+
+        int randomIndex = UnityEngine.Random.Range(0, availableEvents.Count);
+
+        return availableEvents[randomIndex];
+    }
+
     private void RegisterPlayerDefeatEvents(CharacterBase player)
     {
         if (player == null)
             return;
 
         HitpointModules hp = player.GetModule<HitpointModules>();
-
-        if (hp == null)
-            return;
 
         if (hp != null)
         {
@@ -1403,6 +1638,11 @@ public class FieldManager : ManagerBase
 
         SanityModule sanity = player.GetModule<SanityModule>();
 
+        if (sanity != null)
+        {
+            sanity.OnEmpty -= HandlePlayerDefeated;
+            sanity.OnEmpty += HandlePlayerDefeated;
+        }
     }
 
     private void UnregisterPlayerDefeatEvents(CharacterBase player)
@@ -1416,6 +1656,11 @@ public class FieldManager : ManagerBase
         {
             hp.OnEmpty -= HandlePlayerDefeated;
         }
+
+        SanityModule sanity = player.GetModule<SanityModule>();
+
+        if (sanity != null)
+            sanity.OnEmpty -= HandlePlayerDefeated;
 
     }
 
@@ -1472,6 +1717,120 @@ public class FieldManager : ManagerBase
         Debug.Log($"미션 진행: {objectiveId} / " + $"{newAmount}/{requirement.RequiredAmount}");
 
         return true;
+    }
+
+    public void AddSessionScore(int amount)
+    {
+        if (!IsFieldActive || amount == 0)
+            return;
+
+        sessionScore += amount;
+        OnSessionScoreChanged?.Invoke(sessionScore);
+    }
+
+    public bool RequestSessionEnd()
+    {
+        if (!IsFieldActive)
+            return false;
+
+        CompleteSession(false);
+        return true;
+    }
+
+    private void CompleteSession(
+        bool isDeath,
+        FieldSessionEndingData forcedEnding = null)
+    {
+        if (!IsFieldActive)
+            return;
+
+        FieldMissionData completedMission = currentMission;
+        FieldSessionEndingData ending = forcedEnding != null
+            ? forcedEnding
+            : ResolveSessionEnding(isDeath);
+
+        IsFieldActive = false;
+        TurnState = isDeath
+            ? FieldTurnState.GameOver
+            : FieldTurnState.MissionClear;
+
+        UnregisterAllPlayerDefeatEvents();
+
+        FieldSessionResult result = new FieldSessionResult(
+            completedMission,
+            ending,
+            sessionScore,
+            isDeath);
+
+        currentSessionResult = result;
+
+        OnSessionEnded?.Invoke(result);
+
+        // 기존 연결을 깨지 않기 위한 호환 이벤트입니다.
+        if (isDeath)
+            OnFieldGameOver?.Invoke();
+        else
+            OnMissionCleared?.Invoke(completedMission);
+    }
+
+    private bool TryCompleteConditionalEnding()
+    {
+        if (currentMission == null || currentPlayer == null)
+            return false;
+
+        IReadOnlyList<FieldSessionEndingRequirement> requirements =
+            currentMission.ConditionalEndings;
+
+        if (requirements == null)
+            return false;
+
+        foreach (FieldSessionEndingRequirement requirement in requirements)
+        {
+            if (requirement == null || !requirement.IsSatisfied(currentPlayer))
+                continue;
+
+            CompleteSession(false, requirement.Ending);
+            return true;
+        }
+
+        return false;
+    }
+
+    private FieldSessionEndingData ResolveSessionEnding(bool isDeath)
+    {
+        if (currentMission == null)
+            return null;
+
+        if (isDeath)
+            return currentMission.DeathEnding;
+
+        IReadOnlyList<FieldSessionEndingData> endings =
+            currentMission.SessionEndings;
+
+        if (endings == null)
+            return null;
+
+        FieldSessionEndingData selectedEnding = null;
+
+        foreach (FieldSessionEndingData ending in endings)
+        {
+            if (ending == null || !ending.ContainsScore(sessionScore))
+                continue;
+
+            if (selectedEnding == null ||
+                ending.MinimumScore > selectedEnding.MinimumScore)
+            {
+                selectedEnding = ending;
+            }
+        }
+
+        if (selectedEnding != null)
+            return selectedEnding;
+
+        Debug.LogWarning(
+            $"현재 점수 {sessionScore}에 해당하는 세션 엔딩이 없습니다.");
+
+        return null;
     }
 
     private FieldMissionObjectiveRequirement FindMissionObjective(string objectiveId)

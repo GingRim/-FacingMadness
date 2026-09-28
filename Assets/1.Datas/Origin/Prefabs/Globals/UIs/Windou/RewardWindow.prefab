@@ -541,8 +541,6 @@ GameObject:
   - component: {fileID: 1272721108424805638}
   - component: {fileID: 5386564894613558472}
   - component: {fileID: 2457794964621953863}
-  - component: {fileID: 6369652180768895673}
-  - component: {fileID: 1512085741109134534}
   m_Layer: 5
   m_Name: Button
   m_TagString: Untagged
@@ -652,8 +650,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1512085741109134534}
-        m_TargetAssemblyTypeName: UI_Button_OpenUI, Assembly-CSharp
+      - m_Target: {fileID: 7844323528620182924}
+        m_TargetAssemblyTypeName: UI_RewardWindow, Assembly-CSharp
         m_MethodName: Close
         m_Mode: 1
         m_Arguments:
@@ -664,32 +662,3 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
---- !u!114 &6369652180768895673
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9063117418707739219}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 76cece983e4a84743904983290edbd5b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UI_Button
-  wantType: 21
-  cgangeType: 2
---- !u!114 &1512085741109134534
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9063117418707739219}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 708d074502f47a1448ec9125edd43fca, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UI_Button_OpenUI
-  wantType: 7
-  wantToggle: 1
-  ScreenChanger: 1

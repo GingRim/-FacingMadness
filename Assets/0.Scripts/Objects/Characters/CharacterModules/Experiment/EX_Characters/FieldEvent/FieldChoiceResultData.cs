@@ -60,5 +60,8 @@ public class FieldChoiceResultData
         {
             context.FieldManager.SetPendingRedLineResult(redLineResult);
         }
+
+        // 모든 피해·회복·정보 보상 효과가 끝난 뒤 생존 판정 등을 처리한다.
+        context.ExecuteAfterResultActions();
     }
 }

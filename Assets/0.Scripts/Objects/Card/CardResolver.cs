@@ -28,75 +28,11 @@ public class CardResolver
     }
 
     /// <summary>
-    /// 필드에서 카드 사용
-    /// 전투 코스트인 행동·보조 행동은 사용하지 않는다.
+    /// 이전 호출부 호환용입니다. 카드 자체의 필드 사용은 지원하지 않습니다.
+    /// 행동력 소비와 효과 적용 없이 실패를 반환합니다.
     /// </summary>
     public bool UseField(CardData card, CharacterBase user, FieldEventContext context)
     {
-        if (card == null || user == null || context == null)
-        {
-            return false;
-        }
-
-        // 먼저 해당 카드가 현재 이벤트에서
-        // 사용 가능한지 확인
-        if (!CanUseField(card, user, context))
-            return false;
-
-        // 필드 카드 사용 비용: 행동력 1
-        if (!context.FieldManager.TryUseActionPoint(user, 1))
-        {
-            Debug.Log("행동력이 부족합니다.");
-            return false;
-        }
-
-        return ResolveFieldEffect(card, user, context);
-
-
-    }
-
-    private bool CanUseField(CardData card, CharacterBase user, FieldEventContext context)
-    {
-        if (card == null || user == null || context == null)
-        {
-            return false;
-        }
-
-        // 검은색 카드는 전투 전용
-        if (card.color == CardColorType.Black)
-            return false;
-
-        return true;
-    }
-
-    private bool ResolveFieldEffect(CardData card, CharacterBase user, FieldEventContext context)
-    {
-        switch (card.color)
-        {
-            case CardColorType.Red:
-                return ResolveRedField(card, user, context);
-
-            case CardColorType.Yellow:
-                return ResolveYellowField(card, user, context);
-
-            case CardColorType.Green:
-                return ResolveGreenField(card, user, context);
-
-            case CardColorType.Blue:
-                return ResolveBlueField(card, user, context);
-
-            case CardColorType.Colorless:
-                return ResolveColorlessField(card, user, context);
-
-            // 자색 카드의 필드 사용 규칙은 별도 확인 필요
-            case CardColorType.Purple:
-                return ResolvePurpleField(card, user, context);
-
-            // 검은색은 전투 전용
-            case CardColorType.Black:
-                return false;
-        }
-
         return false;
     }
 
@@ -108,43 +44,17 @@ public class CardResolver
     /// <returns>지불 성공 여부</returns>
     private bool TryPayCost(CharacterBase user, CardUseCost useCost)
     {
-        // 사용자의 코스트 모듈 가져오기
-        CostModule cost = user.GetModule<CostModule>();
+        ActionPointModule actionPoint = user.GetModule<ActionPointModule>();
 
-        // 코스트 모듈이 없으면 실패
-        if (cost == null)
+        if (actionPoint == null)
             return false;
 
-        switch (useCost)
-        {
-            // 행동 코스트 사용
-            case CardUseCost.Action:
-                return cost.Use(CostType.Action, 1);
+        return actionPoint.TryUse(GetActionPointCost(useCost));
+    }
 
-            // 보조 행동 코스트 사용
-            case CardUseCost.Auxiliary:
-                return cost.Use(CostType.Auxiliary, 1);
-
-            // 행동 + 보조 행동 동시 사용
-            case CardUseCost.ActionAndAuxiliary:
-
-                // 행동 코스트 부족
-                if (!cost.CanUse(CostType.Action, 1))
-                    return false;
-
-                // 보조 행동 코스트 부족
-                if (!cost.CanUse(CostType.Auxiliary, 1))
-                    return false;
-
-                // 실제 차감
-                cost.Use(CostType.Action, 1);
-                cost.Use(CostType.Auxiliary, 1);
-
-                return true;
-        }
-
-        // 정의되지 않은 사용 방식
-        return false;
+    private int GetActionPointCost(CardUseCost useCost)
+    {
+        return useCost == CardUseCost.ActionAndAuxiliary ? 2 : 1;
     }
 
 
@@ -594,137 +504,179 @@ public class CardResolver
     }
 
     /// <summary>
-    /// 무색 카드 효과.
-    /// 행동 전용 다이스 만큼 대미지
-    /// 보조 행동 전용 다이스 만큼 회복(생명력, 정신력)
+    /// 무색 카드의 기본 및 키워드 전투 효과.
+    /// 키워드가 없는 카드는 레벨별 기본 주사위 피해 또는 임시 장갑을 사용합니다.
+    /// 키워드 카드는 행동 코스트만 사용하며 키워드 조합으로 효과를 결정합니다.
     /// </summary>
     /// <param name="card"></param>
     /// <param name="user"></param>
     /// <param name="target"></param>
     /// <param name="useCost"></param>
-    private void ResolveColorless(CardData card, CharacterBase user, CharacterBase target, CardUseCost useCost)
+    private bool ResolveColorless(
+        CardData card,
+        CardInstance cardInstance,
+        CharacterBase user,
+        CharacterBase target,
+        CardUseCost useCost)
     {
-        LVModules lv = user.GetModule<LVModules>();
+        bool hasKeywords =
+            cardInstance != null
+                ? cardInstance.HasKeywords
+                : card.Keywords != null && card.Keywords.Count > 0;
 
-        if (lv == null)
-            return;
-
-        // 무색은 보정치 없이 크리티컬 판정
-        DiceResult criticalResult = Dice.RollD10WithCritical(0, lv.Level);
-
-        switch (useCost)
+        if (!hasKeywords)
         {
-            case CardUseCost.Action:
-                {
-                    if (target == null)
-                        return;
+            if (useCost == CardUseCost.Action)
+                return ApplyColorlessDamage(user, target, RollAbilityBaseDice(user));
 
-                    int damage = RollColorlessDice(user);
+            if (useCost == CardUseCost.Auxiliary)
+                return ApplyColorlessArmor(user, RollAbilityBaseDice(user));
 
-                    if (criticalResult.criticalType == CriticalType.Critical)
-                    {
-                        damage = RollColorlessDice(user) + RollColorlessDice(user);
-                    }
-                    else if (criticalResult.criticalType == CriticalType.GreatCritical)
-                    {
-                        damage = Dice.RollD10() + Dice.RollD10();
-
-                    }
-
-                    DamageStruct damageInfo =
-                        new DamageStruct
-                        {
-                            from = user.gameObject,
-                            instigator = user.Controller,
-                            damageAmount = damage,
-                            critical = criticalResult.criticalType != CriticalType.None,
-                            damageType = DamageType.Hand_to_hand_combat
-                        };
-
-                    CombatModule combat = target.GetModule<CombatModule>();
-
-                    if (combat == null)
-                        return;
-
-                    combat.OnHit(damageInfo);
-                    if (criticalResult.criticalType == CriticalType.GreatCritical)
-                    {
-                        BattleManager.ClaimBattleLog($"상위 크리티컬<br>{damage} 피해");
-                    }
-                    else if (criticalResult.criticalType == CriticalType.Critical)
-                    {
-                        BattleManager.ClaimBattleLog($"크리티컬<br>{damage} 피해");
-                    }
-                    else
-                    {
-                        BattleManager.ClaimBattleLog($"{damage} 피해");
-                    }
-                    Debug.Log($"무색 카드 피해: {damage} / 크리티컬: {criticalResult.criticalType}");
-
-                    break;
-                }
-
-            case CardUseCost.Auxiliary:
-                {
-                    int restore = RollColorlessDice(user);
-
-                    if (criticalResult.criticalType == CriticalType.Critical)
-                    {
-                        restore = RollColorlessDice(user) + RollColorlessDice(user);
-                    }
-                    else if (criticalResult.criticalType == CriticalType.GreatCritical)
-                    {
-                        restore = Dice.RollD10() + Dice.RollD10() + 5;
-                    }
-
-                    RestoreStruct restoreInfo =
-                        new RestoreStruct
-                        {
-                            from = user.gameObject,
-                            instigator = user.Controller,
-                            restoreAmount = restore
-                        };
-
-                    CombatModule combat = user.GetModule<CombatModule>();
-
-                    if (combat == null)
-                        return;
-
-                    combat.OnRestore(restoreInfo);
-                    if (criticalResult.criticalType == CriticalType.GreatCritical)
-                    {
-                        BattleManager.ClaimBattleLog($"상위 크리티컬<br>{restore}생명력 회복");
-                    }
-                    else if (criticalResult.criticalType == CriticalType.Critical)
-                    {
-                        BattleManager.ClaimBattleLog($"크리티컬<br>{restore}생명력 회복");
-                    }
-                    else
-                    {
-                        BattleManager.ClaimBattleLog($"{restore}생명력 회복");
-                    }
-                    Debug.Log(
-                        $"무색 카드 회복: {restore} / 크리티컬: {criticalResult.criticalType}");
-
-                    break;
-                }
+            return false;
         }
+
+        // 키워드 무색 카드는 보조 행동 효과를 사용할 수 없습니다.
+        if (useCost != CardUseCost.Action)
+            return false;
+
+        if (HasKeyword(card, cardInstance, CardKeywordType.Tool) ||
+            HasKeyword(card, cardInstance, CardKeywordType.Key) ||
+            HasKeyword(card, cardInstance, CardKeywordType.Record))
+        {
+            return false;
+        }
+
+        if (HasKeyword(card, cardInstance, CardKeywordType.Medicine))
+        {
+            return ApplyColorlessHealing(user, target, Dice.RollD8() + 4);
+        }
+
+        if (target == null)
+            return false;
+
+        int damage;
+
+        if (HasKeyword(card, cardInstance, CardKeywordType.Blade))
+        {
+            damage = Dice.RollD4() + 3;
+        }
+        else if (HasKeyword(card, cardInstance, CardKeywordType.Blunt))
+        {
+            damage = Dice.RollD6() + 2;
+        }
+        else if (HasKeyword(card, cardInstance, CardKeywordType.HolyRelic))
+        {
+            damage = 4;
+        }
+        else
+        {
+            // 광원·비점화·점화·결박은 기본 1D4 공격에서 시작합니다.
+            damage = Dice.RollD4();
+        }
+
+        if (HasKeyword(card, cardInstance, CardKeywordType.Ignition))
+        {
+            damage += Dice.RollD4();
+        }
+
+        if (!ApplyColorlessDamage(user, target, damage))
+            return false;
+
+        if (HasKeyword(card, cardInstance, CardKeywordType.Binding))
+        {
+            StatusEffectModule status =
+                target.GetModule<StatusEffectModule>();
+
+            if (status != null)
+            {
+                int bind = Dice.RollD4();
+                status.AddStatus(StatusEffectType.Bind, bind);
+                BattleManager.ClaimBattleLog($"속박 {bind} 부여");
+            }
+            else
+            {
+                Debug.LogWarning("결박 효과 실패: 대상에게 StatusEffectModule이 없습니다.");
+            }
+        }
+
+        return true;
     }
 
-    private int RollColorlessDice(CharacterBase user)
+    private bool ApplyColorlessDamage(
+        CharacterBase user,
+        CharacterBase target,
+        int damage)
     {
-        LVModules lv = user.GetModule<LVModules>();
+        if (user == null || target == null)
+            return false;
 
-        if (lv == null)
-            return Dice.RollD4();
+        CombatModule combat = target.GetModule<CombatModule>();
 
-        if (lv.Level >= 10)
-            return Dice.RollD8();
+        if (combat == null)
+            return false;
 
-        if (lv.Level >= 5)
-            return Dice.RollD6();
+        DamageStruct damageInfo = new DamageStruct
+        {
+            from = user.gameObject,
+            instigator = user.Controller,
+            damageAmount = damage,
+            critical = false,
+            damageType = DamageType.Hand_to_hand_combat
+        };
 
-        return Dice.RollD4();
+        combat.OnHit(damageInfo);
+        BattleManager.ClaimBattleLog($"{damage} 피해");
+        return true;
+    }
+
+    private bool ApplyColorlessArmor(CharacterBase user, int armor)
+    {
+        if (user == null)
+            return false;
+
+        ArmorModule armorModule = user.GetModule<ArmorModule>();
+
+        if (armorModule == null)
+            return false;
+
+        armorModule.AddTemporaryArmor(armor);
+        BattleManager.ClaimBattleLog($"임시 장갑 {armor} 획득");
+        return true;
+    }
+
+    private bool ApplyColorlessHealing(
+        CharacterBase user,
+        CharacterBase target,
+        int restore)
+    {
+        if (user == null || target == null)
+            return false;
+
+        CombatModule combat = target.GetModule<CombatModule>();
+
+        if (combat == null)
+            return false;
+
+        RestoreStruct restoreInfo = new RestoreStruct
+        {
+            from = user.gameObject,
+            instigator = user.Controller,
+            restoreAmount = restore
+        };
+
+        combat.OnRestore(restoreInfo);
+        BattleManager.ClaimBattleLog($"생명력 {restore} 회복");
+        return true;
+    }
+
+    private bool HasKeyword(
+        CardData card,
+        CardInstance cardInstance,
+        CardKeywordType keyword)
+    {
+        return cardInstance != null
+            ? cardInstance.HasKeyword(keyword)
+            : card != null && card.HasKeyword(keyword);
     }
 
     /// <summary>
@@ -732,26 +684,90 @@ public class CardResolver
     /// </summary>
     public bool CanUse(CardData selectedCard, CharacterBase user, CardUseCost useCost)
     {
-        CostModule cost = user.GetModule<CostModule>();
+        ActionPointModule actionPoint = user.GetModule<ActionPointModule>();
 
-        if (cost == null)
+        if (actionPoint == null)
             return false;
 
-        switch (useCost)
+        return actionPoint.CanUse(GetActionPointCost(useCost));
+    }
+
+    /// <summary>
+    /// 런타임 키워드와 내구도를 포함해 카드 사용 가능 여부를 확인합니다.
+    /// </summary>
+    public bool CanUse(
+        CardInstance selectedCard,
+        CharacterBase user,
+        CardUseCost useCost)
+    {
+        if (selectedCard == null || selectedCard.Data == null || selectedCard.IsDepleted)
+            return false;
+
+        if (selectedCard.Color == CardColorType.Colorless &&
+            selectedCard.HasKeywords &&
+            useCost != CardUseCost.Action)
         {
-            case CardUseCost.Action:
-                return cost.CanUse(CostType.Action, 1);
-
-            case CardUseCost.Auxiliary:
-                return cost.CanUse(CostType.Auxiliary, 1);
-
-            case CardUseCost.ActionAndAuxiliary:
-
-                return cost.CanUse(CostType.Action, 1)
-                    && cost.CanUse(CostType.Auxiliary, 1);
+            return false;
         }
 
-        return false;
+        if (selectedCard.Color == CardColorType.Colorless &&
+            (selectedCard.HasKeyword(CardKeywordType.Tool) ||
+             selectedCard.HasKeyword(CardKeywordType.Key) ||
+             selectedCard.HasKeyword(CardKeywordType.Record)))
+        {
+            return false;
+        }
+
+        return CanUse(selectedCard.Data, user, useCost);
+    }
+
+    /// <summary>
+    /// CardInstance의 런타임 키워드로 무색 카드 효과를 결정합니다.
+    /// </summary>
+    public bool UseWithoutCostCheck(
+        CardInstance cardInstance,
+        CharacterBase user,
+        CharacterBase target,
+        CardUseCost useCost)
+    {
+        if (cardInstance == null || cardInstance.Data == null || user == null)
+            return false;
+
+        if (!CanUse(cardInstance, user, useCost))
+            return false;
+
+        if (!TryPayCost(user, useCost))
+            return false;
+
+        CardData card = cardInstance.Data;
+
+        if (card.magicCardType != MagicCardType.None)
+        {
+            ResolveMagicCard(card, user, target, useCost);
+            return true;
+        }
+
+        if (cardInstance.Color == CardColorType.Colorless)
+        {
+            return ResolveColorless(
+                card,
+                cardInstance,
+                user,
+                target,
+                useCost);
+        }
+
+        if (card.IsAbilityCard)
+        {
+            return ResolveAbilityCard(
+                card,
+                cardInstance.GradeBonus,
+                user,
+                target,
+                useCost);
+        }
+
+        return ResolveNonColorlessCard(card, user, target, useCost);
     }
 
     /// <summary>
@@ -773,6 +789,142 @@ public class CardResolver
             return true;
         }
 
+        if (card.color == CardColorType.Colorless)
+        {
+            return ResolveColorless(card, null, user, target, useCost);
+        }
+
+        if (card.IsAbilityCard)
+        {
+            return ResolveAbilityCard(
+                card,
+                card.GradeBonus,
+                user,
+                target,
+                useCost);
+        }
+
+        return ResolveNonColorlessCard(card, user, target, useCost);
+    }
+
+    private bool ResolveAbilityCard(
+        CardData card,
+        int gradeBonus,
+        CharacterBase user,
+        CharacterBase target,
+        CardUseCost useCost)
+    {
+        StatType statType = GetAbilityCardStat(card.color);
+
+        if (statType == StatType.None)
+            return false;
+
+        StatModules stats = user.GetModule<StatModules>();
+        int statModifier = stats != null ? stats.GetModifier(statType) : 0;
+        int amount = Mathf.Max(0, statModifier + gradeBonus);
+
+        if (useCost == CardUseCost.Auxiliary)
+        {
+            return ApplyAbilityCardSelfEffect(card.color, user, amount);
+        }
+
+        if (target == null)
+            return false;
+
+        int dice = RollAbilityBaseDice(user);
+        int damage = Mathf.Max(0, dice + statModifier + gradeBonus);
+
+        return ApplyColorlessDamage(user, target, damage);
+    }
+
+    private bool ApplyAbilityCardSelfEffect(
+        CardColorType color,
+        CharacterBase user,
+        int amount)
+    {
+        switch (color)
+        {
+            case CardColorType.Red:
+                return ApplyColorlessArmor(user, amount);
+
+            case CardColorType.Yellow:
+            {
+                StatusEffectModule status = user.GetModule<StatusEffectModule>();
+                if (status == null)
+                    return false;
+
+                status.AddStatus(StatusEffectType.Haste, amount);
+                BattleManager.ClaimBattleLog($"가속 {amount} 획득");
+                return true;
+            }
+
+            case CardColorType.Green:
+                return ApplyColorlessHealing(user, user, amount);
+
+            case CardColorType.Blue:
+            {
+                StatusEffectModule status = user.GetModule<StatusEffectModule>();
+                if (status == null)
+                    return false;
+
+                status.AddStatus(StatusEffectType.Motivation, amount);
+                BattleManager.ClaimBattleLog($"의욕 {amount} 획득");
+                return true;
+            }
+
+            case CardColorType.Purple:
+            {
+                SanityModule sanity = user.GetModule<SanityModule>();
+                StatusEffectModule status = user.GetModule<StatusEffectModule>();
+
+                if (sanity == null || status == null)
+                    return false;
+
+                int sanityDamage = Mathf.Max(0, 20 - amount);
+                sanity.TakeSanityDamage(sanityDamage);
+                status.AddStatus(StatusEffectType.Blessing, 1);
+                BattleManager.ClaimBattleLog($"정신력 {sanityDamage} 감소 / 축복 획득");
+                return true;
+            }
+
+            default:
+                return false;
+        }
+    }
+
+    private StatType GetAbilityCardStat(CardColorType color)
+    {
+        switch (color)
+        {
+            case CardColorType.Red: return StatType.Strength;
+            case CardColorType.Yellow: return StatType.Agility;
+            case CardColorType.Green: return StatType.Health;
+            case CardColorType.Blue: return StatType.Intelligence;
+            case CardColorType.Purple: return StatType.Will;
+            default: return StatType.None;
+        }
+    }
+
+    private int RollAbilityBaseDice(CharacterBase user)
+    {
+        LVModules level = user.GetModule<LVModules>();
+        int currentLevel = level != null ? level.Level : 1;
+
+        if (currentLevel >= 10)
+            return Dice.RollD8();
+
+        if (currentLevel >= 5)
+            return Dice.RollD6();
+
+        return Dice.RollD4();
+    }
+
+    private bool ResolveNonColorlessCard(
+        CardData card,
+        CharacterBase user,
+        CharacterBase target,
+        CardUseCost useCost)
+    {
         // 카드 색상에 따라 효과 실행
         switch (card.color)
         {
@@ -800,11 +952,6 @@ public class CardResolver
             // 자색 카드
             case CardColorType.Purple:
                 return ResolvePurple(card, user, target, useCost);
-
-            // 무색 카드
-            case CardColorType.Colorless:
-                ResolveColorless(card, user, target, useCost);
-                break;
 
             // 검은색 카드
             case CardColorType.Black:
@@ -1250,292 +1397,6 @@ public class CardResolver
         combat.OnHit(damageInfo);
 
         Debug.Log($"검은 의지 카드: 자신에게 {damage} 피해");
-    }
-
-
-    private bool ResolveRedField(CardData card, CharacterBase user, FieldEventContext context)
-    {
-        if (card == null || user == null || context == null || context.FieldManager == null)
-        {
-            return false;
-        }
-
-        FieldNode currentNode = context.FieldManager.CurrentNode;
-
-        if (currentNode == null)
-        {
-            Debug.LogWarning("적색 카드 사용 실패: 현재 노드가 없습니다.");
-
-            return false;
-        }
-
-        int clearedLineCount = 0;
-
-        foreach (FieldLine line in currentNode.ConnectedLines)
-        {
-            if (line == null)
-                continue;
-
-            if (line.LineType != FieldLineType.Red)
-                continue;
-
-            line.ClearBlock();
-            clearedLineCount++;
-        }
-
-        if (clearedLineCount <= 0)
-        {
-            Debug.Log("적색 카드: 현재 위치 주변에 제거할 적색 라인이 없습니다.");
-        }
-        else
-        {
-            Debug.Log($"적색 카드: 적색 라인 {clearedLineCount}개를 일반 라인으로 변경했습니다.");
-        }
-
-        // 제거할 라인이 없어도 카드는 사용된 것으로 처리
-        return true;
-    }
-
-    private bool ResolveColorlessField(CardData card, CharacterBase user, FieldEventContext context)
-    {
-        if (card == null || user == null || context == null)
-        {
-            return false;
-        }
-
-        DeckModule deck = user.GetModule<DeckModule>();
-
-        StatModules stat = user.GetModule<StatModules>();
-
-        if (deck == null || stat == null)
-        {
-            Debug.LogWarning("무색 필드 효과 실패: DeckModule 또는 StatModules 없음");
-
-            return false;
-        }
-
-        // 1. 제외된 카드를 모두 덱으로 복귀
-        deck.ReturnAllExhaustToDeck();
-
-        // 2. 지정 능력치 판정
-        // 무색 카드 자체 효과 판정에는 보정치를 적용하지 않는다.
-        StatType designatedStat = stat.GetDesignatedStatType();
-
-        if (designatedStat == StatType.None)
-        {
-            Debug.Log("무색 필드 효과: 지정 능력치가 없습니다.");
-
-            return true;
-        }
-
-        int statValue = stat.GetStat(designatedStat);
-
-        int dice = Dice.RollD10();
-
-        bool success = dice <= statValue;
-
-        Debug.Log($"무색 카드 지정 판정: " + $"주사위 {dice} ≤ {designatedStat} {statValue} / " + $"성공:{success}");
-
-        // 판정 실패면 추가 복귀 효과 없음
-        if (!success)
-            return true;
-
-        // 3. 소멸 영역의 무색이 아닌 카드 확인
-        List<CardInstance> recoverableCards = deck.GetRecoverableRemovedCardInstances();
-
-        // 복귀 가능한 색상 카드가 없으면 그대로 종료
-        if (recoverableCards.Count <= 0)
-        {
-            Debug.Log("무색 필드 효과: 복귀 가능한 색상 카드가 없습니다.");
-
-            return true;
-        }
-
-        // 4. 카드 선택 UI 요청
-        context.RequestRemovedCardRecovery(recoverableCards);
-
-        return true;
-    }
-
-    private bool ResolveBlueField(CardData card, CharacterBase user, FieldEventContext context)
-    {
-        if (card == null || user == null || context == null || context.FieldManager == null)
-        {
-            return false;
-        }
-
-        FieldNode currentNode = context.FieldManager.CurrentNode;
-
-        if (currentNode == null)
-        {
-            Debug.LogWarning("청색 카드 사용 실패: 현재 노드가 없습니다.");
-
-            return false;
-        }
-
-        int discoveredLineCount = 0;
-        int discoveredAreaCount = 0;
-
-        foreach (FieldLine line in currentNode.ConnectedLines)
-        {
-            if (line == null)
-                continue;
-
-            // 현재 노드와 연결된 비밀 라인을 발견
-            if (line.LineType == FieldLineType.Hidden)
-            {
-                line.Discover();
-                discoveredLineCount++;
-            }
-
-            FieldNode otherNode = line.GetOtherNode(currentNode);
-
-            if (otherNode == null)
-                continue;
-
-            // 연결된 노드가 비밀 구역이면 공개
-            if (otherNode.IsHiddenArea && !otherNode.IsHiddenAreaDiscovered)
-            {
-                if (otherNode.DiscoverHiddenArea())
-                {
-                    discoveredAreaCount++;
-                }
-            }
-        }
-
-        if (discoveredLineCount == 0 && discoveredAreaCount == 0)
-        {
-            Debug.Log("청색 카드: 주변에서 비밀 라인이나 비밀 구역을 찾지 못했습니다.");
-        }
-        else
-        {
-            Debug.Log($"청색 카드 탐색 결과 / " + $"비밀 라인:{discoveredLineCount} / " + $"비밀 구역:{discoveredAreaCount}");
-        }
-
-        // 아무것도 찾지 못해도 카드는 정상 사용된 것으로 처리
-        return true;
-    }
-
-    private bool ResolveGreenField(CardData card, CharacterBase user, FieldEventContext context)
-    {
-        if (card == null || user == null)
-            return false;
-
-        HitpointModules hitpoint = user.GetModule<HitpointModules>();
-
-        if (hitpoint == null)
-        {
-            Debug.LogWarning("녹색 카드 사용 실패: HitpointModules가 없습니다.");
-
-            return false;
-        }
-
-        int restoreAmount = Dice.RollD10();
-
-        RestoreStruct restoreInfo = new RestoreStruct { from = user.gameObject, instigator = user.Controller, restoreAmount = restoreAmount };
-
-        int actualRestore = hitpoint.TakeRestore(restoreInfo);
-
-        Debug.Log($"녹색 카드: {user.name} 생명력 회복 " + $"{actualRestore} / 주사위:{restoreAmount}");
-
-        // 최대 생명력이라 실제 회복량이 0이어도
-        // 카드는 정상 사용된 것으로 처리
-        return true;
-    }
-
-    /// <summary>
-    /// 행동력 회복
-    /// </summary>
-    /// <param name="card"></param>
-    /// <param name="user"></param>
-    /// <param name="context"></param>
-    /// <returns></returns>
-    private bool ResolveYellowField(CardData card, CharacterBase user, FieldEventContext context)
-    {
-        if (card == null || user == null)
-            return false;
-
-        ActionPointModule actionPoint = user.GetModule<ActionPointModule>();
-
-        if (actionPoint == null)
-        {
-            Debug.LogWarning($"{user.name}: ActionPointModule이 없습니다.");
-
-            return false;
-        }
-
-        int dice = Dice.RollD4();
-
-        int additionalActionPoint = 1 + dice / 2;
-
-        actionPoint.AddTemporaryActionPoint(additionalActionPoint);
-
-        Debug.Log($"황색 카드 필드 효과: " + $"1 + ({dice} / 2) = " + $"{additionalActionPoint} 행동력 추가");
-
-        return true;
-    }
-
-    private bool ResolvePurpleField(CardData card, CharacterBase user, FieldEventContext context)
-    {
-        if (card == null || user == null || context == null || context.FieldManager == null)
-        {
-            return false;
-        }
-
-        int diceValue = Dice.RollD6();
-
-        // 홀수: 생명력 감소
-        if (diceValue % 2 != 0)
-        {
-            HitpointModules hitpoint = user.GetModule<HitpointModules>();
-
-            if (hitpoint == null)
-            {
-                Debug.LogWarning("자색 카드 사용 실패: HitpointModules가 없습니다.");
-
-                return false;
-            }
-
-            DamageStruct damageInfo = new DamageStruct
-            {
-                from = user.gameObject,
-                instigator = user.Controller,
-
-                diceValue = diceValue,
-                damageAmount = diceValue,
-
-                critical = false,
-                highCritical = false,
-
-                damageType = DamageType.None,
-                canCounter = false,
-                reactionType = ActionType.None
-            };
-
-            int actualDamage = hitpoint.TakeDamage(damageInfo);
-
-            Debug.Log($"자색 카드: 주사위 {diceValue} 홀수 / " + $"생명력 {actualDamage} 감소");
-        }
-        // 짝수: 정신력 감소
-        else
-        {
-            SanityModule sanity = user.GetModule<SanityModule>();
-
-            if (sanity == null)
-            {
-                Debug.LogWarning("자색 카드 사용 실패: SanityModule이 없습니다.");
-
-                return false;
-            }
-
-            sanity.TakeSanityDamage(diceValue);
-
-            Debug.Log($"자색 카드: 주사위 {diceValue} 짝수 / " + $"정신력 {diceValue} 감소");
-        }
-
-        context.FieldManager.ReserveCoreEventForNextSelection(user);
-
-        return true;
     }
 
 

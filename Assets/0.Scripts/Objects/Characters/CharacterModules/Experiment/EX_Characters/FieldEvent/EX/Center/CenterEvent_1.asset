@@ -1,0 +1,111 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eda405cbcf5af0841a71b53f8add7b42, type: 3}
+  m_Name: CenterEvent_1
+  m_EditorClassIdentifier: Assembly-CSharp::FieldEventData
+  eventId: Center_event_1
+  eventName: "\uC2A4\uD504\uBC29"
+  eventType: 2
+  description: "\uB2F9\uC2E0\uC740 \uC2A4\uD504\uBC29\uC5D0\uC11C \uD589\uB3D9\uD558\uACE0\uC790
+    \uD55C\uB2E4."
+  eventImage: {fileID: -7186055740845857485, guid: 874c4ca1e5324ad46ab813d982b4597c, type: 3}
+  displayType: 0
+  maximumVisibleChoices: 3
+  choices:
+  - choiceId: Center_event_1_01
+    choiceText: "\uBAB8\uC744 \uC6C0\uC9C1\uC778\uB2E4."
+    choiceType: 1
+    actionType: 0
+    usageType: 0
+    nextPage: {fileID: 11400000, guid: a8622b0268f6b7d42844f0e8eabbeb06, type: 2}
+    executionType: 0
+    requiredStat: 0
+    requiredCardKeyword: 0
+    target: 0
+    conditions: []
+    allowsIgnition: 0
+    showKnownMemoryTitlesOnSuccess: 0
+    successResult:
+      description: 
+      effects: []
+      resultImage: {fileID: 0}
+      redLineResult: 0
+    failureResult:
+      description: 
+      effects: []
+      resultImage: {fileID: 0}
+      redLineResult: 0
+    legacyCardRequirement:
+      requiresCard: 0
+      allowedColors: 
+      checkStat: 0
+  - choiceId: Center_event_1_02
+    choiceText: "\uAD00\uCC30\uD55C\uB2E4."
+    choiceType: 2
+    actionType: 0
+    usageType: 0
+    nextPage: {fileID: 11400000, guid: efdd38e87e340d6438d7dc98e1365f45, type: 2}
+    executionType: 0
+    requiredStat: 0
+    requiredCardKeyword: 0
+    target: 0
+    conditions: []
+    allowsIgnition: 0
+    showKnownMemoryTitlesOnSuccess: 0
+    successResult:
+      description: 
+      effects: []
+      resultImage: {fileID: 0}
+      redLineResult: 0
+    failureResult:
+      description: 
+      effects: []
+      resultImage: {fileID: 0}
+      redLineResult: 0
+    legacyCardRequirement:
+      requiresCard: 0
+      allowedColors: 
+      checkStat: 0
+  - choiceId: Center_event_1_03
+    choiceText: "\uC7A0\uC2DC \uC0DD\uAC01\uC744 \uC815\uB9AC \uD55C\uB2E4."
+    choiceType: 1
+    actionType: 0
+    usageType: 0
+    nextPage: {fileID: 11400000, guid: 56ea72363f6fbe2478566f95e44348b9, type: 2}
+    executionType: 0
+    requiredStat: 0
+    requiredCardKeyword: 0
+    target: 0
+    conditions: []
+    allowsIgnition: 0
+    showKnownMemoryTitlesOnSuccess: 0
+    successResult:
+      description: 
+      effects:
+      - {fileID: 11400000, guid: bf06dd343ebcaf5458aa1df300a0f327, type: 2}
+      resultImage: {fileID: 0}
+      redLineResult: 0
+    failureResult:
+      description: 
+      effects: []
+      resultImage: {fileID: 0}
+      redLineResult: 0
+    legacyCardRequirement:
+      requiresCard: 0
+      allowedColors: 
+      checkStat: 0
+  showOwnedMemos: 0
+  usageType: 1
+  openingConditions:
+  - {fileID: 11400000, guid: 2ba37f435126e4449b05347a61dbc9e5, type: 2}
+  startingNodeId: 
+  legacyEntryData: {fileID: 11400000, guid: 1f3ed312633b25947a4a281b2daeddf4, type: 2}

@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class SanityModule : CharacterModule
@@ -10,6 +11,10 @@ public class SanityModule : CharacterModule
 
     public int CurrentSanity => currentSanity;
     public int MaxSanity => maxSanity;
+    public bool IsEmpty => currentSanity <= 0;
+
+    public event Action<int, int> OnSanityChanged;
+    public event Action OnEmpty;
 
     /// <summary>
     /// 최대 정신력 설정
@@ -23,7 +28,7 @@ public class SanityModule : CharacterModule
             currentSanity = maxSanity;
         }
 
-
+        OnSanityChanged?.Invoke(currentSanity, maxSanity);
     }
 
     /// <summary>
@@ -32,6 +37,8 @@ public class SanityModule : CharacterModule
     public void FillSanity()
     {
         currentSanity = maxSanity;
+
+        OnSanityChanged?.Invoke(currentSanity, maxSanity);
 
         Debug.Log($"정신력 최대 회복: {currentSanity}/{maxSanity}");
     }
@@ -48,12 +55,16 @@ public class SanityModule : CharacterModule
 
         currentSanity = Mathf.Max(0, currentSanity - value);
 
+        if (currentSanity != before)
+            OnSanityChanged?.Invoke(currentSanity, maxSanity);
+
         Debug.Log($"정신력 감소: {before} -> {currentSanity} / 감소 {value}");
 
 
         if (before > 0 && currentSanity <= 0)
         {
             EnterMadness();
+            OnEmpty?.Invoke();
         }
     }
 
@@ -75,6 +86,9 @@ public class SanityModule : CharacterModule
         int before = currentSanity;
 
         currentSanity = Mathf.Min(maxSanity, currentSanity + value);
+
+        if (currentSanity != before)
+            OnSanityChanged?.Invoke(currentSanity, maxSanity);
 
         Debug.Log($"정신력 회복: {before} -> {currentSanity} / 회복 {value}");
     }

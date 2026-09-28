@@ -38,7 +38,5 @@ public class FieldReserveCoreEventEffect : FieldEventEffect
         }
 
         context.FieldManager.ReserveCoreEventForNextSelection(character);
-
-        context.AddResultMessage("다음 이벤트 후보에 핵심 이벤트가 등장합니다.");
     }
 }

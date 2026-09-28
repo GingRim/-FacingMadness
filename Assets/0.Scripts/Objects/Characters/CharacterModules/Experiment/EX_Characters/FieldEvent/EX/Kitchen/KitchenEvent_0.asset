@@ -1,0 +1,110 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eda405cbcf5af0841a71b53f8add7b42, type: 3}
+  m_Name: KitchenEvent_0
+  m_EditorClassIdentifier: Assembly-CSharp::FieldEventData
+  eventId: kitchen_event_0
+  eventName: "\uC8FC\uBC29"
+  eventType: 1
+  description: "\uB2F9\uC2E0\uC740 \uC8FC\uBC29\uC744 \uD0D0\uC0AC\uD558\uACE0\uC790
+    \uD55C\uB2E4."
+  eventImage: {fileID: 2383729432973304853, guid: 697a7767307dcfc448dbfec79c359749, type: 3}
+  displayType: 0
+  maximumVisibleChoices: 3
+  choices:
+  - choiceId: kitchen_event0_0
+    choiceText: "\uBAB8\uC744 \uC6C0\uC9C1\uC778\uB2E4."
+    choiceType: 0
+    actionType: 0
+    usageType: 0
+    nextPage: {fileID: 11400000, guid: 84e9803c4e3f0074aa0e5ed174903838, type: 2}
+    executionType: 0
+    requiredStat: 0
+    requiredCardKeyword: 0
+    target: 0
+    conditions: []
+    allowsIgnition: 0
+    showKnownMemoryTitlesOnSuccess: 0
+    successResult:
+      description: 
+      effects: []
+      resultImage: {fileID: 0}
+      redLineResult: 0
+    failureResult:
+      description: 
+      effects: []
+      resultImage: {fileID: 0}
+      redLineResult: 0
+    legacyCardRequirement:
+      requiresCard: 0
+      allowedColors: 
+      checkStat: 0
+  - choiceId: kitchen_event0_1
+    choiceText: "\uAD00\uCC30\uD55C\uB2E4."
+    choiceType: 0
+    actionType: 0
+    usageType: 0
+    nextPage: {fileID: 11400000, guid: e1b54e06c4c40e64982614e5d2a89562, type: 2}
+    executionType: 0
+    requiredStat: 0
+    requiredCardKeyword: 0
+    target: 0
+    conditions: []
+    allowsIgnition: 0
+    showKnownMemoryTitlesOnSuccess: 0
+    successResult:
+      description: 
+      effects: []
+      resultImage: {fileID: 0}
+      redLineResult: 0
+    failureResult:
+      description: 
+      effects: []
+      resultImage: {fileID: 0}
+      redLineResult: 0
+    legacyCardRequirement:
+      requiresCard: 0
+      allowedColors: 
+      checkStat: 0
+  - choiceId: kitchen_event0_2
+    choiceText: "\uC7A0\uC2DC \uC0DD\uAC01\uC744 \uC815\uB9AC\uD55C\uB2E4."
+    choiceType: 0
+    actionType: 0
+    usageType: 0
+    nextPage: {fileID: 11400000, guid: 56ea72363f6fbe2478566f95e44348b9, type: 2}
+    executionType: 0
+    requiredStat: 0
+    requiredCardKeyword: 0
+    target: 0
+    conditions: []
+    allowsIgnition: 0
+    showKnownMemoryTitlesOnSuccess: 0
+    successResult:
+      description: 
+      effects: []
+      resultImage: {fileID: 0}
+      redLineResult: 0
+    failureResult:
+      description: 
+      effects: []
+      resultImage: {fileID: 0}
+      redLineResult: 0
+    legacyCardRequirement:
+      requiresCard: 0
+      allowedColors: 
+      checkStat: 0
+  showOwnedMemos: 0
+  usageType: 1
+  openingConditions:
+  - {fileID: 11400000, guid: 2695acfb680455f41972d1a6fef7c231, type: 2}
+  startingNodeId: 
+  legacyEntryData: {fileID: 11400000, guid: 0e3cb3585a97a774d9a27d39d30ac213, type: 2}

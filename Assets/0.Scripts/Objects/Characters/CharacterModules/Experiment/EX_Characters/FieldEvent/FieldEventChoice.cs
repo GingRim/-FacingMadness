@@ -28,9 +28,9 @@ public class FieldEventChoice
     [SerializeField]
     private FieldChoiceUsageType usageType;
 
-    [Header("이동할 페이지")]
+    [Header("이동할 다음 이벤트")]
     [SerializeField]
-    private FieldEventPageData nextPage;
+    private FieldEventData nextPage;
 
     [Header("실행 방식")]
     [SerializeField]
@@ -39,6 +39,11 @@ public class FieldEventChoice
     [Header("판정에 사용할 능력치")]
     [SerializeField]
     private StatType requiredStat = StatType.None;
+
+    [Header("카드 사용 대응 키워드")]
+    [Tooltip("None이면 능력치 대응 색상 카드를 사용합니다. 키워드를 지정하면 해당 키워드 카드만 사용할 수 있습니다.")]
+    [SerializeField]
+    private CardKeywordType requiredCardKeyword = CardKeywordType.None;
 
     [Header("판정 목표치")]
     [SerializeField, Min(2)]
@@ -51,6 +56,11 @@ public class FieldEventChoice
     [Header("점화 판정")]
     [SerializeField]
     private bool allowsIgnition;
+
+    [Header("기억 회상 판정")]
+    [Tooltip("판정 성공 시 플레이어가 알고 있는 기억 정보의 제목을 결과창에 목록으로 표시합니다.")]
+    [SerializeField]
+    private bool showKnownMemoryTitlesOnSuccess;
 
     [Header("성공 결과")]
     [SerializeField]
@@ -91,9 +101,9 @@ public class FieldEventChoice
     public FieldChoiceUsageType UsageType => usageType;
 
     /// <summary>
-    /// 페이지 이동 선택지가 열어야 하는 다음 페이지.
+    /// 이동 선택지가 열어야 하는 다음 FieldEventData.
     /// </summary>
-    public FieldEventPageData NextPage => nextPage;
+    public FieldEventData NextEvent => nextPage;
 
     /// <summary>
     /// 일반 실행인지 능력치 판정인지 구분한다.
@@ -104,6 +114,12 @@ public class FieldEventChoice
     /// 능력치 판정에 사용되는 능력치 종류.
     /// </summary>
     public StatType RequiredStat => requiredStat;
+
+    public CardKeywordType RequiredCardKeyword => requiredCardKeyword;
+
+    public bool UsesKeywordCard =>
+        requiredCardKeyword != CardKeywordType.None &&
+        requiredCardKeyword != CardKeywordType._Length;
 
     /// <summary>
     /// 성공했을 때 적용할 결과.
@@ -175,6 +191,9 @@ public class FieldEventChoice
     /// 점화 판정으로 사용할 수 있는지 확인합니다.
     /// </summary>
     public bool AllowsIgnition => allowsIgnition;
+
+    public bool ShowKnownMemoryTitlesOnSuccess =>
+        showKnownMemoryTitlesOnSuccess;
 
     /// <summary>
     /// 선택지의 판정 설정과 추가 조건을 모두 만족하는지 확인한다.
@@ -290,12 +309,33 @@ public class FieldEventChoice
         if (card == null || !RequiresStatCheck)
             return false;
 
+        if (UsesKeywordCard)
+            return card.HasKeyword(requiredCardKeyword);
+
         CardColorType requiredColor = GetRequiredCardColor();
 
         if (requiredColor == CardColorType.None)
             return false;
 
         return card.color == requiredColor;
+    }
+
+    /// <summary>
+    /// 실제 손패 카드가 현재 선택지에 대응하는지 확인합니다.
+    /// 런타임에 추가된 키워드도 판정할 수 있도록 CardInstance를 우선 사용합니다.
+    /// </summary>
+    public bool CanUseCard(CardInstance card)
+    {
+        if (card == null || card.Data == null || !RequiresStatCheck)
+            return false;
+
+        if (UsesKeywordCard)
+            return card.HasKeyword(requiredCardKeyword);
+
+        CardColorType requiredColor = GetRequiredCardColor();
+
+        return requiredColor != CardColorType.None &&
+               card.Color == requiredColor;
     }
 
     /// <summary>

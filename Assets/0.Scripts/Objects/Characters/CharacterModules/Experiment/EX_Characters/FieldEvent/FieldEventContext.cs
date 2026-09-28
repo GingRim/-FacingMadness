@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using System.Collections.Generic;
 using System.Text;
@@ -14,7 +15,10 @@ public class FieldEventContext
     public string ResultTextOverride { get; private set; }
 
     private readonly List<CardInstance> removedCardRecoveryCandidates = new();
+    private readonly List<string> leadingResultMessages = new();
     private readonly List<string> resultMessages = new();
+    private readonly List<Action<FieldEventContext>> afterResultActions = new();
+    private readonly List<Action> eventClosedActions = new();
 
     public IReadOnlyList<CardInstance> RemovedCardRecoveryCandidates => removedCardRecoveryCandidates;
 
@@ -24,10 +28,15 @@ public class FieldEventContext
     /// </summary>
     public IReadOnlyList<string> ResultMessages => resultMessages;
 
+    public IReadOnlyList<string> LeadingResultMessages =>
+        leadingResultMessages;
+
     /// <summary>
     /// 표시할 실제 효과 결과가 존재하는지 반환한다.
     /// </summary>
-    public bool HasResultMessages => resultMessages.Count > 0;
+    public bool HasResultMessages =>
+        leadingResultMessages.Count > 0 ||
+        resultMessages.Count > 0;
 
     public bool HasRemovedCardRecoveryRequest => removedCardRecoveryCandidates.Count > 0;
 
@@ -143,10 +152,23 @@ public class FieldEventContext
     }
 
     /// <summary>
+    /// 선택지의 일반 결과 설명보다 먼저 표시할 효과 문장을 추가한다.
+    /// 정보 획득 안내처럼 우선 공개해야 하는 결과에 사용한다.
+    /// </summary>
+    public void AddLeadingResultMessage(string message)
+    {
+        if (string.IsNullOrWhiteSpace(message))
+            return;
+
+        leadingResultMessages.Add(message);
+    }
+
+    /// <summary>
     /// 현재 이벤트에서 기록한 효과 결과를 모두 제거한다.
     /// </summary>
     public void ClearResultMessages()
     {
+        leadingResultMessages.Clear();
         resultMessages.Clear();
     }
 
@@ -158,6 +180,63 @@ public class FieldEventContext
     {
         ClearResultText();
         ClearResultMessages();
+        afterResultActions.Clear();
+        eventClosedActions.Clear();
+    }
+
+    /// <summary>
+    /// 현재 선택지에 연결된 모든 효과가 실행된 뒤 처리할 동작을 예약한다.
+    /// 피해와 회복을 전부 적용한 뒤 생존 여부를 확인할 때 사용한다.
+    /// </summary>
+    public void AddAfterResultAction(Action<FieldEventContext> action)
+    {
+        if (action != null)
+            afterResultActions.Add(action);
+    }
+
+    /// <summary>
+    /// 선택지 결과 효과가 끝난 시점의 예약 동작을 한 번씩 실행한다.
+    /// 실행 전에 목록을 비워 재실행과 중복 진행을 막는다.
+    /// </summary>
+    public void ExecuteAfterResultActions()
+    {
+        if (afterResultActions.Count == 0)
+            return;
+
+        Action<FieldEventContext>[] actions = afterResultActions.ToArray();
+        afterResultActions.Clear();
+
+        foreach (Action<FieldEventContext> action in actions)
+        {
+            action?.Invoke(this);
+        }
+    }
+
+    /// <summary>
+    /// 결과 확인으로 현재 이벤트가 완전히 닫힌 뒤 실행할 동작을 예약한다.
+    /// 전투는 이 시점에 시작해야 복귀 후 이전 이벤트 UI가 다시 열리지 않는다.
+    /// </summary>
+    public void AddEventClosedAction(Action action)
+    {
+        if (action != null)
+            eventClosedActions.Add(action);
+    }
+
+    /// <summary>
+    /// 예약된 이벤트 종료 동작을 한 번씩 실행한다.
+    /// </summary>
+    public void ExecuteEventClosedActions()
+    {
+        if (eventClosedActions.Count == 0)
+            return;
+
+        Action[] actions = eventClosedActions.ToArray();
+        eventClosedActions.Clear();
+
+        foreach (Action action in actions)
+        {
+            action?.Invoke();
+        }
     }
 
     /// <summary>
@@ -177,32 +256,50 @@ public class FieldEventContext
 
         StringBuilder builder = new StringBuilder();
 
+        AppendResultMessages(builder, leadingResultMessages);
+
         if (!string.IsNullOrWhiteSpace(narrativeText))
         {
+            AppendParagraphGap(builder);
             builder.Append(narrativeText.Trim());
         }
 
         if (resultMessages.Count > 0)
         {
-            if (builder.Length > 0)
-            {
-                builder.AppendLine();
-                builder.AppendLine();
-            }
-
-            for (int i = 0; i < resultMessages.Count; i++)
-            {
-                builder.Append("• ");
-                builder.Append(resultMessages[i]);
-
-                if (i < resultMessages.Count - 1)
-                {
-                    builder.AppendLine();
-                }
-            }
+            AppendParagraphGap(builder);
+            AppendResultMessages(builder, resultMessages);
         }
 
         return builder.ToString();
+    }
+
+    private static void AppendParagraphGap(StringBuilder builder)
+    {
+        if (builder.Length <= 0)
+            return;
+
+        builder.AppendLine();
+        builder.AppendLine();
+    }
+
+    private static void AppendResultMessages(
+        StringBuilder builder,
+        IReadOnlyList<string> messages)
+    {
+        if (builder == null || messages == null)
+            return;
+
+        for (int i = 0; i < messages.Count; i++)
+        {
+            if (string.IsNullOrWhiteSpace(messages[i]))
+                continue;
+
+            builder.Append("• ");
+            builder.Append(messages[i].Trim());
+
+            if (i < messages.Count - 1)
+                builder.AppendLine();
+        }
     }
 
 }

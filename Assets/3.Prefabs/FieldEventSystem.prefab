@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 8626788619209473262}
   - component: {fileID: 3357719084517624061}
   - component: {fileID: 4468820195628735172}
+  - component: {fileID: 7429053104491837261}
   m_Layer: 0
   m_Name: FieldEventSystem
   m_TagString: Untagged
@@ -60,6 +61,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TutorialFieldFlowController
   tutorialFieldRoot: {fileID: 0}
+  tutorialMission: {fileID: 11400000, guid: a47660ec3b907e51cf57802179e709ac, type: 2}
   fieldCanvasRoot: {fileID: 0}
   characterSpawner: {fileID: 0}
   screenChangeType: 1
@@ -83,3 +85,15 @@ MonoBehaviour:
   removedCardSelectUI: {fileID: 0}
   fieldScreen: {fileID: 0}
   fieldCardUseArea: {fileID: 0}
+--- !u!114 &7429053104491837261
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7085341199211398032}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 60eeb49e4deb9dc15d715d6f564a465e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FieldSessionFlowController

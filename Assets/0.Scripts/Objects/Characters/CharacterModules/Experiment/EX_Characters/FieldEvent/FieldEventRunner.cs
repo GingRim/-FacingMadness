@@ -3,16 +3,16 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// 필드 이벤트 실행, 선택지 페이지 이동,
+/// 필드 이벤트 실행, 다음 이벤트 이동,
 /// 선택 결과 처리 및 1회용 선택지 기록을 담당한다.
 /// </summary>
 public class FieldEventRunner : MonoBehaviour
 {
-    private readonly HashSet<string> completedEvents = new();
+    private readonly HashSet<FieldEventData> completedEvents = new();
 
     private readonly HashSet<string> usedChoices = new();
 
-    private readonly Stack<FieldEventPageData> pageHistory = new();
+    private readonly Stack<FieldEventData> eventHistory = new();
 
     [Header("점화 판정")]
     [SerializeField]
@@ -23,7 +23,7 @@ public class FieldEventRunner : MonoBehaviour
 
     private FieldEventData currentEvent;
     private FieldEventContext currentContext;
-    private FieldEventPageData currentPage;
+    private FieldEventData currentData;
 
     private JudgeResult lastJudgeResult;
     private bool hasLastJudgeResult;
@@ -52,11 +52,15 @@ public class FieldEventRunner : MonoBehaviour
     public FieldEventContext CurrentContext => currentContext;
 
     /// <summary>
-    /// 현재 화면에 표시 중인 선택지 페이지다.
+    /// 현재 화면에 표시 중인 통합 이벤트 데이터다.
     /// </summary>
-    public FieldEventPageData CurrentPage => currentPage;
+    public FieldEventData CurrentData => currentData;
 
     private FieldEventChoice pendingStatChoice;
+
+    // 메모·기억 선택 페이지를 연 원래 행동 선택지입니다.
+    // 정보가 실제로 선택될 때까지 선택지 사용과 이벤트 완료를 보류합니다.
+    private FieldEventChoice pendingInformationChoice;
 
     /// <summary>
     /// 현재 능력치 판정 방법 선택을 기다리는 선택지.
@@ -85,9 +89,9 @@ public class FieldEventRunner : MonoBehaviour
     public bool IsChoiceResolved => isChoiceResolved;
 
     /// <summary>
-    /// 이전 페이지로 돌아갈 수 있는지 반환한다.
+    /// 이전 이벤트 화면으로 돌아갈 수 있는지 반환한다.
     /// </summary>
-    public bool CanReturnToPreviousPage => pageHistory.Count > 0;
+    public bool CanReturnToPreviousPage => eventHistory.Count > 0;
 
     /// <summary>
     /// 이벤트가 처음 열렸을 때 발생한다.
@@ -95,9 +99,9 @@ public class FieldEventRunner : MonoBehaviour
     public event Action<FieldEventData, FieldEventContext> OnEventOpened;
 
     /// <summary>
-    /// 현재 선택지 페이지가 변경되었을 때 발생한다.
+    /// 현재 표시할 통합 이벤트 데이터가 변경되었을 때 발생한다.
     /// </summary>
-    public event Action<FieldEventPageData> OnPageChanged;
+    public event Action<FieldEventData> OnEventDataChanged;
 
     /// <summary>
     /// 실제 행동 선택지가 처리되었을 때 발생한다.
@@ -164,8 +168,7 @@ public class FieldEventRunner : MonoBehaviour
     }
 
     /// <summary>
-    /// 지정된 이벤트를 열고 시작 페이지를 준비한다.
-    /// 시작 페이지가 없다면 기존 이벤트 선택지 배열을 사용한다.
+    /// 지정된 통합 이벤트 데이터를 엽니다.
     /// </summary>
     /// <param name="eventData">실행할 이벤트 데이터</param>
     /// <param name="context">현재 이벤트 실행 정보</param>
@@ -179,11 +182,13 @@ public class FieldEventRunner : MonoBehaviour
     }
 
     /// <summary>
-    /// 지정된 이벤트를 열고 시작 페이지를 준비합니다.
-    /// 노드별 최초 방문 이벤트는 노드의 방문 기록이 반복 실행을
-    /// 막으므로, 같은 이벤트 데이터를 공유해도 완료 기록을 무시할 수 있습니다.
+    /// 기존 호출부와의 호환을 위해 세 번째 인자를 유지합니다.
+    /// 이벤트의 Usage Type은 호출 위치와 관계없이 동일하게 적용합니다.
     /// </summary>
-    public bool OpenEvent(FieldEventData eventData, FieldEventContext context, bool ignoreCompletionHistory)
+    public bool OpenEvent(
+        FieldEventData eventData,
+        FieldEventContext context,
+        bool ignoreCompletionHistory)
     {
         if (eventData == null || context == null)
             return false;
@@ -194,18 +199,20 @@ public class FieldEventRunner : MonoBehaviour
         if (!eventData.HasPlayableContent)
         {
             Debug.LogWarning(
-                $"{eventData.EventName}: 시작 페이지 또는 단일 페이지 선택지가 없습니다.");
+                $"{eventData.EventName}: 선택지가 없습니다.");
 
             return false;
         }
 
-        if (!ignoreCompletionHistory &&
-            !eventData.Repeatable &&
-            !string.IsNullOrWhiteSpace(eventData.EventId) &&
-            completedEvents.Contains(eventData.EventId))
-        {
+        if (!IsEventAvailable(eventData))
             return false;
-        }
+
+        FieldEventData entryData = eventData.EntryData;
+
+        if (!HasAvailableChoice(entryData, context))
+            return false;
+
+        _ = ignoreCompletionHistory;
 
         context.ClearEventResult();
 
@@ -213,20 +220,18 @@ public class FieldEventRunner : MonoBehaviour
 
         currentContext = context;
 
-        currentPage = eventData.RootPage;
+        currentData = entryData;
 
         isChoiceResolved = false;
 
-        pageHistory.Clear();
+        eventHistory.Clear();
 
         OnEventOpened?.Invoke(currentEvent, currentContext);
 
         pendingStatChoice = null;
+        pendingInformationChoice = null;
 
-        if (currentPage != null)
-        {
-            OnPageChanged?.Invoke(currentPage);
-        }
+        OnEventDataChanged?.Invoke(currentData);
 
         ResetLastChoiceResult();
 
@@ -234,18 +239,15 @@ public class FieldEventRunner : MonoBehaviour
     }
 
     /// <summary>
-    /// 현재 페이지 또는 기존 이벤트 데이터에서 선택지를 가져온다.
+    /// 현재 표시 중인 통합 이벤트 데이터에서 선택지를 가져옵니다.
     /// </summary>
     /// <returns>현재 선택 가능한 원본 선택지 목록</returns>
     public FieldEventChoice[] GetCurrentChoices()
     {
-        if (currentPage != null)
-            return currentPage.Choices;
-
-        if (currentEvent == null)
+        if (currentData == null)
             return null;
 
-        return currentEvent.DirectChoices;
+        return currentData.Choices;
     }
 
     /// <summary>
@@ -322,7 +324,7 @@ public class FieldEventRunner : MonoBehaviour
 
         if (choice.IsNavigation)
         {
-            TryOpenNextPage(choice);
+            TryOpenNextEvent(choice);
             return;
         }
 
@@ -339,43 +341,66 @@ public class FieldEventRunner : MonoBehaviour
     }
 
     /// <summary>
-    /// 페이지 이동 선택지가 지정한 하위 페이지를 연다.
-    /// 페이지 이동만으로는 이벤트를 완료하지 않는다.
+    /// 이동 선택지가 지정한 다음 FieldEventData를 엽니다.
+    /// 데이터 이동만으로는 이벤트 결과를 완료하지 않습니다.
     /// </summary>
     /// <param name="choice">페이지 이동 선택지</param>
-    /// <returns>하위 페이지를 열었으면 true</returns>
-    private bool TryOpenNextPage(FieldEventChoice choice)
+    /// <returns>다음 이벤트 데이터를 열었으면 true</returns>
+    private bool TryOpenNextEvent(FieldEventChoice choice)
     {
         if (choice == null)
             return false;
 
-        FieldEventPageData nextPage = choice.NextPage;
+        FieldEventData nextEvent = choice.NextEvent;
 
-        if (nextPage == null)
+        if (nextEvent == null)
         {
             Debug.LogWarning(
-                $"하위 페이지가 연결되지 않았습니다: " +
+                $"다음 이벤트가 연결되지 않았습니다: " +
                 $"{choice.ChoiceText}");
 
             return false;
         }
 
-        if (currentPage != null)
+        if (!nextEvent.CanOpen(currentContext))
         {
-            pageHistory.Push(currentPage);
+            OnChoiceFailed?.Invoke(
+                nextEvent.GetOpeningFailMessage(currentContext));
+
+            return false;
         }
 
-        RegisterChoiceUse(choice);
+        FieldEventData nextData = nextEvent.EntryData;
 
-        currentPage = nextPage;
+        if (!HasAvailableChoice(nextData, currentContext))
+        {
+            OnChoiceFailed?.Invoke(
+                "이 이벤트에는 현재 사용할 수 있는 선택지가 없습니다.");
 
-        OnPageChanged?.Invoke(currentPage);
+            return false;
+        }
+
+        if (currentData != null)
+            eventHistory.Push(currentData);
+
+        if (nextData.ShowOwnedMemos)
+        {
+            pendingInformationChoice = choice;
+        }
+        else
+        {
+            RegisterChoiceUse(choice);
+        }
+
+        currentData = nextData;
+
+        OnEventDataChanged?.Invoke(currentData);
 
         return true;
     }
 
     /// <summary>
-    /// 이전에 열었던 선택지 페이지로 돌아간다.
+    /// 이전에 열었던 통합 이벤트 데이터로 돌아갑니다.
     /// 행동력을 소모하거나 이벤트를 완료하지 않는다.
     /// </summary>
     /// <returns>이전 페이지로 돌아갔으면 true</returns>
@@ -383,16 +408,117 @@ public class FieldEventRunner : MonoBehaviour
     {
         if (currentEvent == null ||
             isChoiceResolved ||
-            pageHistory.Count == 0)
+            eventHistory.Count == 0)
         {
             return false;
         }
 
-        currentPage = pageHistory.Pop();
+        if (currentData != null && currentData.ShowOwnedMemos)
+        {
+            pendingInformationChoice = null;
+        }
 
-        OnPageChanged?.Invoke(currentPage);
+        currentData = eventHistory.Pop();
+
+        OnEventDataChanged?.Invoke(currentData);
 
         return true;
+    }
+
+    /// <summary>
+    /// 정보 선택 페이지에서 고른 메모를 원래 행동 선택지의
+    /// 결과로 확정합니다. 이 시점에 선택지가 완료되어 결과창으로 이어집니다.
+    /// </summary>
+    public bool ResolveInformationSelection(FieldInformationData information)
+    {
+        if (currentEvent == null ||
+            currentContext == null ||
+            currentData == null ||
+            !currentData.ShowOwnedMemos ||
+            pendingInformationChoice == null ||
+            information == null ||
+            !information.IsMemo)
+        {
+            return false;
+        }
+
+        FieldInformationInventory inventory =
+            FieldInformationInventory.Get(currentContext.Character);
+
+        if (inventory == null || !inventory.Contains(information))
+            return false;
+
+        string resultText = BuildInformationResultText(information);
+
+        FieldEventChoice resolvedChoice = pendingInformationChoice;
+        pendingInformationChoice = null;
+
+        ResolveInformationChoiceResult(
+            resolvedChoice,
+            resultText);
+
+        return true;
+    }
+
+    private static string BuildInformationResultText(
+        FieldInformationData information)
+    {
+        if (information == null)
+            return string.Empty;
+
+        string title = information.Title != null
+            ? information.Title.Trim()
+            : string.Empty;
+
+        string description = information.Description != null
+            ? information.Description.Trim()
+            : string.Empty;
+
+        if (string.IsNullOrWhiteSpace(title))
+            return description;
+
+        if (string.IsNullOrWhiteSpace(description))
+            return title;
+
+        return title + "\n\n" + description;
+    }
+
+
+    /// <summary>
+    /// 정보 열람은 에셋에 임시로 연결된 성공 효과를 실행하지 않고,
+    /// 선택한 정보의 내용만 결과로 확정합니다.
+    /// </summary>
+    private void ResolveInformationChoiceResult(
+        FieldEventChoice choice,
+        string resultText)
+    {
+        if (choice == null ||
+            currentEvent == null ||
+            currentContext == null)
+        {
+            return;
+        }
+
+        FieldEventData resolvedEvent = currentEvent;
+
+        pendingStatChoice = null;
+        isChoiceResolved = true;
+        lastChoiceSucceeded = true;
+
+        currentContext.SetResultText(resultText);
+
+        Sprite resultImage = choice.GetResultImage(true);
+
+        if (resultImage != null)
+        {
+            OnResultImageChanged?.Invoke(resultImage);
+        }
+
+        RegisterChoiceUse(choice);
+
+        OnChoiceSelected?.Invoke(
+            resolvedEvent,
+            choice);
     }
 
 
@@ -417,10 +543,22 @@ public class FieldEventRunner : MonoBehaviour
         if (success)
         {
             choice.ExecuteSuccess(currentContext);
+
+            if (choice.ShowKnownMemoryTitlesOnSuccess)
+            {
+                AddKnownMemoryTitlesToResult();
+            }
         }
         else
         {
             choice.ExecuteFailure(currentContext);
+
+            if (choice.ShowKnownMemoryTitlesOnSuccess &&
+                !currentContext.HasResultTextOverride)
+            {
+                currentContext.SetResultText(
+                    "기억을 떠올리지 못했다.");
+            }
         }
 
         Sprite resultImage =
@@ -437,6 +575,44 @@ public class FieldEventRunner : MonoBehaviour
         OnChoiceSelected?.Invoke(
             resolvedEvent,
             choice);
+    }
+
+    private void AddKnownMemoryTitlesToResult()
+    {
+        if (currentContext == null || currentContext.Character == null)
+            return;
+
+        FieldInformationInventory inventory =
+            FieldInformationInventory.Get(currentContext.Character);
+
+        if (inventory == null)
+        {
+            currentContext.AddResultMessage(
+                "떠올릴 수 있는 기억이 없다.");
+            return;
+        }
+
+        int memoryCount = 0;
+
+        foreach (FieldInformationData information
+                 in inventory.AcquiredInformation)
+        {
+            if (information == null || !information.IsMemory)
+                continue;
+
+            string title = string.IsNullOrWhiteSpace(information.Title)
+                ? "이름 없는 기억"
+                : information.Title.Trim();
+
+            currentContext.AddResultMessage(title);
+            memoryCount++;
+        }
+
+        if (memoryCount == 0)
+        {
+            currentContext.AddResultMessage(
+                "떠올릴 수 있는 기억이 없다.");
+        }
     }
 
     /// <summary>
@@ -471,43 +647,45 @@ public class FieldEventRunner : MonoBehaviour
     }
 
     /// <summary>
-    /// 실행 중인 이벤트와 페이지 이동 기록을 초기화한다.
+    /// 실행 중인 이벤트와 데이터 이동 기록을 초기화합니다.
     /// 1회용 선택지 사용 기록은 유지한다.
     /// </summary>
     public void CloseEvent()
     {
-        if (currentEvent != null &&
-            isChoiceResolved &&
-            !currentEvent.Repeatable &&
-            !string.IsNullOrWhiteSpace(currentEvent.EventId))
+        FieldEventContext closedContext = currentContext;
+
+        if (currentEvent != null && isChoiceResolved)
         {
-            completedEvents.Add(currentEvent.EventId);
+            RegisterEventCompletion(currentEvent);
         }
 
         currentEvent = null;
 
         currentContext = null;
 
-        currentPage = null;
+        currentData = null;
+
+        pendingInformationChoice = null;
 
         isChoiceResolved = false;
 
-        pageHistory.Clear();
+        eventHistory.Clear();
 
         OnEventClosed?.Invoke();
 
         ClearPendingStatCheck();
 
+        // 필드 상태와 이벤트 UI가 모두 정리된 뒤 전투 같은 후속 동작을 시작한다.
+        closedContext?.ExecuteEventClosedActions();
+
     }
 
     /// <summary>
-    /// 필드가 새로 시작될 때 이벤트 완료 기록과
-    /// 1회용 선택지 사용 기록을 초기화한다.
+    /// 필드가 새로 시작될 때 1회용 이벤트와 선택지 기록을 초기화합니다.
     /// </summary>
     public void ResetCompletedEvents()
     {
         completedEvents.Clear();
-
         usedChoices.Clear();
     }
 
@@ -576,37 +754,52 @@ public class FieldEventRunner : MonoBehaviour
     }
 
     /// <summary>
-    /// 대응 색상 카드의 소비가 끝난 능력치 선택지를
-    /// 판정 없이 확정 성공으로 처리한다.
+    /// 대응 능력치 카드의 등급 보정을 더해 선택지 판정을 실행한다.
     /// </summary>
     /// <param name="usedCard">소비한 대응 색상 카드.</param>
-    /// <returns>확정 성공 처리가 완료되면 true.</returns>
-    public void CompletePendingStatCheckByCard(CardInstance usedCard)
+    /// <returns>카드 보정이 적용된 최종 판정 결과.</returns>
+    public FieldCardCheckResult CompletePendingStatCheckByCard(CardInstance usedCard)
     {
         if (pendingStatChoice == null || currentContext == null || isChoiceResolved)
         {
-            return;
+            return FieldCardCheckResult.Failure;
         }
 
         if (usedCard == null || usedCard.Data == null ||
-            !pendingStatChoice.CanUseCard(usedCard.Data))
+            !pendingStatChoice.CanUseCard(usedCard))
         {
             OnChoiceFailed?.Invoke("이 판정에 대응하지 않는 카드입니다.");
 
-            return;
+            return FieldCardCheckResult.Failure;
         }
 
         FieldEventChoice choice = pendingStatChoice;
 
-        Debug.Log($"이벤트 카드 자동 성공: " + $"{usedCard.CardName} / " + $"{choice.RequiredStat} 판정");
+        CharacterBase character = GetCurrentCheckCharacter();
 
-        lastJudgeResult = default;
-        hasLastJudgeResult = false;
+        if (character == null)
+            return FieldCardCheckResult.Failure;
+
+        JudgeResult judgeResult = JudgeUtility.Roll(
+            character,
+            choice.RequiredStat,
+            choice.Target,
+            usedCard.GradeBonus);
+
+        lastJudgeResult = judgeResult;
+        hasLastJudgeResult = true;
         lastUsedJudgeCard = usedCard.Data;
 
-        ResolvePendingIgnition(true);
+        ResolvePendingIgnition(judgeResult.success);
 
-        ResolveChoiceResult(choice, true);
+        ResolveChoiceResult(choice, judgeResult.success);
+
+        if (judgeResult.success)
+            return FieldCardCheckResult.Success;
+
+        return judgeResult.fumble
+            ? FieldCardCheckResult.Fumble
+            : FieldCardCheckResult.Failure;
     }
 
     /// <summary>
@@ -729,20 +922,24 @@ public class FieldEventRunner : MonoBehaviour
     }
 
     /// <summary>
-    /// 이벤트에 시작 페이지가 있고 현재 필드에서
-    /// 실행 가능한지 확인합니다.
+    /// 통합 이벤트 데이터에 현재 사용할 수 있는 선택지가 있는지 확인합니다.
     /// </summary>
     public bool CanOpenEvent(FieldEventData eventData)
     {
         return CanOpenEvent(eventData, null, false);
     }
 
-    public bool CanOpenEvent(FieldEventData eventData, FieldEventContext context)
+    public bool CanOpenEvent(
+        FieldEventData eventData,
+        FieldEventContext context)
     {
         return CanOpenEvent(eventData, context, false);
     }
 
-    public bool CanOpenEvent(FieldEventData eventData, FieldEventContext context, bool ignoreCompletionHistory)
+    public bool CanOpenEvent(
+        FieldEventData eventData,
+        FieldEventContext context,
+        bool ignoreCompletionHistory)
     {
         if (eventData == null ||
             !eventData.HasPlayableContent)
@@ -750,17 +947,74 @@ public class FieldEventRunner : MonoBehaviour
             return false;
         }
 
+        if (!IsEventAvailable(eventData))
+            return false;
+
         if (context != null && !eventData.CanOpen(context))
         {
             return false;
         }
 
-        if (ignoreCompletionHistory || eventData.Repeatable || string.IsNullOrWhiteSpace(eventData.EventId))
+        _ = ignoreCompletionHistory;
+
+        return HasAvailableChoice(
+            eventData.EntryData,
+            context);
+    }
+
+    /// <summary>
+    /// 반복 이벤트는 항상 허용하고, 필드당 1회 이벤트는
+    /// 현재 필드에서 해당 이벤트 에셋이 아직 완료되지 않았을 때만 허용합니다.
+    /// </summary>
+    private bool IsEventAvailable(FieldEventData eventData)
+    {
+        if (eventData == null)
+            return false;
+
+        if (!eventData.IsOneTime)
+            return true;
+
+        return !completedEvents.Contains(eventData);
+    }
+
+    private void RegisterEventCompletion(FieldEventData eventData)
+    {
+        if (eventData == null ||
+            !eventData.IsOneTime)
         {
+            return;
+        }
+
+        completedEvents.Add(eventData);
+    }
+
+    private bool HasAvailableChoice(
+        FieldEventData eventData,
+        FieldEventContext context)
+    {
+        if (eventData == null)
+            return false;
+
+        // 메모 열람 페이지는 메모가 없어도 열 수 있습니다.
+        // UI에서 보유한 메모가 없다는 안내를 표시하고 이전 화면으로 돌아갑니다.
+        if (eventData.ShowOwnedMemos)
+            return true;
+
+        if (eventData.Choices == null)
+            return false;
+
+        foreach (FieldEventChoice choice in eventData.Choices)
+        {
+            if (!IsChoiceAvailable(choice))
+                continue;
+
+            if (context != null && !choice.CanSelect(context))
+                continue;
+
             return true;
         }
 
-        return !completedEvents.Contains(eventData.EventId);
+        return false;
     }
 
 }

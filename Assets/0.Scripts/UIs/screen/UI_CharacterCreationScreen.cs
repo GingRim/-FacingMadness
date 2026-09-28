@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class UI_CharacterCreationScreen : UI_ScreenBase
@@ -95,6 +96,11 @@ public class UI_CharacterCreationScreen : UI_ScreenBase
         return true;
     }
 
+    public void ResetCreationState()
+    {
+        selectedBuildData = null;
+        isCreating = false;
+    }
 }
 
 

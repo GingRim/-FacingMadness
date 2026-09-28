@@ -24,4 +24,9 @@ public class MonsterData : ScriptableObject
 
     [Header("캐릭터 아이콘")]
     public Sprite Icon;
+
+    [Header("전투 AI")]
+    [InspectorName("몬스터 AI 설정")]
+    [Tooltip("이 몬스터가 전투에서 사용할 행동과 대응 규칙입니다. 비어 있으면 기본 AI로 행동합니다.")]
+    public MonsterAIProfile aiProfile;
 }
