@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9858d2e9e5cc0c049aa504bf5f5b25f7, type: 3}
+  m_Name: BCard_2
+  m_EditorClassIdentifier: Assembly-CSharp::CardData
+  cardName: "\uC9C0\uC131"
+  description: "\uBCF4\uC815\uCE58 +4 \uB9CC\uD07C<br>\uC758\uC695 \uD68D\uB4DD"
+  illustration: {fileID: 5579315593996512489, guid: b10f709ca6dd801408c2c095be7e35db, type: 3}
+  icon: {fileID: 4242121242999458264, guid: 7f17e516234c57e43913c24b4381e0bf, type: 3}
+  deckCapacityStat: 0
+  color: 4
+  cardGrade: 2
+  isOneUse: 0
+  keywords: 
+  baseDurability: 0
+  colorlessDamage:
+    fixedValue: 0
+    diceCount: 1
+    diceType: 1
+  colorlessArmor:
+    fixedValue: 0
+    diceCount: 1
+    diceType: 1
+  magicCardType: 0
+  forbiddenMagicCard: {fileID: 0}
+  attackMagicCard: {fileID: 0}
+  defenseMagicCard: {fileID: 0}
+  buffMagicCard: {fileID: 0}

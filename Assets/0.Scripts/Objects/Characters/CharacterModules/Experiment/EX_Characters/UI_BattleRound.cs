@@ -7,13 +7,15 @@ public class UI_BattleRound : MonoBehaviour
 
     private void Awake()
     {
-        SetRound(0);
+        RefreshCurrentRound();
     }
 
     private void OnEnable()
     {
         BattleManager.OnRoundChanged -= SetRound;
         BattleManager.OnRoundChanged += SetRound;
+
+        RefreshCurrentRound();
     }
 
     private void OnDisable()
@@ -27,5 +29,17 @@ public class UI_BattleRound : MonoBehaviour
             return;
 
         roundText.SetText($"{round}");
+    }
+
+    private void RefreshCurrentRound()
+    {
+        BattleManager battleManager =
+            GameManager.Instance != null
+                ? GameManager.Instance.Battle
+                : null;
+
+        SetRound(battleManager != null
+            ? battleManager.DisplayRound
+            : 0);
     }
 }

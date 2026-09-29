@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: HunteDeck
   m_EditorClassIdentifier: Assembly-CSharp::DeckData
   cards:
-  - {fileID: 11400000, guid: 62e37bf17570bab47a8281e2507ecf23, type: 2}
-  - {fileID: 11400000, guid: 62e37bf17570bab47a8281e2507ecf23, type: 2}
-  - {fileID: 11400000, guid: 5ed4f6429096afc42b0fa294ef3419c8, type: 2}
-  - {fileID: 11400000, guid: 5510179eba0a08e4196e35b32db6bc45, type: 2}
-  - {fileID: 11400000, guid: 5ed4f6429096afc42b0fa294ef3419c8, type: 2}
+  - {fileID: 11400000, guid: cda81e8c1bf2b854caf30c457fe16a8c, type: 2}
+  - {fileID: 11400000, guid: ce3386bb736d49e4daf294db79182c3b, type: 2}
+  - {fileID: 11400000, guid: e03b01551a1e8bb42b97781d760314db, type: 2}
+  - {fileID: 11400000, guid: ec2f200269e592f4488796a9e808c13d, type: 2}
+  - {fileID: 11400000, guid: 76de404a081060d48a3e60388a71ae53, type: 2}

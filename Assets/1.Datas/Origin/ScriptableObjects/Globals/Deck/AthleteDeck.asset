@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: AthleteDeck
   m_EditorClassIdentifier: Assembly-CSharp::DeckData
   cards:
-  - {fileID: 11400000, guid: 5510179eba0a08e4196e35b32db6bc45, type: 2}
-  - {fileID: 11400000, guid: 5510179eba0a08e4196e35b32db6bc45, type: 2}
-  - {fileID: 11400000, guid: 62e37bf17570bab47a8281e2507ecf23, type: 2}
-  - {fileID: 11400000, guid: 5ed4f6429096afc42b0fa294ef3419c8, type: 2}
-  - {fileID: 11400000, guid: 5ed4f6429096afc42b0fa294ef3419c8, type: 2}
+  - {fileID: 11400000, guid: d14acc4c56a8e24429794e5b2a6dc2b5, type: 2}
+  - {fileID: 11400000, guid: 21f0cc2cb50cd5f40819c9416826aae9, type: 2}
+  - {fileID: 11400000, guid: e03b01551a1e8bb42b97781d760314db, type: 2}
+  - {fileID: 11400000, guid: fb87211bcde0fc94abdd1eacf2c92e5b, type: 2}
+  - {fileID: 11400000, guid: 00b3802e11c2ae94391741c1fba0ba3e, type: 2}

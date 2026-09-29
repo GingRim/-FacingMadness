@@ -160,15 +160,15 @@ public class BattleCardUseController : MonoBehaviour
 
     private CharacterBase FindControlledCharacter()
     {
-        CharacterBase[] characters = FindObjectsByType<CharacterBase>(FindObjectsSortMode.None);
+        PlauerController[] controllers =
+            FindObjectsByType<PlauerController>(
+                FindObjectsInactive.Include,
+                FindObjectsSortMode.None);
 
-        foreach (CharacterBase character in characters)
+        foreach (PlauerController controller in controllers)
         {
-            if (character != null &&
-                character.Controller != null)
-            {
-                return character;
-            }
+            if (controller != null && controller.Character != null)
+                return controller.Character;
         }
 
         return null;

@@ -31,6 +31,7 @@ public class FieldManager : ManagerBase
 
     private int currentPlayerIndex;
     private int totalFieldTurn;
+    private readonly Queue<int> pendingBattleMythTurns = new();
 
     private FieldLine pendingRedLine;
     private FieldNode pendingTargetNode;
@@ -211,6 +212,7 @@ public class FieldManager : ManagerBase
         IsFieldActive = true;
         currentPlayerIndex = 0;
         totalFieldTurn = 0;
+        pendingBattleMythTurns.Clear();
 
         StartFieldTurn();
 
@@ -1062,14 +1064,19 @@ public class FieldManager : ManagerBase
 
     private void StartMythTurn()
     {
+        StartMythTurn(totalFieldTurn);
+    }
+
+    private void StartMythTurn(int mythTurnNumber)
+    {
         TurnState = FieldTurnState.MythTurn;
 
-        Debug.Log($"신화 턴 발생: {totalFieldTurn}");
+        Debug.Log($"신화 턴 발생: {mythTurnNumber}");
         WriteFieldLog("신화 턴 시작");
 
         if (OnMythTurnRequested != null)
         {
-            OnMythTurnRequested.Invoke(totalFieldTurn);
+            OnMythTurnRequested.Invoke(mythTurnNumber);
 
             return;
         }
@@ -1086,6 +1093,58 @@ public class FieldManager : ManagerBase
     {
         if (TurnState != FieldTurnState.MythTurn)
         {
+            return;
+        }
+
+        if (pendingBattleMythTurns.Count > 0)
+        {
+            StartMythTurn(pendingBattleMythTurns.Dequeue());
+            return;
+        }
+
+        CheckPlayersAndStartNextTurn();
+    }
+
+    /// <summary>
+    /// 필드에서 시작된 전투가 끝났을 때 전투 라운드만큼
+    /// 필드 누적 턴을 진행시킵니다.
+    /// 전투 중 통과한 신화 턴 경계는 필드 복귀 후 순서대로 처리합니다.
+    /// </summary>
+    public void ApplyBattleElapsedRounds(int elapsedRounds)
+    {
+        if (!IsFieldActive || elapsedRounds <= 0)
+            return;
+
+        int previousTurn = totalFieldTurn;
+        int interval = Mathf.Max(1, mythTurnInterval);
+
+        totalFieldTurn += elapsedRounds;
+
+        Debug.Log(
+            $"전투 경과 반영: {elapsedRounds}라운드 / " +
+            $"필드 누적 턴 {previousTurn} -> {totalFieldTurn}");
+
+        // 현재 필드 턴을 포함해 전투 라운드 수만큼 참가 순서를 넘깁니다.
+        // 마지막 한 번은 CheckPlayersAndStartNextTurn에서 처리하므로
+        // 여기서는 elapsedRounds - 1회만 미리 이동합니다.
+        for (int i = 1; i < elapsedRounds; i++)
+        {
+            MoveToNextPlayer();
+        }
+
+        int firstMythTurn =
+            ((previousTurn / interval) + 1) * interval;
+
+        for (int mythTurn = firstMythTurn;
+             mythTurn <= totalFieldTurn;
+             mythTurn += interval)
+        {
+            pendingBattleMythTurns.Enqueue(mythTurn);
+        }
+
+        if (pendingBattleMythTurns.Count > 0)
+        {
+            StartMythTurn(pendingBattleMythTurns.Dequeue());
             return;
         }
 

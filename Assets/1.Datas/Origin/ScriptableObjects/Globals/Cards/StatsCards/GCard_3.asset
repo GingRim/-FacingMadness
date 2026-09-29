@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9858d2e9e5cc0c049aa504bf5f5b25f7, type: 3}
+  m_Name: GCard_3
+  m_EditorClassIdentifier: Assembly-CSharp::CardData
+  cardName: "\uAC74\uAC15"
+  description: "\uBCF4\uC815\uCE58 +6 \uB9CC\uD07C<br>\uC0DD\uBA85\uB825 \uD68C\uBCF5"
+  illustration: {fileID: -2003240789083665673, guid: 60e851c889d926542ab0b461fc0edac1, type: 3}
+  icon: {fileID: 1996827795143146157, guid: 5805309b7f124734d827ba88868bb15a, type: 3}
+  deckCapacityStat: 0
+  color: 3
+  cardGrade: 3
+  isOneUse: 0
+  keywords: 
+  baseDurability: 0
+  magicCardType: 0
+  forbiddenMagicCard: {fileID: 0}
+  attackMagicCard: {fileID: 0}
+  defenseMagicCard: {fileID: 0}
+  buffMagicCard: {fileID: 0}

@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9858d2e9e5cc0c049aa504bf5f5b25f7, type: 3}
+  m_Name: BuffMagicCard
+  m_EditorClassIdentifier: Assembly-CSharp::CardData
+  cardName: "\uB9C8\uBC95 : \uBC84\uD504"
+  description: "<size=18>\uC544\uAD70 \uC804\uCCB4\uC5D0\uAC8C \uCD95\uBCF5 \uBD80\uC5EC<br>\uC544\uAD70
+    \uC804\uCCB4\uC5D0\uAC8C \uC758\uC9C0 2\uBD80\uC5EC"
+  illustration: {fileID: 172784872942605240, guid: 110666f1b48c54f4f9aa4e1369378a5f, type: 3}
+  icon: {fileID: -5759254765554257322, guid: d97a4d146d082c64b9b0a49a1f9b16f9, type: 3}
+  deckCapacityStat: 0
+  color: 5
+  cardGrade: 1
+  isOneUse: 1
+  keywords: 
+  baseDurability: 0
+  colorlessDamage:
+    fixedValue: 0
+    diceCount: 1
+    diceType: 1
+  colorlessArmor:
+    fixedValue: 0
+    diceCount: 1
+    diceType: 1
+  magicCardType: 4
+  forbiddenMagicCard: {fileID: 0}
+  attackMagicCard: {fileID: 0}
+  defenseMagicCard: {fileID: 0}
+  buffMagicCard: {fileID: 0}

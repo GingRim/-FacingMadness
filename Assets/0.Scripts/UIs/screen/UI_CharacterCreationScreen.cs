@@ -13,6 +13,8 @@ public class UI_CharacterCreationScreen : UI_ScreenBase
     {
         InputManager.OnPause -= CanelPause;
         InputManager.OnPause += CanelPause;
+
+        SelectDefaultHunter();
     }
 
     private void OnDisable()
@@ -100,6 +102,33 @@ public class UI_CharacterCreationScreen : UI_ScreenBase
     {
         selectedBuildData = null;
         isCreating = false;
+    }
+
+    private void SelectDefaultHunter()
+    {
+        if (selectedBuildData != null)
+            return;
+
+        UI_ButtonSwap[] presetButtons =
+            GetComponentsInChildren<UI_ButtonSwap>(true);
+
+        foreach (UI_ButtonSwap presetButton in presetButtons)
+        {
+            CharacterPresetData preset =
+                presetButton != null ? presetButton.CharacterPreset : null;
+
+            if (preset == null)
+                continue;
+
+            if (preset.name != "Hunter" && preset.characterName != "사냥꾼")
+                continue;
+
+            presetButton.SelectPreset();
+            return;
+        }
+
+        Debug.LogWarning(
+            "캐릭터 생성 화면에서 사냥꾼 프리셋 버튼을 찾지 못했습니다.");
     }
 }
 

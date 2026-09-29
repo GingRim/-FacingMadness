@@ -4,6 +4,7 @@ public class UI_BattleScreen : UI_ScreenBase
 {
     private UI_CardUseSelect cardUseSelect;
     private UI_Hand handUI;
+    public UI_Hand HandUI => handUI;
     private BattleCardUseController battleCardUseController;
 
     private UI_ReactionSelect reactionSelect;
@@ -15,6 +16,14 @@ public class UI_BattleScreen : UI_ScreenBase
     private void Awake()
     {
         handUI = GetComponentInChildren<UI_Hand>(true);
+
+        if (handUI == null)
+        {
+            GameObject handObject = ObjectManager.CreateObject("Hand", transform);
+
+            if (handObject != null)
+                handUI = handObject.GetComponent<UI_Hand>();
+        }
 
         battleCardUseController = GetComponent<BattleCardUseController>();
 
@@ -66,11 +75,57 @@ public class UI_BattleScreen : UI_ScreenBase
     {
         InputManager.OnPause -= CanelPause;
         InputManager.OnPause += CanelPause;
+
+        BattleManager.OnBattleStarted -= RefreshPlayerUI;
+        BattleManager.OnBattleStarted += RefreshPlayerUI;
+
+        RefreshPlayerUI();
     }
 
     private void OnDisable()
     {
         InputManager.OnPause -= CanelPause;
+        BattleManager.OnBattleStarted -= RefreshPlayerUI;
+    }
+
+    private void RefreshPlayerUI()
+    {
+        CharacterBase player = FindPlayerCharacter();
+
+        if (player == null)
+        {
+            Debug.LogWarning("UI_BattleScreen: 플레이어를 찾지 못했습니다.");
+            return;
+        }
+
+        DeckModule deck = player.GetModule<DeckModule>();
+
+        if (handUI != null && deck != null)
+            handUI.RefreshFromDeck(deck);
+
+        UI_Cost[] costDisplays = GetComponentsInChildren<UI_Cost>(true);
+
+        foreach (UI_Cost display in costDisplays)
+        {
+            if (display != null && display.CostType == CostType.Action)
+                display.SetCharacter(player);
+        }
+    }
+
+    private CharacterBase FindPlayerCharacter()
+    {
+        PlauerController[] controllers =
+            FindObjectsByType<PlauerController>(
+                FindObjectsInactive.Include,
+                FindObjectsSortMode.None);
+
+        foreach (PlauerController controller in controllers)
+        {
+            if (controller != null && controller.Character != null)
+                return controller.Character;
+        }
+
+        return null;
     }
 
 

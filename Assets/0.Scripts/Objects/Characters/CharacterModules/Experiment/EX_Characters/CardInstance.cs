@@ -128,7 +128,9 @@ public class CardInstance
 
         if (data.UsesDurability || HasKeywords)
         {
-            int durability = initialDurability >= 0 ? initialDurability : 3;
+            int durability = initialDurability >= 0
+                ? initialDurability
+                : GetDefaultDurability();
 
             SetMaximumDurability(durability);
         }
@@ -181,7 +183,7 @@ public class CardInstance
         if (!HasDurability)
         {
             _ = rollEngravedDurability;
-            SetMaximumDurability(3);
+            SetMaximumDurability(GetDefaultDurability());
         }
 
         if (CardKeywordRules.LosesDurabilityEachTurn(keyword))
@@ -245,7 +247,7 @@ public class CardInstance
 
         if (!HasDurability)
         {
-            SetMaximumDurability(3);
+            SetMaximumDurability(GetDefaultDurability());
         }
 
         if (CardKeywordRules.LosesDurabilityEachTurn(newKeyword))
@@ -286,6 +288,18 @@ public class CardInstance
         currentDurability = maximumDurability;
 
         OnDurabilityChanged?.Invoke(this, currentDurability, maximumDurability);
+    }
+
+    /// <summary>
+    /// 카드 데이터에 설정한 기본 내구도를 사용합니다.
+    /// 런타임에 처음 키워드가 부여된 일반 카드처럼 설정값이 없는 경우에는 3을 사용합니다.
+    /// </summary>
+    private int GetDefaultDurability()
+    {
+        if (data != null && data.UsesDurability)
+            return data.BaseDurability;
+
+        return 3;
     }
 
     /// <summary>

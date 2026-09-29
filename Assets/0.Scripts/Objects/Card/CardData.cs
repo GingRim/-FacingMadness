@@ -1,6 +1,55 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[System.Serializable]
+public class CardEffectValue
+{
+    [Tooltip("주사위 결과에 더할 고정 수치입니다.")]
+    [SerializeField]
+    private int fixedValue;
+
+    [Tooltip("굴릴 주사위 개수입니다. 0이면 고정 수치만 사용합니다.")]
+    [SerializeField, Min(0)]
+    private int diceCount = 1;
+
+    [Tooltip("효과 계산에 사용할 주사위입니다.")]
+    [SerializeField]
+    private FieldEffectDiceType diceType = FieldEffectDiceType.D4;
+
+    public int Roll()
+    {
+        int result = fixedValue;
+
+        for (int i = 0; i < diceCount; i++)
+        {
+            result += RollDice();
+        }
+
+        return Mathf.Max(0, result);
+    }
+
+    private int RollDice()
+    {
+        switch (diceType)
+        {
+            case FieldEffectDiceType.D4:
+                return Dice.RollD4();
+
+            case FieldEffectDiceType.D6:
+                return Dice.RollD6();
+
+            case FieldEffectDiceType.D8:
+                return Dice.RollD8();
+
+            case FieldEffectDiceType.D10:
+                return Dice.RollD10();
+
+            default:
+                return 0;
+        }
+    }
+}
+
 [CreateAssetMenu(fileName = "NewCard", menuName = "Card/CardData")]
 public class CardData : ScriptableObject
 {
@@ -36,9 +85,18 @@ public class CardData : ScriptableObject
     [Header("키워드")]
     [SerializeField] private List<CardKeywordType> keywords = new();
 
-    [Tooltip("무색 카드와 키워드 카드의 기본 내구도는 3으로 고정됩니다.")]
+    [Tooltip("무색 카드와 키워드 카드가 생성될 때 사용할 최대 내구도입니다. 기본값은 3입니다.")]
     [SerializeField, Min(0)]
-    private int baseDurability;
+    private int baseDurability = 3;
+
+    [Header("무색 기본 전투 효과")]
+    [Tooltip("키워드가 없는 무색 카드를 행동으로 사용할 때의 피해입니다.")]
+    [SerializeField]
+    private CardEffectValue colorlessDamage = new();
+
+    [Tooltip("키워드가 없는 무색 카드를 보조 행동으로 사용할 때의 임시 장갑입니다.")]
+    [SerializeField]
+    private CardEffectValue colorlessArmor = new();
 
     [Header("마법 카드")]
     public MagicCardType magicCardType = MagicCardType.None;
@@ -96,7 +154,23 @@ public class CardData : ScriptableObject
         color == CardColorType.Blue ||
         color == CardColorType.Purple;
 
-    public int BaseDurability => UsesDurability ? 3 : 0;
+    public int BaseDurability => UsesDurability
+        ? Mathf.Max(0, baseDurability)
+        : 0;
+
+    public int RollColorlessDamage()
+    {
+        return colorlessDamage != null
+            ? colorlessDamage.Roll()
+            : Dice.RollD4();
+    }
+
+    public int RollColorlessArmor()
+    {
+        return colorlessArmor != null
+            ? colorlessArmor.Roll()
+            : Dice.RollD4();
+    }
 
     /// <summary>
     /// 무색 카드 또는 키워드 카드인지 확인해 내구도 사용 여부를 반환합니다.

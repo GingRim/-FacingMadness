@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: ResearcherDeck
   m_EditorClassIdentifier: Assembly-CSharp::DeckData
   cards:
-  - {fileID: 11400000, guid: 00b3802e11c2ae94391741c1fba0ba3e, type: 2}
-  - {fileID: 11400000, guid: 00b3802e11c2ae94391741c1fba0ba3e, type: 2}
-  - {fileID: 11400000, guid: 76de404a081060d48a3e60388a71ae53, type: 2}
-  - {fileID: 11400000, guid: 5ed4f6429096afc42b0fa294ef3419c8, type: 2}
-  - {fileID: 11400000, guid: 5ed4f6429096afc42b0fa294ef3419c8, type: 2}
+  - {fileID: 11400000, guid: 7c62426173361a84f85cad79a650b6ce, type: 2}
+  - {fileID: 11400000, guid: e577e678c01605640a49641ae95d5019, type: 2}
+  - {fileID: 11400000, guid: 83149467cc52e8c46b43f566b46a022d, type: 2}
+  - {fileID: 11400000, guid: e03b01551a1e8bb42b97781d760314db, type: 2}
+  - {fileID: 11400000, guid: 62e37bf17570bab47a8281e2507ecf23, type: 2}

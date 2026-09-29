@@ -1892,7 +1892,7 @@ PrefabInstance:
     - target: {fileID: 8589708350094005035, guid: 33e82739c91b84f46b10119a1900ceae, type: 3}
       propertyPath: actionPointText
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 2095169460}
     m_RemovedComponents:
     - {fileID: 8639028539147314266, guid: 33e82739c91b84f46b10119a1900ceae, type: 3}
     - {fileID: 5825112530424668325, guid: 33e82739c91b84f46b10119a1900ceae, type: 3}

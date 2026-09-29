@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: ReligiousfanaticDeck
   m_EditorClassIdentifier: Assembly-CSharp::DeckData
   cards:
-  - {fileID: 11400000, guid: 76de404a081060d48a3e60388a71ae53, type: 2}
-  - {fileID: 11400000, guid: 76de404a081060d48a3e60388a71ae53, type: 2}
-  - {fileID: 11400000, guid: 62e37bf17570bab47a8281e2507ecf23, type: 2}
-  - {fileID: 11400000, guid: 5ed4f6429096afc42b0fa294ef3419c8, type: 2}
-  - {fileID: 11400000, guid: 5ed4f6429096afc42b0fa294ef3419c8, type: 2}
+  - {fileID: 11400000, guid: 3fb0947d01f409441a9ed8b7b69c5974, type: 2}
+  - {fileID: 11400000, guid: 21f0cc2cb50cd5f40819c9416826aae9, type: 2}
+  - {fileID: 11400000, guid: e03b01551a1e8bb42b97781d760314db, type: 2}
+  - {fileID: 11400000, guid: ec2f200269e592f4488796a9e808c13d, type: 2}
+  - {fileID: 11400000, guid: 5510179eba0a08e4196e35b32db6bc45, type: 2}

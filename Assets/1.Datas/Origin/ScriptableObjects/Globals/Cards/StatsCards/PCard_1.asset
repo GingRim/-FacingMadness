@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9858d2e9e5cc0c049aa504bf5f5b25f7, type: 3}
+  m_Name: PCard_1
+  m_EditorClassIdentifier: Assembly-CSharp::CardData
+  cardName: "\uBE44\uC57D\uD55C \uC758\uC9C0"
+  description: "<size=15>25 -<size=15>(\uBCF4\uC815\uCE58 +2)\uC815\uC2E0\uB825 \uAC10\uC18C<br><size=30>\uCD95\uBCF5
+    \uD68D\uB4DD"
+  illustration: {fileID: -6777800925896916735, guid: 6824d0ce3b2d2e74eb95c95ed7e55898, type: 3}
+  icon: {fileID: -5759254765554257322, guid: d97a4d146d082c64b9b0a49a1f9b16f9, type: 3}
+  deckCapacityStat: 0
+  color: 5
+  cardGrade: 1
+  isOneUse: 0
+  keywords: 
+  baseDurability: 0
+  colorlessDamage:
+    fixedValue: 0
+    diceCount: 1
+    diceType: 1
+  colorlessArmor:
+    fixedValue: 0
+    diceCount: 1
+    diceType: 1
+  magicCardType: 0
+  forbiddenMagicCard: {fileID: 11400000, guid: 9b7d2395f77b7cb44bbc594259a6dcaa, type: 2}
+  attackMagicCard: {fileID: 11400000, guid: 001ab1e115cd44f47a528d3f40dcf048, type: 2}
+  defenseMagicCard: {fileID: 11400000, guid: acdc089dd330a614c83223c077067c35, type: 2}
+  buffMagicCard: {fileID: 11400000, guid: 5a83997190b1de847848e9e64b3b61fc, type: 2}

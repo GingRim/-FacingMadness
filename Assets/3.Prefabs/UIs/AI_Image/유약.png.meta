@@ -1,0 +1,249 @@
+fileFormatVersion: 2
+guid: 2460e36521e0ea5439a5c99dc71ce65f
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -1250898241207027624
+    second: "\uC720\uC57D_0"
+  - first:
+      213: -4109294048897983669
+    second: "\uC720\uC57D_1"
+  - first:
+      213: -3918338372067977473
+    second: "\uC720\uC57D_2"
+  - first:
+      213: 31728202441619709
+    second: "\uC720\uC57D_3"
+  - first:
+      213: 8518533256858461706
+    second: "\uC720\uC57D_4"
+  - first:
+      213: 8554294123200013648
+    second: "\uC720\uC57D_5"
+  - first:
+      213: -650525797428313609
+    second: "\uC720\uC57D_6"
+  - first:
+      213: -4597679892336435196
+    second: "\uC720\uC57D_7"
+  - first:
+      213: 178698819161092184
+    second: "\uC720\uC57D_8"
+  - first:
+      213: 5338255370261155369
+    second: "\uC720\uC57D_9"
+  - first:
+      213: -7530791593376207103
+    second: "\uC720\uC57D_10"
+  - first:
+      213: -7334942608676513499
+    second: "\uC720\uC57D_11"
+  - first:
+      213: -1459042149754667400
+    second: "\uC720\uC57D_12"
+  - first:
+      213: 4709378073570759046
+    second: "\uC720\uC57D_13"
+  - first:
+      213: -8553412953594698808
+    second: "\uC720\uC57D_14"
+  - first:
+      213: 7749310690363424035
+    second: "\uC720\uC57D_15"
+  - first:
+      213: 882456791429894565
+    second: "\uC720\uC57D_16"
+  - first:
+      213: 7476391963829169555
+    second: "\uC720\uC57D_17"
+  - first:
+      213: 845940599880728059
+    second: "\uC720\uC57D_18"
+  - first:
+      213: 3375827393530222451
+    second: "\uC720\uC57D_19"
+  - first:
+      213: -6223174865235493220
+    second: "\uC720\uC57D_20"
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: iOS
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: "\uC720\uC57D_3"
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 1254
+        height: 1254
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: df8f4ebc1a8b07000800000000000000
+      internalID: 31728202441619709
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 731f2d798fd75ac459370e8c3b88f8ea
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      "\uC720\uC57D_0": -1250898241207027624
+      "\uC720\uC57D_1": -4109294048897983669
+      "\uC720\uC57D_10": -7530791593376207103
+      "\uC720\uC57D_11": -7334942608676513499
+      "\uC720\uC57D_12": -1459042149754667400
+      "\uC720\uC57D_13": 4709378073570759046
+      "\uC720\uC57D_14": -8553412953594698808
+      "\uC720\uC57D_15": 7749310690363424035
+      "\uC720\uC57D_16": 882456791429894565
+      "\uC720\uC57D_17": 7476391963829169555
+      "\uC720\uC57D_18": 845940599880728059
+      "\uC720\uC57D_19": 3375827393530222451
+      "\uC720\uC57D_2": -3918338372067977473
+      "\uC720\uC57D_20": -6223174865235493220
+      "\uC720\uC57D_3": 31728202441619709
+      "\uC720\uC57D_4": 8518533256858461706
+      "\uC720\uC57D_5": 8554294123200013648
+      "\uC720\uC57D_6": -650525797428313609
+      "\uC720\uC57D_7": -4597679892336435196
+      "\uC720\uC57D_8": 178698819161092184
+      "\uC720\uC57D_9": 5338255370261155369
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

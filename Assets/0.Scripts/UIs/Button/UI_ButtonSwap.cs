@@ -12,6 +12,8 @@ public class UI_ButtonSwap : MonoBehaviour
     [SerializeField]
     private CharacterPresetData characterPreset;
 
+    public CharacterPresetData CharacterPreset => characterPreset;
+
     [SerializeField] TextMeshProUGUI SText;
     [SerializeField] TextMeshProUGUI DText;
     [SerializeField] TextMeshProUGUI HText;
@@ -39,37 +41,33 @@ public class UI_ButtonSwap : MonoBehaviour
     // �ٷ�, ��ø, �ǰ�, ����, ����(���ŷ�) ��
     public void Hunter()
     {
-        ResetAllImages();
-        SetImage(image, selectedSprite);
-        SelectConfiguredPreset();
+        SelectPreset();
     }
     public void Privatedetective()
     {
-        ResetAllImages();
-        SetImage(image, selectedSprite);
-        SelectConfiguredPreset();
+        SelectPreset();
 
     }
     public void Athlete()
     {
-        ResetAllImages();
-        SetImage(image, selectedSprite);
-        SelectConfiguredPreset();
+        SelectPreset();
 
     }
     public void Researcher()
     {
-        ResetAllImages();
-        SetImage(image, selectedSprite);
-        SelectConfiguredPreset();
+        SelectPreset();
 
     }
     public void Religiousfanatic()
     {
+        SelectPreset();
+    }
+
+    public void SelectPreset()
+    {
         ResetAllImages();
         SetImage(image, selectedSprite);
         SelectConfiguredPreset();
-
     }
 
     public void SetIngameMessage(string stitle, string dtitle, string htitle, string ititle, string etitle)

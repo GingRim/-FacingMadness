@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: PrivatedetectivDeck
   m_EditorClassIdentifier: Assembly-CSharp::DeckData
   cards:
-  - {fileID: 11400000, guid: 71844e95a79e95a4d8eb7ebf85980793, type: 2}
-  - {fileID: 11400000, guid: 71844e95a79e95a4d8eb7ebf85980793, type: 2}
-  - {fileID: 11400000, guid: 00b3802e11c2ae94391741c1fba0ba3e, type: 2}
-  - {fileID: 11400000, guid: 5ed4f6429096afc42b0fa294ef3419c8, type: 2}
-  - {fileID: 11400000, guid: 5ed4f6429096afc42b0fa294ef3419c8, type: 2}
+  - {fileID: 11400000, guid: c2105aeef38b0984e80a1de27023b597, type: 2}
+  - {fileID: 11400000, guid: bd751c6bf66882641b8fbc6fcd2b752b, type: 2}
+  - {fileID: 11400000, guid: 83149467cc52e8c46b43f566b46a022d, type: 2}
+  - {fileID: 11400000, guid: 8a6d493f242a3ed4990eeffa9ed8ee73, type: 2}
+  - {fileID: 11400000, guid: 76de404a081060d48a3e60388a71ae53, type: 2}

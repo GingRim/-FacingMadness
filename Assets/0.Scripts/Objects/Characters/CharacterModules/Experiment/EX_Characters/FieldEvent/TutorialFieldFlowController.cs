@@ -29,6 +29,7 @@ public class TutorialFieldFlowController : MonoBehaviour
 
     private bool isWaitingForBattleReturn;
     private bool shouldStartFieldAfterBattle;
+    private int pendingBattleElapsedRounds;
 
     private void Awake()
     {
@@ -162,6 +163,7 @@ public class TutorialFieldFlowController : MonoBehaviour
         HasStarted = false;
         isWaitingForBattleReturn = false;
         shouldStartFieldAfterBattle = false;
+        pendingBattleElapsedRounds = 0;
         preparedPlayers.Clear();
         SetFieldCanvasActive(false);
     }
@@ -206,6 +208,7 @@ public class TutorialFieldFlowController : MonoBehaviour
             return;
 
         isWaitingForBattleReturn = false;
+        pendingBattleElapsedRounds = 0;
 
         SetFieldCanvasActive(false);
 
@@ -229,9 +232,23 @@ public class TutorialFieldFlowController : MonoBehaviour
 
         isWaitingForBattleReturn = victory;
 
+        if (victory && HasStarted)
+        {
+            BattleManager battleManager =
+                GameManager.Instance != null
+                    ? GameManager.Instance.Battle
+                    : null;
+
+            pendingBattleElapsedRounds =
+                battleManager != null
+                    ? Mathf.Max(0, battleManager.Round)
+                    : 0;
+        }
+
         if (!victory)
         {
             shouldStartFieldAfterBattle = false;
+            pendingBattleElapsedRounds = 0;
 
             FieldManager fieldManager =
                 GameManager.Instance != null
@@ -289,6 +306,11 @@ public class TutorialFieldFlowController : MonoBehaviour
 
         if (fieldManager != null)
         {
+            int elapsedRounds = pendingBattleElapsedRounds;
+            pendingBattleElapsedRounds = 0;
+
+            fieldManager.ApplyBattleElapsedRounds(elapsedRounds);
+
             RestoreInformationReveals(fieldManager);
 
             RefreshFieldHand(

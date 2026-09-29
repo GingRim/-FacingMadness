@@ -8,51 +8,100 @@ public class UI_Cost : MonoBehaviour
     [SerializeField] private TextMeshProUGUI currentName;
     [SerializeField] private CostType costName;
     
-    private CostModule costModule;
+    private ActionPointModule actionPointModule;
 
     public CostType CostType => costName;
 
-    private void Start()
+    private void OnEnable()
     {
+        // 행동력 통합 이후 보조·대응 코스트 칸은 사용하지 않습니다.
+        if (costName != CostType.Action)
+        {
+            gameObject.SetActive(false);
+            return;
+        }
+
         SetCharacter(FindControlledCharacter());
+    }
+
+    private void OnDisable()
+    {
+        UnbindActionPoint();
     }
 
     private CharacterBase FindControlledCharacter()
     {
-        CharacterBase[] characters =
-            FindObjectsByType<CharacterBase>(FindObjectsSortMode.None);
+        PlauerController[] controllers =
+            FindObjectsByType<PlauerController>(
+                FindObjectsInactive.Include,
+                FindObjectsSortMode.None);
 
-        foreach (CharacterBase character in characters)
+        foreach (PlauerController controller in controllers)
         {
-            if (character.Controller != null)
-                return character;
+            if (controller != null && controller.Character != null)
+                return controller.Character;
         }
+
         return null;
     }
 
     public void SetCharacter(CharacterBase character)
     {
-        if (character == null)
-            return;
+        UnbindActionPoint();
 
-        costModule = character.GetModule<CostModule>();
+        if (character == null)
+        {
+            SetValue(0, 0);
+            return;
+        }
+
+        actionPointModule = character.GetModule<ActionPointModule>();
+
+        if (actionPointModule == null)
+        {
+            Debug.LogWarning(
+                $"{character.name}: 전투 UI에 필요한 ActionPointModule이 없습니다.");
+
+            SetValue(0, 0);
+            return;
+        }
+
+        actionPointModule.OnActionPointChanged -= HandleActionPointChanged;
+        actionPointModule.OnActionPointChanged += HandleActionPointChanged;
 
         Refresh();
     }
 
     public void Refresh()
     {
-        if (costModule == null || currentName == null)
+        if (actionPointModule == null)
+        {
+            SetValue(0, 0);
             return;
+        }
 
-        int current = costModule.GetCurrent(CostType);
-        int max = costModule.GetMax(CostType);
-
-        currentName.SetText(current.ToString());
+        SetValue(actionPointModule.Current, actionPointModule.Max);
     }
 
-    private void Update()
+    private void HandleActionPointChanged(int current, int maximum)
     {
-        Refresh();
+        SetValue(current, maximum);
+    }
+
+    private void SetValue(int current, int maximum)
+    {
+        if (currentName == null)
+            return;
+
+        currentName.SetText($"{current} / {maximum}");
+    }
+
+    private void UnbindActionPoint()
+    {
+        if (actionPointModule == null)
+            return;
+
+        actionPointModule.OnActionPointChanged -= HandleActionPointChanged;
+        actionPointModule = null;
     }
 }

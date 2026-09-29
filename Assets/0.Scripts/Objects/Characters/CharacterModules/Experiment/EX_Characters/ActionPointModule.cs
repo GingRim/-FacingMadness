@@ -15,6 +15,7 @@ public class ActionPointModule : CharacterModule
     public int Current => actionPoint.Current + temporaryBonusCurrent;
 
     public bool IsEmpty => Current <= actionPoint.Min;
+    public bool IsConfigured => isConfigured;
 
     public event Action<int, int> OnActionPointChanged;
 

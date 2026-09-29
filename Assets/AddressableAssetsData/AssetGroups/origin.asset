@@ -176,12 +176,6 @@ MonoBehaviour:
     m_SerializedLabels:
     - OGlobals
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 71844e95a79e95a4d8eb7ebf85980793
-    m_Address: Assets/1.Datas/Origin/ScriptableObjects/Globals/Card/YCard.asset
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - OGlobals
-    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 76de404a081060d48a3e60388a71ae53
     m_Address: Assets/1.Datas/Origin/ScriptableObjects/Globals/Card/PCard.asset
     m_ReadOnly: 0

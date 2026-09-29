@@ -16,9 +16,16 @@ public class BattleManager : ManagerBase
     private CharacterBase pendingDefender;
     private DamageStruct pendingDamageInfo;
 
+    // 같은 공격자의 한 턴 동안 처음 선택한 대응을 후속 공격에 재사용합니다.
+    private CharacterBase reactionChainAttacker;
+    private CharacterBase reactionChainDefender;
+    private ActionType reactionChainType;
+    private bool hasReactionChainChoice;
+
     private bool waitingReaction;
     private bool endTurnAfterReaction;
     private bool isBattleActive;
+    private bool startedFromActiveField;
     private Action pendingAttackResolved;
 
     private UI_ReactionSelect reactionSelectUI;
@@ -30,6 +37,7 @@ public class BattleManager : ManagerBase
     public static event Action<bool> OnBattleEnded;
 
     public int Round => round;
+    public int DisplayRound => round;
 
     public CharacterBase CurrentCharacter { get; private set; }
     public BattleTurnState State { get; private set; }
@@ -53,6 +61,8 @@ public class BattleManager : ManagerBase
 
     protected override void OnDisconnected()
     {
+        ClearReactionChainChoice();
+
         participants.Clear();
         turnOrder.Clear();
 
@@ -116,6 +126,15 @@ public class BattleManager : ManagerBase
     public void StartBattle(List<CharacterBase> characters)
     {
         isBattleActive = true;
+        ClearReactionChainChoice();
+
+        FieldManager fieldManager =
+            GameManager.Instance != null
+                ? GameManager.Instance.Field
+                : null;
+
+        startedFromActiveField =
+            fieldManager != null && fieldManager.IsFieldActive;
 
         BindBattleUI();
         participants.Clear();
@@ -233,6 +252,9 @@ public class BattleManager : ManagerBase
         }
 
         CurrentCharacter = turnOrder[currentTurnIndex];
+
+        // 새 캐릭터의 턴이 시작되면 이전 공격자의 연속 대응 선택은 종료됩니다.
+        ClearReactionChainChoice();
         WriteBattleLog($"{CurrentCharacter.name}의 턴입니다.");
 
         OnTurnStart(CurrentCharacter);
@@ -368,6 +390,17 @@ public class BattleManager : ManagerBase
         if (actionPoint == null || derived == null || level == null)
         {
             Debug.LogWarning($"{character.name}: 행동력 계산 모듈 없음");
+            return;
+        }
+
+        // 필드에서 전투로 진입한 플레이어는 첫 전투 라운드에
+        // 필드에서 남아 있던 행동력을 그대로 사용합니다.
+        // 필드를 거치지 않은 직접 전투는 설정된 행동력이 없으므로 정상 초기화합니다.
+        if (round == 1 &&
+            IsPlayer(character) &&
+            startedFromActiveField &&
+            actionPoint.IsConfigured)
+        {
             return;
         }
 
@@ -655,13 +688,24 @@ public class BattleManager : ManagerBase
         endTurnAfterReaction = endTurnAfterResolve;
         pendingAttackResolved = onResolved;
 
-        ResolveMonsterReaction(attacker, defender, ref damageInfo);
+        bool reusedReaction =
+            TryReuseReactionChainChoice(
+                attacker,
+                defender,
+                ref damageInfo);
+
+        if (!reusedReaction)
+        {
+            ResolveMonsterReaction(attacker, defender, ref damageInfo);
+        }
+
         pendingDamageInfo = damageInfo;
 
-        if (CanOpenReactionPopup(defender, damageInfo))
+        if (!reusedReaction &&
+            CanOpenReactionPopup(defender, damageInfo))
         {
             waitingReaction = true;
-            State = BattleTurnState.WaitingAction;
+            State = BattleTurnState.WaitingReaction;
 
             OpenReactionPopup(
                 defender,
@@ -672,14 +716,29 @@ public class BattleManager : ManagerBase
             return;
         }
 
+        int defenderHealthBefore = GetCurrentHealth(defender);
+
         ApplyDamageToTarget(
             defender,
             damageInfo
         );
 
+        StopRepeatedEvadeAfterDamage(defender, defenderHealthBefore);
+
         if (State == BattleTurnState.BattleEnd)
         {
             pendingAttackResolved = null;
+            return;
+        }
+
+        // 반격으로 공격자가 쓰러지면 남아 있는 연속 공격을 실행하지 않습니다.
+        if (!IsAlive(attacker))
+        {
+            pendingAttackResolved = null;
+
+            if (CurrentCharacter == attacker)
+                EndTurn();
+
             return;
         }
 
@@ -803,6 +862,12 @@ public class BattleManager : ManagerBase
 
     private void BindBattleUI()
     {
+        UI_BattleScreen battleScreen =
+            UIManager.GetUIM2(UIType.Battle) as UI_BattleScreen;
+
+        if (battleScreen != null && battleScreen.HandUI != null)
+            handUI = battleScreen.HandUI;
+
         UIBase actionPopupUI = UIManager.GetUIM2(UIType.ActionPopUp);
 
         if (actionPopupUI == null)
@@ -865,6 +930,7 @@ public class BattleManager : ManagerBase
             if (!success)
             {
                 Debug.LogWarning($"{defender.name}: 대응 실패 / 선택:{actionType}");
+                damageInfo.reactionType = ActionType.None;
             }
             else
             {
@@ -872,10 +938,19 @@ public class BattleManager : ManagerBase
             }
         }
 
+        StoreReactionChainChoice(
+            attacker,
+            defender,
+            damageInfo.reactionType);
+
+        int defenderHealthBefore = GetCurrentHealth(defender);
+
         ApplyDamageToTarget(
             defender,
             damageInfo
         );
+
+        StopRepeatedEvadeAfterDamage(defender, defenderHealthBefore);
 
         if (State == BattleTurnState.BattleEnd)
         {
@@ -885,6 +960,17 @@ public class BattleManager : ManagerBase
         }
 
         State = BattleTurnState.WaitingAction;
+
+        // 반격으로 공격자가 쓰러진 경우 콜백으로 다음 공격을 이어가지 않습니다.
+        if (!IsAlive(attacker))
+        {
+            pendingAttackResolved = null;
+
+            if (CurrentCharacter == attacker)
+                EndTurn();
+
+            return;
+        }
 
         Action resolved = pendingAttackResolved;
         pendingAttackResolved = null;
@@ -908,6 +994,76 @@ public class BattleManager : ManagerBase
         {
             reactionSelectUI.Close();
         }
+    }
+
+    private bool TryReuseReactionChainChoice(
+        CharacterBase attacker,
+        CharacterBase defender,
+        ref DamageStruct damageInfo)
+    {
+        if (!hasReactionChainChoice ||
+            reactionChainAttacker != attacker ||
+            reactionChainDefender != defender)
+        {
+            return false;
+        }
+
+        damageInfo.reactionType = reactionChainType;
+
+        Debug.Log(
+            $"연속 공격 대응 재사용: {defender.name} / {reactionChainType}");
+
+        return true;
+    }
+
+    private void StoreReactionChainChoice(
+        CharacterBase attacker,
+        CharacterBase defender,
+        ActionType reactionType)
+    {
+        reactionChainAttacker = attacker;
+        reactionChainDefender = defender;
+        reactionChainType = reactionType;
+        hasReactionChainChoice = true;
+    }
+
+    private void ClearReactionChainChoice()
+    {
+        reactionChainAttacker = null;
+        reactionChainDefender = null;
+        reactionChainType = ActionType.None;
+        hasReactionChainChoice = false;
+    }
+
+    private int GetCurrentHealth(CharacterBase character)
+    {
+        HitpointModules hitpoint =
+            character != null
+                ? character.GetModule<HitpointModules>()
+                : null;
+
+        return hitpoint != null ? hitpoint.Current : 0;
+    }
+
+    private void StopRepeatedEvadeAfterDamage(
+        CharacterBase defender,
+        int healthBefore)
+    {
+        if (!hasReactionChainChoice ||
+            reactionChainDefender != defender ||
+            reactionChainType != ActionType.Evade)
+        {
+            return;
+        }
+
+        if (GetCurrentHealth(defender) >= healthBefore)
+            return;
+
+        // 한 번 피해를 받으면 남은 연속 타격에는 회피 판정을 반복하지 않습니다.
+        reactionChainType = ActionType.None;
+
+        Debug.Log(
+            $"{defender.name}: 회피 실패로 남은 연속 공격의 회피 종료");
     }
 
     private void ApplyDamageToTarget(CharacterBase defender, DamageStruct damageInfo)

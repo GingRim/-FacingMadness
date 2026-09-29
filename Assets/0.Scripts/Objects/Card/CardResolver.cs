@@ -527,10 +527,10 @@ public class CardResolver
         if (!hasKeywords)
         {
             if (useCost == CardUseCost.Action)
-                return ApplyColorlessDamage(user, target, RollAbilityBaseDice(user));
+                return ApplyColorlessDamage(user, target, card.RollColorlessDamage());
 
             if (useCost == CardUseCost.Auxiliary)
-                return ApplyColorlessArmor(user, RollAbilityBaseDice(user));
+                return ApplyColorlessArmor(user, card.RollColorlessArmor());
 
             return false;
         }
@@ -761,6 +761,7 @@ public class CardResolver
         {
             return ResolveAbilityCard(
                 card,
+                cardInstance.CurrentGrade,
                 cardInstance.GradeBonus,
                 user,
                 target,
@@ -798,6 +799,7 @@ public class CardResolver
         {
             return ResolveAbilityCard(
                 card,
+                card.CardGrade,
                 card.GradeBonus,
                 user,
                 target,
@@ -809,6 +811,7 @@ public class CardResolver
 
     private bool ResolveAbilityCard(
         CardData card,
+        int cardGrade,
         int gradeBonus,
         CharacterBase user,
         CharacterBase target,
@@ -825,7 +828,11 @@ public class CardResolver
 
         if (useCost == CardUseCost.Auxiliary)
         {
-            return ApplyAbilityCardSelfEffect(card.color, user, amount);
+            return ApplyAbilityCardSelfEffect(
+                card,
+                cardGrade,
+                user,
+                amount);
         }
 
         if (target == null)
@@ -838,10 +845,16 @@ public class CardResolver
     }
 
     private bool ApplyAbilityCardSelfEffect(
-        CardColorType color,
+        CardData card,
+        int cardGrade,
         CharacterBase user,
         int amount)
     {
+        if (card == null)
+            return false;
+
+        CardColorType color = card.color;
+
         switch (color)
         {
             case CardColorType.Red:
@@ -880,16 +893,140 @@ public class CardResolver
                 if (sanity == null || status == null)
                     return false;
 
-                int sanityDamage = Mathf.Max(0, 20 - amount);
+                int grade = Mathf.Clamp(cardGrade, 1, 5);
+                int sanityPenaltyBase = 20 + grade * 5;
+                int sanityDamage = Mathf.Max(0, sanityPenaltyBase - amount);
+
                 sanity.TakeSanityDamage(sanityDamage);
                 status.AddStatus(StatusEffectType.Blessing, 1);
-                BattleManager.ClaimBattleLog($"정신력 {sanityDamage} 감소 / 축복 획득");
+
+                int generatedCount = AddWillGradeMagicCards(card, user, grade);
+
+                if (generatedCount > 0)
+                {
+                    BattleManager.ClaimBattleLog(
+                        $"정신력 {sanityDamage} 감소 / 축복 획득 / 마법 {generatedCount}장 추가");
+                }
+                else
+                {
+                    BattleManager.ClaimBattleLog(
+                        $"정신력 {sanityDamage} 감소 / 축복 획득");
+                }
+
                 return true;
             }
 
             default:
                 return false;
         }
+    }
+
+    /// <summary>
+    /// 의지 능력치 카드의 현재 등급에 따라 마법 카드를 덱에 추가합니다.
+    /// 1등급: 추가 없음
+    /// 2등급: 종언을 제외한 공격·방어·축복 중 무작위 1장
+    /// 3등급: 종언을 포함한 전체 목록 중 무작위 1장
+    /// 4등급: 종언을 포함한 전체 목록 중 무작위 2장
+    /// 5등급: 전체 목록 중 무작위 1장 + 공격·방어·축복 각 1장
+    /// 연결되지 않은 카드 참조는 안전하게 제외합니다.
+    /// </summary>
+    private int AddWillGradeMagicCards(
+        CardData sourceCard,
+        CharacterBase user,
+        int cardGrade)
+    {
+        if (sourceCard == null || user == null || cardGrade <= 1)
+            return 0;
+
+        DeckModule deck = GetDeckModule(user);
+
+        if (deck == null)
+            return 0;
+
+        int addedCount = 0;
+
+        switch (cardGrade)
+        {
+            case 2:
+                addedCount += AddRandomMagicCard(
+                    deck,
+                    sourceCard.attackMagicCard,
+                    sourceCard.defenseMagicCard,
+                    sourceCard.buffMagicCard);
+                break;
+
+            case 3:
+                addedCount += AddRandomMagicCard(
+                    deck,
+                    sourceCard.forbiddenMagicCard,
+                    sourceCard.attackMagicCard,
+                    sourceCard.defenseMagicCard,
+                    sourceCard.buffMagicCard);
+                break;
+
+            case 4:
+                for (int i = 0; i < 2; i++)
+                {
+                    addedCount += AddRandomMagicCard(
+                        deck,
+                        sourceCard.forbiddenMagicCard,
+                        sourceCard.attackMagicCard,
+                        sourceCard.defenseMagicCard,
+                        sourceCard.buffMagicCard);
+                }
+                break;
+
+            default:
+                addedCount += AddRandomMagicCard(
+                    deck,
+                    sourceCard.forbiddenMagicCard,
+                    sourceCard.attackMagicCard,
+                    sourceCard.defenseMagicCard,
+                    sourceCard.buffMagicCard);
+
+                addedCount += AddMagicCard(deck, sourceCard.attackMagicCard);
+                addedCount += AddMagicCard(deck, sourceCard.defenseMagicCard);
+                addedCount += AddMagicCard(deck, sourceCard.buffMagicCard);
+                break;
+        }
+
+        return addedCount;
+    }
+
+    /// <summary>
+    /// 유효한 후보 중 하나를 무작위로 골라 덱에 추가합니다.
+    /// 후보가 모두 비어 있으면 아무 작업도 하지 않습니다.
+    /// </summary>
+    private int AddRandomMagicCard(DeckModule deck, params CardData[] candidates)
+    {
+        if (deck == null || candidates == null || candidates.Length == 0)
+            return 0;
+
+        List<CardData> validCards = new();
+
+        foreach (CardData candidate in candidates)
+        {
+            if (candidate != null)
+                validCards.Add(candidate);
+        }
+
+        if (validCards.Count == 0)
+            return 0;
+
+        CardData selected = validCards[UnityEngine.Random.Range(0, validCards.Count)];
+
+        return AddMagicCard(deck, selected);
+    }
+
+    /// <summary>
+    /// 지정한 마법 카드를 덱에 추가하고 섞습니다.
+    /// </summary>
+    private int AddMagicCard(DeckModule deck, CardData magicCard)
+    {
+        if (deck == null || magicCard == null)
+            return 0;
+
+        return deck.AddCardToDeckAndShuffle(magicCard) != null ? 1 : 0;
     }
 
     private StatType GetAbilityCardStat(CardColorType color)
