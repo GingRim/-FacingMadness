@@ -1,4 +1,3 @@
-using NUnit.Framework.Constraints;
 using UnityEngine;
 
 public enum UIType
@@ -14,7 +13,12 @@ public enum UIType
 /// </summary>
 public enum DamageType
 {
-    None, Hand_to_hand_combat, Long_range_combat, Magic, Physical, _Length
+    [InspectorName("없음")] None,
+    [InspectorName("근접 전투")] Hand_to_hand_combat,
+    [InspectorName("원거리 전투")] Long_range_combat,
+    [InspectorName("마법")] Magic,
+    [InspectorName("물리")] Physical,
+    [InspectorName("사용 금지")] _Length
 }
 
 
@@ -41,7 +45,13 @@ public enum DamageType
 /// </summary>
 public enum CardUseCost
 {
-    None, Action, Auxiliary, ActionAndAuxiliary, HP, San, _Length
+    [InspectorName("없음")] None,
+    [InspectorName("행동력 1 - 행동")] Action,
+    [InspectorName("행동력 1 - 보조 행동")] Auxiliary,
+    [InspectorName("행동력 2 - 행동과 보조 행동")] ActionAndAuxiliary,
+    [InspectorName("생명력")] HP,
+    [InspectorName("정신력")] San,
+    [InspectorName("사용 금지")] _Length
 }
 
 
@@ -132,7 +142,31 @@ public enum MagicCardType
 /// </summary>
 public enum StatusEffectType
 {
-    None, Haste, Bind, Motivation, Lethargy, Blessing, Curse, Vulnerable, Stun, Doom, DrawBlock, _Length
+    [InspectorName("없음")] None,
+    [InspectorName("가속")] Haste,
+    [InspectorName("속박")] Bind,
+    [InspectorName("의욕")] Motivation,
+    [InspectorName("무기력")] Lethargy,
+    [InspectorName("축복")] Blessing,
+    [InspectorName("저주")] Curse,
+    [InspectorName("취약")] Vulnerable,
+    [InspectorName("기절")] Stun,
+    [InspectorName("종언")] Doom,
+    [InspectorName("드로우 봉쇄")] DrawBlock,
+    [InspectorName("사용 금지")] _Length
+}
+
+/// <summary>
+/// 공격이 실제로 대상에게 전달하는 피해 형식입니다.
+/// 근접·원거리 같은 공격 거리와 별도로 판정합니다.
+/// </summary>
+public enum DamageFormType
+{
+    [InspectorName("타격")] Blunt,
+    [InspectorName("참격")] Slash,
+    [InspectorName("관통")] Pierce,
+    [InspectorName("화염")] Fire,
+    [InspectorName("사용 금지")] _Length
 }
 
 public enum BattleTurnState
@@ -327,6 +361,7 @@ public enum CardKeywordType
     
     Key,       // 열쇠
     Record,    // 기록
+    Core,      // 핵심
 
     _Length
 }

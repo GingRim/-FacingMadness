@@ -25,6 +25,11 @@ public struct DamageStruct // 이벤트 데이터 팻킷
 
     public DamageType damageType;
 
+    /// <summary>
+    /// 타격·참격·관통·화염 중 실제 피해 형식입니다.
+    /// </summary>
+    public DamageFormType damageForm;
+
     public bool canCounter;
     public ActionType reactionType;
 

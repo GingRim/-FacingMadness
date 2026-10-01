@@ -43,8 +43,6 @@ MonoBehaviour:
     - zelo
     FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
-  m_Settings: {fileID: 11400000, guid: 938dcf203bec3f3488cd6cbf4f69eea5, type: 2}
+  m_Settings: {fileID: 11400000, guid: c80322e84e1d8644f9db746036e25a16, type: 2}
   m_SchemaSet:
-    m_Schemas:
-    - {fileID: 11400000, guid: 28741a26f8f9bbb41a512a7ee309a524, type: 2}
-    - {fileID: 11400000, guid: 30bb8d82c00c3874f866daaa7682f27b, type: 2}
+    m_Schemas: []

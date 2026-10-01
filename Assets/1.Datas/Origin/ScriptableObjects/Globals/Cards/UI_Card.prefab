@@ -1012,9 +1012,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "<size=15>45 - (\uBCF4\uC815\uCE58 +4)\uC815\uC2E0\uB825 \uAC10\uC18C<br><size=25>\uCD95\uBCF5
-    \uD68D\uB4DD<br>\uB9C8\uBC95 \uCE74\uB4DC 1\uAC1C \uC2B5\uB4DD<br><size=15>\uACF5\uACA9,\uBC29\uC5B4,\uBC84\uD504\uB9C8\uBC95
-    \uAC01 1\uAC1C<br>\uC2B5\uB4DD"
+  m_text: "<\uBD88\uC774 \uCF1C\uC838 \uC788\uB294 \uC591\uCD08"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 2fa312cf9d697af4589780c3b5ab66da, type: 2}
   m_sharedMaterial: {fileID: -5247412543679069724, guid: 2fa312cf9d697af4589780c3b5ab66da, type: 2}
@@ -1041,7 +1039,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 26.5
+  m_fontSize: 30
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -1151,7 +1149,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uCE74\uB4DC\uBA85"
+  m_text: "<size=18.5>\uC624\uC5FC\uB418\uC9C0 \uC54A\uC740 \uBD95\uB300"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 2fa312cf9d697af4589780c3b5ab66da, type: 2}
   m_sharedMaterial: {fileID: -5247412543679069724, guid: 2fa312cf9d697af4589780c3b5ab66da, type: 2}
@@ -1178,12 +1176,12 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 43.95
+  m_fontSize: 30
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
   m_fontSizeMin: 18
-  m_fontSizeMax: 200
+  m_fontSizeMax: 30
   m_fontStyle: 1
   m_HorizontalAlignment: 1
   m_VerticalAlignment: 512

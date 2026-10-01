@@ -1,0 +1,91 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eda405cbcf5af0841a71b53f8add7b42, type: 3}
+  m_Name: BookStorageEvent_1
+  m_EditorClassIdentifier: Assembly-CSharp::FieldEventData
+  eventId: KitchenEvent_1
+  eventName: "\uBAB8\uC744 \uC6C0\uC9C1\uC778\uB2E4."
+  eventType: 1
+  description: "\uB2F9\uC2E0\uC740 \uCC45\uCC3D\uACE0\uC5D0\uC11C \uC77C\uB2E8 \uBAB8\uC744
+    \uC6C0\uC9C1\uC785\uB2C8\uB2E4."
+  eventImage: {fileID: -6347488516664578547, guid: 93475169264aa6345b528afbee289415, type: 3}
+  displayType: 1
+  maximumVisibleChoices: 5
+  choices:
+  - choiceId: KitchenEvent_1_0
+    choiceText: "\uCC45\uC744 \uCC22\uB294\uB2E4."
+    choiceIcon: {fileID: 157187950588838309, guid: b4eaa9b0406a6f64889347927adece9d, type: 3}
+    choiceType: 2
+    actionType: 1
+    usageType: 0
+    nextPage: {fileID: 0}
+    executionType: 1
+    requiredStat: 1
+    requiredCardKeyword: 4
+    target: 7
+    conditions: []
+    allowsIgnition: 0
+    showKnownMemoryTitlesOnSuccess: 0
+    successResult:
+      description: "\uB2F9\uC2E0\uC740 \uCC45\uC744 \uCC22\uB294\uB370<br>\uC131\uACF5\uD588\uC2B5\uB2C8\uB2E4.
+        <br><br><size=82>\uADF8 \uC21C\uAC04 \uBB38\uCABD\uC5D0\uC11C \uD22C\uBA85\uD55C<br>\uBB34\uC5B8\uAC00\uAC00\uBB49\uCCD0\uC9C0\uAE30
+        \uC2DC\uC791 \uD558\uB354\uB2C8 \uD55C \uB369\uC5B4\uB9AC \uD615\uD0DC\uB85C<br>\uACE0\uC815
+        \uB418\uB354\uB2C8 \uAC11\uC790\uAE30<br>\uB36E\uCCD0\uC635\uB2C8\uB2E4."
+      effects:
+      - {fileID: 11400000, guid: bf06dd343ebcaf5458aa1df300a0f327, type: 2}
+      resultImage: {fileID: 0}
+      redLineResult: 0
+    failureResult:
+      description: "\uB2F9\uC2E0\uC758 \uADFC\uB825\uC73C\uB85C\uB294<br>\uCC45\uC744
+        \uCC22\uB294\uAC83\uC740 \uD798\uB4E0<br>\uC77C \uC774\uC5C8\uC2B5\uB2C8\uB2E4."
+      effects: []
+      resultImage: {fileID: 0}
+      redLineResult: 0
+    legacyCardRequirement:
+      requiresCard: 0
+      allowedColors: 
+      checkStat: 0
+  - choiceId: KitchenEvent_1_0
+    choiceText: "\uC591\uCD08\uB97C \uB4E4\uC5B4 \uC62C\uB9B0\uB2E4."
+    choiceIcon: {fileID: 0}
+    choiceType: 1
+    actionType: 1
+    usageType: 0
+    nextPage: {fileID: 0}
+    executionType: 0
+    requiredStat: 0
+    requiredCardKeyword: 0
+    target: 2
+    conditions: []
+    allowsIgnition: 0
+    showKnownMemoryTitlesOnSuccess: 0
+    successResult:
+      description: "\uB2F9\uC2E0\uC740 \uCD08\uB97C \uB4E4\uC5B4<br>\uC62C\uB838\uC2B5\uB2C8\uB2E4."
+      effects:
+      - {fileID: 11400000, guid: 117c1ecec827ab44aa56bdc10affeb53, type: 2}
+      resultImage: {fileID: 0}
+      redLineResult: 0
+    failureResult:
+      description: 
+      effects: []
+      resultImage: {fileID: 0}
+      redLineResult: 0
+    legacyCardRequirement:
+      requiresCard: 0
+      allowedColors: 
+      checkStat: 0
+  showOwnedMemos: 0
+  usageType: 1
+  openingConditions:
+  - {fileID: 11400000, guid: 709d52d0480e9a64e845ef4ccb39df4a, type: 2}
+  startingNodeId: 
+  legacyEntryData: {fileID: 11400000, guid: 0e3cb3585a97a774d9a27d39d30ac213, type: 2}

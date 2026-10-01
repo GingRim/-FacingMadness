@@ -1,4 +1,7 @@
+using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 
 
@@ -16,6 +19,19 @@ public class UI_CardUseSelect : MonoBehaviour
     private CharacterBase target;
 
     private UI_Hand handUI;
+
+    [Header("선택 화면")]
+    [Tooltip("기존 행동/보조 행동 버튼의 상위 오브젝트입니다.")]
+    [SerializeField] private GameObject costChoiceRoot;
+
+    [Tooltip("공격 방식 버튼이 생성될 영역입니다.")]
+    [SerializeField] private Transform attackStyleButtonRoot;
+
+    [Tooltip("비활성화한 공격 방식 버튼 원본을 연결합니다.")]
+    [SerializeField] private Button attackStyleButtonTemplate;
+
+    private readonly List<Button> generatedAttackStyleButtons = new();
+    private bool showingAttackStyles;
 
     private CardData SelectedCardData => selectedCardInstance != null ? selectedCardInstance.Data : null;
 
@@ -97,6 +113,8 @@ public class UI_CardUseSelect : MonoBehaviour
         user = newUser;
         target = newTarget;
 
+        RefreshChoiceMode();
+
         gameObject.SetActive(true);
 
         Debug.Log(
@@ -112,6 +130,12 @@ public class UI_CardUseSelect : MonoBehaviour
     /// </summary>
     public void Close()
     {
+        ClearAttackStyleButtons();
+        showingAttackStyles = false;
+
+        if (costChoiceRoot != null)
+            costChoiceRoot.SetActive(true);
+
         selectedCardInstance = null;
 
         user = null;
@@ -125,6 +149,9 @@ public class UI_CardUseSelect : MonoBehaviour
     /// </summary>
     public void UseAction()
     {
+        if (showingAttackStyles)
+            return;
+
         Use(CardUseCost.Action);
     }
 
@@ -133,7 +160,116 @@ public class UI_CardUseSelect : MonoBehaviour
     /// </summary>
     public void UseAuxiliary()
     {
+        if (showingAttackStyles)
+            return;
+
         Use(CardUseCost.Auxiliary);
+    }
+
+    private void RefreshChoiceMode()
+    {
+        ClearAttackStyleButtons();
+
+        showingAttackStyles =
+            SelectedCardData != null &&
+            SelectedCardData.HasAttackStyles &&
+            target != null && target != user;
+
+        if (costChoiceRoot != null)
+            costChoiceRoot.SetActive(!showingAttackStyles);
+
+        if (!showingAttackStyles)
+            return;
+
+        if (attackStyleButtonRoot == null || attackStyleButtonTemplate == null)
+        {
+            Debug.LogWarning(
+                "공격 방식 선택 UI의 버튼 영역 또는 버튼 원본이 연결되지 않았습니다.");
+            return;
+        }
+
+        for (int i = 0; i < SelectedCardData.AttackStyles.Count; i++)
+        {
+            CardAttackStyleData style = SelectedCardData.GetAttackStyle(i);
+
+            if (style == null)
+                continue;
+
+            int selectedIndex = i;
+            Button button = Instantiate(
+                attackStyleButtonTemplate,
+                attackStyleButtonRoot);
+
+            button.gameObject.SetActive(true);
+            button.onClick.RemoveAllListeners();
+            button.onClick.AddListener(() => UseAttackStyle(selectedIndex));
+
+            UI_CardAttackStyleButton presentation =
+                button.GetComponent<UI_CardAttackStyleButton>();
+
+            if (presentation != null)
+            {
+                presentation.SetStyle(style);
+            }
+            else
+            {
+                TMP_Text label = button.GetComponentInChildren<TMP_Text>(true);
+
+                if (label != null)
+                {
+                    string description = string.IsNullOrWhiteSpace(style.Description)
+                        ? string.Empty
+                        : $"\n{style.Description}";
+
+                    label.text = style.DisplayName + description;
+                }
+            }
+
+            generatedAttackStyleButtons.Add(button);
+        }
+    }
+
+    private void ClearAttackStyleButtons()
+    {
+        foreach (Button button in generatedAttackStyleButtons)
+        {
+            if (button != null)
+                Destroy(button.gameObject);
+        }
+
+        generatedAttackStyleButtons.Clear();
+    }
+
+    public void UseAttackStyle(int attackStyleIndex)
+    {
+        if (!showingAttackStyles || selectedCardInstance == null ||
+            SelectedCardData == null || user == null || target == null)
+        {
+            return;
+        }
+
+        if (cardResolver == null)
+            cardResolver = new CardResolver();
+
+        DeckModule deck = user.GetModule<DeckModule>();
+
+        if (deck == null)
+            return;
+
+        bool success = cardResolver.UseAttackStyle(
+            selectedCardInstance,
+            user,
+            target,
+            attackStyleIndex,
+            out int durabilityCost);
+
+        if (!success)
+        {
+            BattleManager.ClaimBattleLog("공격 처리 실패");
+            return;
+        }
+
+        CompleteCardUse(deck, durabilityCost);
     }
 
     /// <summary>
@@ -190,11 +326,22 @@ public class UI_CardUseSelect : MonoBehaviour
             return;
         }
 
+        CompleteCardUse(deck, 1);
+    }
+
+    private void CompleteCardUse(DeckModule deck, int durabilityCost)
+    {
+        if (deck == null || selectedCardInstance == null || SelectedCardData == null)
+            return;
+
+        CardData cardData = SelectedCardData;
+
         bool isRemove = false;
 
         if (selectedCardInstance.Color == CardColorType.Colorless)
         {
-            if (!selectedCardInstance.ConsumeDurability(1))
+            if (!selectedCardInstance.ConsumeDurability(
+                    Mathf.Max(1, durabilityCost)))
                 return;
 
             isRemove = selectedCardInstance.IsDepleted;
@@ -231,6 +378,9 @@ public class UI_CardUseSelect : MonoBehaviour
     public void SetTarget(CharacterBase newTarget)
     {
         target = newTarget;
+
+        if (IsOpened)
+            RefreshChoiceMode();
 
         if (target != null)
         {

@@ -326,6 +326,7 @@ public class MonsterAIModule : CharacterModule
             critical = critical,
             highCritical = false,
             damageType = action.DamageType,
+            damageForm = action.DamageForm,
             canCounter = action.CanCounter,
             reactionType = ActionType.None
         };
@@ -367,6 +368,7 @@ public class MonsterAIModule : CharacterModule
             critical = critical,
             highCritical = false,
             damageType = DamageType.Hand_to_hand_combat,
+            damageForm = DamageFormType.Blunt,
             canCounter = true,
             reactionType = ActionType.None
         };

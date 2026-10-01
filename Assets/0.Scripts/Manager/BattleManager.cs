@@ -70,6 +70,33 @@ public class BattleManager : ManagerBase
         State = BattleTurnState.None;
     }
 
+    /// <summary>
+    /// 종료된 전투가 다음 게임이나 다음 전투에 남지 않도록
+    /// BattleManager가 보관한 런타임 상태를 초기화합니다.
+    /// </summary>
+    public void ResetBattleState()
+    {
+        StopAllCoroutines();
+
+        UnbindHitPointEvents();
+        ClearPendingReaction();
+        ClearReactionChainChoice();
+
+        participants.Clear();
+        turnOrder.Clear();
+
+        CurrentCharacter = null;
+        round = 0;
+        currentTurnIndex = 0;
+
+        isBattleActive = false;
+        startedFromActiveField = false;
+        State = BattleTurnState.None;
+
+        OnRoundChanged?.Invoke(0);
+        ClaimBattleLogClear();
+    }
+
     private void OnRoundStart(CharacterBase character)
     {
         ResetCost(character);
@@ -125,8 +152,10 @@ public class BattleManager : ManagerBase
 
     public void StartBattle(List<CharacterBase> characters)
     {
+        // 게임 오버나 이전 전투에서 남은 상태가 새 전투로 넘어오지 않게 합니다.
+        ResetBattleState();
+
         isBattleActive = true;
-        ClearReactionChainChoice();
 
         FieldManager fieldManager =
             GameManager.Instance != null
@@ -1150,6 +1179,8 @@ public class BattleManager : ManagerBase
             {
                 OpenGameOver();
             }
+
+            ResetBattleState();
 
             return;
         }

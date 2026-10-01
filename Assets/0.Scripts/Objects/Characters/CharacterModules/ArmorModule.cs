@@ -44,30 +44,31 @@ public class ArmorModule : CharacterModule
         Debug.Log($"라운드 종료: 임시 장갑 {reduceAmount} 감소 / 현재 임시 장갑: {temporaryArmor}");
     }
 
-    public int GetReducedDamage(int damage, DamageType damageType)
+    public int GetReducedDamage(
+        int damage,
+        DamageType damageType,
+        DamageFormType damageForm)
     {
         if (damage <= 0)
             return 0;
 
-        int reduceAmount = 0;
         int armor = TotalArmor;
 
-        switch (damageType)
-        {
-            case DamageType.Hand_to_hand_combat:
-                reduceAmount = armor;
-                break;
-
-            case DamageType.Long_range_combat:
-                reduceAmount = armor / 2;
-                break;
-
-            case DamageType.Magic:
-                reduceAmount = 0;
-                break;
-        }
+        // 근접·원거리 여부와 관계없이 장갑 전체를 적용합니다.
+        // 관통 피해만 장갑 감소량을 절반으로 계산합니다.
+        int reduceAmount = damageForm == DamageFormType.Pierce
+            ? armor / 2
+            : armor;
 
         return Mathf.Max(0, damage - reduceAmount);
+    }
+
+    /// <summary>
+    /// 기존 호출부 호환용. 피해 형식이 없는 공격은 타격으로 처리합니다.
+    /// </summary>
+    public int GetReducedDamage(int damage, DamageType damageType)
+    {
+        return GetReducedDamage(damage, damageType, DamageFormType.Blunt);
     }
 
     public void ClearTemporaryArmor()

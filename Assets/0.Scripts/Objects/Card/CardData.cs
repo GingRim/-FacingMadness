@@ -50,6 +50,155 @@ public class CardEffectValue
     }
 }
 
+/// <summary>
+/// 카드에 직접 등록할 전투 효과의 종류입니다.
+/// 키워드는 카드 분류에만 사용하고 실제 효과는 이 값으로 결정합니다.
+/// </summary>
+public enum CardCombatEffectType
+{
+    [InspectorName("없음")] None,
+    [InspectorName("피해")] Damage,
+    [InspectorName("생명력 회복")] RestoreHealth,
+    [InspectorName("임시 장갑 획득")] TemporaryArmor,
+    [InspectorName("상태 효과 부여")] ApplyStatus
+}
+
+/// <summary>
+/// 카드 효과를 받을 대상입니다.
+/// </summary>
+public enum CardCombatEffectTarget
+{
+    [InspectorName("자신")] Self,
+    [InspectorName("아군")] Ally,
+    [InspectorName("적")] Enemy
+}
+
+/// <summary>
+/// 선택한 대상을 기준으로 실제 효과를 받을 캐릭터입니다.
+/// </summary>
+public enum CardCombatEffectRecipient
+{
+    [InspectorName("카드 사용자")] User,
+    [InspectorName("선택한 대상")] SelectedTarget
+}
+
+[System.Serializable]
+public class CardCombatEffectData
+{
+    [Tooltip("이 효과를 사용할 행동 방식입니다.")]
+    [InspectorName("사용 행동")]
+    [SerializeField]
+    private CardUseCost useCost = CardUseCost.Action;
+
+    [Tooltip("이 카드를 놓을 수 있는 대상입니다.")]
+    [InspectorName("카드를 놓을 대상")]
+    [SerializeField]
+    private CardCombatEffectTarget target = CardCombatEffectTarget.Enemy;
+
+    [Tooltip("효과를 카드 사용자와 선택한 대상 중 누구에게 적용할지 정합니다.")]
+    [InspectorName("효과 적용 대상")]
+    [SerializeField]
+    private CardCombatEffectRecipient recipient = CardCombatEffectRecipient.SelectedTarget;
+
+    [Tooltip("실행할 전투 효과입니다.")]
+    [InspectorName("효과 종류")]
+    [SerializeField]
+    private CardCombatEffectType effectType = CardCombatEffectType.Damage;
+
+    [Tooltip("피해 효과일 때 적용할 피해 속성입니다. 총기처럼 원거리 공격이면 원거리 전투를 선택합니다.")]
+    [InspectorName("피해 속성")]
+    [SerializeField]
+    private DamageType damageType = DamageType.Hand_to_hand_combat;
+
+    [Tooltip("피해 효과일 때 적용할 타격·참격·관통·화염 형식입니다.")]
+    [SerializeField]
+    private DamageFormType damageForm = DamageFormType.Blunt;
+
+    [Tooltip("상태 효과 부여를 선택했을 때 적용할 상태입니다.")]
+    [InspectorName("부여할 상태")]
+    [SerializeField]
+    private StatusEffectType statusType = StatusEffectType.None;
+
+    [Tooltip("주사위와 고정값을 합산해 효과 수치를 계산합니다.")]
+    [InspectorName("효과 수치")]
+    [SerializeField]
+    private CardEffectValue value = new();
+
+    public CardUseCost UseCost => useCost;
+    public CardCombatEffectTarget Target => target;
+    public CardCombatEffectRecipient Recipient => recipient;
+    public CardCombatEffectType EffectType => effectType;
+    public DamageType DamageType => damageType;
+    public DamageFormType DamageForm => damageForm;
+    public StatusEffectType StatusType => statusType;
+    public int RollValue() => value != null ? value.Roll() : 0;
+
+    public bool IsValid =>
+        useCost != CardUseCost.None &&
+        useCost != CardUseCost._Length &&
+        effectType != CardCombatEffectType.None;
+}
+
+[System.Serializable]
+public class CardAttackStyleData
+{
+    [Tooltip("능력치 판정을 사용하는 공격 방식의 우측 색상 영역 안에 표시할 아이콘입니다.")]
+    [SerializeField]
+    private Sprite icon;
+
+    [Tooltip("선택창에 보여 줄 공격 방식 이름입니다. 예: 힘으로 내려찍기, 기술로 베기")]
+    [SerializeField]
+    private string displayName = "공격";
+
+    [Tooltip("선택창에 표시할 간단한 설명입니다.")]
+    [TextArea(1, 3)]
+    [SerializeField]
+    private string description;
+
+    [Tooltip("피해에 보정치를 더할 능력치입니다.")]
+    [SerializeField]
+    private StatType scalingStat = StatType.Strength;
+
+    [Tooltip("활성화하면 공격 전에 기존 이벤트와 같은 능력치 판정을 진행합니다.")]
+    [InspectorName("능력치 판정 사용")]
+    [SerializeField]
+    private bool requiresStatCheck;
+
+    [Tooltip("능력치 판정의 목표치입니다.")]
+    [InspectorName("판정 목표치")]
+    [SerializeField, Min(2)]
+    private int checkTarget = 5;
+
+    [Tooltip("근접·원거리 중 공격 거리 분류입니다.")]
+    [SerializeField]
+    private DamageType damageType = DamageType.Hand_to_hand_combat;
+
+    [Tooltip("타격·참격·관통·화염 중 실제 피해 형식입니다.")]
+    [SerializeField]
+    private DamageFormType damageForm = DamageFormType.Blunt;
+
+    [Tooltip("능력치 보정치와 합산할 기본 피해입니다.")]
+    [SerializeField]
+    private CardEffectValue damage = new();
+
+    public string DisplayName => string.IsNullOrWhiteSpace(displayName)
+        ? "공격"
+        : displayName.Trim();
+    public string Description => description;
+    public Sprite Icon => icon;
+    public StatType ScalingStat => scalingStat;
+    public bool RequiresStatCheck => requiresStatCheck;
+    public int CheckTarget => Mathf.Max(2, checkTarget);
+    public DamageType DamageType => damageType;
+    public DamageFormType DamageForm => damageForm;
+    public int RollDamage() => damage != null ? damage.Roll() : 0;
+
+    public bool IsValid =>
+        scalingStat != StatType.None &&
+        scalingStat != StatType._Length &&
+        damageForm != DamageFormType._Length;
+}
+
 [CreateAssetMenu(fileName = "NewCard", menuName = "Card/CardData")]
 public class CardData : ScriptableObject
 {
@@ -85,6 +234,15 @@ public class CardData : ScriptableObject
     [Header("키워드")]
     [SerializeField] private List<CardKeywordType> keywords = new();
 
+    [Header("필드 핸드 발동")]
+    [Tooltip("핵심 키워드 카드가 필드 턴 시작 시 핸드에 있으면 발생시킬 이벤트입니다. 매 턴 발생시키려면 이벤트를 Repeatable로 설정하십시오.")]
+    [SerializeField]
+    private FieldEventData handFieldEvent;
+
+    [Tooltip("핸드에 핵심 카드가 여러 종류 있으면 높은 우선순위의 이벤트 하나만 발생합니다.")]
+    [SerializeField]
+    private int handFieldEventPriority;
+
     [Tooltip("무색 카드와 키워드 카드가 생성될 때 사용할 최대 내구도입니다. 기본값은 3입니다.")]
     [SerializeField, Min(0)]
     private int baseDurability = 3;
@@ -97,6 +255,22 @@ public class CardData : ScriptableObject
     [Tooltip("키워드가 없는 무색 카드를 보조 행동으로 사용할 때의 임시 장갑입니다.")]
     [SerializeField]
     private CardEffectValue colorlessArmor = new();
+
+    [Header("키워드 카드 전투 효과")]
+    [Tooltip("활성화하면 키워드의 고정 효과 대신 아래 목록에 등록한 효과를 사용합니다. 빈 목록은 전투 효과 없음을 뜻합니다.")]
+    [InspectorName("키워드 전투 효과 직접 설정")]
+    [SerializeField]
+    private bool useCustomKeywordCombatEffects;
+
+    [Tooltip("카드가 실행할 공격·자신·아군 효과를 각각 등록합니다.")]
+    [InspectorName("전투 효과 목록")]
+    [SerializeField]
+    private List<CardCombatEffectData> keywordCombatEffects = new();
+
+    [Header("공격 방식 선택")]
+    [Tooltip("등록한 방식이 있으면 적을 공격할 때 선택지로 표시됩니다.")]
+    [SerializeField]
+    private List<CardAttackStyleData> attackStyles = new();
 
     [Header("마법 카드")]
     public MagicCardType magicCardType = MagicCardType.None;
@@ -143,6 +317,18 @@ public class CardData : ScriptableObject
 
     public IReadOnlyList<CardKeywordType> Keywords => keywords;
 
+    public FieldEventData HandFieldEvent => handFieldEvent;
+
+    public int HandFieldEventPriority => handFieldEventPriority;
+
+    public bool UsesCustomKeywordCombatEffects => useCustomKeywordCombatEffects;
+
+    public IReadOnlyList<CardCombatEffectData> KeywordCombatEffects => keywordCombatEffects;
+
+    public IReadOnlyList<CardAttackStyleData> AttackStyles => attackStyles;
+
+    public bool HasAttackStyles => attackStyles != null && attackStyles.Count > 0;
+
     public int CardGrade => Mathf.Clamp(cardGrade, 1, 5);
 
     public int GradeBonus => CardGrade * 2;
@@ -170,6 +356,34 @@ public class CardData : ScriptableObject
         return colorlessArmor != null
             ? colorlessArmor.Roll()
             : Dice.RollD4();
+    }
+
+    public bool HasConfiguredCombatEffect(
+        CardUseCost useCost,
+        CardCombatEffectTarget target)
+    {
+        if (!useCustomKeywordCombatEffects || keywordCombatEffects == null)
+            return false;
+
+        foreach (CardCombatEffectData effect in keywordCombatEffects)
+        {
+            if (effect != null && effect.IsValid &&
+                effect.UseCost == useCost && effect.Target == target)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public CardAttackStyleData GetAttackStyle(int index)
+    {
+        if (attackStyles == null || index < 0 || index >= attackStyles.Count)
+            return null;
+
+        CardAttackStyleData style = attackStyles[index];
+        return style != null && style.IsValid ? style : null;
     }
 
     /// <summary>
@@ -215,6 +429,16 @@ public class CardData : ScriptableObject
         if (keywords == null)
         {
             keywords = new List<CardKeywordType>();
+        }
+
+        if (keywordCombatEffects == null)
+        {
+            keywordCombatEffects = new List<CardCombatEffectData>();
+        }
+
+        if (attackStyles == null)
+        {
+            attackStyles = new List<CardAttackStyleData>();
         }
 
         // _Length만 제거합니다.

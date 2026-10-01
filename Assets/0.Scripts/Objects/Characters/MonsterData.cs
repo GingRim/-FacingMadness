@@ -19,6 +19,17 @@ public class MonsterData : ScriptableObject
     [Header("기본 장갑")]
     public int baseArmor = 0;
 
+    [Header("피해 형식 내성")]
+    [Tooltip("1은 보통, 1보다 작으면 내성, 1보다 크면 약점입니다.")]
+    [InspectorName("타격 배율")]
+    [Min(0f)] public float bluntResistance = 1f;
+    [InspectorName("참격 배율")]
+    [Min(0f)] public float slashResistance = 1f;
+    [InspectorName("관통 배율")]
+    [Min(0f)] public float pierceResistance = 1f;
+    [InspectorName("화염 배율")]
+    [Min(0f)] public float fireResistance = 1f;
+
     [Header("난이도 보정")]
     public int difficultyModifier = 0;
 

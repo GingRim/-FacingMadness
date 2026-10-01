@@ -535,6 +535,17 @@ public class CardResolver
             return false;
         }
 
+        // 직접 설정을 활성화한 카드는 키워드 이름이 아니라
+        // CardData에 등록한 전투 효과 목록으로 처리합니다.
+        if (card.UsesCustomKeywordCombatEffects)
+        {
+            return ResolveConfiguredKeywordEffects(
+                card,
+                user,
+                target,
+                useCost);
+        }
+
         // 키워드 무색 카드는 보조 행동 효과를 사용할 수 없습니다.
         if (useCost != CardUseCost.Action)
             return false;
@@ -602,10 +613,139 @@ public class CardResolver
         return true;
     }
 
+    private bool ResolveConfiguredKeywordEffects(
+        CardData card,
+        CharacterBase user,
+        CharacterBase selectedTarget,
+        CardUseCost useCost)
+    {
+        if (card == null || user == null || card.KeywordCombatEffects == null)
+            return false;
+
+        CardCombatEffectTarget selectedTargetType =
+            GetConfiguredTargetType(user, selectedTarget);
+
+        bool appliedAny = false;
+
+        foreach (CardCombatEffectData effect in card.KeywordCombatEffects)
+        {
+            if (effect == null || !effect.IsValid ||
+                effect.UseCost != useCost ||
+                effect.Target != selectedTargetType)
+            {
+                continue;
+            }
+
+            CharacterBase effectTarget =
+                effect.Recipient == CardCombatEffectRecipient.User
+                    ? user
+                    : selectedTarget;
+
+            int amount = effect.RollValue();
+            bool applied = false;
+
+            switch (effect.EffectType)
+            {
+                case CardCombatEffectType.Damage:
+                    applied = ApplyColorlessDamage(
+                        user,
+                        effectTarget,
+                        amount,
+                        effect.DamageType,
+                        effect.DamageForm);
+                    break;
+
+                case CardCombatEffectType.RestoreHealth:
+                    applied = ApplyColorlessHealing(user, effectTarget, amount);
+                    break;
+
+                case CardCombatEffectType.TemporaryArmor:
+                    applied = ApplyColorlessArmor(effectTarget, amount);
+                    break;
+
+                case CardCombatEffectType.ApplyStatus:
+                    applied = ApplyConfiguredStatus(
+                        effectTarget,
+                        effect.StatusType,
+                        amount);
+                    break;
+            }
+
+            appliedAny |= applied;
+        }
+
+        return appliedAny;
+    }
+
+    private CardCombatEffectTarget GetConfiguredTargetType(
+        CharacterBase user,
+        CharacterBase target)
+    {
+        if (user == target)
+            return CardCombatEffectTarget.Self;
+
+        if (user == null || target == null)
+            return CardCombatEffectTarget.Enemy;
+
+        bool userIsPlayer = user.Controller != null;
+        bool targetIsPlayer = target.Controller != null;
+
+        return userIsPlayer == targetIsPlayer
+            ? CardCombatEffectTarget.Ally
+            : CardCombatEffectTarget.Enemy;
+    }
+
+    private bool ApplyConfiguredStatus(
+        CharacterBase target,
+        StatusEffectType statusType,
+        int amount)
+    {
+        if (target == null || statusType == StatusEffectType.None || amount <= 0)
+            return false;
+
+        StatusEffectModule status = target.GetModule<StatusEffectModule>();
+
+        if (status == null)
+            return false;
+
+        status.AddStatus(statusType, amount);
+        BattleManager.ClaimBattleLog($"{statusType} {amount} 부여");
+        return true;
+    }
+
     private bool ApplyColorlessDamage(
         CharacterBase user,
         CharacterBase target,
         int damage)
+    {
+        return ApplyColorlessDamage(
+            user,
+            target,
+            damage,
+            DamageType.Hand_to_hand_combat,
+            DamageFormType.Blunt);
+    }
+
+    private bool ApplyColorlessDamage(
+        CharacterBase user,
+        CharacterBase target,
+        int damage,
+        DamageType damageType)
+    {
+        return ApplyColorlessDamage(
+            user,
+            target,
+            damage,
+            damageType,
+            DamageFormType.Blunt);
+    }
+
+    private bool ApplyColorlessDamage(
+        CharacterBase user,
+        CharacterBase target,
+        int damage,
+        DamageType damageType,
+        DamageFormType damageForm)
     {
         if (user == null || target == null)
             return false;
@@ -621,12 +761,93 @@ public class CardResolver
             instigator = user.Controller,
             damageAmount = damage,
             critical = false,
-            damageType = DamageType.Hand_to_hand_combat
+            damageType = damageType == DamageType.None
+                ? DamageType.Hand_to_hand_combat
+                : damageType,
+            damageForm = damageForm == DamageFormType._Length
+                ? DamageFormType.Blunt
+                : damageForm
         };
 
         combat.OnHit(damageInfo);
         BattleManager.ClaimBattleLog($"{damage} 피해");
         return true;
+    }
+
+    /// <summary>
+    /// 카드에 등록한 공격 방식 하나를 선택해 사용합니다.
+    /// 피해는 기본 피해 + 선택 능력치 보정치로 계산합니다.
+    /// </summary>
+    public bool UseAttackStyle(
+        CardInstance cardInstance,
+        CharacterBase user,
+        CharacterBase target,
+        int attackStyleIndex,
+        out int durabilityCost)
+    {
+        durabilityCost = 1;
+
+        if (cardInstance == null || cardInstance.Data == null ||
+            user == null || target == null || cardInstance.IsDepleted)
+        {
+            return false;
+        }
+
+        CardAttackStyleData style =
+            cardInstance.Data.GetAttackStyle(attackStyleIndex);
+
+        if (style == null)
+            return false;
+
+        if (!CanUse(cardInstance.Data, user, CardUseCost.Action))
+            return false;
+
+        if (!TryPayCost(user, CardUseCost.Action))
+            return false;
+
+        StatModules stats = user.GetModule<StatModules>();
+        int statModifier = stats != null
+            ? stats.GetModifier(style.ScalingStat)
+            : 0;
+        int damage = Mathf.Max(0, style.RollDamage() + statModifier);
+
+        if (style.RequiresStatCheck)
+        {
+            JudgeResult judgeResult = JudgeUtility.Roll(
+                user,
+                style.ScalingStat,
+                style.CheckTarget);
+
+            if (!judgeResult.success)
+            {
+                damage /= 2;
+                durabilityCost = Dice.RollD4();
+
+                BattleManager.ClaimBattleLog(
+                    $"{StatTypeDisplayUtility.GetName(style.ScalingStat)} 판정 실패<br>" +
+                    "피해 반감");
+            }
+            else
+            {
+                BattleManager.ClaimBattleLog(
+                    $"{StatTypeDisplayUtility.GetName(style.ScalingStat)} 판정 성공");
+            }
+        }
+
+        bool applied = ApplyColorlessDamage(
+            user,
+            target,
+            damage,
+            style.DamageType,
+            style.DamageForm);
+
+        if (applied)
+        {
+            BattleManager.ClaimBattleLog(
+                $"{style.DisplayName}<br>{style.DamageForm} {damage} 피해");
+        }
+
+        return applied;
     }
 
     private bool ApplyColorlessArmor(CharacterBase user, int armor)
@@ -707,10 +928,12 @@ public class CardResolver
             selectedCard.HasKeywords &&
             useCost != CardUseCost.Action)
         {
-            return false;
+            if (!selectedCard.Data.UsesCustomKeywordCombatEffects)
+                return false;
         }
 
         if (selectedCard.Color == CardColorType.Colorless &&
+            !selectedCard.Data.UsesCustomKeywordCombatEffects &&
             (selectedCard.HasKeyword(CardKeywordType.Tool) ||
              selectedCard.HasKeyword(CardKeywordType.Key) ||
              selectedCard.HasKeyword(CardKeywordType.Record)))
@@ -718,7 +941,25 @@ public class CardResolver
             return false;
         }
 
+        if (selectedCard.Color == CardColorType.Colorless &&
+            selectedCard.HasKeywords &&
+            selectedCard.Data.UsesCustomKeywordCombatEffects &&
+            !HasConfiguredEffectForAnyTarget(selectedCard.Data, useCost))
+        {
+            return false;
+        }
+
         return CanUse(selectedCard.Data, user, useCost);
+    }
+
+    private bool HasConfiguredEffectForAnyTarget(
+        CardData card,
+        CardUseCost useCost)
+    {
+        return card != null &&
+            (card.HasConfiguredCombatEffect(useCost, CardCombatEffectTarget.Self) ||
+             card.HasConfiguredCombatEffect(useCost, CardCombatEffectTarget.Ally) ||
+             card.HasConfiguredCombatEffect(useCost, CardCombatEffectTarget.Enemy));
     }
 
     /// <summary>
@@ -841,7 +1082,12 @@ public class CardResolver
         int dice = RollAbilityBaseDice(user);
         int damage = Mathf.Max(0, dice + statModifier + gradeBonus);
 
-        return ApplyColorlessDamage(user, target, damage);
+        return ApplyColorlessDamage(
+            user,
+            target,
+            damage,
+            DamageType.Hand_to_hand_combat,
+            DamageFormType.Blunt);
     }
 
     private bool ApplyAbilityCardSelfEffect(

@@ -213,6 +213,9 @@ public class MonsterAIAction
     [InspectorName("피해 종류")]
     [Tooltip("공격 행동이 입히는 피해 종류입니다.")]
     [SerializeField] private DamageType damageType = DamageType.Hand_to_hand_combat;
+    [InspectorName("피해 형식")]
+    [Tooltip("공격이 입히는 타격·참격·관통·화염 형식입니다.")]
+    [SerializeField] private DamageFormType damageForm = DamageFormType.Blunt;
     [InspectorName("반격 허용")]
     [Tooltip("공격 대상이 반격 대응을 선택할 수 있는지 결정합니다.")]
     [SerializeField] private bool canCounter = true;
@@ -237,6 +240,7 @@ public class MonsterAIAction
     public StatType ModifierStat => modifierStat;
     public StatusEffectType StatusType => statusType;
     public DamageType DamageType => damageType;
+    public DamageFormType DamageForm => damageForm;
     public bool CanCounter => canCounter;
     public bool AllowCritical => allowCritical;
 }

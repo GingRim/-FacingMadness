@@ -13,12 +13,62 @@ MonoBehaviour:
   m_Name: Kitchen_knifeCard
   m_EditorClassIdentifier: Assembly-CSharp::CardData
   cardName: "\uC2DD\uCE7C"
-  description: 
-  illustration: {fileID: 0}
+  description: "\uB0A0\uC774 \uC798\uC120 \uC2DD\uCE7C.<br><size=25>1D4+3 \uAE30\uBCF8
+    \uD53C\uD574"
+  illustration: {fileID: -3263160663554243183, guid: 7cfc7f6c2c0d17a42b35020bc0dd3189, type: 3}
+  icon: {fileID: 157187950588838309, guid: b4eaa9b0406a6f64889347927adece9d, type: 3}
+  deckCapacityStat: 1
   color: 6
+  cardGrade: 1
   isOneUse: 0
   keywords: 04000000
   baseDurability: 10
+  colorlessDamage:
+    fixedValue: 0
+    diceCount: 1
+    diceType: 1
+  colorlessArmor:
+    fixedValue: 0
+    diceCount: 1
+    diceType: 1
+  useCustomKeywordCombatEffects: 1
+  keywordCombatEffects:
+  - useCost: 1
+    target: 2
+    recipient: 1
+    effectType: 1
+    damageType: 1
+    damageForm: 1
+    statusType: 0
+    value:
+      fixedValue: 4
+      diceCount: 1
+      diceType: 1
+  attackStyles:
+  - icon: {fileID: 0}
+    displayName: 
+    description: 
+    scalingStat: 0
+    requiresStatCheck: 0
+    checkTarget: 5
+    damageType: 1
+    damageForm: 1
+    damage:
+      fixedValue: 0
+      diceCount: 0
+      diceType: 0
+  - icon: {fileID: 0}
+    displayName: 
+    description: 
+    scalingStat: 0
+    requiresStatCheck: 0
+    checkTarget: 5
+    damageType: 1
+    damageForm: 1
+    damage:
+      fixedValue: 0
+      diceCount: 0
+      diceType: 0
   magicCardType: 0
   forbiddenMagicCard: {fileID: 0}
   attackMagicCard: {fileID: 0}

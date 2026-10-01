@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.UI;
 
 public class UI_LoadingSceen : UI_ScreenBase, IOpenable, IProgress<int>, IStatus<string>
 {

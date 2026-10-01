@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 19c9993005e45ef4e865ec99be88310b, type: 3}
+  m_Name: A_Dream_of_SoupZ
+  m_EditorClassIdentifier: Assembly-CSharp::FieldCardDataCondition
+  requiredCard: {fileID: 11400000, guid: 6382e62db629c20489e8415ac9b8e7e0, type: 2}
+  requirement: 1
+  requiredAmount: 1

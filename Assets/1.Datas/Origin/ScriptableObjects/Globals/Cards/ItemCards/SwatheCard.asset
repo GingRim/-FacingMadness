@@ -12,13 +12,39 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9858d2e9e5cc0c049aa504bf5f5b25f7, type: 3}
   m_Name: SwatheCard
   m_EditorClassIdentifier: Assembly-CSharp::CardData
-  cardName: "\uBD95\uB300"
-  description: 
-  illustration: {fileID: 0}
+  cardName: "<size=18.5>\uC624\uC5FC\uB418\uC9C0 \uC54A\uC740 \uBD95\uB300"
+  description: "<size=20>\uC624\uC5FC\uB418\uC9C0 \uC54A\uC740 \uAE54\uB054\uD55C
+    \uBD95\uB300.<br>2D4+2 \uC0DD\uBA85\uB825 \uD68C\uBCF5"
+  illustration: {fileID: 6022540703457439708, guid: d429c7316cf97304a8809fa48dfde901, type: 3}
+  icon: {fileID: 1996827795143146157, guid: 5805309b7f124734d827ba88868bb15a, type: 3}
+  deckCapacityStat: 3
   color: 6
+  cardGrade: 1
   isOneUse: 0
   keywords: 07000000
   baseDurability: 3
+  colorlessDamage:
+    fixedValue: 0
+    diceCount: 0
+    diceType: 0
+  colorlessArmor:
+    fixedValue: 0
+    diceCount: 1
+    diceType: 1
+  useCustomKeywordCombatEffects: 1
+  keywordCombatEffects:
+  - useCost: 1
+    target: 0
+    recipient: 0
+    effectType: 2
+    damageType: 0
+    damageForm: 4
+    statusType: 0
+    value:
+      fixedValue: 2
+      diceCount: 2
+      diceType: 1
+  attackStyles: []
   magicCardType: 0
   forbiddenMagicCard: {fileID: 0}
   attackMagicCard: {fileID: 0}

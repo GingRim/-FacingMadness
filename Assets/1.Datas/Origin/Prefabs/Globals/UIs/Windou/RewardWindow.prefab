@@ -162,8 +162,8 @@ GameObject:
   - component: {fileID: 4702558885728260341}
   - component: {fileID: 2539355491967282355}
   - component: {fileID: 9111837628158656520}
-  - component: {fileID: 7844323528620182924}
   - component: {fileID: 4451602567940094364}
+  - component: {fileID: 3672078752758654169}
   m_Layer: 5
   m_Name: RewardWindow
   m_TagString: Untagged
@@ -231,18 +231,6 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &7844323528620182924
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3528445791403767993}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a759d82dd958fd341b7c5cae57ff949d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UI_RewardWindow
 --- !u!114 &4451602567940094364
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -255,6 +243,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 888c128999c0eb442a1b8ef8ba62b139, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UI_PullUpWindow
+--- !u!114 &3672078752758654169
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3528445791403767993}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4c4d8ddb519c9f34a8661139a118bb2b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UI_RewardWindow
 --- !u!1 &6063483201653596436
 GameObject:
   m_ObjectHideFlags: 0
@@ -650,7 +650,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 7844323528620182924}
+      - m_Target: {fileID: 3672078752758654169}
         m_TargetAssemblyTypeName: UI_RewardWindow, Assembly-CSharp
         m_MethodName: Close
         m_Mode: 1

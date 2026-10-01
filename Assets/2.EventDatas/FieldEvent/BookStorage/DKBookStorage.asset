@@ -1,0 +1,136 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eda405cbcf5af0841a71b53f8add7b42, type: 3}
+  m_Name: DKBookStorage
+  m_EditorClassIdentifier: Assembly-CSharp::FieldEventData
+  eventId: DKBookStorage_0
+  eventName: "\uC9C4\uC785"
+  eventType: 2
+  description: "\uC0C8\uB85C\uC6B4 \uACF5\uAC04\uC5D0 \uC9C4\uC785\uD558\uACE0\uC790
+    \uD55C\uB2E4."
+  eventImage: {fileID: -5192146429223839966, guid: 03af6b09aaac336479d4101e67236e4a, type: 3}
+  displayType: 0
+  maximumVisibleChoices: 5
+  choices:
+  - choiceId: DKBookStorage_0_0
+    choiceText: "\uD6D1\uC5B4\uBCF4\uAE30"
+    choiceIcon: {fileID: 0}
+    choiceType: 2
+    actionType: 1
+    usageType: 0
+    nextPage: {fileID: 0}
+    executionType: 0
+    requiredStat: 0
+    requiredCardKeyword: 0
+    target: 0
+    conditions:
+    - {fileID: 11400000, guid: cd2d26d3dbd9c134fb77023f062461de, type: 2}
+    allowsIgnition: 0
+    showKnownMemoryTitlesOnSuccess: 0
+    successResult:
+      description: "<size=70>\uBB38\uC744 \uC5F4\uACE0 \uC8FC\uBCC0\uC744 \uB458\uB7EC\uBCF4\uC790<br>\uBCF4\uC774\uB294
+        \uAC83\uC740 \uAC01 \uBCBD\uBA74\uC5D0 \uAC00\uB4DD<br>\uC2F8\uC778 \uCC45\uACFC
+        \uAC00\uC6B4\uB370 \uD0DC\uC774\uBE14\uC774<br>\uBCF4\uC785\uB2C8\uB2E4."
+      effects:
+      - {fileID: 11400000, guid: 058f3a4b179763245909c9a3c962f007, type: 2}
+      - {fileID: 11400000, guid: 70212d51a7134bdc9454d240a9a86d12, type: 2}
+      resultImage: {fileID: -6347488516664578547, guid: 93475169264aa6345b528afbee289415, type: 3}
+      redLineResult: 0
+    failureResult:
+      description: 
+      effects: []
+      resultImage: {fileID: 2383729432973304853, guid: 697a7767307dcfc448dbfec79c359749, type: 3}
+      redLineResult: 0
+    legacyCardRequirement:
+      requiresCard: 0
+      allowedColors: 
+      checkStat: 0
+  - choiceId: DKBookStorage_0_1
+    choiceText: "\uD2B9\uC774\uC810\uC744 \uCC3E\uC544 \uBCF8\uB2E4."
+    choiceIcon: {fileID: 0}
+    choiceType: 2
+    actionType: 1
+    usageType: 0
+    nextPage: {fileID: 0}
+    executionType: 1
+    requiredStat: 4
+    requiredCardKeyword: 0
+    target: 3
+    conditions: []
+    allowsIgnition: 0
+    showKnownMemoryTitlesOnSuccess: 0
+    successResult:
+      description: "<size=70>\uBB38\uC744 \uC5F4\uACE0 \uC8FC\uBCC0\uC744 \uB458\uB7EC\uBCF4\uC790<br>\uBCF4\uC774\uB294
+        \uAC83\uC740 \uAC01 \uBCBD\uBA74\uC5D0 \uAC00\uB4DD<br>\uC2F8\uC778 \uCC45\uACFC
+        \uAC00\uC6B4\uB370 \uD0DC\uC774\uBE14\uC774<br>\uBCF4\uC785\uB2C8\uB2E4.
+        <br><br>\uD0DC\uC774\uBE14 \uC704\uC5D0\uB294 \uC591\uCD08\uAC00<br>\uBCF4\uC785\uB2C8\uB2E4."
+      effects:
+      - {fileID: 11400000, guid: 058f3a4b179763245909c9a3c962f007, type: 2}
+      - {fileID: 11400000, guid: 70212d51a7134bdc9454d240a9a86d12, type: 2}
+      resultImage: {fileID: -6347488516664578547, guid: 93475169264aa6345b528afbee289415, type: 3}
+      redLineResult: 0
+    failureResult:
+      description: "<size=70>\uBB38\uC744 \uC5F4\uACE0 \uC8FC\uBCC0\uC744 \uB458\uB7EC\uBCF4\uC790<br>\uBCF4\uC774\uB294
+        \uAC83\uC740 \uAC01 \uBCBD\uBA74\uC5D0 \uAC00\uB4DD<br>\uC2F8\uC778 \uCC45\uACFC
+        \uAC00\uC6B4\uB370 \uD0DC\uC774\uBE14\uC774<br>\uBCF4\uC785\uB2C8\uB2E4."
+      effects:
+      - {fileID: 11400000, guid: 058f3a4b179763245909c9a3c962f007, type: 2}
+      - {fileID: 11400000, guid: 70212d51a7134bdc9454d240a9a86d12, type: 2}
+      resultImage: {fileID: -6347488516664578547, guid: 93475169264aa6345b528afbee289415, type: 3}
+      redLineResult: 0
+    legacyCardRequirement:
+      requiresCard: 0
+      allowedColors: 
+      checkStat: 0
+  - choiceId: DKBookStorage_0_2
+    choiceText: "\uC704\uD5D8\uC744 \uAC10\uC9C0\uD55C\uB2E4."
+    choiceIcon: {fileID: 0}
+    choiceType: 2
+    actionType: 1
+    usageType: 0
+    nextPage: {fileID: 0}
+    executionType: 1
+    requiredStat: 2
+    requiredCardKeyword: 0
+    target: 9
+    conditions: []
+    allowsIgnition: 0
+    showKnownMemoryTitlesOnSuccess: 0
+    successResult:
+      description: "<size=70>\uBB38\uC744 \uC5F4\uACE0 \uC8FC\uBCC0\uC744 \uB458\uB7EC\uBCF4\uC790<br>\uBCF4\uC774\uB294
+        \uAC83\uC740 \uAC01 \uBCBD\uBA74\uC5D0 \uAC00\uB4DD<br>\uC2F8\uC778 \uCC45\uACFC
+        \uAC00\uC6B4\uB370 \uD0DC\uC774\uBE14\uC774<br>\uBCF4\uC785\uB2C8\uB2E4.
+        <br><br>\uC65C? \uC778\uC9C0 \uBB38\uCABD\uC5D0\uC11C \uC2DC\uC120\uC774<br>\uB290\uAEF4\uC9D1\uB2C8\uB2E4."
+      effects:
+      - {fileID: 11400000, guid: 058f3a4b179763245909c9a3c962f007, type: 2}
+      - {fileID: 11400000, guid: 70212d51a7134bdc9454d240a9a86d12, type: 2}
+      resultImage: {fileID: -6347488516664578547, guid: 93475169264aa6345b528afbee289415, type: 3}
+      redLineResult: 0
+    failureResult:
+      description: "<size=70>\uBB38\uC744 \uC5F4\uACE0 \uC8FC\uBCC0\uC744 \uB458\uB7EC\uBCF4\uC790<br>\uBCF4\uC774\uB294
+        \uAC83\uC740 \uAC01 \uBCBD\uBA74\uC5D0 \uAC00\uB4DD<br>\uC2F8\uC778 \uCC45\uACFC
+        \uAC00\uC6B4\uB370 \uD0DC\uC774\uBE14\uC774<br>\uBCF4\uC785\uB2C8\uB2E4."
+      effects:
+      - {fileID: 11400000, guid: 058f3a4b179763245909c9a3c962f007, type: 2}
+      - {fileID: 11400000, guid: 70212d51a7134bdc9454d240a9a86d12, type: 2}
+      resultImage: {fileID: -6347488516664578547, guid: 93475169264aa6345b528afbee289415, type: 3}
+      redLineResult: 0
+    legacyCardRequirement:
+      requiresCard: 0
+      allowedColors: 
+      checkStat: 0
+  showOwnedMemos: 0
+  usageType: 0
+  openingConditions:
+  - {fileID: 11400000, guid: cd2d26d3dbd9c134fb77023f062461de, type: 2}
+  startingNodeId: 
+  legacyEntryData: {fileID: 11400000, guid: 29165a65ebfb5bc459d5f84d6c2f84e8, type: 2}

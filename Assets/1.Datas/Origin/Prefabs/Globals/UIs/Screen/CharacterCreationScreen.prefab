@@ -443,10 +443,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 5668998481567354354}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.07483153, y: 0.24100001}
-  m_AnchorMax: {x: 0.21176088, y: 0.39400002}
-  m_AnchoredPosition: {x: 0.25, y: 1.0201111}
-  m_SizeDelta: {x: -5, y: -9.6163}
+  m_AnchorMin: {x: 0.07745178, y: 0.24849014}
+  m_AnchorMax: {x: 0.21176088, y: 0.37532407}
+  m_AnchoredPosition: {x: 0.375, y: 0.080093384}
+  m_SizeDelta: {x: -0.75, y: 0.5039997}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7602457382969894862
 CanvasRenderer:
@@ -476,7 +476,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 1283685627, guid: 3c17f7f9bab8f4c49a7bfffe75198878, type: 3}
+  m_Sprite: {fileID: 4242121242999458264, guid: 7f17e516234c57e43913c24b4381e0bf, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -783,12 +783,12 @@ MonoBehaviour:
   researcherImage: {fileID: 1507270364297956030}
   religiousFanaticImage: {fileID: 1305049789890701121}
   CSprite: {fileID: 6029268320646912477, guid: d6fe62154ec84f94c83f0ffada762663, type: 3}
-  hunterdefaultSprite: {fileID: 381060796258283201, guid: 3c17f7f9bab8f4c49a7bfffe75198878, type: 3}
-  privateDetectivedefaultSprite: {fileID: -74817810, guid: 3c17f7f9bab8f4c49a7bfffe75198878, type: 3}
-  athletedefaultSprite: {fileID: 1475591713, guid: 3c17f7f9bab8f4c49a7bfffe75198878, type: 3}
+  hunterdefaultSprite: {fileID: 157187950588838309, guid: b4eaa9b0406a6f64889347927adece9d, type: 3}
+  privateDetectivedefaultSprite: {fileID: -8582269075439748243, guid: cf04ffd7d34a7414f9527d6fe72be0ae, type: 3}
+  athletedefaultSprite: {fileID: 1996827795143146157, guid: 5805309b7f124734d827ba88868bb15a, type: 3}
   researcherdefaultSprite: {fileID: 6029268320646912477, guid: d6fe62154ec84f94c83f0ffada762663, type: 3}
-  religiousFanaticdefaultSprite: {fileID: 1887279000, guid: 3c17f7f9bab8f4c49a7bfffe75198878, type: 3}
-  selectedSprite: {fileID: -366412305, guid: 7c98d7c48e7733b4a9139b6229cb0fc4, type: 3}
+  religiousFanaticdefaultSprite: {fileID: -5759254765554257322, guid: d97a4d146d082c64b9b0a49a1f9b16f9, type: 3}
+  selectedSprite: {fileID: 4242121242999458264, guid: 7f17e516234c57e43913c24b4381e0bf, type: 3}
 --- !u!1 &1804861962616925640
 GameObject:
   m_ObjectHideFlags: 0
@@ -2009,12 +2009,12 @@ MonoBehaviour:
   researcherImage: {fileID: 1507270364297956030}
   religiousFanaticImage: {fileID: 1305049789890701121}
   CSprite: {fileID: 2948816964973594876, guid: 34d8b24ab269df646ab6d3532ecca9cf, type: 3}
-  hunterdefaultSprite: {fileID: 381060796258283201, guid: 3c17f7f9bab8f4c49a7bfffe75198878, type: 3}
-  privateDetectivedefaultSprite: {fileID: -74817810, guid: 3c17f7f9bab8f4c49a7bfffe75198878, type: 3}
+  hunterdefaultSprite: {fileID: 157187950588838309, guid: b4eaa9b0406a6f64889347927adece9d, type: 3}
+  privateDetectivedefaultSprite: {fileID: -8582269075439748243, guid: cf04ffd7d34a7414f9527d6fe72be0ae, type: 3}
   athletedefaultSprite: {fileID: 2948816964973594876, guid: 34d8b24ab269df646ab6d3532ecca9cf, type: 3}
-  researcherdefaultSprite: {fileID: 1283685627, guid: 3c17f7f9bab8f4c49a7bfffe75198878, type: 3}
-  religiousFanaticdefaultSprite: {fileID: 1887279000, guid: 3c17f7f9bab8f4c49a7bfffe75198878, type: 3}
-  selectedSprite: {fileID: 1291668607, guid: 7c98d7c48e7733b4a9139b6229cb0fc4, type: 3}
+  researcherdefaultSprite: {fileID: 4242121242999458264, guid: 7f17e516234c57e43913c24b4381e0bf, type: 3}
+  religiousFanaticdefaultSprite: {fileID: -5759254765554257322, guid: d97a4d146d082c64b9b0a49a1f9b16f9, type: 3}
+  selectedSprite: {fileID: 1996827795143146157, guid: 5805309b7f124734d827ba88868bb15a, type: 3}
 --- !u!1 &4135617004849872514
 GameObject:
   m_ObjectHideFlags: 0
@@ -2548,10 +2548,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 5668998481567354354}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.07483153, y: 0.61569566}
+  m_AnchorMin: {x: 0.07483153, y: 0.62200004}
   m_AnchorMax: {x: 0.21176088, y: 0.7602684}
-  m_AnchoredPosition: {x: -0.25, y: 3.5202026}
-  m_SizeDelta: {x: -4.0000076, y: -2.6163025}
+  m_AnchoredPosition: {x: 0.875, y: -0.08580017}
+  m_SizeDelta: {x: -1.75, y: 0.17159986}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5730971804032112108
 CanvasRenderer:
@@ -2581,7 +2581,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -74817810, guid: 3c17f7f9bab8f4c49a7bfffe75198878, type: 3}
+  m_Sprite: {fileID: -8582269075439748243, guid: cf04ffd7d34a7414f9527d6fe72be0ae, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -2827,11 +2827,11 @@ MonoBehaviour:
   religiousFanaticImage: {fileID: 1305049789890701121}
   CSprite: {fileID: -4886558643550801336, guid: 31fa72d7887d130429513e198f2d4feb, type: 3}
   hunterdefaultSprite: {fileID: -4886558643550801336, guid: 31fa72d7887d130429513e198f2d4feb, type: 3}
-  privateDetectivedefaultSprite: {fileID: -74817810, guid: 3c17f7f9bab8f4c49a7bfffe75198878, type: 3}
-  athletedefaultSprite: {fileID: 1475591713, guid: 3c17f7f9bab8f4c49a7bfffe75198878, type: 3}
-  researcherdefaultSprite: {fileID: 1283685627, guid: 3c17f7f9bab8f4c49a7bfffe75198878, type: 3}
-  religiousFanaticdefaultSprite: {fileID: 1887279000, guid: 3c17f7f9bab8f4c49a7bfffe75198878, type: 3}
-  selectedSprite: {fileID: -7114508056241829067, guid: 9e1a1504ece2420458e678f2ae8b0b55, type: 3}
+  privateDetectivedefaultSprite: {fileID: -8582269075439748243, guid: cf04ffd7d34a7414f9527d6fe72be0ae, type: 3}
+  athletedefaultSprite: {fileID: 1996827795143146157, guid: 5805309b7f124734d827ba88868bb15a, type: 3}
+  researcherdefaultSprite: {fileID: 4242121242999458264, guid: 7f17e516234c57e43913c24b4381e0bf, type: 3}
+  religiousFanaticdefaultSprite: {fileID: -5759254765554257322, guid: d97a4d146d082c64b9b0a49a1f9b16f9, type: 3}
+  selectedSprite: {fileID: 157187950588838309, guid: b4eaa9b0406a6f64889347927adece9d, type: 3}
 --- !u!1 &6004985237034640306
 GameObject:
   m_ObjectHideFlags: 0
@@ -2864,10 +2864,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 5668998481567354354}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.07483153, y: 0.4177747}
-  m_AnchorMax: {x: 0.21176088, y: 0.5774878}
-  m_AnchoredPosition: {x: -0.25, y: 3.5682068}
-  m_SizeDelta: {x: -4, y: -7.1364}
+  m_AnchorMin: {x: 0.07483153, y: 0.42649013}
+  m_AnchorMax: {x: 0.20914063, y: 0.57000005}
+  m_AnchoredPosition: {x: 0.75, y: -0.16149902}
+  m_SizeDelta: {x: -2, y: -0.5958996}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8816509045988049673
 CanvasRenderer:
@@ -2897,7 +2897,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 1475591713, guid: 3c17f7f9bab8f4c49a7bfffe75198878, type: 3}
+  m_Sprite: {fileID: 1996827795143146157, guid: 5805309b7f124734d827ba88868bb15a, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -2939,10 +2939,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 5668998481567354354}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.07483153, y: 0.791}
-  m_AnchorMax: {x: 0.21176088, y: 0.9455123}
-  m_AnchoredPosition: {x: 0.25, y: 5.1743164}
-  m_SizeDelta: {x: -5, y: -3.9244003}
+  m_AnchorMin: {x: 0.07483153, y: 0.8135099}
+  m_AnchorMax: {x: 0.20914063, y: 0.93550986}
+  m_AnchoredPosition: {x: 1.25, y: 0.2762146}
+  m_SizeDelta: {x: -2.9998999, y: -0.02199936}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7306711469373303076
 CanvasRenderer:
@@ -2972,7 +2972,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 381060796258283201, guid: 3c17f7f9bab8f4c49a7bfffe75198878, type: 3}
+  m_Sprite: {fileID: 157187950588838309, guid: b4eaa9b0406a6f64889347927adece9d, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -3279,12 +3279,12 @@ MonoBehaviour:
   researcherImage: {fileID: 1507270364297956030}
   religiousFanaticImage: {fileID: 1305049789890701121}
   CSprite: {fileID: -5244834512796574130, guid: 80b3e582e6ee774499dd68bc7d3137c8, type: 3}
-  hunterdefaultSprite: {fileID: 381060796258283201, guid: 3c17f7f9bab8f4c49a7bfffe75198878, type: 3}
+  hunterdefaultSprite: {fileID: 157187950588838309, guid: b4eaa9b0406a6f64889347927adece9d, type: 3}
   privateDetectivedefaultSprite: {fileID: -5244834512796574130, guid: 80b3e582e6ee774499dd68bc7d3137c8, type: 3}
-  athletedefaultSprite: {fileID: 1475591713, guid: 3c17f7f9bab8f4c49a7bfffe75198878, type: 3}
-  researcherdefaultSprite: {fileID: 1283685627, guid: 3c17f7f9bab8f4c49a7bfffe75198878, type: 3}
-  religiousFanaticdefaultSprite: {fileID: 1887279000, guid: 3c17f7f9bab8f4c49a7bfffe75198878, type: 3}
-  selectedSprite: {fileID: -238173548, guid: 7c98d7c48e7733b4a9139b6229cb0fc4, type: 3}
+  athletedefaultSprite: {fileID: 1996827795143146157, guid: 5805309b7f124734d827ba88868bb15a, type: 3}
+  researcherdefaultSprite: {fileID: 4242121242999458264, guid: 7f17e516234c57e43913c24b4381e0bf, type: 3}
+  religiousFanaticdefaultSprite: {fileID: -5759254765554257322, guid: d97a4d146d082c64b9b0a49a1f9b16f9, type: 3}
+  selectedSprite: {fileID: -8582269075439748243, guid: cf04ffd7d34a7414f9527d6fe72be0ae, type: 3}
 --- !u!1 &6799357074611823206
 GameObject:
   m_ObjectHideFlags: 0
@@ -4002,10 +4002,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 5668998481567354354}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.07483153, y: 0.05810103}
-  m_AnchorMax: {x: 0.21176088, y: 0.20748779}
-  m_AnchoredPosition: {x: -0.25, y: 0.63549805}
-  m_SizeDelta: {x: -4, y: -8.8469}
+  m_AnchorMin: {x: 0.07745178, y: 0.06424507}
+  m_AnchorMax: {x: 0.21176088, y: 0.19379206}
+  m_AnchoredPosition: {x: -0.125, y: 0.40570068}
+  m_SizeDelta: {x: 0.25, y: 0.69349957}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &195873368907165588
 CanvasRenderer:
@@ -4035,7 +4035,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 1887279000, guid: 3c17f7f9bab8f4c49a7bfffe75198878, type: 3}
+  m_Sprite: {fileID: -5759254765554257322, guid: d97a4d146d082c64b9b0a49a1f9b16f9, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -4351,9 +4351,9 @@ MonoBehaviour:
   researcherImage: {fileID: 1507270364297956030}
   religiousFanaticImage: {fileID: 1305049789890701121}
   CSprite: {fileID: 8821791635549250771, guid: a35ed24b4d4d15c49856bf1de97ff8ff, type: 3}
-  hunterdefaultSprite: {fileID: 381060796258283201, guid: 3c17f7f9bab8f4c49a7bfffe75198878, type: 3}
-  privateDetectivedefaultSprite: {fileID: -74817810, guid: 3c17f7f9bab8f4c49a7bfffe75198878, type: 3}
-  athletedefaultSprite: {fileID: 1475591713, guid: 3c17f7f9bab8f4c49a7bfffe75198878, type: 3}
-  researcherdefaultSprite: {fileID: 1283685627, guid: 3c17f7f9bab8f4c49a7bfffe75198878, type: 3}
+  hunterdefaultSprite: {fileID: 157187950588838309, guid: b4eaa9b0406a6f64889347927adece9d, type: 3}
+  privateDetectivedefaultSprite: {fileID: -8582269075439748243, guid: cf04ffd7d34a7414f9527d6fe72be0ae, type: 3}
+  athletedefaultSprite: {fileID: 1996827795143146157, guid: 5805309b7f124734d827ba88868bb15a, type: 3}
+  researcherdefaultSprite: {fileID: 4242121242999458264, guid: 7f17e516234c57e43913c24b4381e0bf, type: 3}
   religiousFanaticdefaultSprite: {fileID: 8821791635549250771, guid: a35ed24b4d4d15c49856bf1de97ff8ff, type: 3}
-  selectedSprite: {fileID: 315445069, guid: 7c98d7c48e7733b4a9139b6229cb0fc4, type: 3}
+  selectedSprite: {fileID: -5759254765554257322, guid: d97a4d146d082c64b9b0a49a1f9b16f9, type: 3}

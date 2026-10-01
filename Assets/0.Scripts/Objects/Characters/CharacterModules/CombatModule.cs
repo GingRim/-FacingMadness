@@ -45,6 +45,13 @@ public class CombatModule : CharacterModule
 
         finalDamage = Mathf.Max(0, finalDamage);
 
+        // 플레이어는 항상 1배이며, 컨트롤러가 없는 몬스터에게만
+        // MonsterData에서 설정한 피해 형식 내성을 적용합니다.
+        finalDamage = ApplyMonsterResistance(
+            Owner,
+            finalDamage,
+            damageInfo.damageForm);
+
         Debug.Log($"1차 피해 보정 후: {finalDamage}");
 
         // 2. 대응 적용
@@ -89,7 +96,11 @@ public class CombatModule : CharacterModule
             // 3. 장갑 적용
             int beforeArmorDamage = finalDamage;
 
-            finalDamage = ApplyArmorReduction(Owner, finalDamage, damageInfo.damageType);
+            finalDamage = ApplyArmorReduction(
+                Owner,
+                finalDamage,
+                damageInfo.damageType,
+                damageInfo.damageForm);
 
             finalDamage = Mathf.Max(0, finalDamage);
 
@@ -195,6 +206,19 @@ public class CombatModule : CharacterModule
 
     private int ApplyArmorReduction(CharacterBase defender, int damage, DamageType damageType)
     {
+        return ApplyArmorReduction(
+            defender,
+            damage,
+            damageType,
+            DamageFormType.Blunt);
+    }
+
+    private int ApplyArmorReduction(
+        CharacterBase defender,
+        int damage,
+        DamageType damageType,
+        DamageFormType damageForm)
+    {
         ArmorModule armor = defender.GetModule<ArmorModule>();
 
         if (armor == null)
@@ -202,8 +226,33 @@ public class CombatModule : CharacterModule
 
         return armor.GetReducedDamage(
             damage,
-            damageType
+            damageType,
+            damageForm
         );
+    }
+
+    private int ApplyMonsterResistance(
+        CharacterBase defender,
+        int damage,
+        DamageFormType damageForm)
+    {
+        if (defender == null || defender.Controller != null || damage <= 0)
+            return damage;
+
+        DamageResistanceModule resistance =
+            defender.GetModule<DamageResistanceModule>();
+
+        if (resistance == null)
+            return damage;
+
+        float multiplier = resistance.GetMultiplier(damageForm);
+        int result = Mathf.Max(0, Mathf.RoundToInt(damage * multiplier));
+
+        Debug.Log(
+            $"{defender.DisplayName}: {damageForm} 내성 {multiplier:0.##}배 / " +
+            $"{damage} → {result}");
+
+        return result;
     }
 
     private void ResolveCounterDamage(CharacterBase defender, CharacterBase attacker)
@@ -241,6 +290,7 @@ public class CombatModule : CharacterModule
             highCritical = false,
 
             damageType = DamageType.Hand_to_hand_combat,
+            damageForm = DamageFormType.Blunt,
 
             canCounter = false,
             reactionType = ActionType.None
